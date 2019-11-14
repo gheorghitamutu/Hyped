@@ -7,6 +7,7 @@ https://en.wikipedia.org/wiki/Hyper-V
 https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/
 https://www.interopevents.com/uploads/917318-2_21_1130_State%20of%20Hyper-V%20API%20World.pdf
 https://docs.microsoft.com/ro-ro/windows/win32/hyperv_v2/windows-virtualization-portal
+https://blogs.msdn.microsoft.com/agileer/2013/05/17/the-correct-way-to-code-a-custom-exception-class/
 
 
 ## Examples (snapshots of code/repositories)
