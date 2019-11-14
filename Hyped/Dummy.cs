@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace Hyped
+﻿namespace Hyped
 {
     public class Dummy
-    {
+    {        
     }
 }
