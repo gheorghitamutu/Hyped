@@ -446,7 +446,7 @@ namespace Viridian.Machine
             return (string[])vmSettings["BootSourceOrder"];
         }
 
-        void SetBootOrderFromDevicePath(string serverName, string scopePath, string vmName, string devicePath)
+        public void SetBootOrderFromDevicePath(string serverName, string scopePath, string vmName, string devicePath)
         {
             var scope = GetScope(serverName, scopePath);
 
@@ -575,7 +575,7 @@ namespace Viridian.Machine
             return (bool)vmSettings["PauseAfterBootFailure"];
         }
 
-        public void SetPauseAfterBootFailure(string serverName, string scopePath, string vmName, string pauseAfterBootFailure)
+        public void SetPauseAfterBootFailure(string serverName, string scopePath, string vmName, bool pauseAfterBootFailure)
         {
             var scope = GetScope(serverName, scopePath);
 

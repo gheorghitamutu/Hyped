@@ -133,5 +133,88 @@ namespace ViridianTester
             sut.RequestStateChange(serverName, scopePath, vmName, Job.RequestedState.Off);
             sut.RemoveVm(serverName, scopePath, vmName);
         }
+
+        [TestMethod]
+        public void ViridianMachineJob_SetBootOrderFromDevicePath()
+        {
+            // Arrange
+            var vmName = "vm_test_set_boot_order_from_device_path";
+
+            // Act
+            var sut = new Job();
+            sut.CreateVm(serverName, scopePath, vmName, virtualSystemSubType);
+            var bootOrderList = sut.GetBootSourceOrderedList(serverName, scopePath, vmName);
+            // SetBootOrderByDevicePath()           
+
+            // Assert -> TODO: change the assertion when you add Storage related implementation (boot order list will be empty until then)
+            Assert.AreEqual(bootOrderList.Length, 0);
+            sut.RemoveVm(serverName, scopePath, vmName);
+        }
+
+        [TestMethod]
+        public void ViridianMachineJob_SetBootOrderByIndex()
+        {
+            // Arrange
+            var vmName = "vm_test_set_boot_order_by_index";
+
+            // Act
+            var sut = new Job();
+            sut.CreateVm(serverName, scopePath, vmName, virtualSystemSubType);
+            var bootOrderList = sut.GetBootSourceOrderedList(serverName, scopePath, vmName);
+            // SetBootOrderByIndex()           
+
+            // Assert -> TODO: change the assertion when you add Storage related implementation (boot order list will be empty until then)
+            Assert.AreEqual(bootOrderList.Length, 0);
+            sut.RemoveVm(serverName, scopePath, vmName);
+        }
+
+        [TestMethod]
+        public void ViridianMachineJob_SetNetworkBootPreferredProtocol()
+        {
+            // Arrange
+            var vmName = "vm_test_set_network_boot_preferred_protocol";
+
+            // Act
+            var sut = new Job();
+            sut.CreateVm(serverName, scopePath, vmName, virtualSystemSubType);
+            sut.SetNetworkBootPreferredProtocol(serverName, scopePath, vmName, Job.NetworkBootPreferredProtocol.IPv6);
+            var networkBootPreferredProtocol = sut.GetNetworkBootPreferredProtocol(serverName, scopePath, vmName);
+
+            // Assert
+            Assert.AreEqual(networkBootPreferredProtocol, Job.NetworkBootPreferredProtocol.IPv6);
+            sut.RemoveVm(serverName, scopePath, vmName);
+        }
+
+        [TestMethod]
+        public void ViridianMachineJob_SetPauseAfterBootFailure()
+        {
+            // Arrange
+            var vmName = "vm_test_set_pause_after_boot_failure";
+
+            // Act
+            var sut = new Job();
+            sut.CreateVm(serverName, scopePath, vmName, virtualSystemSubType);            
+            sut.SetPauseAfterBootFailure(serverName, scopePath, vmName, true);
+
+            // Assert
+            Assert.AreEqual(sut.GetPauseAfterBootFailure(serverName, scopePath, vmName), true);
+            sut.RemoveVm(serverName, scopePath, vmName);
+        }
+
+        [TestMethod]
+        public void ViridianMachineJob_SetSecureBoot()
+        {
+            // Arrange
+            var vmName = "vm_test_set_secure_boot";
+
+            // Act
+            var sut = new Job();
+            sut.CreateVm(serverName, scopePath, vmName, virtualSystemSubType);
+            sut.SetSecureBoot(serverName, scopePath, vmName, false);
+
+            // Assert
+            Assert.AreEqual(sut.GetSecureBoot(serverName, scopePath, vmName), false);
+            sut.RemoveVm(serverName, scopePath, vmName);
+        }
     }
 }
