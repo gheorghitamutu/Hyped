@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Management;
 using System.Threading;
 using Viridian.Exceptions;
@@ -7,9 +8,13 @@ using Viridian.Exceptions;
 namespace Viridian.Machine
 {
     // TODO: tests that are missing for the methods below
+    // TODO: tests for Boot region
 
     public class Job
     {
+
+        #region Enums
+
         public enum JobState : ushort
         {
             New = 2,
@@ -94,6 +99,16 @@ namespace Viridian.Machine
             public const string ReplicaSettings = "Microsoft:Hyper-V:Replica";
         }
 
+        public enum NetworkBootPreferredProtocol
+        {
+            IPv4 = 4096,
+            IPv6 = 4097
+        }
+
+        #endregion
+
+        #region Creation
+
         public void CreateVm(string serverName, string scopePath, string elementName, string virtualSystemSubtype)
         {
             var path = new ManagementPath() { Server = serverName, NamespacePath = @"\Root\Virtualization\V2", ClassName = "Msvm_VirtualSystemSettingData" };
@@ -165,6 +180,10 @@ namespace Viridian.Machine
             }
         }
 
+        #endregion
+
+        #region Backup
+
         public void SetIncrementalBackup(string serverName, string scopePath, string vmName, bool status)
         {
             var scope = new ManagementScope(new ManagementPath { Server = serverName, NamespacePath = scopePath }, null);
@@ -205,6 +224,10 @@ namespace Viridian.Machine
                 }
             }
         }
+
+        #endregion
+
+        #region Snapshots
 
         public void CreateSnapshot(string serverName, string scopePath, string vmName, SnapshotType snapshotType, bool saveMachineState)
         {
@@ -375,6 +398,10 @@ namespace Viridian.Machine
             }
         }
 
+        #endregion
+
+        #region State
+
         public void RequestStateChange(string serverName, string scopePath, string vmName, RequestedState requestedState)
         {
             var scope = new ManagementScope(new ManagementPath { Server = serverName, NamespacePath = scopePath }, null);
@@ -405,6 +432,197 @@ namespace Viridian.Machine
                 return (RequestedState)Enum.ToObject(typeof(RequestedState), virtualMachine["EnabledState"]);
             }
         }
+
+        #endregion
+
+        #region Boot
+
+        public string[] GetBootSourceOrderedList(string serverName, string scopePath, string vmName)
+        {
+            var scope = GetScope(serverName, scopePath);
+
+            var vmSettings = GetVirtualMachineSettings(vmName, scope);
+
+            return (string[])vmSettings["BootSourceOrder"];
+        }
+
+        void SetBootOrderFromDevicePath(string serverName, string scopePath, string vmName, string devicePath)
+        {
+            var scope = GetScope(serverName, scopePath);
+
+            var systemSettings = GetVirtualMachineSettings(vmName, scope);
+
+            if (systemSettings["BootSourceOrder"] is string[] prevBootOrder)
+            {
+                var bootSourceOrder = new string[prevBootOrder.Length];
+
+                // Rebuild the order with the specified entry first
+
+                var index = 1;
+                foreach (var bootSource in prevBootOrder)
+                {
+                    var bootSourcePath = new ManagementPath(bootSource);
+
+                    using (var entryObject = new ManagementObject(bootSourcePath))
+                    {
+                        var bootSourceDevicePath = entryObject["FirmwareDevicePath"].ToString();
+
+                        if (string.Equals(devicePath, bootSourceDevicePath, StringComparison.OrdinalIgnoreCase))
+                        {
+                            bootSourceOrder[0] = bootSource;
+                        }
+                        else
+                        {
+                            bootSourceOrder[index++] = bootSource;
+                        }
+                    }
+                }
+
+                systemSettings["BootSourceOrder"] = bootSourceOrder;
+            }
+
+            var service = GetVirtualMachineManagementService(scope);
+
+            var inParams = service.GetMethodParameters("ModifySystemSettings");
+
+            inParams["SystemSettings"] = systemSettings.GetText(TextFormat.WmiDtd20);
+
+            var outParams = service.InvokeMethod("ModifySystemSettings", inParams, null);
+
+            ValidateOutput(outParams, scope);
+        }
+
+        public void SetBootOrderByIndex(string serverName, string scopePath, string vmName, uint[] order)
+        {
+            var scope = GetScope(serverName, scopePath);
+
+            var systemSettings = GetVirtualMachineSettings(vmName, scope);
+
+            var previousBootSourceOrder = systemSettings["BootSourceOrder"] as string[];
+
+            if (previousBootSourceOrder != null && order.Length > previousBootSourceOrder.Length)
+                throw new ViridianException("Too many boot devices specified!");
+
+            if (order.Any(indexBootSource => previousBootSourceOrder != null && indexBootSource > previousBootSourceOrder.Length))
+                throw new ViridianException("Invalid boot device index specified!");
+
+            if (previousBootSourceOrder != null)
+            {
+                var newBootSourceOrder = new string[previousBootSourceOrder.Length];
+
+                // Rebuild the order
+                uint countReorderedBootSources = 0;
+
+                foreach (var indexBootSource in order)
+                    newBootSourceOrder[countReorderedBootSources++] = previousBootSourceOrder[indexBootSource];
+
+                for (uint index = 0; index < previousBootSourceOrder.Length; index++)
+                {
+                    var isReordered = order.Any(reorderedIndex => index == reorderedIndex);
+
+                    if (!isReordered)
+                        newBootSourceOrder[countReorderedBootSources++] = previousBootSourceOrder[index];
+                }
+
+                systemSettings["BootSourceOrder"] = newBootSourceOrder;
+            }
+
+            var vmms = GetVirtualMachineManagementService(scope);
+
+            var inParams = vmms.GetMethodParameters("ModifySystemSettings");
+
+            inParams["SystemSettings"] = systemSettings.GetText(TextFormat.WmiDtd20);
+
+            var outParams = vmms.InvokeMethod("ModifySystemSettings", inParams, null);
+
+            ValidateOutput(outParams, scope);
+        }
+
+        public NetworkBootPreferredProtocol GetNetworkBootPreferredProtocol(string serverName, string scopePath, string vmName)
+        {
+            var scope = GetScope(serverName, scopePath);
+
+            var vmSettings = GetVirtualMachineSettings(vmName, scope);
+
+            return (NetworkBootPreferredProtocol)Enum.ToObject(typeof(NetworkBootPreferredProtocol), vmSettings["NetworkBootPreferredProtocol"]);
+        }
+
+        public void SetNetworkBootPreferredProtocol(string serverName, string scopePath, string vmName, NetworkBootPreferredProtocol networkBootPreferredProtocol)
+        {
+            var scope = GetScope(serverName, scopePath);
+
+            var systemSettings = GetVirtualMachineSettings(vmName, scope);
+
+            systemSettings["NetworkBootPreferredProtocol"] = networkBootPreferredProtocol;
+
+            var service = GetVirtualMachineManagementService(scope);
+
+            var inParams = service.GetMethodParameters("ModifySystemSettings");
+
+            inParams["SystemSettings"] = systemSettings.GetText(TextFormat.WmiDtd20);
+
+            var outParams = service.InvokeMethod("ModifySystemSettings", inParams, null);
+
+            ValidateOutput(outParams, scope);
+        }
+        
+        public bool GetPauseAfterBootFailure(string serverName, string scopePath, string vmName)
+        {
+            var scope = GetScope(serverName, scopePath);
+
+            var vmSettings = GetVirtualMachineSettings(vmName, scope);
+
+            return (bool)vmSettings["PauseAfterBootFailure"];
+        }
+
+        public void SetPauseAfterBootFailure(string serverName, string scopePath, string vmName, string pauseAfterBootFailure)
+        {
+            var scope = GetScope(serverName, scopePath);
+
+            var systemSettings = GetVirtualMachineSettings(vmName, scope);
+            
+            systemSettings["PauseAfterBootFailure"] = pauseAfterBootFailure;
+
+            var service = GetVirtualMachineManagementService(scope);
+
+            var inParams = service.GetMethodParameters("ModifySystemSettings");
+
+            inParams["SystemSettings"] = systemSettings.GetText(TextFormat.WmiDtd20);
+
+            var outParams = service.InvokeMethod("ModifySystemSettings", inParams, null);
+
+            ValidateOutput(outParams, scope);
+        }
+
+        public bool GetSecureBoot(string serverName, string scopePath, string vmName)
+        {
+            var scope = GetScope(serverName, scopePath);
+
+            var vmSettings = GetVirtualMachineSettings(vmName, scope);
+
+            return (bool)vmSettings["SecureBootEnabled"];
+        }
+
+        public void SetSecureBoot(string serverName, string scopePath, string vmName, bool secureBootEnabled)
+        {
+            var scope = GetScope(serverName, scopePath);
+
+            var systemSettings = GetVirtualMachineSettings(vmName, scope);
+
+            systemSettings["SecureBootEnabled"] = secureBootEnabled;
+
+            var service = GetVirtualMachineManagementService(scope);
+
+            var inParams = service.GetMethodParameters("ModifySystemSettings");
+
+            inParams["SystemSettings"] = systemSettings.GetText(TextFormat.WmiDtd20);
+
+            var outParams = service.InvokeMethod("ModifySystemSettings", inParams, null);
+
+            ValidateOutput(outParams, scope);
+        }
+
+        #endregion
 
         #region Utilities
 
