@@ -42,11 +42,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Machine\Job.cs" />
+    <Compile Include="Job\Validator.cs" />
+    <Compile Include="Machine\VM.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Exception\ViridianException.cs" />
+    <Compile Include="Resources\Msvm\ResourceAllocationSettingData.cs" />
+    <Compile Include="Resources\Msvm\ResourcePoolConfiguration.cs" />
+    <Compile Include="Resources\Msvm\ResourcePool.cs" />
+    <Compile Include="Resources\Msvm\ResourcePoolSettingData.cs" />
     <Compile Include="Storage\Handle\SafeHandle.cs" />
     <Compile Include="Storage\Native\NativeAPI.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Storage\Virtual\Floppy\" />
+    <Folder Include="Storage\Virtual\Hard\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -9,42 +9,10 @@ namespace Viridian.Machine
 {
     // TODO: tests that are missing for the methods below
 
-    public class Job
+    public class VM
     {
         #region Enums
-
-        public enum JobState : ushort
-        {
-            New = 2,
-            Starting = 3,
-            Running = 4,
-            Suspended = 5,
-            ShuttingDown = 6,
-            Completed = 7,
-            Terminated = 8,
-            Killed = 9,
-            Exception = 10,
-            Service = 11,
-            CompletedWithWarnings = 32768
-        }
-
-        public static class ReturnCode
-        {
-            public const uint Completed = 0;
-            public const uint Started = 4096;
-            public const uint Failed = 32768;
-            public const uint AccessDenied = 32769;
-            public const uint NotSupported = 32770;
-            public const uint Unknown = 32771;
-            public const uint Timeout = 32772;
-            public const uint InvalidParameter = 32773;
-            public const uint SystemInUse = 32774;
-            public const uint InvalidState = 32775;
-            public const uint IncorrectDataType = 32776;
-            public const uint SystemNotAvailable = 32777;
-            public const uint OutofMemory = 32778;
-        }
-
+        
         public enum SnapshotType
         {
             Full = 2,
@@ -136,7 +104,7 @@ namespace Viridian.Machine
 
                         using (var outParams = service.InvokeMethod("DefineSystem", inParams, null))
                         {
-                            ValidateOutput(outParams, scope);
+                            Job.Validator.ValidateOutput(outParams, scope);
                         }
                     }
                 }
@@ -171,7 +139,7 @@ namespace Viridian.Machine
 
                         using (ManagementBaseObject outParams = vmms.InvokeMethod("DestroySystem", inParams, null))
                         {
-                            ValidateOutput(outParams, scope);
+                            Job.Validator.ValidateOutput(outParams, scope);
                         }
                     }
                 }
@@ -203,7 +171,7 @@ namespace Viridian.Machine
 
                         using (var outParams = service.InvokeMethod("ModifySystemSettings", inParams, null))
                         {
-                            ValidateOutput(outParams, scope);
+                            Job.Validator.ValidateOutput(outParams, scope);
                         }
                     }
                 }
@@ -274,7 +242,7 @@ namespace Viridian.Machine
 
                         using (var outParams = service.InvokeMethod("CreateSnapshot", inParams, null))
                         {
-                            ValidateOutput(outParams, scope);
+                            Job.Validator.ValidateOutput(outParams, scope);
 
                             if (saveMachineState)
                                 RequestStateChange(serverName, scopePath, vmName, RequestedState.Running);
@@ -345,7 +313,7 @@ namespace Viridian.Machine
 
                             using (var outParams = virtualSystemSnapshotService.InvokeMethod("ApplySnapshot", inParams, null))
                             {
-                                ValidateOutput(outParams, scope);
+                                Job.Validator.ValidateOutput(outParams, scope);
                             }
                         }
                     }
@@ -414,7 +382,7 @@ namespace Viridian.Machine
                     {
                         using (var outParams = virtualMachine.InvokeMethod("RequestStateChange", inParams, null))
                         {
-                            ValidateOutput(outParams, scope);
+                            Job.Validator.ValidateOutput(outParams, scope);
                         }
                     }
                 }
@@ -487,7 +455,7 @@ namespace Viridian.Machine
 
             var outParams = service.InvokeMethod("ModifySystemSettings", inParams, null);
 
-            ValidateOutput(outParams, scope);
+            Job.Validator.ValidateOutput(outParams, scope);
         }
 
         public void SetBootOrderByIndex(string serverName, string scopePath, string vmName, uint[] order)
@@ -533,7 +501,7 @@ namespace Viridian.Machine
 
             var outParams = vmms.InvokeMethod("ModifySystemSettings", inParams, null);
 
-            ValidateOutput(outParams, scope);
+            Job.Validator.ValidateOutput(outParams, scope);
         }
 
         public NetworkBootPreferredProtocol GetNetworkBootPreferredProtocol(string serverName, string scopePath, string vmName)
@@ -561,7 +529,7 @@ namespace Viridian.Machine
 
             var outParams = service.InvokeMethod("ModifySystemSettings", inParams, null);
 
-            ValidateOutput(outParams, scope);
+            Job.Validator.ValidateOutput(outParams, scope);
         }
         
         public bool GetPauseAfterBootFailure(string serverName, string scopePath, string vmName)
@@ -589,7 +557,7 @@ namespace Viridian.Machine
 
             var outParams = service.InvokeMethod("ModifySystemSettings", inParams, null);
 
-            ValidateOutput(outParams, scope);
+            Job.Validator.ValidateOutput(outParams, scope);
         }
 
         public bool GetSecureBoot(string serverName, string scopePath, string vmName)
@@ -617,85 +585,12 @@ namespace Viridian.Machine
 
             var outParams = service.InvokeMethod("ModifySystemSettings", inParams, null);
 
-            ValidateOutput(outParams, scope);
+            Job.Validator.ValidateOutput(outParams, scope);
         }
 
         #endregion
 
         #region Utilities
-
-        private void ValidateOutput(ManagementBaseObject outputParameters, ManagementScope scope)
-        {
-            var errorMessage = "The method call failed!";
-
-            if ((uint)outputParameters["ReturnValue"] == ReturnCode.Started)
-            {
-                // The method invoked an asynchronous operation. Get the Job object
-                // and wait for it to complete. Then we can check its result.
-
-                using (var job = new ManagementObject(outputParameters["Job"] as string) { Scope = scope })
-                {
-                    var jobState = IsJobComplete(job["JobState"]);
-
-                    if (jobState && IsJobSuccessful(job["JobState"]))
-                        return;
-
-                    while (!jobState)
-                    {
-                        Thread.Sleep(TimeSpan.FromSeconds(1));
-                        job.Get();
-                        jobState = IsJobComplete(job["JobState"]);
-                    }
-
-                    if (IsJobSuccessful(job["JobState"]))
-                        return;
-
-                    if (!string.IsNullOrEmpty(job["ErrorDescription"] as string))
-                        errorMessage = (string)job["ErrorDescription"];
-
-                    var errors = GetMsvmErrorsList(job);
-                    if (errors.Length > 0)
-                        throw new ViridianException(errorMessage, errors, new ManagementException());
-
-                    else if ((uint)outputParameters["ReturnValue"] != ReturnCode.Completed)
-                    {
-                        errorMessage = $"The method call failed! Error code {(uint)outputParameters["ReturnValue"]}";
-                        throw new ViridianException(errorMessage, new ManagementException());
-                    }
-                }
-            }
-        }
-
-        private bool IsJobComplete(object jobStateObj)
-        {
-            var jobState = (JobState)((ushort)jobStateObj);
-
-            return (jobState == JobState.Completed) || (jobState == JobState.CompletedWithWarnings) || (jobState == JobState.Terminated) || (jobState == JobState.Exception) || (jobState == JobState.Killed);
-        }
-
-        private bool IsJobSuccessful(object jobStateObj)
-        {
-            var jobState = (JobState)((ushort)jobStateObj);
-
-            return (jobState == JobState.Completed) || (jobState == JobState.CompletedWithWarnings);
-        }
-
-        private string[] GetMsvmErrorsList(ManagementObject job)
-        {
-            var inParams = job.GetMethodParameters("GetErrorEx");
-            var outParams = job.InvokeMethod("GetErrorEx", inParams, null);
-
-            if (outParams != null && (uint)outParams["ReturnValue"] != ReturnCode.Completed)
-                throw new ViridianException("GetErrorEx() call on the job failed!", new ManagementException());
-
-            if (outParams == null)
-                return new string[0];
-
-            if (outParams["Errors"] is string[] == false)            
-                return new string[0];            
-
-            return (string[])outParams["Errors"];
-        }
 
         private ManagementObject GetVMFirstObject(string name, string className, ManagementScope scope)
         {
