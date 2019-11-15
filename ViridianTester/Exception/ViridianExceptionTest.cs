@@ -57,7 +57,7 @@ namespace ViridianTester
         }
 
         [TestMethod]
-        public void ViridianException_serialization_deserialization_test()
+        public void ViridianException_serialization_deserialization()
         {
             // Arrange
             var innerEx = new Exception("inner");
