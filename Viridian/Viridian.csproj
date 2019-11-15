@@ -45,6 +45,8 @@
     <Compile Include="Machine\Job.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Exception\ViridianException.cs" />
+    <Compile Include="Storage\Handle\SafeHandle.cs" />
+    <Compile Include="Storage\Native\NativeAPI.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

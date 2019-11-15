@@ -8,11 +8,9 @@ using Viridian.Exceptions;
 namespace Viridian.Machine
 {
     // TODO: tests that are missing for the methods below
-    // TODO: tests for Boot region
 
     public class Job
     {
-
         #region Enums
 
         public enum JobState : ushort
