@@ -15,3 +15,6 @@ https://blogs.msdn.microsoft.com/sergeim/2008/06/03/prepare-vm-create-vm-program
 https://blogs.technet.microsoft.com/richard_macdonald/2008/08/11/programming-hyper-v-with-wmi-and-c-getting-started/ - API v1
 https://github.com/microsoft/Windows-classic-samples/tree/master/Samples/Hyper-V/Generation2VM - API v2
 https://github.com/AlexsJones/HyperVRemote - API v2
+https://docs.microsoft.com/ro-ro/previous-versions/windows/desktop/virtual/common-utilities-for-the-virtualization-samples - API v1
+https://docs.microsoft.com/en-us/windows/win32/hyperv_v2/windows-virtualization-portal - API v2
+https://docs.microsoft.com/en-us/windows/win32/hyperv_v2/common-utilities-for-the-virtualization-samples-v2 - API v2
