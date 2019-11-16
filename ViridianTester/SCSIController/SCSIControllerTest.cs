@@ -25,8 +25,10 @@ namespace ViridianTester
             var sut = new SCSIController();
             sut.AddToVm(serverName, scopePath, vmName);
 
+            var scsiControllers = Utils.GetResourcesByTypeAndSubtype(vmName, Utils.GetScope(serverName, scopePath), Utils.GetResourceType("ScsiHBA"), Utils.GetResourceSubType("ScsiHBA"));
+
             // Assert
-            Assert.AreEqual(Utils.GetResourcePools("6", "Microsoft:Hyper-V:Synthetic SCSI Controller", Utils.GetScope(serverName, scopePath)).Count, 1);
+            Assert.AreEqual(scsiControllers.Count, 1);
             vm.RemoveVm(serverName, scopePath, vmName);
         }
     }

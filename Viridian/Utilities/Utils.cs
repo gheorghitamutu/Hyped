@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using System.Management;
 using Viridian.Exceptions;
-using Viridian.Resources.Msvm;
 
 namespace Viridian.Utilities
 {
@@ -209,6 +208,28 @@ namespace Viridian.Utilities
             var hostResourceArray = delimitedString.Split(dimension1Delimiter, StringSplitOptions.RemoveEmptyEntries);
 
             return hostResourceArray.Select(resource => resource.Split(dimension2Delimiter, StringSplitOptions.RemoveEmptyEntries)).ToArray();
+        }
+               
+        public static List<ManagementObject> GetResourcesByTypeAndSubtype(string vmName, ManagementScope scope, string resourceType, string resourceSubtype)
+        {
+            var resources = new List<ManagementObject>();
+            using (var virtualMachine = GetVirtualMachine(vmName, scope))
+            {
+                using (var settingsCollection = virtualMachine.GetRelated("Msvm_VirtualSystemSettingData", null, null, null, null, null, false, null))
+                {
+                    var settings = GetFirstObjectFromCollection(settingsCollection);
+                    using (var resourceCollection = settings.GetRelated("Msvm_ResourceAllocationSettingData", null, null, null, null, null, false, null))
+                    {
+                        foreach (ManagementObject resource in resourceCollection)
+                        {
+                            if (resource["ResourceType"].ToString() == resourceType && resource["ResourceSubType"].ToString() == resourceSubtype)
+                                resources.Add(resource);
+                        }
+                    }
+                }
+            }
+
+            return resources;
         }
     }
 }
