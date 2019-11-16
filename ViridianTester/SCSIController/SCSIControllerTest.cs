@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Management;
 using Viridian.Machine;
 using Viridian.Resources;
 using Viridian.Utilities;

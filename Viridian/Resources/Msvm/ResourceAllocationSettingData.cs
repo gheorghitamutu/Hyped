@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Management;
-using Viridian.Exceptions;
 using Viridian.Utilities;
 
 namespace Viridian.Resources.Msvm

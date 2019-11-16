@@ -101,8 +101,7 @@ namespace Viridian.Resources.Msvm
 
         public void ModifyPoolResourcesHelper(ManagementScope scope, ManagementObject configurationService, string resourceType, string resourceSubType, string poolId, string[] parentPoolIdArray, string[][] parentHostResourcesArray)
         {
-            var pool = new ResourcePool();
-            var poolPath = pool.GetResourcePoolPath(scope, resourceType, resourceSubType, poolId);
+            var poolPath = Utils.GetResourcePoolPath(scope, resourceType, resourceSubType, poolId);
 
             ModifyPoolResourcesByPath(scope, configurationService, resourceType, resourceSubType, poolPath, parentPoolIdArray, parentHostResourcesArray);
         }
@@ -141,8 +140,7 @@ namespace Viridian.Resources.Msvm
 
         public void ModifyPoolSettingsHelper(ManagementScope scope, ManagementObject configurationService, string resourceType, string resourceSubType, string poolId, string resourcePoolSettingData)
         {
-            var pool = new ResourcePool();
-            var poolPath = pool.GetResourcePoolPath(scope, resourceType, resourceSubType, poolId);
+            var poolPath = Utils.GetResourcePoolPath(scope, resourceType, resourceSubType, poolId);
 
             ModifyPoolSettingsByPath(scope, configurationService, poolPath, resourcePoolSettingData);
         }
@@ -162,11 +160,9 @@ namespace Viridian.Resources.Msvm
 
         public void DeletePoolHelper(ManagementScope scope, ManagementObject configurationService, string resourceType, string resourceSubType, string poolId)
         {
-            var pool = new ResourcePool().GetResourcePoolPath(scope, resourceType, resourceSubType, poolId);
-
             using (var inParams = configurationService.GetMethodParameters("DeletePool"))
             {
-                inParams["Pool"] = pool;
+                inParams["Pool"] = Utils.GetResourcePoolPath(scope, resourceType, resourceSubType, poolId);
 
                 using (var outParams = configurationService.InvokeMethod("DeletePool", inParams, null))
                 {

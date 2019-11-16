@@ -1,5 +1,4 @@
-﻿using System;
-using System.Management;
+﻿using System.Management;
 using Viridian.Exceptions;
 using Viridian.Utilities;
 

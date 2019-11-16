@@ -1,7 +1,5 @@
-﻿using System.Linq;
-using System.Management;
+﻿using System.Management;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Viridian.Exceptions;
 using Viridian.Machine;
 
 namespace ViridianTester

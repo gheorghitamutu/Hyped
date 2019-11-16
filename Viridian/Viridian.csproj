@@ -48,7 +48,6 @@
     <Compile Include="Exception\ViridianException.cs" />
     <Compile Include="Resources\Msvm\ResourceAllocationSettingData.cs" />
     <Compile Include="Resources\Msvm\ResourcePoolConfiguration.cs" />
-    <Compile Include="Resources\Msvm\ResourcePool.cs" />
     <Compile Include="Resources\Msvm\ResourcePoolSettingData.cs" />
     <Compile Include="Resources\SCSIController.cs" />
     <Compile Include="Storage\Handle\SafeHandle.cs" />

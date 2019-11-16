@@ -166,6 +166,14 @@ namespace Viridian.Utilities
             }
         }
 
+        public static string GetResourcePoolPath(ManagementScope scope, string resourceType, string resourceSubType, string poolId)
+        {
+            using (var pool = Utils.GetResourcePool(resourceType, resourceSubType, poolId, scope))
+            {
+                return pool.Path.Path;
+            }
+        }
+
         public static string GetResourceType(string displayName)
         {
             foreach (var resource in ResourceTypeInformation)
@@ -186,7 +194,7 @@ namespace Viridian.Utilities
 
         public static string[] GetParentPoolArrayFromPoolIds(ManagementScope scope, string resourceType, string resourceSubType, IEnumerable<string> poolIdArray)
         {
-            return poolIdArray.Select(poolId => new ResourcePool().GetResourcePoolPath(scope, resourceType, resourceSubType, poolId)).ToArray();
+            return poolIdArray.Select(poolId => GetResourcePoolPath(scope, resourceType, resourceSubType, poolId)).ToArray();
         }
 
         public static string[] GetOneDimensionalArray(string delimitedString, string[] delimiter)
