@@ -53,6 +53,7 @@
     <Compile Include="Machine\ViridianMachineVMTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Exception\ViridianExceptionTest.cs" />
+    <Compile Include="SCSIController\SCSIControllerTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

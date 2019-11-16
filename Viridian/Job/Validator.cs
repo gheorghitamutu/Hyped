@@ -50,7 +50,7 @@ namespace Viridian.Job
 
                 using (var job = new ManagementObject(outputParameters["Job"] as string) { Scope = scope })
                 {
-                    var jobState = IsJobComplete(job["JobState"]);
+                    var jobState = IsJobEnded(job["JobState"]);
 
                     if (jobState && IsJobSuccessful(job["JobState"]))
                         return;
@@ -59,7 +59,7 @@ namespace Viridian.Job
                     {
                         Thread.Sleep(TimeSpan.FromSeconds(1));
                         job.Get();
-                        jobState = IsJobComplete(job["JobState"]);
+                        jobState = IsJobEnded(job["JobState"]);
                     }
 
                     if (IsJobSuccessful(job["JobState"]))
@@ -82,11 +82,16 @@ namespace Viridian.Job
             }
         }
 
-        public static bool IsJobComplete(object jobStateObj)
+        public static bool IsJobEnded(object jobStateObj)
         {
             var jobState = (JobState)((ushort)jobStateObj);
 
-            return (jobState == JobState.Completed) || (jobState == JobState.CompletedWithWarnings) || (jobState == JobState.Terminated) || (jobState == JobState.Exception) || (jobState == JobState.Killed);
+            return 
+                jobState == JobState.Completed || 
+                jobState == JobState.CompletedWithWarnings || 
+                jobState == JobState.Terminated || 
+                jobState == JobState.Exception || 
+                jobState == JobState.Killed;
         }
 
         public static bool IsJobSuccessful(object jobStateObj)

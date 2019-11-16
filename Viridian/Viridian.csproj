@@ -50,8 +50,10 @@
     <Compile Include="Resources\Msvm\ResourcePoolConfiguration.cs" />
     <Compile Include="Resources\Msvm\ResourcePool.cs" />
     <Compile Include="Resources\Msvm\ResourcePoolSettingData.cs" />
+    <Compile Include="Resources\SCSIController.cs" />
     <Compile Include="Storage\Handle\SafeHandle.cs" />
     <Compile Include="Storage\Native\NativeAPI.cs" />
+    <Compile Include="Utilities\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Storage\Virtual\Floppy\" />

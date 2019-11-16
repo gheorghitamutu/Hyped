@@ -4,6 +4,7 @@ using System.Linq;
 using System.Management;
 using System.Threading;
 using Viridian.Exceptions;
+using Viridian.Utilities;
 
 namespace Viridian.Machine
 {
@@ -79,7 +80,7 @@ namespace Viridian.Machine
         {
             var path = new ManagementPath() { Server = serverName, NamespacePath = @"\Root\Virtualization\V2", ClassName = "Msvm_VirtualSystemSettingData" };
 
-            var scope = GetScope(serverName, scopePath);
+            var scope = Utils.GetScope(serverName, scopePath);
 
             using (var virtualSystemSettingClass = new ManagementClass(path) { Scope = scope })
             {
@@ -96,7 +97,7 @@ namespace Viridian.Machine
 
                 using (var virtualSystemManagementServiceCollection = new ManagementClass("Msvm_VirtualSystemManagementService") { Scope = scope })
                 {
-                    ManagementObject service = GetFirstObjectFromCollection(virtualSystemManagementServiceCollection.GetInstances());
+                    ManagementObject service = Utils.GetFirstObjectFromCollection(virtualSystemManagementServiceCollection.GetInstances());
 
                     using (var inParams = service.GetMethodParameters("DefineSystem"))
                     {
@@ -113,7 +114,7 @@ namespace Viridian.Machine
 
         public ManagementObjectCollection GetVmCollection(string serverName, string scopePath)
         {
-            var scope = GetScope(serverName, scopePath);
+            var scope = Utils.GetScope(serverName, scopePath);
 
             var vmQueryWql = $"SELECT * FROM Msvm_ComputerSystem";
 
@@ -129,9 +130,9 @@ namespace Viridian.Machine
         {
             var scope = new ManagementScope(new ManagementPath { Server = serverName, NamespacePath = scopePath }, null);
 
-            using (ManagementObject pvm = GetVirtualMachine(elementName, scope))
+            using (ManagementObject pvm = Utils.GetVirtualMachine(elementName, scope))
             {
-                using (ManagementObject vmms = GetVirtualMachineManagementService(scope))
+                using (ManagementObject vmms = Utils.GetVirtualMachineManagementService(scope))
                 {
                     using (ManagementBaseObject inParams = vmms.GetMethodParameters("DestroySystem"))
                     {
@@ -154,9 +155,9 @@ namespace Viridian.Machine
         {
             var scope = new ManagementScope(new ManagementPath { Server = serverName, NamespacePath = scopePath }, null);
 
-            using (var systemSettings = GetVirtualMachineSettings(vmName, scope))
+            using (var systemSettings = Utils.GetVirtualMachineSettings(vmName, scope))
             {
-                using (var service = GetVirtualMachineManagementService(scope))
+                using (var service = Utils.GetVirtualMachineManagementService(scope))
                 { 
                     var isIncrementalBackupEnabled = (bool)systemSettings["IncrementalBackupEnabled"];
 
@@ -182,9 +183,9 @@ namespace Viridian.Machine
         {
             var scope = new ManagementScope(new ManagementPath { Server = serverName, NamespacePath = scopePath }, null);
 
-            using (var systemSettings = GetVirtualMachineSettings(vmName, scope))
+            using (var systemSettings = Utils.GetVirtualMachineSettings(vmName, scope))
             {
-                using (var service = GetVirtualMachineManagementService(scope))
+                using (var service = Utils.GetVirtualMachineManagementService(scope))
                 {
                     return (bool)systemSettings["IncrementalBackupEnabled"];
                 }
@@ -205,9 +206,9 @@ namespace Viridian.Machine
             if (snapshotType == SnapshotType.Recovery) 
                 SetIncrementalBackup(serverName, scopePath, vmName, true);
  
-            using (var affectedSystem = GetVirtualMachine(vmName, scope))
+            using (var affectedSystem = Utils.GetVirtualMachine(vmName, scope))
             {
-                using (var service = GetVirtualMachineSnapshotService(scope))
+                using (var service = Utils.GetVirtualMachineSnapshotService(scope))
                 {
                     using (var inParams = service.GetMethodParameters("CreateSnapshot"))
                     {
@@ -220,7 +221,7 @@ namespace Viridian.Machine
                         if (snapshotType == SnapshotType.Recovery)
                         {
                             // querying this class -> a collection that has just one element with ConsistencyLevel = 1
-                            var snapshotSettings = GetServiceObject(scope, "Msvm_VirtualSystemSnapshotSettingData");
+                            var snapshotSettings = Utils.GetServiceObject(scope, "Msvm_VirtualSystemSnapshotSettingData");
                             if (snapshotSettings != null)
                                 inParams["SnapshotSettings"] = snapshotSettings.GetText(TextFormat.CimDtd20);
 
@@ -254,9 +255,9 @@ namespace Viridian.Machine
 
         public List<ManagementObject> GetSnapshotList(string serverName, string scopePath, string vmName, string virtualSystemTypeName)
         {
-            var scope = GetScope(serverName, scopePath);
+            var scope = Utils.GetScope(serverName, scopePath);
 
-            using (var vm = GetVirtualMachine(vmName, scope))
+            using (var vm = Utils.GetVirtualMachine(vmName, scope))
             {
                 using (var settingsCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
                 {
@@ -277,11 +278,11 @@ namespace Viridian.Machine
 
         public void ApplySnapshot(string serverName, string scopePath, string vmName, string snapshotName)
         {
-            var scope = GetScope(serverName, scopePath);
+            var scope = Utils.GetScope(serverName, scopePath);
 
-            using (var vm = GetVirtualMachine(vmName, scope))
+            using (var vm = Utils.GetVirtualMachine(vmName, scope))
             {
-                using (var virtualSystemSnapshotService = GetVirtualMachineSnapshotService(scope))
+                using (var virtualSystemSnapshotService = Utils.GetVirtualMachineSnapshotService(scope))
                 {
                     using (var snapshotCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
                     {
@@ -323,15 +324,15 @@ namespace Viridian.Machine
 
         public ManagementObject GetLastAppliedSnapshot(string serverName, string scopePath, string vmName)
         {
-            var scope = GetScope(serverName, scopePath);
+            var scope = Utils.GetScope(serverName, scopePath);
 
-            using (var vm = GetVirtualMachine(vmName, scope))
+            using (var vm = Utils.GetVirtualMachine(vmName, scope))
             {
-                using (var virtualSystemSnapshotService = GetVirtualMachineSnapshotService(scope))
+                using (var virtualSystemSnapshotService = Utils.GetVirtualMachineSnapshotService(scope))
                 {
                     using (var lastAppliedSnapshotCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_LastAppliedSnapshot", null, null, null, null, false, null))
                     {
-                        return GetFirstObjectFromCollection(lastAppliedSnapshotCollection);
+                        return Utils.GetFirstObjectFromCollection(lastAppliedSnapshotCollection);
                     }
                 }
             }
@@ -339,15 +340,15 @@ namespace Viridian.Machine
 
         public ManagementObject GetLastCreatedSnapshot(string serverName, string scopePath, string vmName)
         {
-            var scope = GetScope(serverName, scopePath);
+            var scope = Utils.GetScope(serverName, scopePath);
 
-            using (var vm = GetVirtualMachine(vmName, scope))
+            using (var vm = Utils.GetVirtualMachine(vmName, scope))
             {
-                using (var virtualSystemSnapshotService = GetVirtualMachineSnapshotService(scope))
+                using (var virtualSystemSnapshotService = Utils.GetVirtualMachineSnapshotService(scope))
                 {
                     using (var snapshotCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
                     {
-                        var lastSnapshotApplied = GetFirstObjectFromCollection(snapshotCollection); 
+                        var lastSnapshotApplied = Utils.GetFirstObjectFromCollection(snapshotCollection); 
 
                         foreach (var snapshot in snapshotCollection)
                         {
@@ -372,13 +373,13 @@ namespace Viridian.Machine
         {
             var scope = new ManagementScope(new ManagementPath { Server = serverName, NamespacePath = scopePath }, null);
 
-            using (var managementService = GetVirtualMachineManagementService(scope))
+            using (var managementService = Utils.GetVirtualMachineManagementService(scope))
             {
                 using (var inParams = managementService.GetMethodParameters("RequestStateChange"))
                 {
                     inParams["RequestedState"] = (uint)requestedState;
 
-                    using (var virtualMachine = GetVirtualMachine(vmName, scope))
+                    using (var virtualMachine = Utils.GetVirtualMachine(vmName, scope))
                     {
                         using (var outParams = virtualMachine.InvokeMethod("RequestStateChange", inParams, null))
                         {
@@ -393,7 +394,7 @@ namespace Viridian.Machine
         {
             var scope = new ManagementScope(new ManagementPath { Server = serverName, NamespacePath = scopePath }, null);
 
-            using (var virtualMachine = GetVirtualMachine(vmName, scope))
+            using (var virtualMachine = Utils.GetVirtualMachine(vmName, scope))
             {
                 return (RequestedState)Enum.ToObject(typeof(RequestedState), virtualMachine["EnabledState"]);
             }
@@ -405,18 +406,18 @@ namespace Viridian.Machine
 
         public string[] GetBootSourceOrderedList(string serverName, string scopePath, string vmName)
         {
-            var scope = GetScope(serverName, scopePath);
+            var scope = Utils.GetScope(serverName, scopePath);
 
-            var vmSettings = GetVirtualMachineSettings(vmName, scope);
+            var vmSettings = Utils.GetVirtualMachineSettings(vmName, scope);
 
             return (string[])vmSettings["BootSourceOrder"];
         }
 
         public void SetBootOrderFromDevicePath(string serverName, string scopePath, string vmName, string devicePath)
         {
-            var scope = GetScope(serverName, scopePath);
+            var scope = Utils.GetScope(serverName, scopePath);
 
-            var systemSettings = GetVirtualMachineSettings(vmName, scope);
+            var systemSettings = Utils.GetVirtualMachineSettings(vmName, scope);
 
             if (systemSettings["BootSourceOrder"] is string[] prevBootOrder)
             {
@@ -447,7 +448,7 @@ namespace Viridian.Machine
                 systemSettings["BootSourceOrder"] = bootSourceOrder;
             }
 
-            var service = GetVirtualMachineManagementService(scope);
+            var service = Utils.GetVirtualMachineManagementService(scope);
 
             var inParams = service.GetMethodParameters("ModifySystemSettings");
 
@@ -460,9 +461,9 @@ namespace Viridian.Machine
 
         public void SetBootOrderByIndex(string serverName, string scopePath, string vmName, uint[] order)
         {
-            var scope = GetScope(serverName, scopePath);
+            var scope = Utils.GetScope(serverName, scopePath);
 
-            var systemSettings = GetVirtualMachineSettings(vmName, scope);
+            var systemSettings = Utils.GetVirtualMachineSettings(vmName, scope);
 
             var previousBootSourceOrder = systemSettings["BootSourceOrder"] as string[];
 
@@ -493,7 +494,7 @@ namespace Viridian.Machine
                 systemSettings["BootSourceOrder"] = newBootSourceOrder;
             }
 
-            var vmms = GetVirtualMachineManagementService(scope);
+            var vmms = Utils.GetVirtualMachineManagementService(scope);
 
             var inParams = vmms.GetMethodParameters("ModifySystemSettings");
 
@@ -506,22 +507,22 @@ namespace Viridian.Machine
 
         public NetworkBootPreferredProtocol GetNetworkBootPreferredProtocol(string serverName, string scopePath, string vmName)
         {
-            var scope = GetScope(serverName, scopePath);
+            var scope = Utils.GetScope(serverName, scopePath);
 
-            var vmSettings = GetVirtualMachineSettings(vmName, scope);
+            var vmSettings = Utils.GetVirtualMachineSettings(vmName, scope);
 
             return (NetworkBootPreferredProtocol)Enum.ToObject(typeof(NetworkBootPreferredProtocol), vmSettings["NetworkBootPreferredProtocol"]);
         }
 
         public void SetNetworkBootPreferredProtocol(string serverName, string scopePath, string vmName, NetworkBootPreferredProtocol networkBootPreferredProtocol)
         {
-            var scope = GetScope(serverName, scopePath);
+            var scope = Utils.GetScope(serverName, scopePath);
 
-            var systemSettings = GetVirtualMachineSettings(vmName, scope);
+            var systemSettings = Utils.GetVirtualMachineSettings(vmName, scope);
 
             systemSettings["NetworkBootPreferredProtocol"] = networkBootPreferredProtocol;
 
-            var service = GetVirtualMachineManagementService(scope);
+            var service = Utils.GetVirtualMachineManagementService(scope);
 
             var inParams = service.GetMethodParameters("ModifySystemSettings");
 
@@ -534,22 +535,22 @@ namespace Viridian.Machine
         
         public bool GetPauseAfterBootFailure(string serverName, string scopePath, string vmName)
         {
-            var scope = GetScope(serverName, scopePath);
+            var scope = Utils.GetScope(serverName, scopePath);
 
-            var vmSettings = GetVirtualMachineSettings(vmName, scope);
+            var vmSettings = Utils.GetVirtualMachineSettings(vmName, scope);
 
             return (bool)vmSettings["PauseAfterBootFailure"];
         }
 
         public void SetPauseAfterBootFailure(string serverName, string scopePath, string vmName, bool pauseAfterBootFailure)
         {
-            var scope = GetScope(serverName, scopePath);
+            var scope = Utils.GetScope(serverName, scopePath);
 
-            var systemSettings = GetVirtualMachineSettings(vmName, scope);
+            var systemSettings = Utils.GetVirtualMachineSettings(vmName, scope);
             
             systemSettings["PauseAfterBootFailure"] = pauseAfterBootFailure;
 
-            var service = GetVirtualMachineManagementService(scope);
+            var service = Utils.GetVirtualMachineManagementService(scope);
 
             var inParams = service.GetMethodParameters("ModifySystemSettings");
 
@@ -562,22 +563,22 @@ namespace Viridian.Machine
 
         public bool GetSecureBoot(string serverName, string scopePath, string vmName)
         {
-            var scope = GetScope(serverName, scopePath);
+            var scope = Utils.GetScope(serverName, scopePath);
 
-            var vmSettings = GetVirtualMachineSettings(vmName, scope);
+            var vmSettings = Utils.GetVirtualMachineSettings(vmName, scope);
 
             return (bool)vmSettings["SecureBootEnabled"];
         }
 
         public void SetSecureBoot(string serverName, string scopePath, string vmName, bool secureBootEnabled)
         {
-            var scope = GetScope(serverName, scopePath);
+            var scope = Utils.GetScope(serverName, scopePath);
 
-            var systemSettings = GetVirtualMachineSettings(vmName, scope);
+            var systemSettings = Utils.GetVirtualMachineSettings(vmName, scope);
 
             systemSettings["SecureBootEnabled"] = secureBootEnabled;
 
-            var service = GetVirtualMachineManagementService(scope);
+            var service = Utils.GetVirtualMachineManagementService(scope);
 
             var inParams = service.GetMethodParameters("ModifySystemSettings");
 
@@ -586,81 +587,6 @@ namespace Viridian.Machine
             var outParams = service.InvokeMethod("ModifySystemSettings", inParams, null);
 
             Job.Validator.ValidateOutput(outParams, scope);
-        }
-
-        #endregion
-
-        #region Utilities
-
-        private ManagementObject GetVMFirstObject(string name, string className, ManagementScope scope)
-        {
-            var vmQueryWql = $"SELECT * FROM {className} WHERE ElementName=\"{name}\"";
-
-            var vmQuery = new SelectQuery(vmQueryWql);
-
-            using (var vmSearcher = new ManagementObjectSearcher(scope, vmQuery))
-            {
-                return GetFirstObjectFromCollection(vmSearcher.Get());
-            }
-        }
-
-        private ManagementObject GetVirtualMachine(string name, ManagementScope scope) => GetVMFirstObject(name, "Msvm_ComputerSystem", scope);
-
-        private ManagementScope GetScope(string serverName, string scopePath) => new ManagementScope(new ManagementPath { Server = serverName, NamespacePath = scopePath }, null);
-        
-        private ManagementObject GetVirtualMachineManagementService(ManagementScope scope)
-        {
-            using (ManagementClass managementServiceClass = new ManagementClass("Msvm_VirtualSystemManagementService"))
-            {
-                managementServiceClass.Scope = scope;
-
-                ManagementObject managementService = GetFirstObjectFromCollection(managementServiceClass.GetInstances());
-
-                return managementService;
-            }
-        }
-
-        private ManagementObject GetFirstObjectFromCollection(ManagementObjectCollection collection)
-        {
-            if (collection.Count == 0)
-            {
-                throw new ViridianException("The collection contains no objects!");
-            }
-
-            foreach (ManagementObject managementObject in collection)
-            {
-                return managementObject;
-            }
-
-            return null;
-        }
-
-        private ManagementObject GetVirtualMachineSettings(string vmName, ManagementScope scope)
-        {
-            using (var virtualMachine = GetVirtualMachine(vmName, scope))
-            {
-                using (var settingsCollection = virtualMachine.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SettingsDefineState", null, null, null, null, false, null))
-                {
-                    return GetFirstObjectFromCollection(settingsCollection);
-                }
-            }
-        }
-
-        private ManagementObject GetVirtualMachineSnapshotService(ManagementScope scope)
-        {
-            using (var virtualSystemSnapshotServiceCollection = new ManagementClass("Msvm_VirtualSystemSnapshotService") { Scope = scope })
-            {
-                return GetFirstObjectFromCollection(virtualSystemSnapshotServiceCollection.GetInstances());
-            }
-        }
-
-        private ManagementObject GetServiceObject(ManagementScope scope, string serviceName)
-        {
-            var wmiPath = new ManagementPath(serviceName);
-            using (var serviceClass = new ManagementClass(scope, wmiPath, null))
-            {
-                return GetFirstObjectFromCollection(serviceClass.GetInstances());
-            }
         }
 
         #endregion
