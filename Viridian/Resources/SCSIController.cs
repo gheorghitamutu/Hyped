@@ -1,5 +1,6 @@
 ﻿using System.Management;
 using Viridian.Job;
+using Viridian.Machine;
 using Viridian.Resources.Msvm;
 using Viridian.Utilities;
 
@@ -7,36 +8,25 @@ namespace Viridian.Resources
 {
     public class SCSIController
     {
-        public void AddToVm(string serverName, string scopePath, string vmName)
+        public void AddToVm(VM vm)
         {
-            var scope = Utils.GetScope(serverName, scopePath);
+            var scope = Utils.GetScope(vm.ServerName, vm.ScopePath);
 
             using (var vmms = Utils.GetVirtualMachineManagementService(scope))
+            using (var resourcePool = Utils.GetWmiObject(scope, "Msvm_ResourcePool", "ResourceSubType = 'Microsoft:Hyper-V:Synthetic SCSI Controller' and Primordial = True"))
+            using (var rasd = ResourceAllocationSettingData.GetPrototypeAllocationSettings(resourcePool, "0", "0"))
+            using (var rasdClone = rasd.Clone() as ManagementObject)
             {
-                using (var resourcePool = Utils.GetWmiObject(scope, "Msvm_ResourcePool", "ResourceSubType = 'Microsoft:Hyper-V:Synthetic SCSI Controller' and Primordial = True"))
+                rasdClone["Parent"] = null;
+
+                using (var vms = Utils.GetVirtualMachineSettings(vm.VmName, scope))
+                using (var ip = vmms.GetMethodParameters("AddResourceSettings"))
                 {
-                    var rasd = new ResourceAllocationSettingData();
-                    using (var pas = rasd.GetPrototypeAllocationSettings(resourcePool, "0", "0"))
-                    {
-                        using (var resourceSettings = pas.Clone() as ManagementObject)
-                        {
-                            resourceSettings["Parent"] = null;
+                    ip["AffectedConfiguration"] = vms;
+                    ip["ResourceSettings"] = new[] { rasdClone.GetText(TextFormat.WmiDtd20) };
 
-                            using (var inParams = vmms.GetMethodParameters("AddResourceSettings"))
-                            {
-                                using (var affectedConfiguration = Utils.GetVirtualMachineSettings(vmName, scope))
-                                {
-                                    inParams["AffectedConfiguration"] = affectedConfiguration;
-                                    inParams["ResourceSettings"] = new[] { resourceSettings.GetText(TextFormat.WmiDtd20) };
-
-                                    using (var outParams = vmms.InvokeMethod("AddResourceSettings", inParams, null))
-                                    {
-                                        Validator.ValidateOutput(outParams, scope);
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    using (var op = vmms.InvokeMethod("AddResourceSettings", ip, null))
+                        Validator.ValidateOutput(op, scope);
                 }
             }
         }

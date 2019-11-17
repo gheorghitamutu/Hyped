@@ -19,17 +19,20 @@ namespace ViridianTester
             var vmName = "vm_test_add_scsi_controller_to_vm";
 
             // Act
-            var vm = new VM();
-            vm.CreateVm(serverName, scopePath, vmName, virtualSystemSubType);
+            var vm = new VM(serverName, scopePath, vmName, virtualSystemSubType);
+            vm.CreateVm();
 
             var sut = new SCSIController();
-            sut.AddToVm(serverName, scopePath, vmName);
+            sut.AddToVm(vm);
 
-            var scsiControllers = Utils.GetResourcesByTypeAndSubtype(vmName, Utils.GetScope(serverName, scopePath), Utils.GetResourceType("ScsiHBA"), Utils.GetResourceSubType("ScsiHBA"));
+            var scope = Utils.GetScope(serverName, scopePath);
+            var rt = Utils.GetResourceType("ScsiHBA");
+            var rst = Utils.GetResourceSubType("ScsiHBA");
+            var scsiControllers = Utils.GetResourcesByTypeAndSubtype(vmName, scope, rt, rst);
 
             // Assert
             Assert.AreEqual(scsiControllers.Count, 1);
-            vm.RemoveVm(serverName, scopePath, vmName);
+            vm.RemoveVm();
         }
     }
 }

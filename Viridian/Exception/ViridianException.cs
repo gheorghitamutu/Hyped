@@ -30,65 +30,67 @@ namespace Viridian.Exceptions
 
         public ViridianException(string message, string[] messages, Exception inner)
         {
-            if (inner is ManagementException)
+            if (inner is ManagementException == false)
+                return;
+
+            Console.WriteLine("Main error message: {0}\n", message);
+            Console.WriteLine("Detailed errors: \n");
+
+            if (messages == null)
+                return;
+
+            foreach (var error in messages)
             {
-                Console.WriteLine("Main error message: {0}\n", message);
+                var errorSource = string.Empty;
+                var errorMessage = string.Empty;
+                var propId = 0;
 
-                Console.WriteLine("Detailed errors: \n");
-
-                foreach (var error in messages)
+                using (var reader = XmlReader.Create(new StringReader(error)))
                 {
-                    var errorSource = string.Empty;
-                    var errorMessage = string.Empty;
-                    var propId = 0;
-
-                    using (var reader = XmlReader.Create(new StringReader(error)))
+                    while (reader.Read())
                     {
-                        while (reader.Read())
+                        if (reader.Name.Equals("PROPERTY", StringComparison.OrdinalIgnoreCase))
                         {
-                            if (reader.Name.Equals("PROPERTY", StringComparison.OrdinalIgnoreCase))
-                            {
-                                propId = 0;
+                            propId = 0;
 
-                                if (!reader.HasAttributes)
-                                    continue;
+                            if (!reader.HasAttributes)
+                                continue;
 
-                                var propName = reader.GetAttribute(0);
+                            var propName = reader.GetAttribute(0);
 
-                                if (propName == null)
-                                    continue;
+                            if (propName == null)
+                                continue;
 
-                                if (propName.Equals("ErrorSource", StringComparison.OrdinalIgnoreCase))
-                                    propId = 1;
-                                else if (propName.Equals("Message", StringComparison.OrdinalIgnoreCase))
-                                    propId = 2;
-                            }
-                            else if (reader.Name.Equals("VALUE", StringComparison.OrdinalIgnoreCase))
-                            {
-                                switch (propId)
-                                {
-                                    case 1:
-                                        errorSource = reader.ReadElementContentAsString();
-                                        break;
-                                    case 2:
-                                        errorMessage = reader.ReadElementContentAsString();
-                                        break;
-                                    default:
-                                        errorMessage = reader.ReadElementContentAsString();
-                                        break;
-                                }
-
-                                propId = 0;
-                            }
-                            else
-                            {
-                                propId = 0;
-                            }
+                            if (propName.Equals("ErrorSource", StringComparison.OrdinalIgnoreCase))
+                                propId = 1;
+                            else if (propName.Equals("Message", StringComparison.OrdinalIgnoreCase))
+                                propId = 2;
                         }
+                        else if (reader.Name.Equals("VALUE", StringComparison.OrdinalIgnoreCase))
+                        {
+                            switch (propId)
+                            {
+                                case 1:
+                                    errorSource = reader.ReadElementContentAsString();
+                                    break;
+                                case 2:
+                                    errorMessage = reader.ReadElementContentAsString();
+                                    break;
+                                default:
+                                    errorMessage = reader.ReadElementContentAsString();
+                                    break;
+                            }
 
-                        Console.WriteLine("Error Message: {0}\n", errorMessage);
-                        Console.WriteLine("Error Source:  {0}\n", errorSource);
+                            propId = 0;
+                        }
+                        else
+                        {
+                            propId = 0;
+                        }
                     }
+
+                    Console.WriteLine("Error Message: {0}\n", errorMessage);
+                    Console.WriteLine("Error Source:  {0}\n", errorSource);
                 }
             }
         }

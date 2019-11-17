@@ -7,7 +7,7 @@ namespace Viridian.Job
 {
     public static class Validator
     {
-        public enum JobState : ushort
+        private enum JobState : ushort
         {
             New = 2,
             Starting = 3,
@@ -22,7 +22,7 @@ namespace Viridian.Job
             CompletedWithWarnings = 32768
         }
 
-        public static class ReturnCode
+        private static class ReturnCode
         {
             public const uint Completed = 0;
             public const uint Started = 4096;
@@ -86,11 +86,11 @@ namespace Viridian.Job
         {
             var jobState = (JobState)((ushort)jobStateObj);
 
-            return 
-                jobState == JobState.Completed || 
-                jobState == JobState.CompletedWithWarnings || 
-                jobState == JobState.Terminated || 
-                jobState == JobState.Exception || 
+            return
+                jobState == JobState.Completed ||
+                jobState == JobState.CompletedWithWarnings ||
+                jobState == JobState.Terminated ||
+                jobState == JobState.Exception ||
                 jobState == JobState.Killed;
         }
 
@@ -103,19 +103,23 @@ namespace Viridian.Job
 
         public static string[] GetMsvmErrorsList(ManagementObject job)
         {
-            var inParams = job.GetMethodParameters("GetErrorEx");
-            var outParams = job.InvokeMethod("GetErrorEx", inParams, null);
+            if (job == null)
+                throw new ViridianException("Job object is null!");
 
-            if (outParams != null && (uint)outParams["ReturnValue"] != ReturnCode.Completed)
-                throw new ViridianException("GetErrorEx() call on the job failed!", new ManagementException());
+            using (var ip = job.GetMethodParameters("GetErrorEx"))
+            using (var op = job.InvokeMethod("GetErrorEx", ip, null))
+            {
+                if (op != null && (uint)op["ReturnValue"] != ReturnCode.Completed)
+                    throw new ViridianException("GetErrorEx() call on the job failed!", new ManagementException());
 
-            if (outParams == null)
-                return new string[0];
+                if (op == null)
+                    return Array.Empty<string>();
 
-            if (outParams["Errors"] is string[] == false)
-                return new string[0];
+                if (op["Errors"] is string[] == false)
+                    return Array.Empty<string>();
 
-            return (string[])outParams["Errors"];
+                return (string[])op["Errors"];
+            }
         }
     }
 }

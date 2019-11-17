@@ -5,76 +5,68 @@ using Viridian.Utilities;
 
 namespace Viridian.Resources.Msvm
 {
-    public class ResourceAllocationSettingData
+    public static class ResourceAllocationSettingData
     {
-        public ManagementObject GetAllocationSettings(ManagementScope scope, string resourceType, string resourceSubType, string poolId)
+        public static ManagementObject GetAllocationSettings(ManagementScope scope, string resourceType, string resourceSubType, string poolId)
         {
-            using (var pool = Utils.GetResourcePool(resourceType, resourceSubType, poolId, scope))
+            using (var rp = Utils.GetResourcePool(resourceType, resourceSubType, poolId, scope))
             {
-                if ((bool)pool.GetPropertyValue("Primordial"))
+                if ((bool)rp.GetPropertyValue("Primordial"))
                     return null;
 
-                using (var rasdCollection = pool.GetRelated("CIM_ResourceAllocationSettingData", "Msvm_SettingsDefineState", null, null, "SettingData", "ManagedElement", false, null))
-                {
+                using (var rasdCollection = rp.GetRelated("CIM_ResourceAllocationSettingData", "Msvm_SettingsDefineState", null, null, "SettingData", "ManagedElement", false, null))
                     if (rasdCollection.Count > 0) 
                         return Utils.GetFirstObjectFromCollection(rasdCollection);
-                }
             }
 
             return null;
         }
 
-        public string GetNewPoolAllocationSettings(ManagementScope scope, string resourceType, string resourceSubType, string poolId, IEnumerable hostResources)
+        public static string GetNewPoolAllocationSettings(ManagementScope scope, string resourceType, string resourceSubType, string poolId, IEnumerable hostResources)
         {
             using (var rasdClass = new ManagementClass("Msvm_ResourceAllocationSettingData") { Scope = scope })
             {
-                using (var rasdMob = rasdClass.CreateInstance())
+                using (var rasd = rasdClass.CreateInstance())
                 {
-                    if (rasdMob == null)
+                    if (rasd == null)
                         return "";
 
-                    rasdMob["ResourceType"] = resourceType;
+                    rasd["ResourceType"] = resourceType;
 
                     if (resourceType == "1")
                     {
-                        rasdMob["OtherResourceType"] = resourceSubType;
-                        rasdMob["ResourceSubType"] = string.Empty;
+                        rasd["OtherResourceType"] = resourceSubType;
+                        rasd["ResourceSubType"] = string.Empty;
                     }
                     else
                     {
-                        rasdMob["OtherResourceType"] = string.Empty;
-                        rasdMob["ResourceSubType"] = resourceSubType;
+                        rasd["OtherResourceType"] = string.Empty;
+                        rasd["ResourceSubType"] = resourceSubType;
                     }
 
-                    rasdMob["PoolId"] = poolId;
-                    rasdMob["HostResource"] = hostResources;
+                    rasd["PoolId"] = poolId;
+                    rasd["HostResource"] = hostResources;
 
-                    return rasdMob.GetText(TextFormat.WmiDtd20);
+                    return rasd.GetText(TextFormat.WmiDtd20);
                 }
             }
         }
 
-        public string[] GetNewPoolAllocationSettingsArray(ManagementScope scope, string resourceType, string resourceSubType, string[] poolIdArray, string[][] hostResourcesArray)
+        public static string[] GetNewPoolAllocationSettingsArray(ManagementScope scope, string resourceType, string resourceSubType, string[] poolIdArray, string[][] hostResourcesArray)
         {
             var rasdList = new List<string>();
 
-            for (uint index = 0; index < poolIdArray.Length; index++)
-                rasdList.Add(GetNewPoolAllocationSettings(scope, resourceType, resourceSubType, poolIdArray[index], hostResourcesArray[index]));
+            for (uint i = 0; i < poolIdArray.Length; i++)
+                rasdList.Add(GetNewPoolAllocationSettings(scope, resourceType, resourceSubType, poolIdArray[i], hostResourcesArray[i]));
             
             return rasdList.ToArray();
         }
 
-        public ManagementObject GetPrototypeAllocationSettings(ManagementObject pool, string valueRole, string valueRange)
+        public static ManagementObject GetPrototypeAllocationSettings(ManagementObject pool, string valueRole, string valueRange)
         {
             using (var capabilitiesCollection = pool.GetRelated("Msvm_AllocationCapabilities", "Msvm_ElementCapabilities", null, null, null, null, false, null))
-            {
                 foreach (ManagementObject capability in capabilitiesCollection)
-                {
-                    if (capability == null)
-                        continue;
-
                     using (var relationshipsCollection = capability.GetRelationships("Cim_SettingsDefineCapabilities"))
-                    {
                         foreach (ManagementObject relationship in relationshipsCollection)
                         {
                             if (relationship["ValueRole"].ToString() != valueRole || relationship["ValueRange"].ToString() != valueRange)
@@ -82,19 +74,16 @@ namespace Viridian.Resources.Msvm
 
                             return new ManagementObject(pool.Scope, new ManagementPath(relationship["PartComponent"].ToString()), null);
                         }
-                    }
-                }
 
-                return null;
-            }
+            return null;
         }
 
-        public ManagementObject GetDefaultAllocationSettings(ManagementObject pool) => GetPrototypeAllocationSettings(pool, "0", "0");
+        public static ManagementObject GetDefaultAllocationSettings(ManagementObject pool) => GetPrototypeAllocationSettings(pool, "0", "0");
 
-        public ManagementObject GetMinimumAllocationSettings(ManagementObject pool) => GetPrototypeAllocationSettings(pool, "3", "1");
+        public static ManagementObject GetMinimumAllocationSettings(ManagementObject pool) => GetPrototypeAllocationSettings(pool, "3", "1");
 
-        public ManagementObject GetMaximumAllocationSettings(ManagementObject pool) => GetPrototypeAllocationSettings(pool, "3", "2");
+        public static ManagementObject GetMaximumAllocationSettings(ManagementObject pool) => GetPrototypeAllocationSettings(pool, "3", "2");
 
-        public ManagementObject GetIncrementalAllocationSettings(ManagementObject pool) => GetPrototypeAllocationSettings(pool, "3", "3");
+        public static ManagementObject GetIncrementalAllocationSettings(ManagementObject pool) => GetPrototypeAllocationSettings(pool, "3", "3");
     }
 }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Management;
-using System.Threading;
 using Viridian.Exceptions;
 using Viridian.Utilities;
 
@@ -12,8 +11,23 @@ namespace Viridian.Machine
 
     public class VM
     {
+        public string ServerName { get; private set; }
+        public string ScopePath { get; private set; }
+        public ManagementScope Scope { get; private set; }
+        public string VmName { get; private set; }
+        public string VirtualSystemSubtype { get; private set; }
+
+        public VM(string serverName, string scopePath, string elementName, string virtualSystemSubtype)
+        {
+            ServerName = serverName;
+            ScopePath = scopePath;
+            Scope = Utils.GetScope(serverName, scopePath);
+            VmName = elementName;
+            VirtualSystemSubtype = virtualSystemSubtype;
+        }
+
         #region Enums
-        
+
         public enum SnapshotType
         {
             Full = 2,
@@ -76,74 +90,48 @@ namespace Viridian.Machine
 
         #region Creation
 
-        public void CreateVm(string serverName, string scopePath, string elementName, string virtualSystemSubtype)
+        public void CreateVm()
         {
-            var path = new ManagementPath() { Server = serverName, NamespacePath = @"\Root\Virtualization\V2", ClassName = "Msvm_VirtualSystemSettingData" };
-
-            var scope = Utils.GetScope(serverName, scopePath);
-
-            using (var virtualSystemSettingClass = new ManagementClass(path) { Scope = scope })
+            var vssdPath = new ManagementPath() 
             {
-                var virtualSystemSetting = virtualSystemSettingClass.CreateInstance();
+                Server = ServerName, 
+                NamespacePath = @"\Root\Virtualization\V2", 
+                ClassName = "Msvm_VirtualSystemSettingData" 
+            };
 
-                if (virtualSystemSetting == null) 
+            using (var vssdClass = new ManagementClass(vssdPath) { Scope = Scope })
+            {
+                var vssd = vssdClass.CreateInstance();
+
+                if (vssd == null) 
                     throw new ViridianException("Failed creating virtual system setting class instance!");
 
-                virtualSystemSetting["ElementName"] = elementName;
-                virtualSystemSetting["ConfigurationDataRoot"] = @"C:\ProgramData\Microsoft\Windows\Hyper-V\";
-                virtualSystemSetting["VirtualSystemSubtype"] = virtualSystemSubtype;
+                vssd["ElementName"] = VmName;
+                vssd["ConfigurationDataRoot"] = @"C:\ProgramData\Microsoft\Windows\Hyper-V\";
+                vssd["VirtualSystemSubtype"] = VirtualSystemSubtype;
 
-                var systemSettings = virtualSystemSetting.GetText(TextFormat.WmiDtd20);
-
-                using (var virtualSystemManagementServiceCollection = new ManagementClass("Msvm_VirtualSystemManagementService") { Scope = scope })
+                using (var vsmsCollection = new ManagementClass("Msvm_VirtualSystemManagementService") { Scope = Scope })
+                using (var vsms = Utils.GetFirstObjectFromCollection(vsmsCollection.GetInstances()))
+                using (var ip = vsms.GetMethodParameters("DefineSystem"))
                 {
-                    ManagementObject service = Utils.GetFirstObjectFromCollection(virtualSystemManagementServiceCollection.GetInstances());
+                    ip["SystemSettings"] = vssd.GetText(TextFormat.WmiDtd20);
 
-                    using (var inParams = service.GetMethodParameters("DefineSystem"))
-                    {
-                        inParams["SystemSettings"] = systemSettings;
-
-                        using (var outParams = service.InvokeMethod("DefineSystem", inParams, null))
-                        {
-                            Job.Validator.ValidateOutput(outParams, scope);
-                        }
-                    }
+                    using (var op = vsms.InvokeMethod("DefineSystem", ip, null))
+                        Job.Validator.ValidateOutput(op, Scope);
                 }
             }
         }
 
-        public ManagementObjectCollection GetVmCollection(string serverName, string scopePath)
+        public void RemoveVm()
         {
-            var scope = Utils.GetScope(serverName, scopePath);
-
-            var vmQueryWql = $"SELECT * FROM Msvm_ComputerSystem";
-
-            var vmQuery = new SelectQuery(vmQueryWql);
-
-            using (var vmSearcher = new ManagementObjectSearcher(scope, vmQuery))
+            using (ManagementObject vm = Utils.GetVirtualMachine(VmName, Scope))
+            using (ManagementObject vmms = Utils.GetVirtualMachineManagementService(Scope))
+            using (ManagementBaseObject ip = vmms.GetMethodParameters("DestroySystem"))
             {
-                return vmSearcher.Get();
-            }
-        }
+                ip["AffectedSystem"] = vm.Path;
 
-        public void RemoveVm(string serverName, string scopePath, string elementName)
-        {
-            var scope = new ManagementScope(new ManagementPath { Server = serverName, NamespacePath = scopePath }, null);
-
-            using (ManagementObject pvm = Utils.GetVirtualMachine(elementName, scope))
-            {
-                using (ManagementObject vmms = Utils.GetVirtualMachineManagementService(scope))
-                {
-                    using (ManagementBaseObject inParams = vmms.GetMethodParameters("DestroySystem"))
-                    {
-                        inParams["AffectedSystem"] = pvm.Path;
-
-                        using (ManagementBaseObject outParams = vmms.InvokeMethod("DestroySystem", inParams, null))
-                        {
-                            Job.Validator.ValidateOutput(outParams, scope);
-                        }
-                    }
-                }
+                using (ManagementBaseObject op = vmms.InvokeMethod("DestroySystem", ip, null))
+                    Job.Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -151,217 +139,161 @@ namespace Viridian.Machine
 
         #region Backup
 
-        public void SetIncrementalBackup(string serverName, string scopePath, string vmName, bool status)
+        public void SetIncrementalBackup(bool incrementalBackupEnabled)
         {
-            var scope = new ManagementScope(new ManagementPath { Server = serverName, NamespacePath = scopePath }, null);
-
-            using (var systemSettings = Utils.GetVirtualMachineSettings(vmName, scope))
+            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
+            using (var vmms = Utils.GetVirtualMachineManagementService(Scope))
             {
-                using (var service = Utils.GetVirtualMachineManagementService(scope))
-                { 
-                    var isIncrementalBackupEnabled = (bool)systemSettings["IncrementalBackupEnabled"];
+                if ((bool)vms["IncrementalBackupEnabled"] != incrementalBackupEnabled)
+                {
+                    vms["IncrementalBackupEnabled"] = incrementalBackupEnabled;
 
-                    if (isIncrementalBackupEnabled == status)                    
-                        return;                    
-
-                    systemSettings["IncrementalBackupEnabled"] = !isIncrementalBackupEnabled;
-
-                    using (var inParams = service.GetMethodParameters("ModifySystemSettings"))
+                    using (var ip = vmms.GetMethodParameters("ModifySystemSettings"))
                     {
-                        inParams["SystemSettings"] = systemSettings.GetText(TextFormat.CimDtd20);
+                        ip["SystemSettings"] = vms.GetText(TextFormat.CimDtd20);
 
-                        using (var outParams = service.InvokeMethod("ModifySystemSettings", inParams, null))
-                        {
-                            Job.Validator.ValidateOutput(outParams, scope);
-                        }
+                        using (var op = vmms.InvokeMethod("ModifySystemSettings", ip, null))
+                            Job.Validator.ValidateOutput(op, Scope);
                     }
                 }
             }
         }
 
-        public bool GetIncrementalBackup(string serverName, string scopePath, string vmName)
+        public bool GetIncrementalBackup()
         {
-            var scope = new ManagementScope(new ManagementPath { Server = serverName, NamespacePath = scopePath }, null);
-
-            using (var systemSettings = Utils.GetVirtualMachineSettings(vmName, scope))
-            {
-                using (var service = Utils.GetVirtualMachineManagementService(scope))
-                {
-                    return (bool)systemSettings["IncrementalBackupEnabled"];
-                }
-            }
+            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
+                return (bool)vms["IncrementalBackupEnabled"];
         }
 
         #endregion
 
         #region Snapshots
 
-        public void CreateSnapshot(string serverName, string scopePath, string vmName, SnapshotType snapshotType, bool saveMachineState)
+        public void CreateSnapshot(SnapshotType snapshotType, bool saveMachineState)
         {
             if (snapshotType == SnapshotType.Recovery && saveMachineState)
                 throw new ViridianException("You cannot create a recovery snapshot while the machine is in saved state!");
 
-            var scope = new ManagementScope(new ManagementPath { Server = serverName, NamespacePath = scopePath }, null);
-
             if (snapshotType == SnapshotType.Recovery) 
-                SetIncrementalBackup(serverName, scopePath, vmName, true);
- 
-            using (var affectedSystem = Utils.GetVirtualMachine(vmName, scope))
+                SetIncrementalBackup(true);
+
+            using (var vm = Utils.GetVirtualMachine(VmName, Scope))
+            using (var vmss = Utils.GetVirtualMachineSnapshotService(Scope))
+            using (var ip = vmss.GetMethodParameters("CreateSnapshot"))
             {
-                using (var service = Utils.GetVirtualMachineSnapshotService(scope))
+                if (saveMachineState)
+                    RequestStateChange(RequestedState.Saved);
+
+                ip["AffectedSystem"] = vm.Path.Path;
+
+                // Set the SnapshotSettings property. Backup/Recovery snapshots require special settings.
+                if (snapshotType == SnapshotType.Recovery)
                 {
-                    using (var inParams = service.GetMethodParameters("CreateSnapshot"))
-                    {
-                        if (saveMachineState)
-                            RequestStateChange(serverName, scopePath, vmName, RequestedState.Saved);
+                    // querying this class -> a collection that has just one element with ConsistencyLevel = 1
+                    var vsssd = Utils.GetServiceObject(Scope, "Msvm_VirtualSystemSnapshotSettingData");
+                    ip["SnapshotSettings"] = vsssd.GetText(TextFormat.CimDtd20);
 
-                        inParams["AffectedSystem"] = affectedSystem.Path.Path;
+                    // also make sure you activate Volume Shadow Copy service on Guest and install KB3063109
+                    // https://support.microsoft.com/en-us/help/3063109/hyper-v-integration-components-update-for-windows-virtual-machines
+                    // https://thewincentral.com/how-to-install-cab-files-on-windows-10-for-cumulative-updates
 
-                        // Set the SnapshotSettings property. Backup/Recovery snapshots require special settings.
-                        if (snapshotType == SnapshotType.Recovery)
-                        {
-                            // querying this class -> a collection that has just one element with ConsistencyLevel = 1
-                            var snapshotSettings = Utils.GetServiceObject(scope, "Msvm_VirtualSystemSnapshotSettingData");
-                            if (snapshotSettings != null)
-                                inParams["SnapshotSettings"] = snapshotSettings.GetText(TextFormat.CimDtd20);
+                    // Time Synchronization The protocol version of the component installed in the virtual machine does not match the version expected by the hosting system
+                    // https://support.microsoft.com/en-us/help/4014894/vm-integration-services-status-reports-protocol-version-mismatch-on-pr
 
-                            // also make sure you activate Volume Shadow Copy service on Guest and install KB3063109
-                            // https://support.microsoft.com/en-us/help/3063109/hyper-v-integration-components-update-for-windows-virtual-machines
-                            // https://thewincentral.com/how-to-install-cab-files-on-windows-10-for-cumulative-updates
+                    // you cannot save actual ram state of the machine with backup/recovery checkpoints -> State Saved doesn't make sense then
+                }
+                else
+                {
+                    ip["SnapshotSettings"] = "";
+                }
 
-                            // Time Synchronization The protocol version of the component installed in the virtual machine does not match the version expected by the hosting system
-                            // https://support.microsoft.com/en-us/help/4014894/vm-integration-services-status-reports-protocol-version-mismatch-on-pr
+                ip["SnapshotType"] = snapshotType;
 
-                            // you cannot save actual ram state of the machine with backup/recovery checkpoints -> State Saved doesn't make sense then
-                        }
-                        else
-                        {
-                            inParams["SnapshotSettings"] = "";
-                        }
+                using (var op = vmss.InvokeMethod("CreateSnapshot", ip, null))
+                {
+                    Job.Validator.ValidateOutput(op, Scope);
 
-                        inParams["SnapshotType"] = snapshotType;
-
-                        using (var outParams = service.InvokeMethod("CreateSnapshot", inParams, null))
-                        {
-                            Job.Validator.ValidateOutput(outParams, scope);
-
-                            if (saveMachineState)
-                                RequestStateChange(serverName, scopePath, vmName, RequestedState.Running);
-                        }
-                    }
+                    if (saveMachineState)
+                        RequestStateChange(RequestedState.Running);
                 }
             }
         }
 
-        public List<ManagementObject> GetSnapshotList(string serverName, string scopePath, string vmName, string virtualSystemTypeName)
+        public List<ManagementObject> GetSnapshotList(string virtualSystemType)
         {
-            var scope = Utils.GetScope(serverName, scopePath);
-
-            using (var vm = Utils.GetVirtualMachine(vmName, scope))
+            using (var vm = Utils.GetVirtualMachine(VmName, Scope))
+            using (var vssdCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
             {
-                using (var settingsCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
+                var queriedSnapshots = new List<ManagementObject>();
+
+                foreach (ManagementObject settings in vssdCollection)
                 {
-                    var queriedSnapshots = new List<ManagementObject>();
+                    if (string.Compare(settings["VirtualSystemType"].ToString(), virtualSystemType) != 0)
+                        continue;
 
-                    foreach (var settings in settingsCollection)
-                    {
-                        if (string.Compare((string)(((ManagementObject)settings)["VirtualSystemType"]), virtualSystemTypeName) != 0)
-                            continue;
-
-                        queriedSnapshots.Add((ManagementObject)settings);
-                    }
-
-                    return queriedSnapshots;
+                    queriedSnapshots.Add(settings);
                 }
+
+                return queriedSnapshots;
             }
         }
 
-        public void ApplySnapshot(string serverName, string scopePath, string vmName, string snapshotName)
+        public void ApplySnapshot(string snapshotName)
         {
-            var scope = Utils.GetScope(serverName, scopePath);
-
-            using (var vm = Utils.GetVirtualMachine(vmName, scope))
+            using (var vm = Utils.GetVirtualMachine(VmName, Scope))
+            using (var vmss = Utils.GetVirtualMachineSnapshotService(Scope))
+            using (var snapshotCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
             {
-                using (var virtualSystemSnapshotService = Utils.GetVirtualMachineSnapshotService(scope))
+                foreach (ManagementObject snapshot in snapshotCollection)
                 {
-                    using (var snapshotCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
+                    if (snapshot == null || !Equals(snapshot["ElementName"], snapshotName))
+                        continue;
+
+                    // In order to apply a snapshot, the virtual machine must first be saved/off
+                    if ((ushort)vm["EnabledState"] != (ushort)EnabledState.Disabled)
+                        RequestStateChange(RequestedState.Off);
+
+                    using (var ip = vmss.GetMethodParameters("ApplySnapshot"))
                     {
-                        ManagementObject snapshotToApply = null;
+                        ip["Snapshot"] = snapshot;
 
-                        foreach (var snapshotObject in snapshotCollection)
-                        {
-                            var snapshot = (ManagementObject)snapshotObject;
-                            
-                            if (snapshot == null || !Equals(snapshot["ElementName"], snapshotName)) 
-                                continue;
-
-                            snapshotToApply = snapshot;
-                            break;
-                        }
-
-                        if (snapshotToApply == null) 
-                            throw new ViridianException("Snapshot not found!");
-
-                        using (var inParams = virtualSystemSnapshotService.GetMethodParameters("ApplySnapshot"))
-                        {
-                            inParams["Snapshot"] = snapshotToApply;
-
-                            // In order to apply a snapshot, the virtual machine must first be saved/off
-                            if ((ushort)vm["EnabledState"] != (ushort)EnabledState.Disabled)
-                            {
-                                RequestStateChange(serverName, scopePath, vmName, RequestedState.Off);
-                            }
-
-                            using (var outParams = virtualSystemSnapshotService.InvokeMethod("ApplySnapshot", inParams, null))
-                            {
-                                Job.Validator.ValidateOutput(outParams, scope);
-                            }
-                        }
+                        using (var op = vmss.InvokeMethod("ApplySnapshot", ip, null))
+                            Job.Validator.ValidateOutput(op, Scope);
                     }
+
+                    return;
                 }
+
+                throw new ViridianException("Snapshot not found!");
             }
         }
 
-        public ManagementObject GetLastAppliedSnapshot(string serverName, string scopePath, string vmName)
+        public ManagementObject GetLastAppliedSnapshot()
         {
-            var scope = Utils.GetScope(serverName, scopePath);
-
-            using (var vm = Utils.GetVirtualMachine(vmName, scope))
-            {
-                using (var virtualSystemSnapshotService = Utils.GetVirtualMachineSnapshotService(scope))
-                {
-                    using (var lastAppliedSnapshotCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_LastAppliedSnapshot", null, null, null, null, false, null))
-                    {
-                        return Utils.GetFirstObjectFromCollection(lastAppliedSnapshotCollection);
-                    }
-                }
-            }
+            using (var vm = Utils.GetVirtualMachine(VmName, Scope))
+                using (var vmss = Utils.GetVirtualMachineSnapshotService(Scope))
+                    using (var lasCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_LastAppliedSnapshot", null, null, null, null, false, null))
+                        return Utils.GetFirstObjectFromCollection(lasCollection);
         }
 
-        public ManagementObject GetLastCreatedSnapshot(string serverName, string scopePath, string vmName)
+        public ManagementObject GetLastCreatedSnapshot()
         {
-            var scope = Utils.GetScope(serverName, scopePath);
-
-            using (var vm = Utils.GetVirtualMachine(vmName, scope))
+            using (var vm = Utils.GetVirtualMachine(VmName, Scope))
+            using (var vmss = Utils.GetVirtualMachineSnapshotService(Scope))
+            using (var snapshotCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
             {
-                using (var virtualSystemSnapshotService = Utils.GetVirtualMachineSnapshotService(scope))
+                var lastSnapshotApplied = Utils.GetFirstObjectFromCollection(snapshotCollection);
+
+                foreach (var snapshot in snapshotCollection)
                 {
-                    using (var snapshotCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
-                    {
-                        var lastSnapshotApplied = Utils.GetFirstObjectFromCollection(snapshotCollection); 
+                    var dtSnapshot = ManagementDateTimeConverter.ToDateTime(snapshot["CreationTime"].ToString());
+                    var dtLastSnapshotApplied = ManagementDateTimeConverter.ToDateTime(lastSnapshotApplied["CreationTime"].ToString());
 
-                        foreach (var snapshot in snapshotCollection)
-                        {
-                            var datetimeSnapshot = ManagementDateTimeConverter.ToDateTime(snapshot["CreationTime"].ToString());
-                            var dateTimeLastSnapshotApplied = ManagementDateTimeConverter.ToDateTime(lastSnapshotApplied["CreationTime"].ToString());
-
-                            if (DateTime.Compare(dateTimeLastSnapshotApplied, datetimeSnapshot) < 0)
-                                lastSnapshotApplied = (ManagementObject)snapshot;
-                        }
-
-                        return lastSnapshotApplied;
-                    }
+                    if (DateTime.Compare(dtLastSnapshotApplied, dtSnapshot) < 0)
+                        lastSnapshotApplied = (ManagementObject)snapshot;
                 }
+
+                return lastSnapshotApplied;
             }
         }
 
@@ -369,224 +301,182 @@ namespace Viridian.Machine
 
         #region State
 
-        public void RequestStateChange(string serverName, string scopePath, string vmName, RequestedState requestedState)
+        public void RequestStateChange(RequestedState requestedState)
         {
-            var scope = new ManagementScope(new ManagementPath { Server = serverName, NamespacePath = scopePath }, null);
-
-            using (var managementService = Utils.GetVirtualMachineManagementService(scope))
+            using (var vmms = Utils.GetVirtualMachineManagementService(Scope))
+            using (var ip = vmms.GetMethodParameters("RequestStateChange"))
             {
-                using (var inParams = managementService.GetMethodParameters("RequestStateChange"))
-                {
-                    inParams["RequestedState"] = (uint)requestedState;
+                ip["RequestedState"] = (uint)requestedState;
 
-                    using (var virtualMachine = Utils.GetVirtualMachine(vmName, scope))
-                    {
-                        using (var outParams = virtualMachine.InvokeMethod("RequestStateChange", inParams, null))
-                        {
-                            Job.Validator.ValidateOutput(outParams, scope);
-                        }
-                    }
-                }
+                using (var vm = Utils.GetVirtualMachine(VmName, Scope))
+                using (var op = vm.InvokeMethod("RequestStateChange", ip, null))
+                    Job.Validator.ValidateOutput(op, Scope);
             }
         }
 
-        public RequestedState GetCurrentState(string serverName, string scopePath, string vmName)
+        public RequestedState GetCurrentState()
         {
-            var scope = new ManagementScope(new ManagementPath { Server = serverName, NamespacePath = scopePath }, null);
-
-            using (var virtualMachine = Utils.GetVirtualMachine(vmName, scope))
-            {
-                return (RequestedState)Enum.ToObject(typeof(RequestedState), virtualMachine["EnabledState"]);
-            }
+            using (var vm = Utils.GetVirtualMachine(VmName, Scope))
+                return (RequestedState)Enum.ToObject(typeof(RequestedState), vm["EnabledState"]);
         }
 
         #endregion
 
         #region Boot
 
-        public string[] GetBootSourceOrderedList(string serverName, string scopePath, string vmName)
+        public string[] GetBootSourceOrderedList()
         {
-            var scope = Utils.GetScope(serverName, scopePath);
-
-            var vmSettings = Utils.GetVirtualMachineSettings(vmName, scope);
-
-            return (string[])vmSettings["BootSourceOrder"];
+            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
+                return (string[])vms["BootSourceOrder"];
         }
 
-        public void SetBootOrderFromDevicePath(string serverName, string scopePath, string vmName, string devicePath)
+        public void SetBootOrderFromDevicePath(string devicePath)
         {
-            var scope = Utils.GetScope(serverName, scopePath);
-
-            var systemSettings = Utils.GetVirtualMachineSettings(vmName, scope);
-
-            if (systemSettings["BootSourceOrder"] is string[] prevBootOrder)
+            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
             {
-                var bootSourceOrder = new string[prevBootOrder.Length];
-
-                // Rebuild the order with the specified entry first
-
-                var index = 1;
-                foreach (var bootSource in prevBootOrder)
+                if (vms["BootSourceOrder"] is string[] prevBootOrder)
                 {
-                    var bootSourcePath = new ManagementPath(bootSource);
+                    var bso = new string[prevBootOrder.Length];
 
-                    using (var entryObject = new ManagementObject(bootSourcePath))
+                    var index = 1;
+                    foreach (var bs in prevBootOrder)
+                        using (var entry = new ManagementObject(new ManagementPath(bs)))
+                        {
+                            var fdp = entry["FirmwareDevicePath"].ToString();
+
+                            if (string.Equals(devicePath, fdp, StringComparison.OrdinalIgnoreCase))
+                                bso[0] = bs;
+                            else
+                                bso[index++] = bs;
+                        }
+
+                    vms["BootSourceOrder"] = bso;
+                }
+
+                using (var service = Utils.GetVirtualMachineManagementService(Scope))
+                using (var ip = service.GetMethodParameters("ModifySystemSettings"))
+                {
+                    ip["SystemSettings"] = vms.GetText(TextFormat.WmiDtd20);
+
+                    using (var op = service.InvokeMethod("ModifySystemSettings", ip, null))
+                        Job.Validator.ValidateOutput(op, Scope);
+                }
+            }
+        }
+
+        public void SetBootOrderByIndex(uint[] bootSourceOrder)
+        {
+            if (bootSourceOrder == null)
+                throw new ViridianException("Boot Sources Array is null!");
+
+            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
+            {
+                var previousBso = vms["BootSourceOrder"] as string[];
+
+                if (previousBso != null && bootSourceOrder.Length > previousBso.Length)
+                    throw new ViridianException("Too many boot devices specified!");
+
+                if (bootSourceOrder.Any(indexBso => previousBso != null && indexBso > previousBso.Length))
+                    throw new ViridianException("Invalid boot device index specified!");
+
+                if (previousBso != null)
+                {
+                    var newBso = new string[previousBso.Length];
+
+                    uint countReorderedBootSources = 0;
+
+                    foreach (var i in bootSourceOrder)
+                        newBso[countReorderedBootSources++] = previousBso[i];
+
+                    for (uint i = 0; i < previousBso.Length; i++)
                     {
-                        var bootSourceDevicePath = entryObject["FirmwareDevicePath"].ToString();
+                        var isReordered = bootSourceOrder.Any(reorderedIndex => i == reorderedIndex);
 
-                        if (string.Equals(devicePath, bootSourceDevicePath, StringComparison.OrdinalIgnoreCase))
-                        {
-                            bootSourceOrder[0] = bootSource;
-                        }
-                        else
-                        {
-                            bootSourceOrder[index++] = bootSource;
-                        }
+                        if (!isReordered)
+                            newBso[countReorderedBootSources++] = previousBso[i];
                     }
+
+                    vms["BootSourceOrder"] = newBso;
                 }
 
-                systemSettings["BootSourceOrder"] = bootSourceOrder;
-            }
-
-            var service = Utils.GetVirtualMachineManagementService(scope);
-
-            var inParams = service.GetMethodParameters("ModifySystemSettings");
-
-            inParams["SystemSettings"] = systemSettings.GetText(TextFormat.WmiDtd20);
-
-            var outParams = service.InvokeMethod("ModifySystemSettings", inParams, null);
-
-            Job.Validator.ValidateOutput(outParams, scope);
-        }
-
-        public void SetBootOrderByIndex(string serverName, string scopePath, string vmName, uint[] order)
-        {
-            var scope = Utils.GetScope(serverName, scopePath);
-
-            var systemSettings = Utils.GetVirtualMachineSettings(vmName, scope);
-
-            var previousBootSourceOrder = systemSettings["BootSourceOrder"] as string[];
-
-            if (previousBootSourceOrder != null && order.Length > previousBootSourceOrder.Length)
-                throw new ViridianException("Too many boot devices specified!");
-
-            if (order.Any(indexBootSource => previousBootSourceOrder != null && indexBootSource > previousBootSourceOrder.Length))
-                throw new ViridianException("Invalid boot device index specified!");
-
-            if (previousBootSourceOrder != null)
-            {
-                var newBootSourceOrder = new string[previousBootSourceOrder.Length];
-
-                // Rebuild the order
-                uint countReorderedBootSources = 0;
-
-                foreach (var indexBootSource in order)
-                    newBootSourceOrder[countReorderedBootSources++] = previousBootSourceOrder[indexBootSource];
-
-                for (uint index = 0; index < previousBootSourceOrder.Length; index++)
+                using (var vmms = Utils.GetVirtualMachineManagementService(Scope))
+                using (var ip = vmms.GetMethodParameters("ModifySystemSettings"))
                 {
-                    var isReordered = order.Any(reorderedIndex => index == reorderedIndex);
+                    ip["SystemSettings"] = vms.GetText(TextFormat.WmiDtd20);
 
-                    if (!isReordered)
-                        newBootSourceOrder[countReorderedBootSources++] = previousBootSourceOrder[index];
+                    using (var op = vmms.InvokeMethod("ModifySystemSettings", ip, null))
+                        Job.Validator.ValidateOutput(op, Scope);
                 }
-
-                systemSettings["BootSourceOrder"] = newBootSourceOrder;
             }
-
-            var vmms = Utils.GetVirtualMachineManagementService(scope);
-
-            var inParams = vmms.GetMethodParameters("ModifySystemSettings");
-
-            inParams["SystemSettings"] = systemSettings.GetText(TextFormat.WmiDtd20);
-
-            var outParams = vmms.InvokeMethod("ModifySystemSettings", inParams, null);
-
-            Job.Validator.ValidateOutput(outParams, scope);
         }
 
-        public NetworkBootPreferredProtocol GetNetworkBootPreferredProtocol(string serverName, string scopePath, string vmName)
+        public NetworkBootPreferredProtocol GetNetworkBootPreferredProtocol()
         {
-            var scope = Utils.GetScope(serverName, scopePath);
-
-            var vmSettings = Utils.GetVirtualMachineSettings(vmName, scope);
-
-            return (NetworkBootPreferredProtocol)Enum.ToObject(typeof(NetworkBootPreferredProtocol), vmSettings["NetworkBootPreferredProtocol"]);
+            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
+                return (NetworkBootPreferredProtocol)Enum.ToObject(typeof(NetworkBootPreferredProtocol), vms["NetworkBootPreferredProtocol"]);
         }
 
-        public void SetNetworkBootPreferredProtocol(string serverName, string scopePath, string vmName, NetworkBootPreferredProtocol networkBootPreferredProtocol)
+        public void SetNetworkBootPreferredProtocol(NetworkBootPreferredProtocol networkBootPreferredProtocol)
         {
-            var scope = Utils.GetScope(serverName, scopePath);
+            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
+            {
+                vms["NetworkBootPreferredProtocol"] = networkBootPreferredProtocol;
 
-            var systemSettings = Utils.GetVirtualMachineSettings(vmName, scope);
+                using (var vmms = Utils.GetVirtualMachineManagementService(Scope))
+                using (var ip = vmms.GetMethodParameters("ModifySystemSettings"))
+                {
+                    ip["SystemSettings"] = vms.GetText(TextFormat.WmiDtd20);
 
-            systemSettings["NetworkBootPreferredProtocol"] = networkBootPreferredProtocol;
-
-            var service = Utils.GetVirtualMachineManagementService(scope);
-
-            var inParams = service.GetMethodParameters("ModifySystemSettings");
-
-            inParams["SystemSettings"] = systemSettings.GetText(TextFormat.WmiDtd20);
-
-            var outParams = service.InvokeMethod("ModifySystemSettings", inParams, null);
-
-            Job.Validator.ValidateOutput(outParams, scope);
-        }
-        
-        public bool GetPauseAfterBootFailure(string serverName, string scopePath, string vmName)
-        {
-            var scope = Utils.GetScope(serverName, scopePath);
-
-            var vmSettings = Utils.GetVirtualMachineSettings(vmName, scope);
-
-            return (bool)vmSettings["PauseAfterBootFailure"];
+                    using (var op = vmms.InvokeMethod("ModifySystemSettings", ip, null))
+                        Job.Validator.ValidateOutput(op, Scope);
+                }
+            }
         }
 
-        public void SetPauseAfterBootFailure(string serverName, string scopePath, string vmName, bool pauseAfterBootFailure)
+        public bool GetPauseAfterBootFailure()
         {
-            var scope = Utils.GetScope(serverName, scopePath);
-
-            var systemSettings = Utils.GetVirtualMachineSettings(vmName, scope);
-            
-            systemSettings["PauseAfterBootFailure"] = pauseAfterBootFailure;
-
-            var service = Utils.GetVirtualMachineManagementService(scope);
-
-            var inParams = service.GetMethodParameters("ModifySystemSettings");
-
-            inParams["SystemSettings"] = systemSettings.GetText(TextFormat.WmiDtd20);
-
-            var outParams = service.InvokeMethod("ModifySystemSettings", inParams, null);
-
-            Job.Validator.ValidateOutput(outParams, scope);
+            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
+                return (bool)vms["PauseAfterBootFailure"];
         }
 
-        public bool GetSecureBoot(string serverName, string scopePath, string vmName)
+        public void SetPauseAfterBootFailure(bool pauseAfterBootFailure)
         {
-            var scope = Utils.GetScope(serverName, scopePath);
+            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
+            {
+                vms["PauseAfterBootFailure"] = pauseAfterBootFailure;
 
-            var vmSettings = Utils.GetVirtualMachineSettings(vmName, scope);
+                using (var vmms = Utils.GetVirtualMachineManagementService(Scope))
+                using (var ip = vmms.GetMethodParameters("ModifySystemSettings"))
+                {
+                    ip["SystemSettings"] = vms.GetText(TextFormat.WmiDtd20);
 
-            return (bool)vmSettings["SecureBootEnabled"];
+                    using (var op = vmms.InvokeMethod("ModifySystemSettings", ip, null))
+                        Job.Validator.ValidateOutput(op, Scope);
+                }
+            }
         }
 
-        public void SetSecureBoot(string serverName, string scopePath, string vmName, bool secureBootEnabled)
+        public bool GetSecureBoot()
         {
-            var scope = Utils.GetScope(serverName, scopePath);
+            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
+                return (bool)vms["SecureBootEnabled"];
+        }
 
-            var systemSettings = Utils.GetVirtualMachineSettings(vmName, scope);
+        public void SetSecureBoot(bool secureBootEnabled)
+        {
+            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
+            {
+                vms["SecureBootEnabled"] = secureBootEnabled;
 
-            systemSettings["SecureBootEnabled"] = secureBootEnabled;
+                using (var vmms = Utils.GetVirtualMachineManagementService(Scope))
+                using (var ip = vmms.GetMethodParameters("ModifySystemSettings"))
+                {
+                    ip["SystemSettings"] = vms.GetText(TextFormat.WmiDtd20);
 
-            var service = Utils.GetVirtualMachineManagementService(scope);
-
-            var inParams = service.GetMethodParameters("ModifySystemSettings");
-
-            inParams["SystemSettings"] = systemSettings.GetText(TextFormat.WmiDtd20);
-
-            var outParams = service.InvokeMethod("ModifySystemSettings", inParams, null);
-
-            Job.Validator.ValidateOutput(outParams, scope);
+                    using (var op = vmms.InvokeMethod("ModifySystemSettings", ip, null))
+                        Job.Validator.ValidateOutput(op, Scope);
+                }
+            }
         }
 
         #endregion

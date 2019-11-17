@@ -61,18 +61,17 @@ namespace Viridian.Utilities
         {
             var query = where != null ? $"select * from {classname} where {where}" : $"select * from {classname}";
 
-            return (new ManagementObjectSearcher(scope, new ObjectQuery(query))).Get();
+            using (var mos = new ManagementObjectSearcher(scope, new ObjectQuery(query)))
+                return mos.Get();
         }
         
         public static ManagementObject GetVirtualMachineManagementService(ManagementScope scope)
         {
-            using (ManagementClass managementServiceClass = new ManagementClass("Msvm_VirtualSystemManagementService"))
+            using (var vsms = new ManagementClass("Msvm_VirtualSystemManagementService"))
             {
-                managementServiceClass.Scope = scope;
+                vsms.Scope = scope;
 
-                ManagementObject managementService = GetFirstObjectFromCollection(managementServiceClass.GetInstances());
-
-                return managementService;
+                return GetFirstObjectFromCollection(vsms.GetInstances());
             }
         }
 
@@ -82,9 +81,7 @@ namespace Viridian.Utilities
                 throw new ViridianException("The collection contains no objects!");
 
             foreach (ManagementObject managementObject in collection)
-            {
                 return managementObject;
-            }
 
             return null;
         }
@@ -92,43 +89,43 @@ namespace Viridian.Utilities
         public static ManagementObject GetVMFirstObject(string name, string className, ManagementScope scope)
         {
             var vmQueryWql = $"SELECT * FROM {className} WHERE ElementName=\"{name}\"";
-
             var vmQuery = new SelectQuery(vmQueryWql);
 
-            using (var vmSearcher = new ManagementObjectSearcher(scope, vmQuery))
-            {
-                return GetFirstObjectFromCollection(vmSearcher.Get());
-            }
+            using (var mos = new ManagementObjectSearcher(scope, vmQuery))
+                return GetFirstObjectFromCollection(mos.Get());
+        }
+               
+        public static ManagementObjectCollection GetVmCollection(string serverName, string scopePath)
+        {
+            var scope = GetScope(serverName, scopePath);
+            var vmQueryWql = $"SELECT * FROM Msvm_ComputerSystem";
+            var vmQuery = new SelectQuery(vmQueryWql);
+            
+            using (var mos = new ManagementObjectSearcher(scope, vmQuery))
+                return mos.Get();
         }
 
         public static ManagementObject GetVirtualMachine(string name, ManagementScope scope) => GetVMFirstObject(name, "Msvm_ComputerSystem", scope);
 
         public static ManagementObject GetVirtualMachineSettings(string vmName, ManagementScope scope)
         {
-            using (var virtualMachine = GetVirtualMachine(vmName, scope))
-            {
-                using (var settingsCollection = virtualMachine.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SettingsDefineState", null, null, null, null, false, null))
-                {
-                    return GetFirstObjectFromCollection(settingsCollection);
-                }
-            }
+            using (var vm = GetVirtualMachine(vmName, scope))
+            using (var vssd = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SettingsDefineState", null, null, null, null, false, null))
+                return GetFirstObjectFromCollection(vssd);
         }
 
         public static ManagementObject GetVirtualMachineSnapshotService(ManagementScope scope)
         {
-            using (var virtualSystemSnapshotServiceCollection = new ManagementClass("Msvm_VirtualSystemSnapshotService") { Scope = scope })
-            {
-                return GetFirstObjectFromCollection(virtualSystemSnapshotServiceCollection.GetInstances());
-            }
+            using (var vsss = new ManagementClass("Msvm_VirtualSystemSnapshotService") { Scope = scope })
+                return GetFirstObjectFromCollection(vsss.GetInstances());
         }
 
         public static ManagementObject GetServiceObject(ManagementScope scope, string serviceName)
         {
             var wmiPath = new ManagementPath(serviceName);
+
             using (var serviceClass = new ManagementClass(scope, wmiPath, null))
-            {
                 return GetFirstObjectFromCollection(serviceClass.GetInstances());
-            }
         }
 
         public static ManagementObjectCollection GetResourcePools(string resourceType, string resourceSubtype, ManagementScope scope)
@@ -137,12 +134,10 @@ namespace Viridian.Utilities
                 string.Format(CultureInfo.InvariantCulture, "SELECT * FROM CIM_ResourcePool WHERE ResourceType=\"{0}\" AND OtherResourceType=\"{1}\"", resourceType, resourceSubtype) :
                 string.Format(CultureInfo.InvariantCulture, "SELECT * FROM CIM_ResourcePool WHERE ResourceType=\"{0}\" AND ResourceSubType=\"{1}\"", resourceType, resourceSubtype);
 
-            SelectQuery poolQuery = new SelectQuery(poolQueryWql);
+            var poolQuery = new SelectQuery(poolQueryWql);
 
-            using (ManagementObjectSearcher poolSearcher = new ManagementObjectSearcher(scope, poolQuery))
-            {
-                return poolSearcher.Get();
-            }
+            using (var mos = new ManagementObjectSearcher(scope, poolQuery))
+                return mos.Get();
         }
 
         public static ManagementObject GetResourcePool(string resourceType, string resourceSubtype, string poolId, ManagementScope scope)
@@ -153,24 +148,20 @@ namespace Viridian.Utilities
 
             var poolQuery = new SelectQuery(poolQueryWql);
 
-            using (var poolSearcher = new ManagementObjectSearcher(scope, poolQuery))
+            using (var mos = new ManagementObjectSearcher(scope, poolQuery))
+            using (var poolCollection = mos.Get())
             {
-                using (var poolCollection = poolSearcher.Get())
-                {
-                    if (poolCollection.Count != 1)
-                        throw new ViridianException($"A single CIM_ResourcePool derived instance could not be found for ResourceType \"{resourceType}\", ResourceSubtype \"{resourceSubtype}\" and PoolId \"{poolId}\"");
+                if (poolCollection.Count != 1)
+                    throw new ViridianException($"A single CIM_ResourcePool derived instance could not be found for ResourceType \"{resourceType}\", ResourceSubtype \"{resourceSubtype}\" and PoolId \"{poolId}\"");
 
-                    return GetFirstObjectFromCollection(poolCollection);
-                }
+                return GetFirstObjectFromCollection(poolCollection);
             }
         }
 
         public static string GetResourcePoolPath(ManagementScope scope, string resourceType, string resourceSubType, string poolId)
         {
-            using (var pool = Utils.GetResourcePool(resourceType, resourceSubType, poolId, scope))
-            {
+            using (var pool = GetResourcePool(resourceType, resourceSubType, poolId, scope))
                 return pool.Path.Path;
-            }
         }
 
         public static string GetResourceType(string displayName)
@@ -213,20 +204,16 @@ namespace Viridian.Utilities
         public static List<ManagementObject> GetResourcesByTypeAndSubtype(string vmName, ManagementScope scope, string resourceType, string resourceSubtype)
         {
             var resources = new List<ManagementObject>();
-            using (var virtualMachine = GetVirtualMachine(vmName, scope))
+
+            using (var vm = GetVirtualMachine(vmName, scope))
+            using (var vssdCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", null, null, null, null, null, false, null))
             {
-                using (var settingsCollection = virtualMachine.GetRelated("Msvm_VirtualSystemSettingData", null, null, null, null, null, false, null))
-                {
-                    var settings = GetFirstObjectFromCollection(settingsCollection);
-                    using (var resourceCollection = settings.GetRelated("Msvm_ResourceAllocationSettingData", null, null, null, null, null, false, null))
-                    {
-                        foreach (ManagementObject resource in resourceCollection)
-                        {
-                            if (resource["ResourceType"].ToString() == resourceType && resource["ResourceSubType"].ToString() == resourceSubtype)
-                                resources.Add(resource);
-                        }
-                    }
-                }
+                var settings = GetFirstObjectFromCollection(vssdCollection);
+
+                using (var rasdCollection = settings.GetRelated("Msvm_ResourceAllocationSettingData", null, null, null, null, null, false, null))
+                    foreach (ManagementObject resource in rasdCollection)
+                        if (resource["ResourceType"].ToString() == resourceType && resource["ResourceSubType"].ToString() == resourceSubtype)
+                            resources.Add(resource);
             }
 
             return resources;
