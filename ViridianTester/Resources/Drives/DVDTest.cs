@@ -17,7 +17,7 @@ namespace ViridianTester.Resources.Drives
         public void ViridianDVD_AddToVm()
         {
             // Arrange
-            var vmName = "vm_test_add_scsi_controller_to_vm";
+            var vmName = "vm_test_add_dvd_drive_to_vm";
 
             // Act
             var vm = new VM(serverName, scopePath, vmName, virtualSystemSubType);
@@ -32,7 +32,7 @@ namespace ViridianTester.Resources.Drives
             var scope = Utils.GetScope(serverName, scopePath);
             var rt = Utils.GetResourceType("SyntheticDVD");
             var rst = Utils.GetResourceSubType("SyntheticDVD");
-            var dvdDrives = Utils.GetResourcesByTypeAndSubtype(vmName, scope, rt, rst);
+            var dvdDrives = Utils.GetResourceAllocationSettingDataResourcesByTypeAndSubtype(vmName, scope, rt, rst);
 
             // Assert
             Assert.AreEqual(1, dvdDrives.Count);

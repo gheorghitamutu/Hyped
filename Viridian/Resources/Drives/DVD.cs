@@ -1,5 +1,4 @@
 ﻿using System.Management;
-using Viridian.Exceptions;
 using Viridian.Machine;
 using Viridian.Resources.Msvm;
 using Viridian.Utilities;

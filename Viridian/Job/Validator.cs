@@ -41,6 +41,9 @@ namespace Viridian.Job
 
         public static void ValidateOutput(ManagementBaseObject outputParameters, ManagementScope scope)
         {
+            if ((uint)outputParameters["ReturnValue"] == ReturnCode.InvalidParameter)
+                throw new ViridianException("Invalid parameter passed to function!");
+
             var errorMessage = "The method call failed!";
 
             if ((uint)outputParameters["ReturnValue"] == ReturnCode.Started)

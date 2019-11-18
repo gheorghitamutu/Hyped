@@ -487,7 +487,7 @@ namespace Viridian.Machine
         {
             var rt = Utils.GetResourceType("ScsiHBA");
             var rst = Utils.GetResourceSubType("ScsiHBA");
-            var scsiControllers = Utils.GetResourcesByTypeAndSubtype(VmName, Scope, rt, rst);
+            var scsiControllers = Utils.GetResourceAllocationSettingDataResourcesByTypeAndSubtype(VmName, Scope, rt, rst);
 
             if (scsiControllers.Count < index)
                 throw new ViridianException("Invalid SCSI controller index specified!");

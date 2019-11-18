@@ -1,5 +1,4 @@
 ﻿using System.Management;
-using Viridian.Exceptions;
 using Viridian.Job;
 using Viridian.Machine;
 using Viridian.Resources.Msvm;
@@ -20,7 +19,7 @@ namespace Viridian.Resources.Controllers
                 using (var vmms = Utils.GetVirtualMachineManagementService(vm.Scope))
                 using (var ip = vmms.GetMethodParameters("AddResourceSettings"))
                 {
-                    ip["AffectedConfiguration"] = Utils.GetVirtualMachineManagementService(vm.Scope);
+                    ip["AffectedConfiguration"] = Utils.GetVirtualMachineSettings(vm.VmName, vm.Scope);
                     ip["ResourceSettings"] = new[] { rasdClone.GetText(TextFormat.WmiDtd20) };
 
                     using (var op = vmms.InvokeMethod("AddResourceSettings", ip, null))

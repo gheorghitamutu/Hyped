@@ -3,7 +3,7 @@ using Viridian.Machine;
 using Viridian.Resources.Controllers;
 using Viridian.Utilities;
 
-namespace ViridianTester
+namespace ViridianTester.Resources.Controllers
 {
     [TestClass]
     public class SCSITest
@@ -28,7 +28,7 @@ namespace ViridianTester
             var scope = Utils.GetScope(serverName, scopePath);
             var rt = Utils.GetResourceType("ScsiHBA");
             var rst = Utils.GetResourceSubType("ScsiHBA");
-            var scsiControllers = Utils.GetResourcesByTypeAndSubtype(vmName, scope, rt, rst);
+            var scsiControllers = Utils.GetResourceAllocationSettingDataResourcesByTypeAndSubtype(vmName, scope, rt, rst);
 
             // Assert
             Assert.AreEqual(1, scsiControllers.Count);

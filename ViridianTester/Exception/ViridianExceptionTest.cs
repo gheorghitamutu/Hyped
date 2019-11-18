@@ -5,7 +5,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Viridian.Exceptions;
 
-namespace ViridianTester
+namespace ViridianTester.Exceptions
 {
     [TestClass]
     public class ViridianExceptionTest

@@ -3,10 +3,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Viridian.Machine;
 using Viridian.Utilities;
 
-namespace ViridianTester
+namespace ViridianTester.Machine
 {
     [TestClass]
-    public class ViridianMachineVMTest
+    public class ViridianVMTest
     {
         const string serverName = "."; // local
         const string scopePath = @"\Root\Virtualization\V2"; // API v2 

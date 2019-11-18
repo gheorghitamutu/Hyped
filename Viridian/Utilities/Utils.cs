@@ -238,7 +238,7 @@ namespace Viridian.Utilities
             return hostResourceArray.Select(resource => resource.Split(dimension2Delimiter, StringSplitOptions.RemoveEmptyEntries)).ToArray();
         }
                
-        public static List<ManagementObject> GetResourcesByTypeAndSubtype(string vmName, ManagementScope scope, string resourceType, string resourceSubtype)
+        public static List<ManagementObject> GetResourceAllocationSettingDataResourcesByTypeAndSubtype(string vmName, ManagementScope scope, string resourceType, string resourceSubtype)
         {
             var resources = new List<ManagementObject>();
 
