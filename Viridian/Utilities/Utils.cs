@@ -34,8 +34,45 @@ namespace Viridian.Utilities
             new[] { "FCConnection",       "64764",      "Microsoft:Hyper-V:FiberChannel Connection" }
         };
 
-        #endregion
+        public enum ResourceType : ushort
+        {
+            Other = 1,
+            ComputerSystem = 2,
+            Processor = 3,
+            Memory = 4,
+            IdeController = 5,
+            ParallelScsiHba = 6,
+            FcHba = 7,
+            ScsiHba = 8,
+            IbHca = 9,
+            EthernetAdapter = 10,
+            OtherNetworkAdapter = 11,
+            IoSlot = 12,
+            IoDevice = 13,
+            DisketteDrive = 14,
+            CdDrive = 15,
+            DvdDrive = 16,
+            DiskDrive = 17,
+            TapeDrive = 18,
+            StorageExtent = 19,
+            OtherStorageDevice = 20,
+            SerialPort = 21,
+            ParallelPort = 22,
+            UsbController = 23,
+            GraphicsController = 24,
+            Ieee1394Controller = 25,
+            PartitionableUnit = 26,
+            BasePartitionableUnit = 27,
+            PowerSupply = 28,
+            CoolingDevice = 29,
+            EthernetSwitchPort = 30,
+            LogicalDisk = 31,
+            StorageVolume = 32,
+            EthernetConnection = 33
+        }
 
+        #endregion
+        
         public static ManagementScope GetScope(string serverName, string scopePath) => new ManagementScope(new ManagementPath { Server = serverName, NamespacePath = scopePath }, null);
 
         public static ManagementObject GetWmiObject(ManagementScope scope, string classname, string where)

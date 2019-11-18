@@ -1,19 +1,20 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Viridian.Machine;
-using Viridian.Resources;
+using Viridian.Resources.Controllers;
+using Viridian.Resources.Drives;
 using Viridian.Utilities;
 
-namespace ViridianTester
+namespace ViridianTester.Resources.Drives
 {
     [TestClass]
-    public class SCSIControllerTest
+    public class DVDTest
     {
         const string serverName = "."; // local
         const string scopePath = @"\Root\Virtualization\V2"; // API v2 
         const string virtualSystemSubType = "Microsoft:Hyper-V:SubType:2"; // Generation 2
 
         [TestMethod]
-        public void ViridianResourcesSCSIController_AddToVm()
+        public void ViridianDVD_AddToVm()
         {
             // Arrange
             var vmName = "vm_test_add_scsi_controller_to_vm";
@@ -22,16 +23,19 @@ namespace ViridianTester
             var vm = new VM(serverName, scopePath, vmName, virtualSystemSubType);
             vm.CreateVm();
 
-            var sut = new SCSIController();
-            sut.AddToVm(vm);
+            var scsi = new SCSI();
+            scsi.AddToVm(vm);
+
+            var sut = new DVD();
+            sut.AddToScsi(vm, 0, 0);
 
             var scope = Utils.GetScope(serverName, scopePath);
-            var rt = Utils.GetResourceType("ScsiHBA");
-            var rst = Utils.GetResourceSubType("ScsiHBA");
-            var scsiControllers = Utils.GetResourcesByTypeAndSubtype(vmName, scope, rt, rst);
+            var rt = Utils.GetResourceType("SyntheticDVD");
+            var rst = Utils.GetResourceSubType("SyntheticDVD");
+            var dvdDrives = Utils.GetResourcesByTypeAndSubtype(vmName, scope, rt, rst);
 
             // Assert
-            Assert.AreEqual(scsiControllers.Count, 1);
+            Assert.AreEqual(dvdDrives.Count, 1);
             vm.RemoveVm();
         }
     }
