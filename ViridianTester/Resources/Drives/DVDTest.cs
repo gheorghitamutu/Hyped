@@ -35,7 +35,7 @@ namespace ViridianTester.Resources.Drives
             var dvdDrives = Utils.GetResourcesByTypeAndSubtype(vmName, scope, rt, rst);
 
             // Assert
-            Assert.AreEqual(dvdDrives.Count, 1);
+            Assert.AreEqual(1, dvdDrives.Count);
             vm.RemoveVm();
         }
     }

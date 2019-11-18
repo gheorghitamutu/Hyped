@@ -94,7 +94,7 @@ namespace Viridian.Utilities
             }
         }
 
-        private static ManagementObjectCollection GetWmiObjects(ManagementScope scope, string classname, string where)
+        public static ManagementObjectCollection GetWmiObjects(ManagementScope scope, string classname, string where)
         {
             var query = where != null ? $"select * from {classname} where {where}" : $"select * from {classname}";
 
@@ -167,11 +167,11 @@ namespace Viridian.Utilities
 
         public static ManagementObjectCollection GetResourcePools(string resourceType, string resourceSubtype, ManagementScope scope)
         {
-            string poolQueryWql = resourceType == "1" ? 
+            string query = resourceType == "1" ? 
                 string.Format(CultureInfo.InvariantCulture, "SELECT * FROM CIM_ResourcePool WHERE ResourceType=\"{0}\" AND OtherResourceType=\"{1}\"", resourceType, resourceSubtype) :
                 string.Format(CultureInfo.InvariantCulture, "SELECT * FROM CIM_ResourcePool WHERE ResourceType=\"{0}\" AND ResourceSubType=\"{1}\"", resourceType, resourceSubtype);
 
-            var poolQuery = new SelectQuery(poolQueryWql);
+            var poolQuery = new SelectQuery(query);
 
             using (var mos = new ManagementObjectSearcher(scope, poolQuery))
                 return mos.Get();
@@ -179,11 +179,11 @@ namespace Viridian.Utilities
 
         public static ManagementObject GetResourcePool(string resourceType, string resourceSubtype, string poolId, ManagementScope scope)
         {
-            var poolQueryWql = resourceType == "1" ?
+            var query = resourceType == "1" ?
                 $"SELECT * FROM CIM_ResourcePool WHERE ResourceType=\"{resourceType}\" AND OtherResourceType=\"{resourceSubtype}\" AND PoolId=\"{poolId}\"" :
                 $"SELECT * FROM CIM_ResourcePool WHERE ResourceType=\"{resourceType}\" AND ResourceSubType=\"{resourceSubtype}\" AND PoolId=\"{poolId}\"";
 
-            var poolQuery = new SelectQuery(poolQueryWql);
+            var poolQuery = new SelectQuery(query);
 
             using (var mos = new ManagementObjectSearcher(scope, poolQuery))
             using (var poolCollection = mos.Get())

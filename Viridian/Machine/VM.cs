@@ -483,26 +483,16 @@ namespace Viridian.Machine
 
         #region Controllers
         
-        public ManagementObject GetScsiController(ManagementObject virtualSystemSettingData, uint scsiIndex)
+        public ManagementObject GetScsiController(int index)
         {
-            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
-            using (var rasdCollection = virtualSystemSettingData.GetRelated("Msvm_ResourceAllocationSettingData"))
-            {
-                int count = 0;
+            var rt = Utils.GetResourceType("ScsiHBA");
+            var rst = Utils.GetResourceSubType("ScsiHBA");
+            var scsiControllers = Utils.GetResourcesByTypeAndSubtype(VmName, Scope, rt, rst);
 
-                foreach (ManagementObject rasd in rasdCollection)
-                {
-                    if ((ushort)rasd["ResourceType"] != (ushort)Utils.ResourceType.ParallelScsiHba || (string)rasd["ResourceSubType"] != Utils.GetResourceSubType("ScsiHBA"))
-                        continue;
+            if (scsiControllers.Count < index)
+                throw new ViridianException("Invalid SCSI controller index specified!");
 
-                    if (count == scsiIndex)
-                        return rasd;
-
-                    count++;
-                }
-
-                throw new ViridianException("Invalid SCSI controller index provided!");
-            }
+            return scsiControllers[index];
         }
 
         #endregion

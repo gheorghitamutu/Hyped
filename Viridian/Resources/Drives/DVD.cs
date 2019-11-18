@@ -8,28 +8,21 @@ namespace Viridian.Resources.Drives
 {
     public class DVD
     {
-        public void AddToScsi(VM vm, uint scsiIndex, uint addressOnParent)
+        public void AddToScsi(VM vm, int controllerSlot, int driveSlot)
         {
-            using (var dvd = Utils.GetWmiObject(vm.Scope, "Msvm_ResourcePool", "ResourceSubType = 'Microsoft:Hyper-V:Synthetic DVD Drive' and Primordial = True"))
+            using (var dvd = Utils.GetWmiObject(vm.Scope, "Msvm_ResourcePool", "ResourceSubType = 'Microsoft:Hyper-V:Synthetic DVD Drive'"))
             using (var rasd = ResourceAllocationSettingData.GetDefaultAllocationSettings(dvd))
             using (var rasdClone = rasd.Clone() as ManagementObject)
             {
-                if (rasdClone == null)
-                    throw new ViridianException("Failure retrieving default settings!");
-
-                using (var vms = Utils.GetVirtualMachineSettings(vm.VmName, vm.Scope))
-                using (var parent = vm.GetScsiController(vms, scsiIndex))
+                using (var parent = vm.GetScsiController(controllerSlot))
                 {
-                    if (parent == null)
-                        throw new ViridianException("Failure retrieving SCSI Controller class!");
-
                     rasdClone["Parent"] = parent;
-                    rasdClone["AddressOnParent"] = addressOnParent;
+                    rasdClone["AddressOnParent"] = driveSlot;
 
                     using (var vmms = Utils.GetVirtualMachineManagementService(vm.Scope))
                     using (var ip = vmms.GetMethodParameters("AddResourceSettings"))
                     {
-                        ip["AffectedConfiguration"] = vms;
+                        ip["AffectedConfiguration"] = Utils.GetVirtualMachineSettings(vm.VmName, vm.Scope);
                         ip["ResourceSettings"] = new[] { rasdClone.GetText(TextFormat.WmiDtd20) };
 
                         using (var op = vmms.InvokeMethod("AddResourceSettings", ip, null))

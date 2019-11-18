@@ -13,7 +13,7 @@ namespace ViridianTester
         const string virtualSystemSubType = "Microsoft:Hyper-V:SubType:2"; // Generation 2
 
         [TestMethod]
-        public void ViridianResourcesSCSI_AddToVm()
+        public void ViridianSCSI_AddToVm()
         {
             // Arrange
             var vmName = "vm_test_add_scsi_controller_to_vm";
@@ -31,7 +31,7 @@ namespace ViridianTester
             var scsiControllers = Utils.GetResourcesByTypeAndSubtype(vmName, scope, rt, rst);
 
             // Assert
-            Assert.AreEqual(scsiControllers.Count, 1);
+            Assert.AreEqual(1, scsiControllers.Count);
             vm.RemoveVm();
         }
     }
