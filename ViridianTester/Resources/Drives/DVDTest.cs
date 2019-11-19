@@ -14,10 +14,10 @@ namespace ViridianTester.Resources.Drives
         const string virtualSystemSubType = "Microsoft:Hyper-V:SubType:2"; // Generation 2
 
         [TestMethod]
-        public void ViridianDVD_AddToVm()
+        public void ViridianDVD_AddToVmSCSI()
         {
             // Arrange
-            var vmName = "vm_test_add_dvd_drive_to_vm";
+            var vmName = "vm_test_add_dvd_drive_to_scsi_of_vm";
 
             // Act
             var vm = new VM(serverName, scopePath, vmName, virtualSystemSubType);

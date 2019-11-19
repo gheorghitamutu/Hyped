@@ -30,5 +30,17 @@ namespace Viridian.Resources.Drives
                 }
             }
         }
+
+        public bool IsISOAttached(VM vm, int scsiIndex, int driveIndex)
+        {
+            using (var scsi = vm.GetScsiController(scsiIndex))
+            using (var dvd = Utils.GetScsiControllerChildBySubtypeAndIndex(scsi, Utils.GetResourceSubType("SyntheticDVD"), driveIndex))
+            using (var dvdChildren = dvd.GetRelated("Msvm_StorageAllocationSettingData", null, null, null, "Dependent", "Antecedent", false, null))
+                foreach (var media in dvdChildren)
+                    if (media["Caption"].ToString() == "ISO Disk Image")
+                        return true;
+
+            return false;
+        }
     }
 }

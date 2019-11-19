@@ -59,6 +59,7 @@
     <Compile Include="Resources\Msvm\ResourcePoolConfiguration.cs" />
     <Compile Include="Resources\Msvm\ResourcePoolSettingData.cs" />
     <Compile Include="Resources\Controllers\SCSI.cs" />
+    <Compile Include="Resources\Physical\ISO.cs" />
     <Compile Include="Storage\Handle\SafeHandle.cs" />
     <Compile Include="Storage\Native\NativeAPI.cs" />
     <Compile Include="Utilities\Utils.cs" />

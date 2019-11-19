@@ -56,6 +56,7 @@
     <Compile Include="Exception\ViridianExceptionTest.cs" />
     <Compile Include="Resources\Controllers\SCSITest.cs" />
     <Compile Include="Resources\Drives\DVDTest.cs" />
+    <Compile Include="Resources\Physical\ISOTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

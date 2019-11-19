@@ -255,5 +255,29 @@ namespace Viridian.Utilities
 
             return resources;
         }
+
+        public static ManagementObject GetScsiControllerChildBySubtypeAndIndex(ManagementObject scsiController, string resourceSubType, int index)
+        {
+            if (scsiController == null)
+                throw new ViridianException("Null SCSI Controller class!");
+
+            using (var scsiControllerChildren = scsiController.GetRelated("Msvm_ResourceAllocationSettingData", null, null, null, "Dependent", "Antecedent", false, null))
+            {
+                if (scsiControllerChildren.Count < index)
+                    throw new ViridianException("Invalid SCSI child address/index specified!");
+
+                uint count = 0;
+
+                foreach (ManagementObject drive in scsiControllerChildren)
+                {
+                    if (count == index && drive["ResourceSubType"].ToString() == resourceSubType)
+                        return drive;
+
+                    count++;
+                }
+
+                throw new ViridianException("Invalid SCSI child subtype specified!");
+            }
+        }
     }
 }
