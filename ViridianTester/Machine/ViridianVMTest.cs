@@ -1,6 +1,7 @@
 ﻿using System.Management;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Viridian.Machine;
+using Viridian.Performance;
 using Viridian.Utilities;
 
 namespace ViridianTester.Machine
@@ -21,6 +22,7 @@ namespace ViridianTester.Machine
             // Act
             var sut = new VM(serverName, scopePath, vmName, virtualSystemSubType);
             sut.CreateVm();
+            sut.GetSummaryInformation();
 
             var vmCollection = Utils.GetVmCollection(serverName, scopePath);
             var createdVmExists = false;

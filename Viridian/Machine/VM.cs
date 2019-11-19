@@ -8,6 +8,7 @@ using Viridian.Utilities;
 namespace Viridian.Machine
 {
     // TODO: tests that are missing for the methods below
+    // TODO: add metrics control
 
     public class VM
     {
@@ -222,11 +223,11 @@ namespace Viridian.Machine
         public List<ManagementObject> GetSnapshotList(string virtualSystemType)
         {
             using (var vm = Utils.GetVirtualMachine(VmName, Scope))
-            using (var vssdCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
+            using (var sofvsCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
             {
                 var queriedSnapshots = new List<ManagementObject>();
 
-                foreach (ManagementObject settings in vssdCollection)
+                foreach (ManagementObject settings in sofvsCollection)
                 {
                     if (string.Compare(settings["VirtualSystemType"].ToString(), virtualSystemType) != 0)
                         continue;
@@ -242,9 +243,9 @@ namespace Viridian.Machine
         {
             using (var vm = Utils.GetVirtualMachine(VmName, Scope))
             using (var vmss = Utils.GetVirtualMachineSnapshotService(Scope))
-            using (var snapshotCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
+            using (var sofvsCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
             {
-                foreach (ManagementObject snapshot in snapshotCollection)
+                foreach (ManagementObject snapshot in sofvsCollection)
                 {
                     if (snapshot == null || !Equals(snapshot["ElementName"], snapshotName))
                         continue;
@@ -280,11 +281,11 @@ namespace Viridian.Machine
         {
             using (var vm = Utils.GetVirtualMachine(VmName, Scope))
             using (var vmss = Utils.GetVirtualMachineSnapshotService(Scope))
-            using (var snapshotCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
+            using (var sovfsCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
             {
-                var lastSnapshotApplied = Utils.GetFirstObjectFromCollection(snapshotCollection);
+                var lastSnapshotApplied = Utils.GetFirstObjectFromCollection(sovfsCollection);
 
-                foreach (var snapshot in snapshotCollection)
+                foreach (var snapshot in sovfsCollection)
                 {
                     var dtSnapshot = ManagementDateTimeConverter.ToDateTime(snapshot["CreationTime"].ToString());
                     var dtLastSnapshotApplied = ManagementDateTimeConverter.ToDateTime(lastSnapshotApplied["CreationTime"].ToString());
@@ -493,6 +494,77 @@ namespace Viridian.Machine
                 throw new ViridianException("Invalid SCSI controller index specified!");
 
             return scsiControllers[index];
+        }
+
+        #endregion
+
+        #region Stats
+
+        public ManagementObject GetMemorySettingData()
+        {
+            using(var vm = Utils.GetVirtualMachine(VmName, Scope))
+            using (var vssd = Utils.GetFirstObjectFromCollection(vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SettingsDefineState", null, null, "SettingData", "ManagedElement", false, null)))
+            using (var memoryCollection = vssd.GetRelated("Msvm_MemorySettingData ", null, null, null, null, null, false, null))
+                return Utils.GetFirstObjectFromCollection(memoryCollection);
+        }
+
+        public ManagementBaseObject[] GetSummaryInformation()
+        {
+            using (var vsms = Utils.GetVirtualMachineManagementService(Scope))
+            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
+            using (var ip = vsms.GetMethodParameters("GetSummaryInformation"))
+            {
+                var requestedInformation = new uint[]
+                {
+                    0,      // Name
+                    1,      // ElementName
+                    2,      // CreationTime
+                    3,      // Notes
+                    4,      // NumberOfProcessors
+                    5,      // ThumbnailImage
+                    6,      // ThumbnailImageHeight
+                    7,      // ThumbnailImageWidth
+                    8,      // AllocatedGPU
+                    9,      // VirtualSwitchNames 
+                    10,     // Version | Added in Windows 10 and Windows Server 2016.
+                    11,     // Shielded | Added in Windows 10, version 1703 and Windows Server 2016.
+                    100,    // EnabledState
+                    101,    // ProcessorLoad
+                    102,    // ProcessorLoadHistory
+                    103,    // MemoryUsage
+                    104,    // Heartbeat
+                    105,    // UpTime
+                    106,    // GuestOperatingSystem
+                    107,    // Snapshots
+                    108,    // AsynchronousTasks
+                    109,    // HealthState
+                    110,    // OperationalStatus
+                    111,    // StatusDescriptions
+                    112,    // MemoryAvailable
+                    113,    // AvailableMemoryBuffer
+                    114,    // Replication Mode
+                    115,    // Replication State
+                    116,    // Replication HealthTest Replica System
+                    117,    // Application Health 
+                    118,    // ReplicationStateEx 
+                    119,    // ReplicationHealthEx 
+                    120,    // SwapFilesInUse 
+                    121,    // IntegrationServicesVersionState 
+                    122,    // ReplicationProviderId 
+                    123     // MemorySpansPhysicalNumaNodes 
+                };
+
+                ip["SettingData"] = new[] { vms };
+                ip["RequestedInformation"] = requestedInformation;
+
+                using (var op = vsms.InvokeMethod("GetSummaryInformation", ip, null))
+                {
+                    Job.Validator.ValidateOutput(op, Scope);
+
+                    return (ManagementBaseObject[])op["SummaryInformation"];
+                }
+            }
+
         }
 
         #endregion
