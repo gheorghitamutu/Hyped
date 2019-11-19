@@ -1,11 +1,8 @@
 ﻿using System;
 using System.IO;
-using System.Management;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 using System.Xml;
-
-// TODO: add test for <public ViridianException(string message, string[] messages, Exception inner)>
 
 namespace Viridian.Exceptions
 {
@@ -28,16 +25,13 @@ namespace Viridian.Exceptions
         {
         }
 
-        public ViridianException(string message, string[] messages, Exception inner)
+        public ViridianException(string message, string[] messages)
         {
-            if (inner is ManagementException == false)
-                return;
-
             Console.WriteLine("Main error message: {0}\n", message);
             Console.WriteLine("Detailed errors: \n");
 
             if (messages == null)
-                return;
+                throw new NullReferenceException("Null error messages array!");
 
             foreach (var error in messages)
             {

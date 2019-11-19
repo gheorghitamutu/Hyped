@@ -1,13 +1,13 @@
 ﻿using System.Management;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Viridian.Exceptions;
 using Viridian.Machine;
-using Viridian.Performance;
 using Viridian.Utilities;
 
 namespace ViridianTester.Machine
 {
     [TestClass]
-    public class ViridianVMTest
+    public class VMTest
     {
         const string serverName = "."; // local
         const string scopePath = @"\Root\Virtualization\V2"; // API v2 
@@ -51,19 +51,9 @@ namespace ViridianTester.Machine
             sut.CreateVm();
             sut.RemoveVm();
 
-            var vmCollection = Utils.GetVmCollection(serverName, scopePath);
-            var createdVmExists = false;
-            foreach (var vm in vmCollection)
-            {
-                if (string.Compare((string)(((ManagementObject)vm)["ElementName"]), vmName) != 0)
-                    continue;
-
-                createdVmExists = true;
-                break;
-            }
-
             // Assert
-            Assert.IsFalse(createdVmExists);
+            Assert.ThrowsException<ViridianException>(() => sut.RemoveVm());
+            Assert.ThrowsException<ViridianException>(() => Utils.GetVirtualMachine(sut.VmName, sut.Scope));
         }
 
         [TestMethod]
@@ -216,6 +206,42 @@ namespace ViridianTester.Machine
 
             // Assert
             Assert.AreEqual(sut.GetSecureBoot(), false);
+            sut.RemoveVm();
+        }
+
+        [TestMethod]
+        public void ViridianMachineVM_GetSummaryInfo()
+        {
+            // Arrange
+            var vmName = "vm_test_get_summary_info";
+
+            // Act
+            var sut = new VM(serverName, scopePath, vmName, virtualSystemSubType);
+            sut.CreateVm();
+            sut.RequestStateChange(VM.RequestedState.Running);
+            var info = sut.GetSummaryInformation();
+
+            // Assert
+            Assert.AreEqual(1, info.Length);
+            Assert.AreEqual(vmName, info[0]["ElementName"]);
+            Assert.AreEqual(1024UL, info[0]["MemoryUsage"]);
+            sut.RequestStateChange(VM.RequestedState.Off);
+            sut.RemoveVm();
+        }
+
+        [TestMethod]
+        public void ViridianMachineVM_GetMemorySettingData()
+        {
+            // Arrange
+            var vmName = "vm_test_get_memory_setting_data";
+
+            // Act
+            var sut = new VM(serverName, scopePath, vmName, virtualSystemSubType);
+            sut.CreateVm();
+            var memory = sut.GetMemorySettingData();
+
+            // Assert
+            Assert.AreEqual("Memory", memory["ElementName"]);
             sut.RemoveVm();
         }
     }

@@ -114,7 +114,7 @@ namespace Viridian.Utilities
 
         public static ManagementObject GetFirstObjectFromCollection(ManagementObjectCollection collection)
         {
-            if (collection.Count == 0)            
+            if (collection.Count == 0)
                 throw new ViridianException("The collection contains no objects!");
 
             foreach (ManagementObject managementObject in collection)

@@ -74,12 +74,12 @@ namespace Viridian.Job
                     var errors = GetMsvmErrorsList(job);
                     if (errors.Length > 0)
                     {
-                        throw new ViridianException(errorMessage, errors, new ManagementException());
+                        throw new ViridianException(errorMessage, errors);
                     }
                     else if ((uint)outputParameters["ReturnValue"] != ReturnCode.Completed)
                     {
                         errorMessage = $"The method call failed! Error code {(uint)outputParameters["ReturnValue"]}";
-                        throw new ViridianException(errorMessage, new ManagementException());
+                        throw new ViridianException(errorMessage);
                     }
                 }
             }

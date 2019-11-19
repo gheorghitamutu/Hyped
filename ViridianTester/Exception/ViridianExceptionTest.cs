@@ -2,6 +2,7 @@
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Xml;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Viridian.Exceptions;
 
@@ -78,17 +79,47 @@ namespace ViridianTester.Exceptions
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void ViridianException_GetObjectData_throws_exception_when_info_null()
         {
             // Arrange
             var sut = new ViridianException("message") { ResourceReferenceProperty = "MyReferenceProperty" };
 
-            // Act
-            sut.GetObjectData(null, new StreamingContext());
+            // Act && Assert
+            Assert.ThrowsException<ArgumentNullException>(() => sut.GetObjectData(null, new StreamingContext()));
+        }
 
-            // Assert
-            // [ExpectedException(typeof(ArgumentNullException))]
+        [TestMethod]
+        public void ViridianException_ctor_ex_throws_when_messages_array_is_null()
+        {
+            // Arrange
+            const string message = "message";
+            string[] nullArray = null;
+
+            // Act && Assert
+            Assert.ThrowsException<NullReferenceException>(() => new ViridianException(message, nullArray));
+        }
+
+        [TestMethod]
+        public void ViridianException_ctor_ex_throws_when_messages_array_is_not_xml_serialized()
+        {
+            // Arrange
+            const string message = "message";
+            string[] messages = { "a", "b", "c"};
+
+            // Act && Assert
+            Assert.ThrowsException<XmlException>(() => new ViridianException(message, messages));
+        }
+
+        [TestMethod]
+        public void ViridianException_ctor_ex_messages_array_is_xml_serialized()
+        {
+            // Arrange
+            const string message = "message";
+            string[] messages = { "<?xml version=\"1.0\" encoding=\"utf-8\"?><PROPERTY>prop</PROPERTY>" };
+            var sut = new ViridianException(message, messages);
+
+            // Act && Assert
+            Assert.AreEqual(sut.GetType(), typeof(ViridianException));
         }
     }
 }
