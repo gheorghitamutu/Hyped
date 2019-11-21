@@ -11,6 +11,7 @@
 	https://support.microsoft.com/en-us/help/3063109/hyper-v-integration-components-update-for-windows-virtual-machines
 	https://thewincentral.com/how-to-install-cab-files-on-windows-10-for-cumulative-updates/
 	https://support.microsoft.com/en-us/help/4014894/vm-integration-services-status-reports-protocol-version-mismatch-on-pr
+	https://www.dmtf.org/sites/default/files/standards/documents/DSP1053_1.1.0a.pdf (Metrics+ info/schemas/APIs)
 
 ## Examples (snapshots of code/repositories)
 	https://blogs.msdn.microsoft.com/sergeim/2008/06/03/prepare-vm-create-vm-programmatically-hyper-v-api-c-version - API v1
@@ -22,3 +23,4 @@
 	https://docs.microsoft.com/en-us/windows/win32/hyperv_v2/common-utilities-for-the-virtualization-samples-v2 - API v2
 	https://gallery.technet.microsoft.com/Show-Hyper-V-Virtual-652fdd54 - API v2 (PowerShell)
 	https://github.com/microsoft/Windows-classic-samples/tree/master/Samples/Hyper-V (Microsoft Hyper V API samples)
+	https://opendev.org/openstack/os-win/src/branch/master/os_win/utils/metrics (API v2 - Python)

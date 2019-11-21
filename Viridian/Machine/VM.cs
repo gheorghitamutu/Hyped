@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Management;
 using Viridian.Exceptions;
@@ -93,18 +95,18 @@ namespace Viridian.Machine
 
         public void CreateVm()
         {
-            var vssdPath = new ManagementPath() 
+            var vssdPath = new ManagementPath()
             {
-                Server = ServerName, 
-                NamespacePath = @"\Root\Virtualization\V2", 
-                ClassName = "Msvm_VirtualSystemSettingData" 
+                Server = ServerName,
+                NamespacePath = @"\Root\Virtualization\V2",
+                ClassName = "Msvm_VirtualSystemSettingData"
             };
 
             using (var vssdClass = new ManagementClass(vssdPath) { Scope = Scope })
             {
                 var vssd = vssdClass.CreateInstance();
 
-                if (vssd == null) 
+                if (vssd == null)
                     throw new ViridianException("Failed creating virtual system setting class instance!");
 
                 vssd["ElementName"] = VmName;
@@ -175,7 +177,7 @@ namespace Viridian.Machine
             if (snapshotType == SnapshotType.Recovery && saveMachineState)
                 throw new ViridianException("You cannot create a recovery snapshot while the machine is in saved state!");
 
-            if (snapshotType == SnapshotType.Recovery) 
+            if (snapshotType == SnapshotType.Recovery)
                 SetIncrementalBackup(true);
 
             using (var vm = Utils.GetVirtualMachine(VmName, Scope))
@@ -272,9 +274,9 @@ namespace Viridian.Machine
         public ManagementObject GetLastAppliedSnapshot()
         {
             using (var vm = Utils.GetVirtualMachine(VmName, Scope))
-                using (var vmss = Utils.GetVirtualMachineSnapshotService(Scope))
-                    using (var lasCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_LastAppliedSnapshot", null, null, null, null, false, null))
-                        return Utils.GetFirstObjectFromCollection(lasCollection);
+            using (var vmss = Utils.GetVirtualMachineSnapshotService(Scope))
+            using (var lasCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_LastAppliedSnapshot", null, null, null, null, false, null))
+                return Utils.GetFirstObjectFromCollection(lasCollection);
         }
 
         public ManagementObject GetLastCreatedSnapshot()
@@ -483,7 +485,7 @@ namespace Viridian.Machine
         #endregion
 
         #region Controllers
-        
+
         public ManagementObject GetScsiController(int index)
         {
             var rt = Utils.GetResourceType("ScsiHBA");
@@ -502,7 +504,7 @@ namespace Viridian.Machine
 
         public ManagementObject GetMemorySettingData()
         {
-            using(var vm = Utils.GetVirtualMachine(VmName, Scope))
+            using (var vm = Utils.GetVirtualMachine(VmName, Scope))
             using (var vssd = Utils.GetFirstObjectFromCollection(vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SettingsDefineState", null, null, "SettingData", "ManagedElement", false, null)))
             using (var memoryCollection = vssd.GetRelated("Msvm_MemorySettingData ", null, null, null, null, null, false, null))
                 return Utils.GetFirstObjectFromCollection(memoryCollection);
@@ -565,6 +567,220 @@ namespace Viridian.Machine
                 }
             }
 
+        }
+
+        #endregion
+
+        // TODO: should move Ethernet region in separated class
+        #region Ethernet
+
+        public ManagementObject GetSyntheticEthernetPortSettingData(string macAddress)
+        {
+            macAddress = macAddress.Replace("-", "").Replace(":", "");
+
+            var wqlQuery = string.Format(CultureInfo.InvariantCulture, "SELECT * FROM Msvm_SyntheticEthernetPortSettingData WHERE Address=\"{0}\"", macAddress);
+            var query = new SelectQuery(wqlQuery);
+
+            using (var mos = new ManagementObjectSearcher(Scope, query))
+            using (var collection = mos.Get())
+                return Utils.GetFirstObjectFromCollection(collection);
+        }
+
+        public ManagementObject GetEthernetPortAllocationSettingData(ManagementObject parentPort)
+        {
+            var wqlQuery = string.Format(CultureInfo.InvariantCulture, "SELECT * FROM Msvm_EthernetPortAllocationSettingData WHERE Parent=\"{0}\"", Utils.EscapeObjectPath(parentPort.Path.Path));
+            var query = new SelectQuery(wqlQuery);
+
+            using (var mos = new ManagementObjectSearcher(Scope, query))
+            using (var collection = mos.Get())
+                return Utils.GetFirstObjectFromCollection(collection);
+        }
+
+        public ManagementObject GetEthernetSwitchPortAclSettingData(ManagementObject ethernetConnection, string ipAddress)
+        {
+            using (var portAclCollection = ethernetConnection.GetRelated("Msvm_EthernetSwitchPortAclSettingData", "Msvm_EthernetPortSettingDataComponent", null, null, null, null, false, null))
+            {
+                if (portAclCollection.Count == 0)
+                    throw new ManagementException(string.Format(CultureInfo.CurrentCulture, "No associated Msvm_EthernetSwitchPortAclSettingData could be found"));
+
+                string address = ipAddress;
+                byte addressPrefixLength = 32;
+
+                // If the IP address is in the form "A.B.C.D/N", extract the address and prefix length.
+                string[] addressParts = ipAddress.Split(new char[] { '/', '\\' });
+
+                if (addressParts.Length == 2)
+                {
+                    address = addressParts[0];
+                    addressPrefixLength = byte.Parse(addressParts[1], CultureInfo.InvariantCulture);
+                }
+
+                foreach (ManagementObject portAcl in portAclCollection)
+                    if ((portAcl["RemoteAddress"].ToString() == address) && ((byte)portAcl["RemoteAddressPrefixLength"] == addressPrefixLength))
+                        return portAcl;
+
+                throw new ManagementException(string.Format(CultureInfo.CurrentCulture, "No associated Msvm_EthernetSwitchPortAclSettingData could be found for IP address \"{0}\"", ipAddress));
+            }
+        }
+
+        #endregion
+
+        #region Metrics
+
+        private void ControlMetrics(string managedElementPath, string metricDefinitionPath, Utils.MetricOperation operation)
+        {
+            using (var ms = Utils.GetMetricService(Scope))
+            using (var ip = ms.GetMethodParameters("ControlMetrics"))
+            {
+                ip["Subject"] = managedElementPath;
+                ip["Definition"] = metricDefinitionPath;
+                ip["MetricCollectionEnabled"] = (uint)operation;
+
+                using (var op = ms.InvokeMethod("ControlMetrics", ip, null))
+                    Job.Validator.ValidateOutput(op, Scope);
+            }
+        }
+
+        public void SetAllMetrics(Utils.MetricOperation operation)
+        {
+            using (var vm = Utils.GetVirtualMachine(VmName, Scope))
+            {
+                var vmPath = vm.Path.Path;
+
+                ControlMetrics(vmPath, null, operation);
+            }
+        }
+
+        public ManagementObject GetBaseMetricDefForMEByName(string metricDefinitionName)
+        {
+            using (var vm = Utils.GetVirtualMachine(VmName, Scope))
+            using (var md = Utils.GetBaseMetricDefinition(metricDefinitionName, Scope))
+            {
+                if (md == null) // definition for this metric has not been found
+                    return null;
+
+                var escapedVmPath = Utils.EscapeObjectPath(vm.Path.Path);
+                var escapedMdPath = Utils.EscapeObjectPath(md.Path.Path);
+                var wqlQuery = string.Format(CultureInfo.InvariantCulture, "SELECT * FROM Msvm_MetricDefForME WHERE Antecedent=\"{0}\" AND Dependent=\"{1}\"", escapedVmPath, escapedMdPath);
+                var query = new SelectQuery(wqlQuery);
+
+                using (var mos = new ManagementObjectSearcher(Scope, query))
+                using (var definitionsCollection = mos.Get())
+                {
+                    if (definitionsCollection.Count > 0)
+                        return Utils.GetFirstObjectFromCollection(definitionsCollection);
+                    else
+                        return null;
+                }
+            }
+        }
+
+        public ManagementObjectCollection GetMetricsByDefinition(ManagementObject metricDefinition)
+        {
+            using (var vm = Utils.GetVirtualMachine(VmName, Scope))
+            {
+                var escapedVmPath = Utils.EscapeObjectPath(vm.Path.Path);
+                var escapedMdPath = Utils.EscapeObjectPath(metricDefinition.Path.Path);
+
+                var wqlQuery = string.Format(CultureInfo.InvariantCulture, "SELECT * FROM Msvm_MetricForME WHERE Antecedent=\"{0}\"", escapedVmPath);
+                var query = new SelectQuery(wqlQuery);
+
+                using (var mos = new ManagementObjectSearcher(Scope, query))
+                    return mos.Get();
+            }
+        }
+
+        public List<ManagementObject> GetAllAggregationMetricDefinitions()
+        {
+            var definitionsList = new List<ManagementObject>();
+
+            foreach (var def in Utils.AggregationMetricDefinitionCaptions)
+                using (var definition = GetBaseMetricDefForMEByName(def))
+                    if (definition != null)
+                        definitionsList.Add(definition);
+
+            return definitionsList;
+        }
+
+        public List<ManagementObject> GetAllBaseMetricDefinitions()
+        {
+            var definitionsList = new List<ManagementObject>();
+
+            foreach (var def in Utils.BaseMetricDefinitionCaptions)
+                definitionsList.Add(GetBaseMetricDefForMEByName(def));
+
+            return definitionsList;
+        }
+
+        public void SetMetricsForNetworkAdapter(string macAddress, string ipAddress, Utils.MetricOperation operation)
+        {
+            using (var sepsd = GetSyntheticEthernetPortSettingData(macAddress))
+            using (var epasd = GetEthernetPortAllocationSettingData(sepsd))
+            using (var epsdc = GetEthernetSwitchPortAclSettingData(epasd, ipAddress))
+            using (var md = Utils.GetBaseMetricDefinition("Filtered Incoming Network Traffic", Scope))
+                ControlMetrics(epsdc.Path.Path, md.Path.Path, operation);
+        }
+
+        public void ConfigureMetricsFlushInterval(TimeSpan interval)
+        {
+            using (var mssdClass = new ManagementClass("Msvm_MetricServiceSettingData"))
+            {
+                mssdClass.Scope = Scope;
+
+                using (var mssd = mssdClass.CreateInstance())
+                {
+                    mssd["MetricsFlushInterval"] = ManagementDateTimeConverter.ToDmtfTimeInterval(interval);
+
+                    using (var ms = Utils.GetMetricService(Scope))
+                    using (var ip = ms.GetMethodParameters("ModifyServiceSettings"))
+                    {
+                        ip["SettingData"] = mssd.GetText(TextFormat.WmiDtd20);
+
+                        using (var op = ms.InvokeMethod("ModifyServiceSettings", ip, null))
+                            Job.Validator.ValidateOutput(op, Scope);
+                    }
+                }
+            }
+        }
+
+        public void SetDrivesAllAggregationMetrics(Utils.MetricOperation operation)
+        {
+            using (var vm = Utils.GetVirtualMachine(VmName, Scope))
+            {
+                var rt = Utils.GetResourceType("ScsiHBA");
+                var rst = Utils.GetResourceSubType("ScsiHBA");
+                var scsiControllers = Utils.GetResourceAllocationSettingDataResourcesByTypeAndSubtype(VmName, Scope, rt, rst);
+
+                foreach (var scsiController in scsiControllers)
+                    using (var driveCollection = scsiController.GetRelated("Msvm_ResourceAllocationSettingData", null, null, null, "Dependent", "Antecedent", false, null))
+                    foreach (ManagementObject drive in driveCollection)
+                            foreach(ManagementObject metric in GetAllAggregationMetricDefinitions())
+                                ControlMetrics(drive.Path.Path, metric.Path.Path, operation);
+            }
+        }
+        
+        public Dictionary<ManagementObject, ManagementObject> GetAggregationMetricValueCollection()
+        {
+            using (var vm = Utils.GetVirtualMachine(VmName, Scope))
+            using (var amdCollection = vm.GetRelated("Msvm_AggregationMetricDefinition", "Msvm_MetricDefForME", null, null, null, null, false, null))
+            using (var amvCollection = vm.GetRelated("Msvm_AggregationMetricValue", "Msvm_MetricForME", null, null, null, null, false, null))
+            {
+                var metricMap = new Dictionary<ManagementObject, ManagementObject>();
+
+                foreach (ManagementObject amd in amdCollection)
+                {
+                    foreach (ManagementObject amv in amvCollection)
+                    {
+                        if (amv["MetricDefinitionId"].ToString() == amd["Id"].ToString())
+                        {
+                            metricMap.Add(amd, amv);
+                            break;
+                        }
+                    }
+                }
+
+                return metricMap;
+            }
         }
 
         #endregion

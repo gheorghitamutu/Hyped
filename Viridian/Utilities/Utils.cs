@@ -71,8 +71,55 @@ namespace Viridian.Utilities
             EthernetConnection = 33
         }
 
+        public enum MetricEnabledState
+        {
+            Unknown = 0,
+            Enabled = 2,
+            Disabled = 3,
+            PartiallyEnabled = 32768
+        };
+
+        public enum MetricOperation
+        {
+            Enable = 2,
+            Disable = 3,
+            Reset = 4
+        };
+
+        public static readonly string[] AggregationMetricDefinitionCaptions =
+        {
+            "Average Memory Utilization",
+            "Aggregated Average Memory Utilization",
+            "Maximum for Memory Utilization",
+            "Aggregated Maximum for Memory Utilization",
+            "Average CPU Utilization",
+            "Aggregated Average CPU Utilization",
+            "Average Disk Latency",
+            "Aggregated Average Normalized Disk Throughput",
+            "Aggregated Average Disk Latency",
+            "Average Normalized Disk Throughput",
+            "Maximum for Disk Allocation",
+            "Aggregated Maximum for Disk Allocations",
+            "Minimum for Memory Utilization",
+            "Aggregated Minimum for Memory Utilization"
+        };
+
+        public static readonly string[] BaseMetricDefinitionCaptions =
+        {
+            "Filtered Outgoing Network Traffic",
+            "Aggregated Filtered Outgoing Network Traffic",
+            "Normalized I/O Operations Completed",
+            "Disk Data Written",
+            "Aggregated Disk Data Read",
+            "Filtered Incoming Network Traffic",
+            "Aggregated Filtered Incoming Network Traffic",
+            "Disk Data Read",
+            "Aggregated Normalized I/O Operations Completed",
+            "Aggregated Disk Data Written"
+        };
+
         #endregion
-        
+
         public static ManagementScope GetScope(string serverName, string scopePath) => new ManagementScope(new ManagementPath { Server = serverName, NamespacePath = scopePath }, null);
 
         public static ManagementObject GetWmiObject(ManagementScope scope, string classname, string where)
@@ -279,5 +326,42 @@ namespace Viridian.Utilities
                 throw new ViridianException("Invalid SCSI child subtype specified!");
             }
         }
+
+        public static ManagementObject GetMetricService(ManagementScope scope)
+        {
+            using (var msClass = new ManagementClass("Msvm_MetricService"))
+            {
+                msClass.Scope = scope;
+
+                return GetFirstObjectFromCollection(msClass.GetInstances());
+            }
+        }
+
+        public static ManagementObject GetBaseMetricDefinition(string name, ManagementScope scope)
+        {
+            var wqlQuery = string.Format(CultureInfo.InvariantCulture, "SELECT * FROM CIM_BaseMetricDefinition WHERE ElementName=\"{0}\"", name);
+            var query = new SelectQuery(wqlQuery);
+
+            using (var mos = new ManagementObjectSearcher(scope, query))
+            using (var collection = mos.Get())
+            {
+                if (collection.Count == 0)
+                    return null; // definition does not exists
+
+                if (collection.Count != 1)
+                    throw new ManagementException(string.Format(CultureInfo.CurrentCulture, "A single CIM_BaseMetricDefinition derived instance could not be found for name \"{0}\"", name));
+
+                return GetFirstObjectFromCollection(collection);
+            }
+        }
+
+        public static string EscapeObjectPath(string objectPath)
+        {
+            string escapedObjectPath = objectPath.Replace("\\", "\\\\");
+            escapedObjectPath = escapedObjectPath.Replace("\"", "\\\"");
+
+            return escapedObjectPath;
+        }
+
     }
 }
