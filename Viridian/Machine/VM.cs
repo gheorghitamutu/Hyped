@@ -5,6 +5,9 @@ using System.Globalization;
 using System.Linq;
 using System.Management;
 using Viridian.Exceptions;
+using Viridian.Job;
+using Viridian.Resources.Network;
+using Viridian.Statistics;
 using Viridian.Utilities;
 
 namespace Viridian.Machine
@@ -19,6 +22,8 @@ namespace Viridian.Machine
         public ManagementScope Scope { get; private set; }
         public string VmName { get; private set; }
         public string VirtualSystemSubtype { get; private set; }
+
+        public ManagementObject GetComputerSystemByName() => Utils.GetFirstObjectFromWqlQueryByClassAndName(VmName, "Msvm_ComputerSystem", Scope);
 
         public VM(string serverName, string scopePath, string elementName, string virtualSystemSubtype)
         {
@@ -120,21 +125,21 @@ namespace Viridian.Machine
                     ip["SystemSettings"] = vssd.GetText(TextFormat.WmiDtd20);
 
                     using (var op = vsms.InvokeMethod("DefineSystem", ip, null))
-                        Job.Validator.ValidateOutput(op, Scope);
+                        Validator.ValidateOutput(op, Scope);
                 }
             }
         }
 
         public void RemoveVm()
         {
-            using (ManagementObject vm = Utils.GetVirtualMachine(VmName, Scope))
+            using (ManagementObject vm = GetComputerSystemByName())
             using (ManagementObject vmms = Utils.GetVirtualMachineManagementService(Scope))
             using (ManagementBaseObject ip = vmms.GetMethodParameters("DestroySystem"))
             {
                 ip["AffectedSystem"] = vm.Path;
 
                 using (ManagementBaseObject op = vmms.InvokeMethod("DestroySystem", ip, null))
-                    Job.Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -144,19 +149,19 @@ namespace Viridian.Machine
 
         public void SetIncrementalBackup(bool incrementalBackupEnabled)
         {
-            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
+            using (var vm = Utils.GetVirtualMachineSettings(VmName, Scope))
             using (var vmms = Utils.GetVirtualMachineManagementService(Scope))
             {
-                if ((bool)vms["IncrementalBackupEnabled"] != incrementalBackupEnabled)
+                if ((bool)vm["IncrementalBackupEnabled"] != incrementalBackupEnabled)
                 {
-                    vms["IncrementalBackupEnabled"] = incrementalBackupEnabled;
+                    vm["IncrementalBackupEnabled"] = incrementalBackupEnabled;
 
                     using (var ip = vmms.GetMethodParameters("ModifySystemSettings"))
                     {
-                        ip["SystemSettings"] = vms.GetText(TextFormat.CimDtd20);
+                        ip["SystemSettings"] = vm.GetText(TextFormat.CimDtd20);
 
                         using (var op = vmms.InvokeMethod("ModifySystemSettings", ip, null))
-                            Job.Validator.ValidateOutput(op, Scope);
+                            Validator.ValidateOutput(op, Scope);
                     }
                 }
             }
@@ -180,7 +185,7 @@ namespace Viridian.Machine
             if (snapshotType == SnapshotType.Recovery)
                 SetIncrementalBackup(true);
 
-            using (var vm = Utils.GetVirtualMachine(VmName, Scope))
+            using (var vm = GetComputerSystemByName())
             using (var vmss = Utils.GetVirtualMachineSnapshotService(Scope))
             using (var ip = vmss.GetMethodParameters("CreateSnapshot"))
             {
@@ -214,7 +219,7 @@ namespace Viridian.Machine
 
                 using (var op = vmss.InvokeMethod("CreateSnapshot", ip, null))
                 {
-                    Job.Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     if (saveMachineState)
                         RequestStateChange(RequestedState.Running);
@@ -224,7 +229,7 @@ namespace Viridian.Machine
 
         public List<ManagementObject> GetSnapshotList(string virtualSystemType)
         {
-            using (var vm = Utils.GetVirtualMachine(VmName, Scope))
+            using (var vm = GetComputerSystemByName())
             using (var sofvsCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
             {
                 var queriedSnapshots = new List<ManagementObject>();
@@ -243,7 +248,7 @@ namespace Viridian.Machine
 
         public void ApplySnapshot(string snapshotName)
         {
-            using (var vm = Utils.GetVirtualMachine(VmName, Scope))
+            using (var vm = GetComputerSystemByName())
             using (var vmss = Utils.GetVirtualMachineSnapshotService(Scope))
             using (var sofvsCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
             {
@@ -261,7 +266,7 @@ namespace Viridian.Machine
                         ip["Snapshot"] = snapshot;
 
                         using (var op = vmss.InvokeMethod("ApplySnapshot", ip, null))
-                            Job.Validator.ValidateOutput(op, Scope);
+                            Validator.ValidateOutput(op, Scope);
                     }
 
                     return;
@@ -273,7 +278,7 @@ namespace Viridian.Machine
 
         public ManagementObject GetLastAppliedSnapshot()
         {
-            using (var vm = Utils.GetVirtualMachine(VmName, Scope))
+            using (var vm = GetComputerSystemByName())
             using (var vmss = Utils.GetVirtualMachineSnapshotService(Scope))
             using (var lasCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_LastAppliedSnapshot", null, null, null, null, false, null))
                 return Utils.GetFirstObjectFromCollection(lasCollection);
@@ -281,7 +286,7 @@ namespace Viridian.Machine
 
         public ManagementObject GetLastCreatedSnapshot()
         {
-            using (var vm = Utils.GetVirtualMachine(VmName, Scope))
+            using (var vm = GetComputerSystemByName())
             using (var vmss = Utils.GetVirtualMachineSnapshotService(Scope))
             using (var sovfsCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
             {
@@ -311,15 +316,15 @@ namespace Viridian.Machine
             {
                 ip["RequestedState"] = (uint)requestedState;
 
-                using (var vm = Utils.GetVirtualMachine(VmName, Scope))
+                using (var vm = GetComputerSystemByName())
                 using (var op = vm.InvokeMethod("RequestStateChange", ip, null))
-                    Job.Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
         public RequestedState GetCurrentState()
         {
-            using (var vm = Utils.GetVirtualMachine(VmName, Scope))
+            using (var vm = GetComputerSystemByName())
                 return (RequestedState)Enum.ToObject(typeof(RequestedState), vm["EnabledState"]);
         }
 
@@ -362,7 +367,7 @@ namespace Viridian.Machine
                     ip["SystemSettings"] = vms.GetText(TextFormat.WmiDtd20);
 
                     using (var op = service.InvokeMethod("ModifySystemSettings", ip, null))
-                        Job.Validator.ValidateOutput(op, Scope);
+                        Validator.ValidateOutput(op, Scope);
                 }
             }
         }
@@ -408,7 +413,7 @@ namespace Viridian.Machine
                     ip["SystemSettings"] = vms.GetText(TextFormat.WmiDtd20);
 
                     using (var op = vmms.InvokeMethod("ModifySystemSettings", ip, null))
-                        Job.Validator.ValidateOutput(op, Scope);
+                        Validator.ValidateOutput(op, Scope);
                 }
             }
         }
@@ -431,7 +436,7 @@ namespace Viridian.Machine
                     ip["SystemSettings"] = vms.GetText(TextFormat.WmiDtd20);
 
                     using (var op = vmms.InvokeMethod("ModifySystemSettings", ip, null))
-                        Job.Validator.ValidateOutput(op, Scope);
+                        Validator.ValidateOutput(op, Scope);
                 }
             }
         }
@@ -454,7 +459,7 @@ namespace Viridian.Machine
                     ip["SystemSettings"] = vms.GetText(TextFormat.WmiDtd20);
 
                     using (var op = vmms.InvokeMethod("ModifySystemSettings", ip, null))
-                        Job.Validator.ValidateOutput(op, Scope);
+                        Validator.ValidateOutput(op, Scope);
                 }
             }
         }
@@ -477,7 +482,7 @@ namespace Viridian.Machine
                     ip["SystemSettings"] = vms.GetText(TextFormat.WmiDtd20);
 
                     using (var op = vmms.InvokeMethod("ModifySystemSettings", ip, null))
-                        Job.Validator.ValidateOutput(op, Scope);
+                        Validator.ValidateOutput(op, Scope);
                 }
             }
         }
@@ -504,7 +509,7 @@ namespace Viridian.Machine
 
         public ManagementObject GetMemorySettingData()
         {
-            using (var vm = Utils.GetVirtualMachine(VmName, Scope))
+            using (var vm = GetComputerSystemByName())
             using (var vssd = Utils.GetFirstObjectFromCollection(vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SettingsDefineState", null, null, "SettingData", "ManagedElement", false, null)))
             using (var memoryCollection = vssd.GetRelated("Msvm_MemorySettingData ", null, null, null, null, null, false, null))
                 return Utils.GetFirstObjectFromCollection(memoryCollection);
@@ -561,7 +566,7 @@ namespace Viridian.Machine
 
                 using (var op = vsms.InvokeMethod("GetSummaryInformation", ip, null))
                 {
-                    Job.Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return (ManagementBaseObject[])op["SummaryInformation"];
                 }
@@ -571,131 +576,92 @@ namespace Viridian.Machine
 
         #endregion
 
-        // TODO: should move Ethernet region in separated class
-        #region Ethernet
+        #region Network
 
-        public ManagementObject GetSyntheticEthernetPortSettingData(string macAddress)
+        public void ConnectVmToSwitch(string switchName)
         {
-            macAddress = macAddress.Replace("-", "").Replace(":", "");
-
-            var wqlQuery = string.Format(CultureInfo.InvariantCulture, "SELECT * FROM Msvm_SyntheticEthernetPortSettingData WHERE Address=\"{0}\"", macAddress);
-            var query = new SelectQuery(wqlQuery);
-
-            using (var mos = new ManagementObjectSearcher(Scope, query))
-            using (var collection = mos.Get())
-                return Utils.GetFirstObjectFromCollection(collection);
-        }
-
-        public ManagementObject GetEthernetPortAllocationSettingData(ManagementObject parentPort)
-        {
-            var wqlQuery = string.Format(CultureInfo.InvariantCulture, "SELECT * FROM Msvm_EthernetPortAllocationSettingData WHERE Parent=\"{0}\"", Utils.EscapeObjectPath(parentPort.Path.Path));
-            var query = new SelectQuery(wqlQuery);
-
-            using (var mos = new ManagementObjectSearcher(Scope, query))
-            using (var collection = mos.Get())
-                return Utils.GetFirstObjectFromCollection(collection);
-        }
-
-        public ManagementObject GetEthernetSwitchPortAclSettingData(ManagementObject ethernetConnection, string ipAddress)
-        {
-            using (var portAclCollection = ethernetConnection.GetRelated("Msvm_EthernetSwitchPortAclSettingData", "Msvm_EthernetPortSettingDataComponent", null, null, null, null, false, null))
+            using (var vmms = Utils.GetVirtualMachineManagementService(Scope))
+            using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope, switchName))
+            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
+            using (var syntheticAdapter = SyntheticEthernetAdapter.AddSyntheticAdapter(this))
+            using (var epasd = NetSwitch.GetDefaultEthernetPortAllocationSettingData(Scope))
             {
-                if (portAclCollection.Count == 0)
-                    throw new ManagementException(string.Format(CultureInfo.CurrentCulture, "No associated Msvm_EthernetSwitchPortAclSettingData could be found"));
+                epasd["Parent"] = syntheticAdapter.Path.Path;
+                epasd["HostResource"] = new string[] { ves.Path.Path };
 
-                string address = ipAddress;
-                byte addressPrefixLength = 32;
-
-                // If the IP address is in the form "A.B.C.D/N", extract the address and prefix length.
-                string[] addressParts = ipAddress.Split(new char[] { '/', '\\' });
-
-                if (addressParts.Length == 2)
+                using (var ip = vmms.GetMethodParameters("AddResourceSettings"))
                 {
-                    address = addressParts[0];
-                    addressPrefixLength = byte.Parse(addressParts[1], CultureInfo.InvariantCulture);
+                    ip["AffectedConfiguration"] = vms.Path.Path;
+                    ip["ResourceSettings"] = new string[] { epasd.GetText(TextFormat.WmiDtd20) };
+
+                    using (var op = vmms.InvokeMethod("AddResourceSettings", ip, null))
+                        Validator.ValidateOutput(op, Scope);
                 }
-
-                foreach (ManagementObject portAcl in portAclCollection)
-                    if ((portAcl["RemoteAddress"].ToString() == address) && ((byte)portAcl["RemoteAddressPrefixLength"] == addressPrefixLength))
-                        return portAcl;
-
-                throw new ManagementException(string.Format(CultureInfo.CurrentCulture, "No associated Msvm_EthernetSwitchPortAclSettingData could be found for IP address \"{0}\"", ipAddress));
             }
+        }
+
+        public void DisconnectVmFromSwitch(string switchName)
+        {
+            using (var vmms = Utils.GetVirtualMachineManagementService(Scope))
+            using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope, switchName))
+            using (var vm = GetComputerSystemByName())
+            {
+                IList<ManagementObject> connectionsToSwitch = NetSwitch.FindConnectionsToSwitch(vm, ves);
+
+                foreach (var connection in connectionsToSwitch)
+                {
+                    connection["EnabledState"] = 3;
+
+                    using (var ip = vmms.GetMethodParameters("ModifyResourceSettings"))
+                    {
+                        ip["ResourceSettings"] = new string[] { connection.GetText(TextFormat.WmiDtd20) };
+
+                        using (var op = vmms.InvokeMethod("ModifyResourceSettings", ip, null))
+                            Validator.ValidateOutput(op, Scope);
+                    }
+                }
+            }
+        }
+
+        public void ModifyConnection(string currentSwitchName, string newSwitchName)
+        {
+            using (var vmms = Utils.GetVirtualMachineManagementService(Scope))
+            using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope, currentSwitchName))
+            using (var newVes = NetSwitch.FindVirtualEthernetSwitch(Scope, newSwitchName))
+            using (var virtualMachine = GetComputerSystemByName())
+            {
+                IList<ManagementObject> currentConnections = NetSwitch.FindConnectionsToSwitch(virtualMachine, ves);
+
+                foreach (var connection in currentConnections)
+                {
+                    connection["HostResource"] = new string[] { newVes.Path.Path };
+
+                    using (var ip = vmms.GetMethodParameters("ModifyResourceSettings"))
+                    {
+                        ip["ResourceSettings"] = new string[] { connection.GetText(TextFormat.WmiDtd20) };
+
+                        using (var op = vmms.InvokeMethod("ModifyResourceSettings", ip, null))
+                            Validator.ValidateOutput(op, Scope);
+                    }
+                }
+            }
+        }
+
+        public ManagementObjectCollection GetSyntheticAdapterCollection()
+        {
+            return GetComputerSystemByName().GetRelated("Msvm_SyntheticEthernetPort");
         }
 
         #endregion
 
         #region Metrics
 
-        private void ControlMetrics(string managedElementPath, string metricDefinitionPath, Utils.MetricOperation operation)
-        {
-            using (var ms = Utils.GetMetricService(Scope))
-            using (var ip = ms.GetMethodParameters("ControlMetrics"))
-            {
-                ip["Subject"] = managedElementPath;
-                ip["Definition"] = metricDefinitionPath;
-                ip["MetricCollectionEnabled"] = (uint)operation;
-
-                using (var op = ms.InvokeMethod("ControlMetrics", ip, null))
-                    Job.Validator.ValidateOutput(op, Scope);
-            }
-        }
-
-        public void SetAllMetrics(Utils.MetricOperation operation)
-        {
-            using (var vm = Utils.GetVirtualMachine(VmName, Scope))
-            {
-                var vmPath = vm.Path.Path;
-
-                ControlMetrics(vmPath, null, operation);
-            }
-        }
-
-        public ManagementObject GetBaseMetricDefForMEByName(string metricDefinitionName)
-        {
-            using (var vm = Utils.GetVirtualMachine(VmName, Scope))
-            using (var md = Utils.GetBaseMetricDefinition(metricDefinitionName, Scope))
-            {
-                if (md == null) // definition for this metric has not been found
-                    return null;
-
-                var escapedVmPath = Utils.EscapeObjectPath(vm.Path.Path);
-                var escapedMdPath = Utils.EscapeObjectPath(md.Path.Path);
-                var wqlQuery = string.Format(CultureInfo.InvariantCulture, "SELECT * FROM Msvm_MetricDefForME WHERE Antecedent=\"{0}\" AND Dependent=\"{1}\"", escapedVmPath, escapedMdPath);
-                var query = new SelectQuery(wqlQuery);
-
-                using (var mos = new ManagementObjectSearcher(Scope, query))
-                using (var definitionsCollection = mos.Get())
-                {
-                    if (definitionsCollection.Count > 0)
-                        return Utils.GetFirstObjectFromCollection(definitionsCollection);
-                    else
-                        return null;
-                }
-            }
-        }
-
-        public ManagementObjectCollection GetMetricsByDefinition(ManagementObject metricDefinition)
-        {
-            using (var vm = Utils.GetVirtualMachine(VmName, Scope))
-            {
-                var escapedVmPath = Utils.EscapeObjectPath(vm.Path.Path);
-                var escapedMdPath = Utils.EscapeObjectPath(metricDefinition.Path.Path);
-
-                var wqlQuery = string.Format(CultureInfo.InvariantCulture, "SELECT * FROM Msvm_MetricForME WHERE Antecedent=\"{0}\"", escapedVmPath);
-                var query = new SelectQuery(wqlQuery);
-
-                using (var mos = new ManagementObjectSearcher(Scope, query))
-                    return mos.Get();
-            }
-        }
-
         public List<ManagementObject> GetAllAggregationMetricDefinitions()
         {
             var definitionsList = new List<ManagementObject>();
 
             foreach (var def in Utils.AggregationMetricDefinitionCaptions)
-                using (var definition = GetBaseMetricDefForMEByName(def))
+                using (var definition = Metrics.GetBaseMetricDefForMEByName(GetComputerSystemByName(), def))
                     if (definition != null)
                         definitionsList.Add(definition);
 
@@ -707,45 +673,14 @@ namespace Viridian.Machine
             var definitionsList = new List<ManagementObject>();
 
             foreach (var def in Utils.BaseMetricDefinitionCaptions)
-                definitionsList.Add(GetBaseMetricDefForMEByName(def));
+                definitionsList.Add(Metrics.GetBaseMetricDefForMEByName(GetComputerSystemByName(), def));
 
             return definitionsList;
         }
 
-        public void SetMetricsForNetworkAdapter(string macAddress, string ipAddress, Utils.MetricOperation operation)
+        public void SetDrivesAggregationMetricsForDrives(Utils.MetricOperation operation)
         {
-            using (var sepsd = GetSyntheticEthernetPortSettingData(macAddress))
-            using (var epasd = GetEthernetPortAllocationSettingData(sepsd))
-            using (var epsdc = GetEthernetSwitchPortAclSettingData(epasd, ipAddress))
-            using (var md = Utils.GetBaseMetricDefinition("Filtered Incoming Network Traffic", Scope))
-                ControlMetrics(epsdc.Path.Path, md.Path.Path, operation);
-        }
-
-        public void ConfigureMetricsFlushInterval(TimeSpan interval)
-        {
-            using (var mssdClass = new ManagementClass("Msvm_MetricServiceSettingData"))
-            {
-                mssdClass.Scope = Scope;
-
-                using (var mssd = mssdClass.CreateInstance())
-                {
-                    mssd["MetricsFlushInterval"] = ManagementDateTimeConverter.ToDmtfTimeInterval(interval);
-
-                    using (var ms = Utils.GetMetricService(Scope))
-                    using (var ip = ms.GetMethodParameters("ModifyServiceSettings"))
-                    {
-                        ip["SettingData"] = mssd.GetText(TextFormat.WmiDtd20);
-
-                        using (var op = ms.InvokeMethod("ModifyServiceSettings", ip, null))
-                            Job.Validator.ValidateOutput(op, Scope);
-                    }
-                }
-            }
-        }
-
-        public void SetDrivesAllAggregationMetrics(Utils.MetricOperation operation)
-        {
-            using (var vm = Utils.GetVirtualMachine(VmName, Scope))
+            using (var vm = GetComputerSystemByName())
             {
                 var rt = Utils.GetResourceType("ScsiHBA");
                 var rst = Utils.GetResourceSubType("ScsiHBA");
@@ -754,32 +689,7 @@ namespace Viridian.Machine
                 foreach (var scsiController in scsiControllers)
                     using (var driveCollection = scsiController.GetRelated("Msvm_ResourceAllocationSettingData", null, null, null, "Dependent", "Antecedent", false, null))
                     foreach (ManagementObject drive in driveCollection)
-                            foreach(ManagementObject metric in GetAllAggregationMetricDefinitions())
-                                ControlMetrics(drive.Path.Path, metric.Path.Path, operation);
-            }
-        }
-        
-        public Dictionary<ManagementObject, ManagementObject> GetAggregationMetricValueCollection()
-        {
-            using (var vm = Utils.GetVirtualMachine(VmName, Scope))
-            using (var amdCollection = vm.GetRelated("Msvm_AggregationMetricDefinition", "Msvm_MetricDefForME", null, null, null, null, false, null))
-            using (var amvCollection = vm.GetRelated("Msvm_AggregationMetricValue", "Msvm_MetricForME", null, null, null, null, false, null))
-            {
-                var metricMap = new Dictionary<ManagementObject, ManagementObject>();
-
-                foreach (ManagementObject amd in amdCollection)
-                {
-                    foreach (ManagementObject amv in amvCollection)
-                    {
-                        if (amv["MetricDefinitionId"].ToString() == amd["Id"].ToString())
-                        {
-                            metricMap.Add(amd, amv);
-                            break;
-                        }
-                    }
-                }
-
-                return metricMap;
+                            Metrics.SetAllMetrics(drive, operation);
             }
         }
 

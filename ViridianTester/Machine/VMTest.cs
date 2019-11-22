@@ -55,7 +55,7 @@ namespace ViridianTester.Machine
 
             // Assert
             Assert.ThrowsException<ViridianException>(() => sut.RemoveVm());
-            Assert.ThrowsException<ViridianException>(() => Utils.GetVirtualMachine(sut.VmName, sut.Scope));
+            Assert.ThrowsException<ViridianException>(() => sut.GetComputerSystemByName());
         }
 
         [TestMethod]
@@ -245,42 +245,6 @@ namespace ViridianTester.Machine
             // Assert
             Assert.AreEqual("Memory", memory["ElementName"]);
             sut.RemoveVm();
-        }
-
-        [TestMethod]
-        public void ViridianMachineVM_GetAggregationMetricValueCollection()
-        {
-            // Arrange
-            var vmName = "vm_test_get_aggregation_base_metric_definitions";
-            var vmState = VM.RequestedState.Running;
-
-            // Act
-            var vm = new VM(serverName, scopePath, vmName, virtualSystemSubType);
-            vm.CreateVm();
-            vm.SetAllMetrics(Utils.MetricOperation.Enable);
-            vm.ConfigureMetricsFlushInterval(new TimeSpan(1000));
-            vm.RequestStateChange(VM.RequestedState.Running);
-
-            var mapped = vm.GetAggregationMetricValueCollection();
-
-            foreach(var pair in mapped)
-            {
-                foreach(var p in pair.Key.Properties)
-                    Trace.Write("Definition [" + p.Name?.ToString() + "]:\t\t\t\t" + p.Value?.ToString() + "\n");
-
-                foreach (var p in pair.Value.Properties)
-                    Trace.Write("Value [" + p.Name + "]:\t\t\t\t" + p.Value + "\n");
-
-                Trace.Write("----------------------------------------\n");
-            }
-
-            // Assert
-            Assert.AreEqual(vm.GetCurrentState(), vmState);
-            Assert.AreEqual(mapped.Count, 4);
-
-            vm.RequestStateChange(VM.RequestedState.Off);
-            vm.SetAllMetrics(Utils.MetricOperation.Disable);
-            vm.RemoveVm();
         }
     }
 }

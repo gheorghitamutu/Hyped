@@ -1,5 +1,6 @@
 ﻿using System.Management;
 using Viridian.Exceptions;
+using Viridian.Job;
 using Viridian.Utilities;
 
 namespace Viridian.Resources.Msvm
@@ -43,7 +44,7 @@ namespace Viridian.Resources.Msvm
 
                 using (var op = rpcs.InvokeMethod("CreatePool", ip, null))
                 {
-                    Job.Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, scope);
 
                     return new ManagementObject(scope, new ManagementPath(op["Pool"].ToString()), null);
                 }
@@ -65,7 +66,7 @@ namespace Viridian.Resources.Msvm
                 ip["AllocationSettings"] = ResourceAllocationSettingData.GetNewPoolAllocationSettingsArray(scope, resourceType, resourceSubType, parentPoolIdArray, parentHostResourcesArray);
 
                 using (var op = configurationService.InvokeMethod("ModifyPoolResources", ip, null))
-                    Job.Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, scope);
             }
         }
 
@@ -91,7 +92,7 @@ namespace Viridian.Resources.Msvm
                 ip["PoolSettings"] = poolSettings;
 
                 using (var op = configurationService.InvokeMethod("ModifyPoolSettings", ip, null))
-                    Job.Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, scope);
             }
         }
         
@@ -119,7 +120,7 @@ namespace Viridian.Resources.Msvm
                 ip["Pool"] = Utils.GetResourcePoolPath(scope, rt, rst, poolId);
 
                 using (var op = rpcs.InvokeMethod("DeletePool", ip, null))
-                    Job.Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, scope);
             }
         }
     }

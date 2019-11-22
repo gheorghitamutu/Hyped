@@ -1,4 +1,5 @@
 ﻿using System.Management;
+using Viridian.Job;
 using Viridian.Machine;
 using Viridian.Resources.Msvm;
 using Viridian.Utilities;
@@ -25,7 +26,7 @@ namespace Viridian.Resources.Drives
                         ip["ResourceSettings"] = new[] { rasdClone.GetText(TextFormat.WmiDtd20) };
 
                         using (var op = vmms.InvokeMethod("AddResourceSettings", ip, null))
-                            Job.Validator.ValidateOutput(op, vm.Scope);
+                            Validator.ValidateOutput(op, vm.Scope);
                     }
                 }
             }

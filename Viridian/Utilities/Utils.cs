@@ -161,6 +161,9 @@ namespace Viridian.Utilities
 
         public static ManagementObject GetFirstObjectFromCollection(ManagementObjectCollection collection)
         {
+            if (collection is null)
+                throw new ViridianException("", new ArgumentNullException(nameof(collection)));
+
             if (collection.Count == 0)
                 throw new ViridianException("The collection contains no objects!");
 
@@ -170,7 +173,7 @@ namespace Viridian.Utilities
             return null;
         }
 
-        public static ManagementObject GetVMFirstObject(string name, string className, ManagementScope scope)
+        public static ManagementObject GetFirstObjectFromWqlQueryByClassAndName(string name, string className, ManagementScope scope)
         {
             var vmQueryWql = $"SELECT * FROM {className} WHERE ElementName=\"{name}\"";
             var vmQuery = new SelectQuery(vmQueryWql);
@@ -189,12 +192,20 @@ namespace Viridian.Utilities
                 return mos.Get();
         }
 
-        public static ManagementObject GetVirtualMachine(string name, ManagementScope scope) => GetVMFirstObject(name, "Msvm_ComputerSystem", scope);
+        public static ManagementObject GetVirtualMachine(string name, ManagementScope scope) => GetFirstObjectFromWqlQueryByClassAndName(name, "Msvm_ComputerSystem", scope);
 
         public static ManagementObject GetVirtualMachineSettings(string vmName, ManagementScope scope)
         {
             using (var vm = GetVirtualMachine(vmName, scope))
-            using (var vssd = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SettingsDefineState", null, null, null, null, false, null))
+                return GetVirtualMachineSettings(vm);
+        }
+
+        public static ManagementObject GetVirtualMachineSettings(ManagementObject virtualMachine)
+        {
+            if (virtualMachine is null)
+                throw new ViridianException("", new ArgumentNullException(nameof(virtualMachine)));
+
+            using (var vssd = virtualMachine.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SettingsDefineState", null, null, null, null, false, null))
                 return GetFirstObjectFromCollection(vssd);
         }
 
@@ -324,16 +335,6 @@ namespace Viridian.Utilities
                 }
 
                 throw new ViridianException("Invalid SCSI child subtype specified!");
-            }
-        }
-
-        public static ManagementObject GetMetricService(ManagementScope scope)
-        {
-            using (var msClass = new ManagementClass("Msvm_MetricService"))
-            {
-                msClass.Scope = scope;
-
-                return GetFirstObjectFromCollection(msClass.GetInstances());
             }
         }
 
