@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Management;
 using Viridian.Exceptions;
 using Viridian.Job;
+using Viridian.Resources.Msvm;
 using Viridian.Utilities;
 
 namespace Viridian.Statistics
@@ -26,6 +27,15 @@ namespace Viridian.Statistics
                 throw new ViridianException("", new ArgumentNullException(nameof(msvmObject)));
 
             ControlMetrics(msvmObject.Scope, msvmObject.Path.Path, null, operation);
+        }
+
+        public static void SetAllMetrics(ManagementObjectCollection msvmObjectCollection, Utils.MetricOperation operation)
+        {
+            if (msvmObjectCollection is null)
+                throw new ViridianException("", new ArgumentNullException(nameof(msvmObjectCollection)));
+
+            foreach(ManagementObject msvmObject in msvmObjectCollection)
+                ControlMetrics(msvmObject.Scope, msvmObject.Path.Path, null, operation);
         }
 
         public static void ControlMetrics(ManagementScope scope, string managedElementPath, string metricDefinitionPath, Utils.MetricOperation operation)
@@ -83,6 +93,25 @@ namespace Viridian.Statistics
             }
         }
 
+        public static Dictionary<ManagementObject, ManagementObject> GetBaseMetricValueCollection(ManagementObject msvmObject)
+        {
+            if (msvmObject is null)
+                throw new ViridianException("", new ArgumentNullException(nameof(msvmObject)));
+
+            using (var amdCollection = msvmObject.GetRelated("Msvm_BaseMetricDefinition", "Msvm_MetricDefForME", null, null, null, null, false, null))
+            using (var amvCollection = msvmObject.GetRelated("Msvm_BaseMetricValue", "Msvm_MetricForME", null, null, null, null, false, null))
+            {
+                var metricMap = new Dictionary<ManagementObject, ManagementObject>();
+
+                foreach (ManagementObject amd in amdCollection)
+                    foreach (ManagementObject amv in amvCollection)
+                        if (amv["MetricDefinitionId"].ToString() == amd["Id"].ToString())
+                            metricMap.Add(amd, amv);
+
+                return metricMap;
+            }
+        }
+
         public static ManagementObject GetBaseMetricDefForMEByName(ManagementObject msvmObject, string metricDefinitionName)
         {
             if (msvmObject is null)
@@ -125,6 +154,12 @@ namespace Viridian.Statistics
 
             using (var mos = new ManagementObjectSearcher(msvmObject.Scope, query))
                 return mos.Get();
+        }
+
+        public static Dictionary<ManagementObject, ManagementObject> GetAggregationMetricsForResourcePool(ManagementScope scope, string resourceType, string resourceSubType, string poolId)
+        {
+            using (var pool = ResourcePoolSettingData.GetResourcePoolSettingData(scope, resourceType, resourceSubType, poolId))
+                return GetAggregationMetricValueCollection(pool);
         }
     }
 }

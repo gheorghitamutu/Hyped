@@ -1,12 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Viridian.Machine;
 using Viridian.Resources.Network;
-using Viridian.Utilities;
 
 namespace ViridianTester.Resources.Network
 {
@@ -22,18 +16,18 @@ namespace ViridianTester.Resources.Network
         {
             // Arrange
             var vmName = "vm_test_add_synthetic_ethernet_adapter_to_vm";
+            var vmState = VM.RequestedState.Running;
 
             // Act
             var vm = new VM(serverName, scopePath, vmName, virtualSystemSubType);
             vm.CreateVm();
-            vm.RequestStateChange(VM.RequestedState.Running);
+            vm.RequestStateChange(vmState);
 
             SyntheticEthernetAdapter.AddSyntheticAdapter(vm, "MyNetworkAdapter");
-            SyntheticEthernetAdapter.AddSyntheticAdapter(vm, "MyNetworkAdapter2");
 
             // Assert
-            Assert.AreEqual(VM.RequestedState.Running, vm.GetCurrentState());
-            Assert.AreEqual(2, vm.GetSyntheticAdapterCollection().Count);
+            Assert.AreEqual(vmState, vm.GetCurrentState());
+            Assert.AreEqual(1, vm.GetSyntheticAdapterCollection().Count);
             vm.RequestStateChange(VM.RequestedState.Off);
             vm.RemoveVm();
         }

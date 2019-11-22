@@ -11,7 +11,7 @@ namespace Viridian.Utilities
     {
         #region Constants
 
-        private static readonly string[][] ResourceTypeInformation =
+        private static readonly string[][] ResourceTypeInformation = // Resource Type -> resource pool IDs!
         {
             //      Display Name          Resource Type Resource Subtype
             new[] { "RDV",                "1",          "Microsoft:Hyper-V:Rdv Component" },

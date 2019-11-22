@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Globalization;
 using System.Management;
-using System.Text;
-using System.Threading.Tasks;
 using Viridian.Exceptions;
 using Viridian.Job;
 using Viridian.Machine;
@@ -88,6 +85,33 @@ namespace Viridian.Resources.Network
                         Validator.ValidateOutput(op, virtualMachine.Scope);
                 }
             }
+        }
+
+        public static ManagementObject GetEthernetPortAllocationSettingData(ManagementObject parentPort, ManagementScope scope)
+        {
+            if (parentPort is null)
+                throw new ViridianException("", new ArgumentNullException(nameof(parentPort)));
+
+            var wqlQuery = string.Format(CultureInfo.InvariantCulture, "SELECT * FROM Msvm_EthernetPortAllocationSettingData WHERE Parent=\"{0}\"", Utils.EscapeObjectPath(parentPort.Path.Path));
+            var query = new SelectQuery(wqlQuery);
+
+            using (var mos = new ManagementObjectSearcher(scope, query))
+            using (ManagementObjectCollection epasd = mos.Get())
+            {
+                if (epasd.Count != 1)
+                    throw new ViridianException(string.Format(CultureInfo.CurrentCulture, "A single Msvm_EthernetPortAllocationSettingData could not be found for parent port \"{0}\"", parentPort.Path.Path));
+
+                return Utils.GetFirstObjectFromCollection(epasd);
+            }
+        }
+
+        public static ManagementObject GetEthernetSwitchPortAclSettingData(ManagementObject ethernetConnection)
+        {
+            if (ethernetConnection is null)
+                throw new ViridianException("", new ArgumentNullException(nameof(ethernetConnection)));
+
+            using (var espasdCollection = ethernetConnection.GetRelated("Msvm_EthernetSwitchPortAclSettingData", "Msvm_EthernetPortSettingDataComponent", null, null, null, null, false, null))
+                return Utils.GetFirstObjectFromCollection(espasdCollection);
         }
     }
 }

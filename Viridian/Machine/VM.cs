@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Management;
 using Viridian.Exceptions;
@@ -578,12 +576,12 @@ namespace Viridian.Machine
 
         #region Network
 
-        public void ConnectVmToSwitch(string switchName)
+        public void ConnectVmToSwitch(string switchName, string adapterName)
         {
             using (var vmms = Utils.GetVirtualMachineManagementService(Scope))
             using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope, switchName))
             using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
-            using (var syntheticAdapter = SyntheticEthernetAdapter.AddSyntheticAdapter(this))
+            using (var syntheticAdapter = SyntheticEthernetAdapter.AddSyntheticAdapter(this, adapterName))
             using (var epasd = NetSwitch.GetDefaultEthernetPortAllocationSettingData(Scope))
             {
                 epasd["Parent"] = syntheticAdapter.Path.Path;
@@ -652,6 +650,19 @@ namespace Viridian.Machine
             return GetComputerSystemByName().GetRelated("Msvm_SyntheticEthernetPort");
         }
 
+        public List<ManagementObject> GetEthernetSwitchPortAclSettingDatas()
+        {
+            var list = new List<ManagementObject>();
+
+            using (var vm = GetComputerSystemByName())
+            using (var vms = Utils.GetVirtualMachineSettings(vm))
+                foreach (ManagementObject sepsd in vms.GetRelated("Msvm_SyntheticEthernetPortSettingData"))
+                    using (var epasd = SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope))
+                        list.Add(SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(epasd));
+
+            return list;
+        }
+
         #endregion
 
         #region Metrics
@@ -678,7 +689,7 @@ namespace Viridian.Machine
             return definitionsList;
         }
 
-        public void SetDrivesAggregationMetricsForDrives(Utils.MetricOperation operation)
+        public void SetAggregationMetricsForDrives(Utils.MetricOperation operation)
         {
             using (var vm = GetComputerSystemByName())
             {
@@ -691,6 +702,16 @@ namespace Viridian.Machine
                     foreach (ManagementObject drive in driveCollection)
                             Metrics.SetAllMetrics(drive, operation);
             }
+        }
+
+        public void SetAggregationMetricsForEthernetSwitchPortAclSettingData(Utils.MetricOperation operation)
+        {
+            using (var vm = GetComputerSystemByName())
+            using (var vms = Utils.GetVirtualMachineSettings(vm))
+            foreach (ManagementObject sepsd in vms.GetRelated("Msvm_SyntheticEthernetPortSettingData"))
+                using (var epasd = SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope))
+                using (var espasd = SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(epasd))
+                    Metrics.SetAllMetrics(espasd, operation);
         }
 
         #endregion

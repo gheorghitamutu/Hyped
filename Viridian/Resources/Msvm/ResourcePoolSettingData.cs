@@ -4,9 +4,9 @@ using Viridian.Utilities;
 
 namespace Viridian.Resources.Msvm
 {
-    class ResourcePoolSettingData
+    public static class ResourcePoolSettingData
     {
-        public ManagementObject GetResourcePoolSettingData(ManagementScope scope, string resourceType, string resourceSubType, string poolId)
+        public static ManagementObject GetResourcePoolSettingData(ManagementScope scope, string resourceType, string resourceSubType, string poolId)
         {
             using (var rp = Utils.GetResourcePool(resourceType, resourceSubType, poolId, scope))
             using (var rpsdCollection = rp.GetRelated("Msvm_ResourcePoolSettingData", "Msvm_SettingsDefineState", null, null, "SettingData", "ManagedElement", false, null))
@@ -18,7 +18,7 @@ namespace Viridian.Resources.Msvm
             }
         }
 
-        public string GetSettingsForSpecificPool(ManagementScope scope, string resourceType, string resourceSubType, string poolId, string poolName)
+        public static string GetSettingsForSpecificPool(ManagementScope scope, string resourceType, string resourceSubType, string poolId, string poolName)
         {
             using (var rpsdClass = new ManagementClass("Msvm_ResourcePoolSettingData") { Scope = scope })
             using (var rpsdInstance = rpsdClass.CreateInstance())

@@ -38,7 +38,7 @@ namespace Viridian.Resources.Msvm
                 var rt = Utils.GetResourceType(resourceDisplayName);
                 var rst = Utils.GetResourceSubType(resourceDisplayName);
 
-                ip["PoolSettings"] = new ResourcePoolSettingData().GetSettingsForSpecificPool(scope, rt, rst, childPoolId, childPoolName);
+                ip["PoolSettings"] = ResourcePoolSettingData.GetSettingsForSpecificPool(scope, rt, rst, childPoolId, childPoolName);
                 ip["ParentPools"] = Utils.GetParentPoolArrayFromPoolIds(scope, rt, rst, parentPoolIdArray);
                 ip["AllocationSettings"] = ResourceAllocationSettingData.GetNewPoolAllocationSettingsArray(scope, rt, rst, parentPoolIdArray, parentHostResourcesArray);
 
@@ -102,7 +102,7 @@ namespace Viridian.Resources.Msvm
             {
                 var rt = Utils.GetResourceType(resourceDisplayName);
                 var rst = Utils.GetResourceSubType(resourceDisplayName);
-                var rpsd = new ResourcePoolSettingData().GetSettingsForSpecificPool(scope, rt, rst, newPoolId, newPoolName);
+                var rpsd = ResourcePoolSettingData.GetSettingsForSpecificPool(scope, rt, rst, newPoolId, newPoolName);
                 var pp = Utils.GetResourcePoolPath(scope, rt, rst, poolId);
 
                 ModifyPoolSettingsByPath(scope, rpcs, pp, rpsd);

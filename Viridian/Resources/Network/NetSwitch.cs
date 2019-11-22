@@ -900,6 +900,15 @@ namespace Viridian.Resources.Network
             using (var rp = Utils.GetFirstObjectFromCollection(mos.Get()))
                 return ResourceAllocationSettingData.GetDefaultAllocationSettings(rp);
         }
+        public static ManagementObject GetDefaultEthernetConnectionSettingData(ManagementScope scope)
+        {
+            var wqlQuery = "Select * from Msvm_ResourcePool where ResourceSubType = 'Microsoft:Hyper-V:Ethernet Connection' and Primordial = True";
+            var query = new ObjectQuery(wqlQuery);
+
+            using (var mos = new ManagementObjectSearcher(scope, query))
+            using (var rp = Utils.GetFirstObjectFromCollection(mos.Get()))
+                return ResourceAllocationSettingData.GetDefaultAllocationSettings(rp);
+        }
 
         public static ManagementObject FindExternalAdapter(ManagementScope scope, string externalAdapterName)
         {
