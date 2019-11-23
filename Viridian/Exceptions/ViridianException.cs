@@ -1,8 +1,10 @@
 ﻿using System;
-using System.IO;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
+using System.Text;
 using System.Xml;
+using System.Xml.Linq;
 
 namespace Viridian.Exceptions
 {
@@ -25,67 +27,29 @@ namespace Viridian.Exceptions
         {
         }
 
-        public ViridianException(string message, string[] messages)
+        public ViridianException(string message, string[] xmls)
         {
-            Console.WriteLine("Main error message: {0}\n", message);
-            Console.WriteLine("Detailed errors: \n");
+            Trace.WriteLine("Main error message: {0}\n", message);
+            Trace.WriteLine("Detailed errors: \n");
 
-            if (messages == null)
+            if (xmls == null)
                 throw new NullReferenceException("Null error messages array!");
 
-            foreach (var error in messages)
+            foreach (var xml in xmls)
             {
-                var errorSource = string.Empty;
-                var errorMessage = string.Empty;
-                var propId = 0;
-
-                using (var reader = XmlReader.Create(new StringReader(error)))
+                var stringBuilder = new StringBuilder();
+                var element = XElement.Parse(xml);
+                var settings = new XmlWriterSettings
                 {
-                    while (reader.Read())
-                    {
-                        if (reader.Name.Equals("PROPERTY", StringComparison.OrdinalIgnoreCase))
-                        {
-                            propId = 0;
+                    OmitXmlDeclaration = true,
+                    Indent = true,
+                    NewLineOnAttributes = true
+                };
 
-                            if (!reader.HasAttributes)
-                                continue;
+                using (var xmlWriter = XmlWriter.Create(stringBuilder, settings))
+                    element.Save(xmlWriter);
 
-                            var propName = reader.GetAttribute(0);
-
-                            if (propName == null)
-                                continue;
-
-                            if (propName.Equals("ErrorSource", StringComparison.OrdinalIgnoreCase))
-                                propId = 1;
-                            else if (propName.Equals("Message", StringComparison.OrdinalIgnoreCase))
-                                propId = 2;
-                        }
-                        else if (reader.Name.Equals("VALUE", StringComparison.OrdinalIgnoreCase))
-                        {
-                            switch (propId)
-                            {
-                                case 1:
-                                    errorSource = reader.ReadElementContentAsString();
-                                    break;
-                                case 2:
-                                    errorMessage = reader.ReadElementContentAsString();
-                                    break;
-                                default:
-                                    errorMessage = reader.ReadElementContentAsString();
-                                    break;
-                            }
-
-                            propId = 0;
-                        }
-                        else
-                        {
-                            propId = 0;
-                        }
-                    }
-
-                    Console.WriteLine("Error Message: {0}\n", errorMessage);
-                    Console.WriteLine("Error Source:  {0}\n", errorSource);
-                }
+                Trace.WriteLine(stringBuilder.ToString());
             }
         }
 

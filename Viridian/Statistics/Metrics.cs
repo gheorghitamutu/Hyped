@@ -29,6 +29,17 @@ namespace Viridian.Statistics
             ControlMetrics(msvmObject.Scope, msvmObject.Path.Path, null, operation);
         }
 
+        public static void SetBaseMetric(ManagementObject msvmObject, ManagementObject baseMetricDef, Utils.MetricOperation operation)
+        {
+            if (msvmObject is null)
+                throw new ViridianException("", new ArgumentNullException(nameof(msvmObject)));
+
+            if (baseMetricDef is null)
+                throw new ViridianException("", new ArgumentNullException(nameof(baseMetricDef)));
+
+            ControlMetrics(msvmObject.Scope, msvmObject.Path.Path, baseMetricDef.Path.Path, operation);
+        }
+
         public static void SetAllMetrics(ManagementObjectCollection msvmObjectCollection, Utils.MetricOperation operation)
         {
             if (msvmObjectCollection is null)
@@ -160,6 +171,22 @@ namespace Viridian.Statistics
         {
             using (var pool = ResourcePoolSettingData.GetResourcePoolSettingData(scope, resourceType, resourceSubType, poolId))
                 return GetAggregationMetricValueCollection(pool);
+        }
+
+        public static ManagementObjectCollection GetAllBaseMetricDefinitions(ManagementObject msvmObject)
+        {
+            if (msvmObject is null)
+                throw new ViridianException("", new ArgumentNullException(nameof(msvmObject)));
+
+            return msvmObject.GetRelated("Msvm_BaseMetricDefinition", "Msvm_MetricDefForME", null, null, null, null, false, null);
+        }
+
+        public static ManagementObjectCollection GetAllAggregationMetricDefinitions(ManagementObject msvmObject)
+        {
+            if (msvmObject is null)
+                throw new ViridianException("", new ArgumentNullException(nameof(msvmObject)));
+
+            return msvmObject.GetRelated("Msvm_AggregationMetricDefinition", "Msvm_MetricDefForME", null, null, null, null, false, null);
         }
     }
 }

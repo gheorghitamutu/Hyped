@@ -105,13 +105,12 @@ namespace Viridian.Resources.Network
             }
         }
 
-        public static ManagementObject GetEthernetSwitchPortAclSettingData(ManagementObject ethernetConnection)
+        public static ManagementObjectCollection GetEthernetSwitchPortAclSettingData(ManagementObject ethernetConnection)
         {
             if (ethernetConnection is null)
                 throw new ViridianException("", new ArgumentNullException(nameof(ethernetConnection)));
 
-            using (var espasdCollection = ethernetConnection.GetRelated("Msvm_EthernetSwitchPortAclSettingData", "Msvm_EthernetPortSettingDataComponent", null, null, null, null, false, null))
-                return Utils.GetFirstObjectFromCollection(espasdCollection);
+            return ethernetConnection.GetRelated("Msvm_EthernetSwitchPortAclSettingData", "Msvm_EthernetPortSettingDataComponent", null, null, null, null, false, null);
         }
     }
 }

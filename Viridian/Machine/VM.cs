@@ -658,7 +658,8 @@ namespace Viridian.Machine
             using (var vms = Utils.GetVirtualMachineSettings(vm))
                 foreach (ManagementObject sepsd in vms.GetRelated("Msvm_SyntheticEthernetPortSettingData"))
                     using (var epasd = SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope))
-                        list.Add(SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(epasd));
+                        foreach(ManagementObject espasd in SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(epasd))
+                            list.Add(espasd);
 
             return list;
         }
@@ -679,16 +680,6 @@ namespace Viridian.Machine
             return definitionsList;
         }
 
-        public List<ManagementObject> GetAllBaseMetricDefinitions()
-        {
-            var definitionsList = new List<ManagementObject>();
-
-            foreach (var def in Utils.BaseMetricDefinitionCaptions)
-                definitionsList.Add(Metrics.GetBaseMetricDefForMEByName(GetComputerSystemByName(), def));
-
-            return definitionsList;
-        }
-
         public void SetAggregationMetricsForDrives(Utils.MetricOperation operation)
         {
             using (var vm = GetComputerSystemByName())
@@ -704,14 +695,27 @@ namespace Viridian.Machine
             }
         }
 
-        public void SetAggregationMetricsForEthernetSwitchPortAclSettingData(Utils.MetricOperation operation)
+        public void SetBaseMetricsForEthernetSwitchPortAclSettingData(Utils.MetricOperation operation)
         {
             using (var vm = GetComputerSystemByName())
             using (var vms = Utils.GetVirtualMachineSettings(vm))
             foreach (ManagementObject sepsd in vms.GetRelated("Msvm_SyntheticEthernetPortSettingData"))
                 using (var epasd = SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope))
-                using (var espasd = SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(epasd))
-                    Metrics.SetAllMetrics(espasd, operation);
+                using (var espasdCollection = SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(epasd))
+                        foreach (ManagementObject espasd in espasdCollection)
+                            foreach (ManagementObject baseMetricDef in Metrics.GetAllBaseMetricDefinitions(espasd))
+                                Metrics.SetBaseMetric(espasd, baseMetricDef, operation);
+        }
+
+        public void SetAggregationMetricsForEthernetSwitchPortAclSettingData(Utils.MetricOperation operation)
+        {
+            using (var vm = GetComputerSystemByName())
+            using (var vms = Utils.GetVirtualMachineSettings(vm))
+                foreach (ManagementObject sepsd in vms.GetRelated("Msvm_SyntheticEthernetPortSettingData"))
+                    using (var epasd = SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope))
+                    using (var espasdCollection = SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(epasd))
+                        foreach (ManagementObject espasd in espasdCollection)
+                                Metrics.SetAllMetrics(espasd, operation);
         }
 
         #endregion
