@@ -159,6 +159,12 @@ namespace Viridian.Utilities
             }
         }
 
+        public static ManagementObject GetImageManagementService(ManagementScope scope)
+        {
+            using (var imageManagementService = new ManagementClass("Msvm_ImageManagementService") { Scope = scope })
+                return GetFirstObjectFromCollection(imageManagementService.GetInstances());
+        }
+
         public static ManagementObject GetFirstObjectFromCollection(ManagementObjectCollection collection)
         {
             if (collection is null)

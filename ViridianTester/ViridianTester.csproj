@@ -63,6 +63,7 @@
     <Compile Include="Resources\Drives\DVDTest.cs" />
     <Compile Include="Resources\Network\SyntheticEthernetAdapterTest.cs" />
     <Compile Include="Resources\Physical\ISOTest.cs" />
+    <Compile Include="Resources\Physical\VHDTest.cs" />
     <Compile Include="Statistics\MetricsTest.cs" />
   </ItemGroup>
   <ItemGroup>

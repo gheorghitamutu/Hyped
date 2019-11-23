@@ -8,18 +8,18 @@ namespace Viridian.Storage.Native
     public static class NativeAPI
     {
         [DllImport("virtdisk.dll", CharSet = CharSet.Unicode)]
-        public static extern int OpenVirtualDisk(ref VirtualStorageType virtualStorageType, string path, VirtualDiskAccessMask virtualDiskAccessMask, OpenVirtualDiskFlag flags, ref OpenVirtualDiskParameters parameters, ref Handle.SafeHandle safeHandle);
+        public static extern int OpenVirtualDisk(ref VirtualStorageType virtualStorageType, string path, VirtualDiskAccessMask virtualDiskAccessMask, OpenVirtualDiskFlag flags, ref OpenVirtualDiskParameters parameters, ref Handle.WinHandle safeHandle);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool CloseHandle(Handle.SafeHandle hObject);
+        public static extern bool CloseHandle(Handle.WinHandle hObject);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool CloseHandle(IntPtr hObject);
 
         [DllImport("virtdisk.dll", CharSet = CharSet.Unicode)]
-        public static extern int GetVirtualDiskPhysicalPath(Handle.SafeHandle virtualDiskSafeHandle, ref int diskPathSizeInBytes, [MarshalAs(UnmanagedType.LPWStr)] StringBuilder diskPath);
+        public static extern int GetVirtualDiskPhysicalPath(Handle.WinHandle virtualDiskSafeHandle, ref int diskPathSizeInBytes, [MarshalAs(UnmanagedType.LPWStr)] StringBuilder diskPath);
 
         [DllImport("kernel32.dll", EntryPoint = "CreateFileW", SetLastError = true)]
         public static extern SafeFileHandle CreateFile([MarshalAs(UnmanagedType.LPWStr)] string lpFileName, int dwDesiredAccess, int dwShareMode, IntPtr lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, IntPtr hTemplateFile);
@@ -73,9 +73,9 @@ namespace Viridian.Storage.Native
 
         public enum PartitionStyle
         {
-            Mbr = 0,
-            Gpt = 1,
-            Raw = 2,
+            Raw = 0,
+            Mbr = 1,
+            Gpt = 2,
         }
 
         [StructLayout(LayoutKind.Sequential)]

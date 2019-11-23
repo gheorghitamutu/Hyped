@@ -4,9 +4,9 @@ using System.Security.Permissions;
 namespace Viridian.Storage.Handle
 {
     [SecurityPermission(SecurityAction.Demand)]
-    public class SafeHandle : System.Runtime.InteropServices.SafeHandle
+    public class WinHandle : System.Runtime.InteropServices.SafeHandle
     {
-        public SafeHandle() : base(IntPtr.Zero, true)
+        public WinHandle() : base(IntPtr.Zero, true)
         {
         }
 

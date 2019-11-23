@@ -37,12 +37,18 @@ namespace Viridian.Job
             public const uint IncorrectDataType = 32776;
             public const uint SystemNotAvailable = 32777;
             public const uint OutofMemory = 32778;
+            public const uint InvalidAccessPath = 41010;
+            public const uint InvalidPartionType = 42007;
         }
 
         public static void ValidateOutput(ManagementBaseObject outputParameters, ManagementScope scope)
         {
-            if ((uint)outputParameters["ReturnValue"] == ReturnCode.InvalidParameter)
-                throw new ViridianException("Invalid parameter passed to function!");
+            switch((uint)outputParameters["ReturnValue"])
+            {
+                case ReturnCode.InvalidParameter:   throw new ViridianException("Invalid parameter passed to function!");
+                case ReturnCode.InvalidAccessPath:  throw new ViridianException("The access path is not valid (MSFT_Partition)!");
+                case ReturnCode.InvalidPartionType:  throw new ViridianException("The partition type is not valid (MSFT_Partition)!");
+            }
 
             var errorMessage = "The method call failed!";
 
