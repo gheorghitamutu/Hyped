@@ -215,12 +215,6 @@ namespace Viridian.Utilities
                 return GetFirstObjectFromCollection(vssd);
         }
 
-        public static ManagementObject GetVirtualMachineSnapshotService(ManagementScope scope)
-        {
-            using (var vsss = new ManagementClass("Msvm_VirtualSystemSnapshotService") { Scope = scope })
-                return GetFirstObjectFromCollection(vsss.GetInstances());
-        }
-
         public static ManagementObject GetServiceObject(ManagementScope scope, string serviceName)
         {
             var wmiPath = new ManagementPath(serviceName);

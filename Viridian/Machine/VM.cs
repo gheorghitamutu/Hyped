@@ -5,6 +5,7 @@ using System.Management;
 using Viridian.Exceptions;
 using Viridian.Job;
 using Viridian.Resources.Network;
+using Viridian.Service.Msvm;
 using Viridian.Statistics;
 using Viridian.Utilities;
 
@@ -184,44 +185,32 @@ namespace Viridian.Machine
                 SetIncrementalBackup(true);
 
             using (var vm = GetComputerSystemByName())
-            using (var vmss = Utils.GetVirtualMachineSnapshotService(Scope))
-            using (var ip = vmss.GetMethodParameters("CreateSnapshot"))
             {
                 if (saveMachineState)
                     RequestStateChange(RequestedState.Saved);
 
-                ip["AffectedSystem"] = vm.Path.Path;
+                string snapshotSettings = "";
 
                 // Set the SnapshotSettings property. Backup/Recovery snapshots require special settings.
                 if (snapshotType == SnapshotType.Recovery)
                 {
-                    // querying this class -> a collection that has just one element with ConsistencyLevel = 1
-                    var vsssd = Utils.GetServiceObject(Scope, "Msvm_VirtualSystemSnapshotSettingData");
-                    ip["SnapshotSettings"] = vsssd.GetText(TextFormat.CimDtd20);
+                    using (var vsssd = Utils.GetServiceObject(Scope, "Msvm_VirtualSystemSnapshotSettingData"))
+                        snapshotSettings = vsssd.GetText(TextFormat.CimDtd20);                    
 
-                    // also make sure you activate Volume Shadow Copy service on Guest and install KB3063109
+                    // Make sure you activate Volume Shadow Copy service on Guest and install KB3063109.
                     // https://support.microsoft.com/en-us/help/3063109/hyper-v-integration-components-update-for-windows-virtual-machines
                     // https://thewincentral.com/how-to-install-cab-files-on-windows-10-for-cumulative-updates
 
-                    // Time Synchronization The protocol version of the component installed in the virtual machine does not match the version expected by the hosting system
+                    // Time Synchronization The protocol version of the component installed in the virtual machine does not match the version expected by the hosting system.
                     // https://support.microsoft.com/en-us/help/4014894/vm-integration-services-status-reports-protocol-version-mismatch-on-pr
 
-                    // you cannot save actual ram state of the machine with backup/recovery checkpoints -> State Saved doesn't make sense then
-                }
-                else
-                {
-                    ip["SnapshotSettings"] = "";
+                    // You cannot save actual ram state of the machine with backup/recovery checkpoints; State Saved doesn't make sense then.
                 }
 
-                ip["SnapshotType"] = snapshotType;
+                VirtualSystemSnapshot.Instance.CreateSnapshot(vm.Path.Path, snapshotSettings, (ushort)snapshotType);
 
-                using (var op = vmss.InvokeMethod("CreateSnapshot", ip, null))
-                {
-                    Validator.ValidateOutput(op, Scope);
-
-                    if (saveMachineState)
-                        RequestStateChange(RequestedState.Running);
-                }
+                if (saveMachineState)
+                    RequestStateChange(RequestedState.Running);                
             }
         }
 
@@ -247,7 +236,6 @@ namespace Viridian.Machine
         public void ApplySnapshot(string snapshotName)
         {
             using (var vm = GetComputerSystemByName())
-            using (var vmss = Utils.GetVirtualMachineSnapshotService(Scope))
             using (var sofvsCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
             {
                 foreach (ManagementObject snapshot in sofvsCollection)
@@ -259,13 +247,7 @@ namespace Viridian.Machine
                     if ((ushort)vm["EnabledState"] != (ushort)EnabledState.Disabled)
                         RequestStateChange(RequestedState.Off);
 
-                    using (var ip = vmss.GetMethodParameters("ApplySnapshot"))
-                    {
-                        ip["Snapshot"] = snapshot;
-
-                        using (var op = vmss.InvokeMethod("ApplySnapshot", ip, null))
-                            Validator.ValidateOutput(op, Scope);
-                    }
+                    VirtualSystemSnapshot.Instance.ApplySnapshot(snapshot);
 
                     return;
                 }
@@ -277,7 +259,6 @@ namespace Viridian.Machine
         public ManagementObject GetLastAppliedSnapshot()
         {
             using (var vm = GetComputerSystemByName())
-            using (var vmss = Utils.GetVirtualMachineSnapshotService(Scope))
             using (var lasCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_LastAppliedSnapshot", null, null, null, null, false, null))
                 return Utils.GetFirstObjectFromCollection(lasCollection);
         }
@@ -285,7 +266,6 @@ namespace Viridian.Machine
         public ManagementObject GetLastCreatedSnapshot()
         {
             using (var vm = GetComputerSystemByName())
-            using (var vmss = Utils.GetVirtualMachineSnapshotService(Scope))
             using (var sovfsCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
             {
                 var lastSnapshotApplied = Utils.GetFirstObjectFromCollection(sovfsCollection);
