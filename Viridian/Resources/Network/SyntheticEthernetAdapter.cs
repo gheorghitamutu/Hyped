@@ -2,9 +2,9 @@
 using System.Globalization;
 using System.Management;
 using Viridian.Exceptions;
-using Viridian.Job;
 using Viridian.Machine;
 using Viridian.Resources.Msvm;
+using Viridian.Service.Msvm;
 using Viridian.Utilities;
 
 namespace Viridian.Resources.Network
@@ -16,7 +16,6 @@ namespace Viridian.Resources.Network
             if (virtualMachine is null)
                 throw new ViridianException("", new ArgumentNullException(nameof(virtualMachine)));
 
-            using (var vmms = Utils.GetVirtualMachineManagementService(virtualMachine.Scope))
             using (var vms = Utils.GetVirtualMachineSettings(virtualMachine.VmName, virtualMachine.Scope))
             using (var adapterToAdd = GetDefaultSyntheticAdapter(virtualMachine.Scope))
             {
@@ -24,30 +23,12 @@ namespace Viridian.Resources.Network
                 adapterToAdd["ElementName"] = adapterName;
                 adapterToAdd["StaticMacAddress"] = false;
 
-                using (var ip = vmms.GetMethodParameters("AddResourceSettings"))
-                {
-                    ip["AffectedConfiguration"] = vms.Path.Path;
-                    ip["ResourceSettings"] = new string[] { adapterToAdd.GetText(TextFormat.WmiDtd20) };
+                var resultingResourceSettings = VirtualSystemManagement.Instance.AddResourceSettings(vms, new string[] { adapterToAdd.GetText(TextFormat.WmiDtd20) });
 
-                    using (var op = vmms.InvokeMethod("AddResourceSettings", ip, null))
-                    {
-                        Validator.ValidateOutput(op, virtualMachine.Scope);
+                ManagementObject addedAdapter = new ManagementObject(resultingResourceSettings[0]);
+                addedAdapter.Get();                
 
-                        ManagementObject addedAdapter;
-                        if (op["ResultingResourceSettings"] != null)
-                        {
-                            addedAdapter = new ManagementObject(((string[])op["ResultingResourceSettings"])[0]);
-                            addedAdapter.Get();
-                        }
-                        else
-                        {
-                            using (var job = new ManagementObject((string)op["Job"]))
-                                addedAdapter = Utils.GetFirstObjectFromCollection(job.GetRelated(null, "Msvm_AffectedJobElement", null, null, null, null, false, null));
-                        }
-
-                        return addedAdapter;
-                    }
-                }
+                return addedAdapter;
             }
         }
 
@@ -66,7 +47,6 @@ namespace Viridian.Resources.Network
             if (virtualMachine is null)
                 throw new ViridianException("", new ArgumentNullException(nameof(virtualMachine)));
 
-            using (var vmms = Utils.GetVirtualMachineManagementService(virtualMachine.Scope))
             using (var vm = virtualMachine.GetComputerSystemByName())
             using (var rp = Utils.GetResourcePool("33", "Microsoft:Hyper-V:Ethernet Connection", resourcePoolName, virtualMachine.Scope))
             using (var vms = Utils.GetVirtualMachineSettings(vm))
@@ -76,14 +56,7 @@ namespace Viridian.Resources.Network
                 depasd["Parent"] = syntheticAdapter.Path.Path;
                 depasd["PoolId"] = resourcePoolName;
 
-                using (var ip = vmms.GetMethodParameters("AddResourceSettings"))
-                {
-                    ip["AffectedConfiguration"] = vms.Path.Path;
-                    ip["ResourceSettings"] = new string[] { depasd.GetText(TextFormat.WmiDtd20) };
-
-                    using (var op = vmms.InvokeMethod("AddResourceSettings", ip, null))
-                        Validator.ValidateOutput(op, virtualMachine.Scope);
-                }
+                VirtualSystemManagement.Instance.AddResourceSettings(vms, new string[] { depasd.GetText(TextFormat.WmiDtd20) });
             }
         }
 

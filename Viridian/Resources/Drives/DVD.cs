@@ -1,7 +1,7 @@
 ﻿using System.Management;
-using Viridian.Job;
 using Viridian.Machine;
 using Viridian.Resources.Msvm;
+using Viridian.Service.Msvm;
 using Viridian.Utilities;
 
 namespace Viridian.Resources.Drives
@@ -10,6 +10,7 @@ namespace Viridian.Resources.Drives
     {
         public void AddToScsi(VM vm, int controllerSlot, int driveSlot)
         {
+            using (var vms = Utils.GetVirtualMachineSettings(vm.VmName, vm.Scope))
             using (var dvd = Utils.GetWmiObject(vm.Scope, "Msvm_ResourcePool", "ResourceSubType = 'Microsoft:Hyper-V:Synthetic DVD Drive'"))
             using (var rasd = ResourceAllocationSettingData.GetDefaultAllocationSettings(dvd))
             using (var rasdClone = rasd.Clone() as ManagementObject)
@@ -19,15 +20,7 @@ namespace Viridian.Resources.Drives
                     rasdClone["Parent"] = parent;
                     rasdClone["AddressOnParent"] = driveSlot;
 
-                    using (var vmms = Utils.GetVirtualMachineManagementService(vm.Scope))
-                    using (var ip = vmms.GetMethodParameters("AddResourceSettings"))
-                    {
-                        ip["AffectedConfiguration"] = Utils.GetVirtualMachineSettings(vm.VmName, vm.Scope);
-                        ip["ResourceSettings"] = new[] { rasdClone.GetText(TextFormat.WmiDtd20) };
-
-                        using (var op = vmms.InvokeMethod("AddResourceSettings", ip, null))
-                            Validator.ValidateOutput(op, vm.Scope);
-                    }
+                    VirtualSystemManagement.Instance.AddResourceSettings(vms, new[] { rasdClone.GetText(TextFormat.WmiDtd20) });
                 }
             }
         }

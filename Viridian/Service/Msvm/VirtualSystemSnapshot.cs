@@ -80,21 +80,19 @@ namespace Viridian.Service.Msvm
         string CreationClassName => Msvm_VirtualSystemSnapshotService[nameof(CreationClassName)].ToString();
         string PrimaryOwnerName => Msvm_VirtualSystemSnapshotService[nameof(PrimaryOwnerName)].ToString();
         string PrimaryOwnerContact => Msvm_VirtualSystemSnapshotService[nameof(PrimaryOwnerContact)].ToString();
+        string StartMode => Msvm_VirtualSystemSnapshotService[nameof(StartMode)].ToString();
+        bool Started => (bool)Msvm_VirtualSystemSnapshotService[nameof(Started)];
 
         #endregion
 
-        public ManagementBaseObject ApplySnapshot(ManagementObject Snapshot)
+        public void ApplySnapshot(ManagementObject Snapshot)
         {
             using (var ip = Msvm_VirtualSystemSnapshotService.GetMethodParameters(nameof(ApplySnapshot)))
             {
                 ip[nameof(Snapshot)] = Snapshot ?? throw new ViridianException($"{nameof(Snapshot)} is null!");
 
                 using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(ApplySnapshot), ip, null))
-                {
                     Validator.ValidateOutput(op, scope);
-
-                    return op;
-                }
             }
         }
 
@@ -174,6 +172,26 @@ namespace Viridian.Service.Msvm
                     return op["ResultingReferencePoint"] as ManagementObject;
                 }
             }
+        }
+
+        public void StartService()
+        {
+            using (var ip = MsvmVirtualSystemSnapshotService.GetMethodParameters(nameof(StartService)))
+            using (var op = MsvmVirtualSystemSnapshotService.InvokeMethod(nameof(StartService), ip, null))
+                Validator.ValidateOutput(op, scope);
+        }
+
+        public void StopService()
+        {
+            using (var ip = MsvmVirtualSystemSnapshotService.GetMethodParameters(nameof(StopService)))
+            using (var op = MsvmVirtualSystemSnapshotService.InvokeMethod(nameof(StopService), ip, null))
+                Validator.ValidateOutput(op, scope);
+        }
+
+        ~VirtualSystemSnapshot()
+        {
+            if (Msvm_VirtualSystemSnapshotService != null)
+                Msvm_VirtualSystemSnapshotService.Dispose();
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Management;
 using Viridian.Exceptions;
 using Viridian.Job;
 using Viridian.Resources.Msvm;
+using Viridian.Service.Msvm;
 using Viridian.Utilities;
 
 // TODO: change all <Operation>Custom<AppliedOn> to handle actual param settings
@@ -331,7 +332,6 @@ namespace Viridian.Resources.Network
         {
             string featureId = GetPortFeatureId(featureType);
 
-            using (var vmms = Utils.GetVirtualMachineManagementService(scope))
             using (var vm = Utils.GetVirtualMachine(vmName, scope))
             using (var connections = FindConnections(vm))
             using (var defaultFeatureSetting = GetDefaultFeatureSetting(featureId, scope))
@@ -357,22 +357,12 @@ namespace Viridian.Resources.Network
                 }
 
                 foreach (ManagementObject ethernetConnectionSetting in connections)
-                {
-                    using (var ip = vmms.GetMethodParameters("AddFeatureSettings"))
-                    {
-                        ip["AffectedConfiguration"] = ethernetConnectionSetting.Path.Path;
-                        ip["FeatureSettings"] = new string[] { defaultFeatureSetting.GetText(TextFormat.WmiDtd20) };
-
-                        using (var op = vmms.InvokeMethod("AddFeatureSettings", ip, null))
-                            Validator.ValidateOutput(op, scope);
-                    }
-                }
+                    VirtualSystemManagement.Instance.AddFeatureSettings(ethernetConnectionSetting.Path.Path, new string[] { defaultFeatureSetting.GetText(TextFormat.WmiDtd20) });
             }
         }
 
         public static void ModifyCustomFeatureSettings(ManagementScope scope, string vmName, PortFeatureType featureType)
         {
-            using (var vmms = Utils.GetVirtualMachineManagementService(scope))
             using (var vm = Utils.GetVirtualMachine(vmName, scope))
             using (var connections = FindConnections(vm))
             {
@@ -412,13 +402,7 @@ namespace Viridian.Resources.Network
                             featureText = featureSetting.GetText(TextFormat.WmiDtd20);
                         }
 
-                        using (var ip = vmms.GetMethodParameters("ModifyFeatureSettings"))
-                        {
-                            ip["FeatureSettings"] = new string[] { featureText };
-
-                            using (var op = vmms.InvokeMethod("ModifyFeatureSettings", ip, null))
-                                Validator.ValidateOutput(op, scope);
-                        }
+                        VirtualSystemManagement.Instance.ModifyFeatureSettings(new string[] { featureText });
                     }
                 }
             }
@@ -426,7 +410,6 @@ namespace Viridian.Resources.Network
 
         public static void RemoveFeatureSettings(ManagementScope scope, string virtualMachineName, PortFeatureType featureType)
         {
-            using (var vmms = Utils.GetVirtualMachineManagementService(scope))
             using (var vm = Utils.GetVirtualMachine(virtualMachineName, scope))
             using (var connections = FindConnections(vm))
             {
@@ -461,13 +444,7 @@ namespace Viridian.Resources.Network
                                 featureSettingPaths.Add(featureSetting.Path.Path);
                     }
 
-                    using (var ip = vmms.GetMethodParameters("RemoveFeatureSettings"))
-                    {
-                        ip["FeatureSettings"] = featureSettingPaths.ToArray();
-
-                        using (var op = vmms.InvokeMethod("RemoveFeatureSettings", ip, null))
-                            Validator.ValidateOutput(op, scope);
-                    }
+                    VirtualSystemManagement.Instance.RemoveFeatureSettings(featureSettingPaths.ToArray());
                 }
             }
         }
@@ -619,16 +596,7 @@ namespace Viridian.Resources.Network
             }
 
             if (connectionsToModify.Count > 0)
-            {
-                using (var vmms = Utils.GetVirtualMachineManagementService(scope))
-                using (var ip = vmms.GetMethodParameters("ModifyResourceSettings"))
-                {
-                    ip["ResourceSettings"] = connectionsToModify.ToArray();
-
-                    using (var op = vmms.InvokeMethod("ModifyResourceSettings", ip, null))
-                        Validator.ValidateOutput(op, scope);
-                }
-            }
+                VirtualSystemManagement.Instance.ModifyResourceSettings(connectionsToModify.ToArray());
         }
 
         public static void AddBandwithSettings(ManagementScope scope, string switchName, ulong bytesPerSecond)
@@ -691,7 +659,6 @@ namespace Viridian.Resources.Network
 
         public static void ModifyClusterMonitored(ManagementScope scope, string virtualMachineName, bool onOff)
         {
-            using (var vmms = Utils.GetVirtualMachineManagementService(scope))
             using (var vm = Utils.GetVirtualMachine(virtualMachineName, scope))
             using (var virtualMachineSettings = Utils.GetVirtualMachineSettings(vm))
             using (var syntheticPortSettings = virtualMachineSettings.GetRelated("Msvm_SyntheticEthernetPortSettingData", "Msvm_VirtualSystemSettingDataComponent", null, null, null, null, false, null))
@@ -699,13 +666,7 @@ namespace Viridian.Resources.Network
                 {
                     syntheticEthernetPortSetting["ClusterMonitored"] = onOff;
 
-                    using (var ip = vmms.GetMethodParameters("ModifyResourceSettings"))
-                    {
-                        ip["ResourceSettings"] = new string[] { syntheticEthernetPortSetting.GetText(TextFormat.CimDtd20) };
-
-                        using (var op = vmms.InvokeMethod("ModifyResourceSettings", ip, null))
-                            Validator.ValidateOutput(op, scope);
-                    }
+                    VirtualSystemManagement.Instance.ModifyResourceSettings(new string[] { syntheticEthernetPortSetting.GetText(TextFormat.CimDtd20) });
                 }
         }
 

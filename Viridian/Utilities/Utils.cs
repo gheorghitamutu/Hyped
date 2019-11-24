@@ -148,16 +148,6 @@ namespace Viridian.Utilities
             using (var mos = new ManagementObjectSearcher(scope, new ObjectQuery(query)))
                 return mos.Get();
         }
-        
-        public static ManagementObject GetVirtualMachineManagementService(ManagementScope scope)
-        {
-            using (var vsms = new ManagementClass("Msvm_VirtualSystemManagementService"))
-            {
-                vsms.Scope = scope;
-
-                return GetFirstObjectFromCollection(vsms.GetInstances());
-            }
-        }
 
         public static ManagementObject GetImageManagementService(ManagementScope scope)
         {

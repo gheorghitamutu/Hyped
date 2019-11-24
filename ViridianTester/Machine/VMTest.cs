@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Viridian.Exceptions;
 using Viridian.Machine;
+using Viridian.Service.Msvm;
 using Viridian.Utilities;
 
 namespace ViridianTester.Machine
@@ -113,16 +114,16 @@ namespace ViridianTester.Machine
         {
             // Arrange
             var vmName = "vm_test_request_state_change";
-            var vmState = VM.RequestedState.Running;
+            var expectedVmState = VirtualSystemManagement.RequestedStateVM.Running;
 
             // Act
             var sut = new VM(serverName, scopePath, vmName, virtualSystemSubType);
             sut.CreateVm();
-            sut.RequestStateChange(VM.RequestedState.Running);
+            sut.RequestStateChange(expectedVmState);
 
             // Assert
-            Assert.AreEqual(sut.GetCurrentState(), vmState);
-            sut.RequestStateChange(VM.RequestedState.Off);
+            Assert.AreEqual(sut.GetCurrentState(), expectedVmState);
+            sut.RequestStateChange(VirtualSystemManagement.RequestedStateVM.Off);
             sut.RemoveVm();
         }
 
@@ -218,14 +219,14 @@ namespace ViridianTester.Machine
             // Act
             var sut = new VM(serverName, scopePath, vmName, virtualSystemSubType);
             sut.CreateVm();
-            sut.RequestStateChange(VM.RequestedState.Running);
+            sut.RequestStateChange(VirtualSystemManagement.RequestedStateVM.Running);
             var info = sut.GetSummaryInformation();
 
             // Assert
             Assert.AreEqual(1, info.Length);
             Assert.AreEqual(vmName, info[0]["ElementName"]);
             Assert.AreEqual(1024UL, info[0]["MemoryUsage"]);
-            sut.RequestStateChange(VM.RequestedState.Off);
+            sut.RequestStateChange(VirtualSystemManagement.RequestedStateVM.Off);
             sut.RemoveVm();
         }
 
