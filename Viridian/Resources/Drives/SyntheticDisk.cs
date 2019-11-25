@@ -2,6 +2,7 @@
 using Viridian.Exceptions;
 using Viridian.Machine;
 using Viridian.Resources.Msvm;
+using Viridian.Service.Msvm;
 using Viridian.Utilities;
 
 namespace Viridian.Resources.Drives
@@ -22,15 +23,7 @@ namespace Viridian.Resources.Drives
                 rasdClone["Parent"] = scsiController ?? throw new ViridianException("Failure retrieving SCSI Controller class!");
                 rasdClone["AddressOnParent"] = addressOnParent;
 
-                using (var virtualMachineManagementService = Utils.GetVirtualMachineManagementService(vm.Scope))
-                using (var inParams = virtualMachineManagementService.GetMethodParameters("AddResourceSettings"))
-                {
-                    inParams["AffectedConfiguration"] = vms;
-                    inParams["ResourceSettings"] = new[] { rasdClone.GetText(TextFormat.WmiDtd20) };
-
-                    using (var outParams = virtualMachineManagementService.InvokeMethod("AddResourceSettings", inParams, null))
-                        Job.Validator.ValidateOutput(outParams, vm.Scope);
-                }
+                VirtualSystemManagement.Instance.AddResourceSettings(vms, new[] { rasdClone.GetText(TextFormat.WmiDtd20) });
             }
         }
     }

@@ -5,6 +5,7 @@ using System.Management;
 using Viridian.Exceptions;
 using Viridian.Job;
 using Viridian.Resources.Network;
+using Viridian.Service.Msvm;
 using Viridian.Statistics;
 using Viridian.Utilities;
 
@@ -39,22 +40,6 @@ namespace Viridian.Machine
             Full = 2,
             Disk = 3,
             Recovery = 32768,
-        }
-
-        public enum RequestedState : uint
-        {
-            Other = 1,
-            Running = 2,
-            Off = 3,
-            Saved = 6,
-            Paused = 9,
-            Starting = 10,
-            Reset = 11,
-            Saving = 32773,
-            Pausing = 32776,
-            Resuming = 32777,
-            FastSaved = 32779,
-            FastSaving = 32780,
         }
 
         public enum EnabledState : uint
@@ -131,14 +116,7 @@ namespace Viridian.Machine
         public void RemoveVm()
         {
             using (ManagementObject vm = GetComputerSystemByName())
-            using (ManagementObject vmms = Utils.GetVirtualMachineManagementService(Scope))
-            using (ManagementBaseObject ip = vmms.GetMethodParameters("DestroySystem"))
-            {
-                ip["AffectedSystem"] = vm.Path;
-
-                using (ManagementBaseObject op = vmms.InvokeMethod("DestroySystem", ip, null))
-                    Validator.ValidateOutput(op, Scope);
-            }
+                VirtualSystemManagement.Instance.DestroySystem(vm);
         }
 
         #endregion
@@ -148,19 +126,12 @@ namespace Viridian.Machine
         public void SetIncrementalBackup(bool incrementalBackupEnabled)
         {
             using (var vm = Utils.GetVirtualMachineSettings(VmName, Scope))
-            using (var vmms = Utils.GetVirtualMachineManagementService(Scope))
             {
                 if ((bool)vm["IncrementalBackupEnabled"] != incrementalBackupEnabled)
                 {
                     vm["IncrementalBackupEnabled"] = incrementalBackupEnabled;
 
-                    using (var ip = vmms.GetMethodParameters("ModifySystemSettings"))
-                    {
-                        ip["SystemSettings"] = vm.GetText(TextFormat.CimDtd20);
-
-                        using (var op = vmms.InvokeMethod("ModifySystemSettings", ip, null))
-                            Validator.ValidateOutput(op, Scope);
-                    }
+                    VirtualSystemManagement.Instance.ModifySystemSettings(vm.GetText(TextFormat.CimDtd20));
                 }
             }
         }
@@ -184,44 +155,32 @@ namespace Viridian.Machine
                 SetIncrementalBackup(true);
 
             using (var vm = GetComputerSystemByName())
-            using (var vmss = Utils.GetVirtualMachineSnapshotService(Scope))
-            using (var ip = vmss.GetMethodParameters("CreateSnapshot"))
             {
                 if (saveMachineState)
-                    RequestStateChange(RequestedState.Saved);
+                    RequestStateChange(VirtualSystemManagement.RequestedStateVM.Saved);
 
-                ip["AffectedSystem"] = vm.Path.Path;
+                string snapshotSettings = "";
 
                 // Set the SnapshotSettings property. Backup/Recovery snapshots require special settings.
                 if (snapshotType == SnapshotType.Recovery)
                 {
-                    // querying this class -> a collection that has just one element with ConsistencyLevel = 1
-                    var vsssd = Utils.GetServiceObject(Scope, "Msvm_VirtualSystemSnapshotSettingData");
-                    ip["SnapshotSettings"] = vsssd.GetText(TextFormat.CimDtd20);
+                    using (var vsssd = Utils.GetServiceObject(Scope, "Msvm_VirtualSystemSnapshotSettingData"))
+                        snapshotSettings = vsssd.GetText(TextFormat.CimDtd20);                    
 
-                    // also make sure you activate Volume Shadow Copy service on Guest and install KB3063109
+                    // Make sure you activate Volume Shadow Copy service on Guest and install KB3063109.
                     // https://support.microsoft.com/en-us/help/3063109/hyper-v-integration-components-update-for-windows-virtual-machines
                     // https://thewincentral.com/how-to-install-cab-files-on-windows-10-for-cumulative-updates
 
-                    // Time Synchronization The protocol version of the component installed in the virtual machine does not match the version expected by the hosting system
+                    // Time Synchronization The protocol version of the component installed in the virtual machine does not match the version expected by the hosting system.
                     // https://support.microsoft.com/en-us/help/4014894/vm-integration-services-status-reports-protocol-version-mismatch-on-pr
 
-                    // you cannot save actual ram state of the machine with backup/recovery checkpoints -> State Saved doesn't make sense then
-                }
-                else
-                {
-                    ip["SnapshotSettings"] = "";
+                    // You cannot save actual ram state of the machine with backup/recovery checkpoints; State Saved doesn't make sense then.
                 }
 
-                ip["SnapshotType"] = snapshotType;
+                VirtualSystemSnapshot.Instance.CreateSnapshot(vm.Path.Path, snapshotSettings, (ushort)snapshotType);
 
-                using (var op = vmss.InvokeMethod("CreateSnapshot", ip, null))
-                {
-                    Validator.ValidateOutput(op, Scope);
-
-                    if (saveMachineState)
-                        RequestStateChange(RequestedState.Running);
-                }
+                if (saveMachineState)
+                    RequestStateChange(VirtualSystemManagement.RequestedStateVM.Running);
             }
         }
 
@@ -247,7 +206,6 @@ namespace Viridian.Machine
         public void ApplySnapshot(string snapshotName)
         {
             using (var vm = GetComputerSystemByName())
-            using (var vmss = Utils.GetVirtualMachineSnapshotService(Scope))
             using (var sofvsCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
             {
                 foreach (ManagementObject snapshot in sofvsCollection)
@@ -257,15 +215,9 @@ namespace Viridian.Machine
 
                     // In order to apply a snapshot, the virtual machine must first be saved/off
                     if ((ushort)vm["EnabledState"] != (ushort)EnabledState.Disabled)
-                        RequestStateChange(RequestedState.Off);
+                        RequestStateChange(VirtualSystemManagement.RequestedStateVM.Off);
 
-                    using (var ip = vmss.GetMethodParameters("ApplySnapshot"))
-                    {
-                        ip["Snapshot"] = snapshot;
-
-                        using (var op = vmss.InvokeMethod("ApplySnapshot", ip, null))
-                            Validator.ValidateOutput(op, Scope);
-                    }
+                    VirtualSystemSnapshot.Instance.ApplySnapshot(snapshot);
 
                     return;
                 }
@@ -277,7 +229,6 @@ namespace Viridian.Machine
         public ManagementObject GetLastAppliedSnapshot()
         {
             using (var vm = GetComputerSystemByName())
-            using (var vmss = Utils.GetVirtualMachineSnapshotService(Scope))
             using (var lasCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_LastAppliedSnapshot", null, null, null, null, false, null))
                 return Utils.GetFirstObjectFromCollection(lasCollection);
         }
@@ -285,7 +236,6 @@ namespace Viridian.Machine
         public ManagementObject GetLastCreatedSnapshot()
         {
             using (var vm = GetComputerSystemByName())
-            using (var vmss = Utils.GetVirtualMachineSnapshotService(Scope))
             using (var sovfsCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
             {
                 var lastSnapshotApplied = Utils.GetFirstObjectFromCollection(sovfsCollection);
@@ -307,23 +257,23 @@ namespace Viridian.Machine
 
         #region State
 
-        public void RequestStateChange(RequestedState requestedState)
+        public void RequestStateChange(VirtualSystemManagement.RequestedStateVM RequestedState, ulong TimeoutPeriod = 0)
         {
-            using (var vmms = Utils.GetVirtualMachineManagementService(Scope))
-            using (var ip = vmms.GetMethodParameters("RequestStateChange"))
+            using (var vm = GetComputerSystemByName())
+            using (var ip = vm.GetMethodParameters(nameof(RequestStateChange)))
             {
-                ip["RequestedState"] = (uint)requestedState;
+                ip[nameof(RequestedState)] = (uint)RequestedState;
+                ip[nameof(TimeoutPeriod)] = null; // CIM_DateTime
 
-                using (var vm = GetComputerSystemByName())
-                using (var op = vm.InvokeMethod("RequestStateChange", ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                using (var op = vm.InvokeMethod(nameof(RequestStateChange), ip, null))
+                    Validator.ValidateOutput(op, vm.Scope);
             }
         }
 
-        public RequestedState GetCurrentState()
+        public VirtualSystemManagement.RequestedStateVM GetCurrentState()
         {
             using (var vm = GetComputerSystemByName())
-                return (RequestedState)Enum.ToObject(typeof(RequestedState), vm["EnabledState"]);
+                return (VirtualSystemManagement.RequestedStateVM)Enum.ToObject(typeof(VirtualSystemManagement.RequestedStateVM), vm["EnabledState"]);
         }
 
         #endregion
@@ -359,14 +309,7 @@ namespace Viridian.Machine
                     vms["BootSourceOrder"] = bso;
                 }
 
-                using (var service = Utils.GetVirtualMachineManagementService(Scope))
-                using (var ip = service.GetMethodParameters("ModifySystemSettings"))
-                {
-                    ip["SystemSettings"] = vms.GetText(TextFormat.WmiDtd20);
-
-                    using (var op = service.InvokeMethod("ModifySystemSettings", ip, null))
-                        Validator.ValidateOutput(op, Scope);
-                }
+                VirtualSystemManagement.Instance.ModifySystemSettings(vms.GetText(TextFormat.WmiDtd20));
             }
         }
 
@@ -405,14 +348,7 @@ namespace Viridian.Machine
                     vms["BootSourceOrder"] = newBso;
                 }
 
-                using (var vmms = Utils.GetVirtualMachineManagementService(Scope))
-                using (var ip = vmms.GetMethodParameters("ModifySystemSettings"))
-                {
-                    ip["SystemSettings"] = vms.GetText(TextFormat.WmiDtd20);
-
-                    using (var op = vmms.InvokeMethod("ModifySystemSettings", ip, null))
-                        Validator.ValidateOutput(op, Scope);
-                }
+                VirtualSystemManagement.Instance.ModifySystemSettings(vms.GetText(TextFormat.WmiDtd20));
             }
         }
 
@@ -428,14 +364,7 @@ namespace Viridian.Machine
             {
                 vms["NetworkBootPreferredProtocol"] = networkBootPreferredProtocol;
 
-                using (var vmms = Utils.GetVirtualMachineManagementService(Scope))
-                using (var ip = vmms.GetMethodParameters("ModifySystemSettings"))
-                {
-                    ip["SystemSettings"] = vms.GetText(TextFormat.WmiDtd20);
-
-                    using (var op = vmms.InvokeMethod("ModifySystemSettings", ip, null))
-                        Validator.ValidateOutput(op, Scope);
-                }
+                VirtualSystemManagement.Instance.ModifySystemSettings(vms.GetText(TextFormat.WmiDtd20));
             }
         }
 
@@ -451,14 +380,7 @@ namespace Viridian.Machine
             {
                 vms["PauseAfterBootFailure"] = pauseAfterBootFailure;
 
-                using (var vmms = Utils.GetVirtualMachineManagementService(Scope))
-                using (var ip = vmms.GetMethodParameters("ModifySystemSettings"))
-                {
-                    ip["SystemSettings"] = vms.GetText(TextFormat.WmiDtd20);
-
-                    using (var op = vmms.InvokeMethod("ModifySystemSettings", ip, null))
-                        Validator.ValidateOutput(op, Scope);
-                }
+                VirtualSystemManagement.Instance.ModifySystemSettings(vms.GetText(TextFormat.WmiDtd20));
             }
         }
 
@@ -474,14 +396,7 @@ namespace Viridian.Machine
             {
                 vms["SecureBootEnabled"] = secureBootEnabled;
 
-                using (var vmms = Utils.GetVirtualMachineManagementService(Scope))
-                using (var ip = vmms.GetMethodParameters("ModifySystemSettings"))
-                {
-                    ip["SystemSettings"] = vms.GetText(TextFormat.WmiDtd20);
-
-                    using (var op = vmms.InvokeMethod("ModifySystemSettings", ip, null))
-                        Validator.ValidateOutput(op, Scope);
-                }
+                VirtualSystemManagement.Instance.ModifySystemSettings(vms.GetText(TextFormat.WmiDtd20));
             }
         }
 
@@ -515,11 +430,9 @@ namespace Viridian.Machine
 
         public ManagementBaseObject[] GetSummaryInformation()
         {
-            using (var vsms = Utils.GetVirtualMachineManagementService(Scope))
             using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
-            using (var ip = vsms.GetMethodParameters("GetSummaryInformation"))
             {
-                var requestedInformation = new uint[]
+                var requestedInformation = new int[]
                 {
                     0,      // Name
                     1,      // ElementName
@@ -559,15 +472,7 @@ namespace Viridian.Machine
                     123     // MemorySpansPhysicalNumaNodes 
                 };
 
-                ip["SettingData"] = new[] { vms };
-                ip["RequestedInformation"] = requestedInformation;
-
-                using (var op = vsms.InvokeMethod("GetSummaryInformation", ip, null))
-                {
-                    Validator.ValidateOutput(op, Scope);
-
-                    return (ManagementBaseObject[])op["SummaryInformation"];
-                }
+                return VirtualSystemManagement.Instance.GetSummaryInformation(new[] { vms }, requestedInformation);
             }
 
         }
@@ -578,7 +483,6 @@ namespace Viridian.Machine
 
         public void ConnectVmToSwitch(string switchName, string adapterName)
         {
-            using (var vmms = Utils.GetVirtualMachineManagementService(Scope))
             using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope, switchName))
             using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
             using (var syntheticAdapter = SyntheticEthernetAdapter.AddSyntheticAdapter(this, adapterName))
@@ -587,20 +491,12 @@ namespace Viridian.Machine
                 epasd["Parent"] = syntheticAdapter.Path.Path;
                 epasd["HostResource"] = new string[] { ves.Path.Path };
 
-                using (var ip = vmms.GetMethodParameters("AddResourceSettings"))
-                {
-                    ip["AffectedConfiguration"] = vms.Path.Path;
-                    ip["ResourceSettings"] = new string[] { epasd.GetText(TextFormat.WmiDtd20) };
-
-                    using (var op = vmms.InvokeMethod("AddResourceSettings", ip, null))
-                        Validator.ValidateOutput(op, Scope);
-                }
+                VirtualSystemManagement.Instance.AddResourceSettings(vms, new string[] { epasd.GetText(TextFormat.WmiDtd20) });
             }
         }
 
         public void DisconnectVmFromSwitch(string switchName)
         {
-            using (var vmms = Utils.GetVirtualMachineManagementService(Scope))
             using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope, switchName))
             using (var vm = GetComputerSystemByName())
             {
@@ -610,20 +506,13 @@ namespace Viridian.Machine
                 {
                     connection["EnabledState"] = 3;
 
-                    using (var ip = vmms.GetMethodParameters("ModifyResourceSettings"))
-                    {
-                        ip["ResourceSettings"] = new string[] { connection.GetText(TextFormat.WmiDtd20) };
-
-                        using (var op = vmms.InvokeMethod("ModifyResourceSettings", ip, null))
-                            Validator.ValidateOutput(op, Scope);
-                    }
+                    VirtualSystemManagement.Instance.ModifyResourceSettings(new string[] { connection.GetText(TextFormat.WmiDtd20) });
                 }
             }
         }
 
         public void ModifyConnection(string currentSwitchName, string newSwitchName)
         {
-            using (var vmms = Utils.GetVirtualMachineManagementService(Scope))
             using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope, currentSwitchName))
             using (var newVes = NetSwitch.FindVirtualEthernetSwitch(Scope, newSwitchName))
             using (var virtualMachine = GetComputerSystemByName())
@@ -634,13 +523,7 @@ namespace Viridian.Machine
                 {
                     connection["HostResource"] = new string[] { newVes.Path.Path };
 
-                    using (var ip = vmms.GetMethodParameters("ModifyResourceSettings"))
-                    {
-                        ip["ResourceSettings"] = new string[] { connection.GetText(TextFormat.WmiDtd20) };
-
-                        using (var op = vmms.InvokeMethod("ModifyResourceSettings", ip, null))
-                            Validator.ValidateOutput(op, Scope);
-                    }
+                    VirtualSystemManagement.Instance.ModifyResourceSettings(new string[] { connection.GetText(TextFormat.WmiDtd20) });
                 }
             }
         }

@@ -57,6 +57,9 @@
     <Compile Include="Resources\Physical\VHD.cs" />
     <Compile Include="Resources\Network\NetSwitch.cs" />
     <Compile Include="Resources\Network\SyntheticEthernetAdapter.cs" />
+    <Compile Include="Service\Msvm\ImageManagement.cs" />
+    <Compile Include="Service\Msvm\VirtualSystemManagement.cs" />
+    <Compile Include="Service\Msvm\VirtualSystemSnapshot.cs" />
     <Compile Include="Statistics\Metrics.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Exceptions\ViridianException.cs" />

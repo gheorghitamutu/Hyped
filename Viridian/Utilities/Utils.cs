@@ -148,16 +148,6 @@ namespace Viridian.Utilities
             using (var mos = new ManagementObjectSearcher(scope, new ObjectQuery(query)))
                 return mos.Get();
         }
-        
-        public static ManagementObject GetVirtualMachineManagementService(ManagementScope scope)
-        {
-            using (var vsms = new ManagementClass("Msvm_VirtualSystemManagementService"))
-            {
-                vsms.Scope = scope;
-
-                return GetFirstObjectFromCollection(vsms.GetInstances());
-            }
-        }
 
         public static ManagementObject GetImageManagementService(ManagementScope scope)
         {
@@ -213,12 +203,6 @@ namespace Viridian.Utilities
 
             using (var vssd = virtualMachine.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SettingsDefineState", null, null, null, null, false, null))
                 return GetFirstObjectFromCollection(vssd);
-        }
-
-        public static ManagementObject GetVirtualMachineSnapshotService(ManagementScope scope)
-        {
-            using (var vsss = new ManagementClass("Msvm_VirtualSystemSnapshotService") { Scope = scope })
-                return GetFirstObjectFromCollection(vsss.GetInstances());
         }
 
         public static ManagementObject GetServiceObject(ManagementScope scope, string serviceName)
