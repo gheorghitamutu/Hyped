@@ -1,0 +1,36 @@
+﻿@page "/login"
+
+
+<h1>Sign in</h1>
+
+
+<div class="container">
+    <br />
+    <p>Please fill in this form to sign in into account.</p>
+    <hr>
+
+    <label for="email"><b>Email</b></label>
+    <input type="text" placeholder="Enter Email" name="email" required><br /><br />
+
+
+    <label for="psw"><b>Password</b></label>
+    <input type="password" placeholder="Enter Password" name="psw" required><br /><br />
+
+  
+
+    <div class="container signin">
+        <p> Create an account? <a href="#">Register</a>.</p><br />
+    </div>
+</div>
+
+    <button class="btn btn-primary" @onclick="IncrementCount">Sign in</button>
+
+
+    @code {
+        private int currentCount = 0;
+
+        private void IncrementCount()
+        {
+            currentCount++;
+        }
+    }
