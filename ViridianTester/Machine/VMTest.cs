@@ -1,4 +1,5 @@
-﻿using System.Management;
+﻿using System;
+using System.Management;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Viridian.Exceptions;
 using Viridian.Machine;

@@ -53,7 +53,6 @@
     <Compile Include="Job\Validator.cs" />
     <Compile Include="Machine\VM.cs" />
     <Compile Include="Resources\Drives\SyntheticDisk.cs" />
-    <Compile Include="Resources\Physical\DiskState.cs" />
     <Compile Include="Resources\Physical\VHD.cs" />
     <Compile Include="Resources\Network\NetSwitch.cs" />
     <Compile Include="Resources\Network\SyntheticEthernetAdapter.cs" />
@@ -69,16 +68,10 @@
     <Compile Include="Resources\Msvm\ResourcePoolSettingData.cs" />
     <Compile Include="Resources\Controllers\SCSI.cs" />
     <Compile Include="Resources\Physical\ISO.cs" />
-    <Compile Include="Storage\Handle\WinHandle.cs" />
-    <Compile Include="Storage\Native\NativeAPI.cs" />
-    <Compile Include="Resources\Physical\Disk.cs" />
-    <Compile Include="Resources\Physical\DiskSettings.cs" />
+    <Compile Include="Resources\Physical\MSFT_Disk.cs" />
     <Compile Include="Utilities\Utils.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Storage\Virtual\Floppy\" />
-    <Folder Include="Storage\Virtual\Hard\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>

@@ -10,6 +10,14 @@ namespace Viridian.Resources.Drives
 {
     public class VHD
     {
+        public enum HardDiskAccess
+        {
+            Unknown = 0,
+            Readable = 1,
+            Writeable = 2,
+            ReadWrite = 3
+        }
+
         public void AddToSyntheticDiskDrive(VM vm, string hostResource, int scsiIndex, int address, HardDiskAccess access)
         {
             using (var vms = Utils.GetVirtualMachineSettings(vm.VmName, vm.Scope))

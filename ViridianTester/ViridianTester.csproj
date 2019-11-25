@@ -65,6 +65,7 @@
     <Compile Include="Resources\Physical\ISOTest.cs" />
     <Compile Include="Resources\Physical\VHDTest.cs" />
     <Compile Include="Statistics\MetricsTest.cs" />
+    <Compile Include="Viridian\Storage\Native.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

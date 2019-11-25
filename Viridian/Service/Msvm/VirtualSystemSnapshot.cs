@@ -176,16 +176,12 @@ namespace Viridian.Service.Msvm
 
         public void StartService()
         {
-            using (var ip = MsvmVirtualSystemSnapshotService.GetMethodParameters(nameof(StartService)))
-            using (var op = MsvmVirtualSystemSnapshotService.InvokeMethod(nameof(StartService), ip, null))
-                Validator.ValidateOutput(op, scope);
+            throw new NotSupportedException("StartService method is not supported!");
         }
 
         public void StopService()
         {
-            using (var ip = MsvmVirtualSystemSnapshotService.GetMethodParameters(nameof(StopService)))
-            using (var op = MsvmVirtualSystemSnapshotService.InvokeMethod(nameof(StopService), ip, null))
-                Validator.ValidateOutput(op, scope);
+            throw new NotSupportedException("StopService method is not supported!");
         }
 
         ~VirtualSystemSnapshot()
