@@ -456,5 +456,11 @@ namespace Viridian.Service.Msvm
         }
 
         #endregion
+
+        ~ImageManagement()
+        {
+            if (Msvm_ImageManagementService != null)
+                Msvm_ImageManagementService.Dispose();
+        }
     }
 }

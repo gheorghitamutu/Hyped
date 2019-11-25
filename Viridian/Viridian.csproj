@@ -68,7 +68,7 @@
     <Compile Include="Resources\Msvm\ResourcePoolSettingData.cs" />
     <Compile Include="Resources\Controllers\SCSI.cs" />
     <Compile Include="Resources\Physical\ISO.cs" />
-    <Compile Include="Resources\Physical\MSFT_Disk.cs" />
+    <Compile Include="Resources\MSFT\Disk.cs" />
     <Compile Include="Utilities\Utils.cs" />
   </ItemGroup>
   <ItemGroup />

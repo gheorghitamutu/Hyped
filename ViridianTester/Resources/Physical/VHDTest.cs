@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
+using System.Management;
 using Viridian.Machine;
 using Viridian.Resources.Controllers;
 using Viridian.Resources.Drives;
@@ -40,20 +41,23 @@ namespace ViridianTester.Resources.Physical
 
             ImageManagement.Instance.AttachVirtualHardDisk(vhdxName, false, false);
 
-            var msftDisk = MSFT_Disk.GetMsftDiskFromPath(serverName, storageScopePath, vhdxName);
-            MSFT_Disk.Initialize(msftDisk, MSFT_Disk.PartitionStyle.Gpt, serverName, v2ScopePath);
-            MSFT_Disk.CreatePartition(msftDisk, 0, serverName, storageScopePath, MSFT_Disk.GptType.BasicData, useMaximumSize:true);
-            var volume = MSFT_Disk.GetMsftDiskVolume(msftDisk, 0, 0);
-            MSFT_Disk.FormatMsftVolume(volume, serverName, storageScopePath);
+            var msftDisk = new Disk(vhdxName);
+            msftDisk.Initialize(Disk.DiskPartitionStyle.GPT);
+
+            using (var partition = msftDisk.CreatePartition(0, true, 0, 0, ' ', false, Disk.MbrType.None, Disk.GptType.BasicData.Value, false, true))
+            {
+                var volume = Disk.GetMsftVolumeOfMsftPartition(partition, 0);
+                Disk.FormatMsftVolume(volume, serverName, storageScopePath);
+            }
 
             using (var msi = ImageManagement.Instance.FindMountedStorageImageInstance(vhdxName, ImageManagement.CriterionType.Path))
             using (var op = msi.InvokeMethod("DetachVirtualHardDisk", null, null))
                 Viridian.Job.Validator.ValidateOutput(op, vm.Scope);
 
-            // end operations on the host
-
             var sut = new VHD();
             sut.AddToSyntheticDiskDrive(vm, vhdxName, 0, 0, VHD.HardDiskAccess.ReadWrite);
+
+            // end operations on the host
 
             // Assert
             Assert.IsTrue(File.Exists(vhdxName));
