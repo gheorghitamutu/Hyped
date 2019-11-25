@@ -39,7 +39,7 @@ namespace Viridian.Resources.Network
 
             using (var mos = new ManagementObjectSearcher(scope, query))
             using (var rp = Utils.GetFirstObjectFromCollection(mos.Get()))
-                return ResourceAllocationSettingData.GetDefaultAllocationSettings(rp);
+                return ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(rp);
         }
 
         public static void ConnectVmUsingResourcePool(VM virtualMachine, string resourcePoolName)

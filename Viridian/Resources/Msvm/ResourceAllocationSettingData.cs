@@ -1,89 +1,101 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Management;
+﻿using System.Management;
 using Viridian.Utilities;
+using static Viridian.Resources.Msvm.ResourcePoolSettingData;
 
 namespace Viridian.Resources.Msvm
 {
-    public static class ResourceAllocationSettingData
+    public sealed class ResourceAllocationSettingData
     {
-        public static ManagementObject GetAllocationSettings(ManagementScope scope, string resourceType, string resourceSubType, string poolId)
+        private const string serverName = ".";
+        private const string scopePath = @"\Root\Virtualization\V2";
+        private static ManagementObject Msvm_ResourceAllocationSettingData = null;
+        private static ManagementScope scope = null;
+
+        #region MsvmProperties
+
+        string InstanceID => Msvm_ResourceAllocationSettingData[nameof(InstanceID)].ToString();
+        string Caption => Msvm_ResourceAllocationSettingData[nameof(Caption)].ToString();
+        string Description => Msvm_ResourceAllocationSettingData[nameof(Description)].ToString();
+        string ElementName => Msvm_ResourceAllocationSettingData[nameof(ElementName)].ToString();
+        PoolResourceType ResourceType => (PoolResourceType)(ushort)Msvm_ResourceAllocationSettingData[nameof(ResourceType)];
+        string OtherResourceType => Msvm_ResourceAllocationSettingData[nameof(OtherResourceType)].ToString();
+        string ResourceSubType => Msvm_ResourceAllocationSettingData[nameof(ResourceSubType)].ToString();
+        string PoolID => Msvm_ResourceAllocationSettingData[nameof(PoolID)].ToString();
+        ushort ConsumerVisibility => (ushort)Msvm_ResourceAllocationSettingData[nameof(ConsumerVisibility)];
+        string[] HostResource => Msvm_ResourceAllocationSettingData[nameof(HostResource)] as string[];
+        string AllocationUnits => Msvm_ResourceAllocationSettingData[nameof(AllocationUnits)].ToString();
+        ulong VirtualQuantity => (ulong)Msvm_ResourceAllocationSettingData[nameof(VirtualQuantity)];
+        ulong Reservation => (ulong)Msvm_ResourceAllocationSettingData[nameof(Reservation)];
+        ulong Limit => (ulong)Msvm_ResourceAllocationSettingData[nameof(Limit)];
+        uint Weight => (uint)Msvm_ResourceAllocationSettingData[nameof(Weight)];
+        bool AutomaticAllocation => (bool)Msvm_ResourceAllocationSettingData[nameof(AutomaticAllocation)];
+        bool AutomaticDeallocation => (bool)Msvm_ResourceAllocationSettingData[nameof(AutomaticDeallocation)];
+        string Parent => Msvm_ResourceAllocationSettingData[nameof(Parent)].ToString();
+        string[] Connection => Msvm_ResourceAllocationSettingData[nameof(Connection)] as string[];
+        string Address => Msvm_ResourceAllocationSettingData[nameof(Address)].ToString();
+        PoolMappingBehavior MappingBehavior => (PoolMappingBehavior)(ushort)Msvm_ResourceAllocationSettingData[nameof(MappingBehavior)];
+        string AddressOnParent => Msvm_ResourceAllocationSettingData[nameof(AddressOnParent)].ToString();
+        string VirtualQuantityUnits => Msvm_ResourceAllocationSettingData[nameof(VirtualQuantityUnits)].ToString();
+        string[] VirtualSystemIdentifiers => Msvm_ResourceAllocationSettingData[nameof(VirtualSystemIdentifiers)] as string[];
+
+        #endregion
+
+        public ResourceAllocationSettingData(ushort ResourceType, string ResourceSubType, string PoolId, string[] HostResource)
         {
-            using (var rp = Utils.GetResourcePool(resourceType, resourceSubType, poolId, scope))
+            scope = Utils.GetScope(serverName, scopePath);
+
+            using (var rpsdClass = new ManagementClass(nameof(Msvm_ResourceAllocationSettingData)) { Scope = scope })
             {
-                if ((bool)rp.GetPropertyValue("Primordial"))
-                    return null;
+                Msvm_ResourceAllocationSettingData = rpsdClass.CreateInstance();
 
-                using (var rasdCollection = rp.GetRelated("CIM_ResourceAllocationSettingData", "Msvm_SettingsDefineState", null, null, "SettingData", "ManagedElement", false, null))
-                    if (rasdCollection.Count > 0) 
-                        return Utils.GetFirstObjectFromCollection(rasdCollection);
-            }
-
-            return null;
-        }
-
-        public static string GetNewPoolAllocationSettings(ManagementScope scope, string resourceType, string resourceSubType, string poolId, IEnumerable hostResources)
-        {
-            using (var rasdClass = new ManagementClass("Msvm_ResourceAllocationSettingData") { Scope = scope })
-            {
-                using (var rasd = rasdClass.CreateInstance())
-                {
-                    if (rasd == null)
-                        return "";
-
-                    rasd["ResourceType"] = resourceType;
-
-                    if (resourceType == "1")
-                    {
-                        rasd["OtherResourceType"] = resourceSubType;
-                        rasd["ResourceSubType"] = string.Empty;
-                    }
-                    else
-                    {
-                        rasd["OtherResourceType"] = string.Empty;
-                        rasd["ResourceSubType"] = resourceSubType;
-                    }
-
-                    rasd["PoolId"] = poolId;
-                    rasd["HostResource"] = hostResources;
-
-                    return rasd.GetText(TextFormat.WmiDtd20);
-                }
+                Msvm_ResourceAllocationSettingData[nameof(ResourceType)] = ResourceType;
+                Msvm_ResourceAllocationSettingData[nameof(ResourceSubType)] = ResourceType != 0 ? string.Empty : ResourceSubType;
+                Msvm_ResourceAllocationSettingData[nameof(OtherResourceType)] = ResourceType == 0 ? string.Empty : ResourceSubType;
+                Msvm_ResourceAllocationSettingData[nameof(PoolId)] = PoolId;
+                Msvm_ResourceAllocationSettingData[nameof(HostResource)] = HostResource;
             }
         }
 
-        public static string[] GetNewPoolAllocationSettingsArray(ManagementScope scope, string resourceType, string resourceSubType, string[] poolIdArray, string[][] hostResourcesArray)
+        public ResourceAllocationSettingData(ManagementObject ResourceAllocationSettingData)
         {
-            var rasdList = new List<string>();
+            scope = ResourceAllocationSettingData.Scope;
 
-            for (uint i = 0; i < poolIdArray.Length; i++)
-                rasdList.Add(GetNewPoolAllocationSettings(scope, resourceType, resourceSubType, poolIdArray[i], hostResourcesArray[i]));
-            
-            return rasdList.ToArray();
+            Msvm_ResourceAllocationSettingData = ResourceAllocationSettingData;
         }
 
-        public static ManagementObject GetPrototypeAllocationSettings(ManagementObject pool, string valueRole, string valueRange)
+        #region Utils
+
+        private static ManagementObject GetResourceAllocationSettingDataForPool(ManagementObject pool, ushort ValueRange, ushort ValueRole)
         {
             using (var capabilitiesCollection = pool.GetRelated("Msvm_AllocationCapabilities", "Msvm_ElementCapabilities", null, null, null, null, false, null))
                 foreach (ManagementObject capability in capabilitiesCollection)
-                    using (var relationshipsCollection = capability.GetRelationships("Cim_SettingsDefineCapabilities"))
+                {
+                    using (var relationshipsCollection = capability.GetRelationships("Msvm_SettingsDefineCapabilities"))
                         foreach (ManagementObject relationship in relationshipsCollection)
                         {
-                            if (relationship["ValueRole"].ToString() != valueRole || relationship["ValueRange"].ToString() != valueRange)
+                            if ((ushort)relationship[nameof(ValueRole)] != ValueRole || (ushort)relationship[nameof(ValueRange)] != ValueRange)
+                            {
+                                relationship.Dispose();
                                 continue;
+                            }
 
                             return new ManagementObject(pool.Scope, new ManagementPath(relationship["PartComponent"].ToString()), null);
                         }
 
+                    capability.Dispose();
+                }
+
             return null;
         }
 
-        public static ManagementObject GetDefaultAllocationSettings(ManagementObject pool) => GetPrototypeAllocationSettings(pool, "0", "0");
+        public static ManagementObject GetDefaultResourceAllocationSettingDataForPool(ManagementObject pool) => GetResourceAllocationSettingDataForPool(pool, 0, 0);
 
-        public static ManagementObject GetMinimumAllocationSettings(ManagementObject pool) => GetPrototypeAllocationSettings(pool, "3", "1");
+        public static ManagementObject GetMinimumResourceAllocationSettingDataForPool(ManagementObject pool) => GetResourceAllocationSettingDataForPool(pool, 1, 3);
 
-        public static ManagementObject GetMaximumAllocationSettings(ManagementObject pool) => GetPrototypeAllocationSettings(pool, "3", "2");
+        public static ManagementObject GetMaximumResourceAllocationSettingDataForPool(ManagementObject pool) => GetResourceAllocationSettingDataForPool(pool, 2, 3);
 
-        public static ManagementObject GetIncrementalAllocationSettings(ManagementObject pool) => GetPrototypeAllocationSettings(pool, "3", "3");
+        public static ManagementObject GetIncrementalResourceAllocationSettingDataForPool(ManagementObject pool) => GetResourceAllocationSettingDataForPool(pool, 3, 3);
+
+        #endregion
     }
 }

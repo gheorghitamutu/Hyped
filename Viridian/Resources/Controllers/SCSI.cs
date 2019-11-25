@@ -12,12 +12,11 @@ namespace Viridian.Resources.Controllers
         {
             using(var vms = Utils.GetVirtualMachineSettings(vm.VmName, vm.Scope))
             using (var scsi = Utils.GetWmiObject(vm.Scope, "Msvm_ResourcePool", "ResourceSubType = 'Microsoft:Hyper-V:Synthetic SCSI Controller' and Primordial = True"))
-            using (var rasd = ResourceAllocationSettingData.GetDefaultAllocationSettings(scsi))
-            using (var rasdClone = rasd.Clone() as ManagementObject)
+            using (var rasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(scsi))
             {
-                rasdClone["Parent"] = null;
+                rasd["Parent"] = null;
 
-                VirtualSystemManagement.Instance.AddResourceSettings(vms, new[] { rasdClone.GetText(TextFormat.WmiDtd20) });
+                VirtualSystemManagement.Instance.AddResourceSettings(vms, new[] { rasd.GetText(TextFormat.WmiDtd20) });
             }
         }
     }

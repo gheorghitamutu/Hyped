@@ -64,7 +64,7 @@
     <Compile Include="Exceptions\ViridianException.cs" />
     <Compile Include="Resources\Drives\DVD.cs" />
     <Compile Include="Resources\Msvm\ResourceAllocationSettingData.cs" />
-    <Compile Include="Resources\Msvm\ResourcePoolConfiguration.cs" />
+    <Compile Include="Service\Msvm\ResourcePoolConfiguration.cs" />
     <Compile Include="Resources\Msvm\ResourcePoolSettingData.cs" />
     <Compile Include="Resources\Controllers\SCSI.cs" />
     <Compile Include="Resources\Physical\ISO.cs" />

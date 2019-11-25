@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Management;
 using Viridian.Exceptions;
 using Viridian.Job;
-using Viridian.Resources.Msvm;
 using Viridian.Utilities;
 
 namespace Viridian.Statistics
@@ -165,12 +164,6 @@ namespace Viridian.Statistics
 
             using (var mos = new ManagementObjectSearcher(msvmObject.Scope, query))
                 return mos.Get();
-        }
-
-        public static Dictionary<ManagementObject, ManagementObject> GetAggregationMetricsForResourcePool(ManagementScope scope, string resourceType, string resourceSubType, string poolId)
-        {
-            using (var pool = ResourcePoolSettingData.GetResourcePoolSettingData(scope, resourceType, resourceSubType, poolId))
-                return GetAggregationMetricValueCollection(pool);
         }
 
         public static ManagementObjectCollection GetAllBaseMetricDefinitions(ManagementObject msvmObject)

@@ -113,21 +113,19 @@ namespace Viridian.Resources.Network
         {
             using (var eep = FindExternalAdapter(scope, externalAdapterName))
             using (var host = Utils.GetVirtualMachine(Environment.MachineName, scope))
-            using (var depasd = GetDefaultEthernetPortAllocationSettingData(scope))
+            using (var depasdInternal = GetDefaultEthernetPortAllocationSettingData(scope))
+            using (var depasdExternal = GetDefaultEthernetPortAllocationSettingData(scope))
             {
-                depasd["ElementName"] = switchName + "_External";
-                depasd["HostResource"] = new string[] { eep.Path.Path };
+                depasdExternal["ElementName"] = switchName + "_External";
+                depasdExternal["HostResource"] = new string[] { eep.Path.Path };
 
-                using (ManagementObject depasdClone = (ManagementObject)depasd.Clone())
-                {
-                    depasdClone["ElementName"] = switchName + "_Internal";
-                    depasdClone["HostResource"] = new string[] { host.Path.Path };
-                    depasdClone["Address"] = eep["PermanentAddress"];
+                depasdInternal["ElementName"] = switchName + "_Internal";
+                depasdInternal["HostResource"] = new string[] { host.Path.Path };
+                depasdInternal["Address"] = eep["PermanentAddress"];
 
-                    string[] ports = new string[] { depasd.GetText(TextFormat.WmiDtd20), depasdClone.GetText(TextFormat.WmiDtd20) };
+                string[] ports = new string[] { depasdExternal.GetText(TextFormat.WmiDtd20), depasdInternal.GetText(TextFormat.WmiDtd20) };
 
-                    CreateSwitch(scope, switchName, switchNotes, ports);
-                }
+                CreateSwitch(scope, switchName, switchNotes, ports);
             }
         }
 
@@ -859,7 +857,7 @@ namespace Viridian.Resources.Network
 
             using (var mos = new ManagementObjectSearcher(scope, query))
             using (var rp = Utils.GetFirstObjectFromCollection(mos.Get()))
-                return ResourceAllocationSettingData.GetDefaultAllocationSettings(rp);
+                return ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(rp);
         }
         public static ManagementObject GetDefaultEthernetConnectionSettingData(ManagementScope scope)
         {
@@ -868,7 +866,7 @@ namespace Viridian.Resources.Network
 
             using (var mos = new ManagementObjectSearcher(scope, query))
             using (var rp = Utils.GetFirstObjectFromCollection(mos.Get()))
-                return ResourceAllocationSettingData.GetDefaultAllocationSettings(rp);
+                return ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(rp);
         }
 
         public static ManagementObject FindExternalAdapter(ManagementScope scope, string externalAdapterName)

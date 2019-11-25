@@ -3,7 +3,6 @@ using Viridian.Exceptions;
 using Viridian.Machine;
 using Viridian.Resources.Msvm;
 using Viridian.Service.Msvm;
-using Viridian.Storage.Virtual.Hard;
 using Viridian.Utilities;
 
 namespace Viridian.Resources.Drives
@@ -24,18 +23,14 @@ namespace Viridian.Resources.Drives
             using (var scsiController = vm.GetScsiController(scsiIndex))
             using (var parent = Utils.GetScsiControllerChildBySubtypeAndIndex(scsiController, Utils.GetResourceSubType("SyntheticDisk"), address))
             using (var rp = Utils.GetWmiObject(vm.Scope, "Msvm_ResourcePool", "ResourceSubType = 'Microsoft:Hyper-V:Virtual Hard Disk' and Primordial = True"))
-            using (var rasd = ResourceAllocationSettingData.GetDefaultAllocationSettings(rp))
-            using (var rasdClone = rasd.Clone() as ManagementObject)
+            using (var rasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(rp))
             {
-                if (rasdClone == null)
-                    throw new ViridianException("Failure retrieving default settings!");
+                rasd["Access"] = (ushort)access;
+                rasd["Address"] = address;
+                rasd["Parent"] = parent ?? throw new ViridianException("Failure retrieving Syntethic Disk Drive class!");
+                rasd["HostResource"] = new[] { hostResource };
 
-                rasdClone["Access"] = (ushort)access;
-                rasdClone["Address"] = address;
-                rasdClone["Parent"] = parent ?? throw new ViridianException("Failure retrieving Syntethic Disk Drive class!");
-                rasdClone["HostResource"] = new[] { hostResource };
-
-                VirtualSystemManagement.Instance.AddResourceSettings(vms, new[] { rasdClone.GetText(TextFormat.WmiDtd20) });
+                VirtualSystemManagement.Instance.AddResourceSettings(vms, new[] { rasd.GetText(TextFormat.WmiDtd20) });
             }
         }
 

@@ -14,18 +14,14 @@ namespace Viridian.Resources.Physical
             using (var scsi = vm.GetScsiController(scsiIndex))
             using (var parent = Utils.GetScsiControllerChildBySubtypeAndIndex(scsi, Utils.GetResourceSubType("SyntheticDVD"), address))
             using (var dvd = Utils.GetWmiObject(vm.Scope, "Msvm_ResourcePool", "ResourceSubType = 'Microsoft:Hyper-V:Virtual CD/DVD Disk' and Primordial = True"))
-            using (var sasd = ResourceAllocationSettingData.GetDefaultAllocationSettings(dvd))
-            using (var sasdClone = sasd.Clone() as ManagementObject)
+            using (var sasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(dvd))
             {
-                if (sasdClone == null)
-                    throw new ViridianException("Failure retrieving default settings!");
-
-                sasdClone["Address"] = address;
-                sasdClone["Parent"] = parent ?? throw new ViridianException("Failure retrieving Virtual CD/DVD Disk class!");
-                sasdClone["HostResource"] = new[] { hostResource };
+                sasd["Address"] = address;
+                sasd["Parent"] = parent ?? throw new ViridianException("Failure retrieving Virtual CD/DVD Disk class!");
+                sasd["HostResource"] = new[] { hostResource };
 
                 using (var vms = Utils.GetVirtualMachineSettings(vm.VmName, vm.Scope))
-                    VirtualSystemManagement.Instance.AddResourceSettings(vms, new[] { sasdClone.GetText(TextFormat.WmiDtd20) });
+                    VirtualSystemManagement.Instance.AddResourceSettings(vms, new[] { sasd.GetText(TextFormat.WmiDtd20) });
             }
         }
     }

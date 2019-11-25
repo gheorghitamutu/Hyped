@@ -12,16 +12,13 @@ namespace Viridian.Resources.Drives
         {
             using (var vms = Utils.GetVirtualMachineSettings(vm.VmName, vm.Scope))
             using (var dvd = Utils.GetWmiObject(vm.Scope, "Msvm_ResourcePool", "ResourceSubType = 'Microsoft:Hyper-V:Synthetic DVD Drive'"))
-            using (var rasd = ResourceAllocationSettingData.GetDefaultAllocationSettings(dvd))
-            using (var rasdClone = rasd.Clone() as ManagementObject)
+            using (var rasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(dvd))
+            using (var parent = vm.GetScsiController(controllerSlot))
             {
-                using (var parent = vm.GetScsiController(controllerSlot))
-                {
-                    rasdClone["Parent"] = parent;
-                    rasdClone["AddressOnParent"] = driveSlot;
+                rasd["Parent"] = parent;
+                rasd["AddressOnParent"] = driveSlot;
 
-                    VirtualSystemManagement.Instance.AddResourceSettings(vms, new[] { rasdClone.GetText(TextFormat.WmiDtd20) });
-                }
+                VirtualSystemManagement.Instance.AddResourceSettings(vms, new[] { rasd.GetText(TextFormat.WmiDtd20) });
             }
         }
 
