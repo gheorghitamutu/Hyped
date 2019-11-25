@@ -6,7 +6,6 @@ using Viridian.Machine;
 using Viridian.Resources.Network;
 using Viridian.Service.Msvm;
 using Viridian.Statistics;
-using Viridian.Utilities;
 
 namespace ViridianTester.Statistics
 {
@@ -27,11 +26,12 @@ namespace ViridianTester.Statistics
             // Act
             var vm = new VM(serverName, scopePath, vmName, virtualSystemSubType);
             vm.CreateVm();
-            Metrics.SetAllMetrics(vm.GetComputerSystemByName(), Utils.MetricOperation.Enable);
-            Metrics.ConfigureMetricsFlushInterval(vm.Scope, new TimeSpan(1000));
+
+            Metric.Instance.SetAllMetrics(vm.GetComputerSystemByName(), Metric.MetricCollectionEnabled.Enable);
+            Metric.Instance.ConfigureMetricsFlushInterval(new TimeSpan(1000));
             vm.RequestStateChange(vmState);
 
-            var mapped = Metrics.GetAggregationMetricValueCollection(vm.GetComputerSystemByName());
+            var mapped = Metric.GetAggregationMetricValueCollection(vm.GetComputerSystemByName());
 
             foreach (var pair in mapped)
             {
@@ -49,7 +49,7 @@ namespace ViridianTester.Statistics
             Assert.AreEqual(mapped.Count, 4);
 
             vm.RequestStateChange(VirtualSystemManagement.RequestedStateVM.Off);
-            Metrics.SetAllMetrics(vm.GetComputerSystemByName(), Utils.MetricOperation.Disable);
+            Metric.Instance.SetAllMetrics(vm.GetComputerSystemByName(), Metric.MetricCollectionEnabled.Disable);
             vm.RemoveVm();
         }
 
@@ -66,12 +66,12 @@ namespace ViridianTester.Statistics
             vm.RequestStateChange(vmState);
             vm.ConnectVmToSwitch("Default Switch", "MyNetworkAdapter");
             NetSwitch.AddCustomFeatureSettings(vm.Scope, vm.VmName, NetSwitch.PortFeatureType.Acl);
-            Metrics.ConfigureMetricsFlushInterval(vm.Scope, new TimeSpan(1000));
-            vm.SetBaseMetricsForEthernetSwitchPortAclSettingData(Utils.MetricOperation.Enable);
+            Metric.Instance.ConfigureMetricsFlushInterval(new TimeSpan(1000));
+            vm.SetBaseMetricsForEthernetSwitchPortAclSettingData(Metric.MetricCollectionEnabled.Enable);
 
             var port = vm.GetEthernetSwitchPortAclSettingDatas();
            
-            var sut = Metrics.GetBaseMetricValueCollection(port.FirstOrDefault());
+            var sut = Metric.GetBaseMetricValueCollection(port.FirstOrDefault());
 
             foreach (var pair in sut)
             {
@@ -89,7 +89,7 @@ namespace ViridianTester.Statistics
             Assert.AreEqual(sut.Count, 1);
 
             vm.RequestStateChange(VirtualSystemManagement.RequestedStateVM.Off);
-            vm.SetBaseMetricsForEthernetSwitchPortAclSettingData(Utils.MetricOperation.Disable);
+            vm.SetBaseMetricsForEthernetSwitchPortAclSettingData(Metric.MetricCollectionEnabled.Disable);
             vm.RemoveVm();
         }
     }

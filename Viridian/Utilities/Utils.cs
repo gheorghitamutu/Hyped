@@ -34,21 +34,6 @@ namespace Viridian.Utilities
             new[] { "FCConnection",       "64764",      "Microsoft:Hyper-V:FiberChannel Connection" }
         };
 
-        public enum MetricEnabledState
-        {
-            Unknown = 0,
-            Enabled = 2,
-            Disabled = 3,
-            PartiallyEnabled = 32768
-        };
-
-        public enum MetricOperation
-        {
-            Enable = 2,
-            Disable = 3,
-            Reset = 4
-        };
-
         public static readonly string[] AggregationMetricDefinitionCaptions =
         {
             "Average Memory Utilization",
@@ -110,12 +95,6 @@ namespace Viridian.Utilities
 
             using (var mos = new ManagementObjectSearcher(scope, new ObjectQuery(query)))
                 return mos.Get();
-        }
-
-        public static ManagementObject GetImageManagementService(ManagementScope scope)
-        {
-            using (var imageManagementService = new ManagementClass("Msvm_ImageManagementService") { Scope = scope })
-                return GetFirstObjectFromCollection(imageManagementService.GetInstances());
         }
 
         public static ManagementObject GetFirstObjectFromCollection(ManagementObjectCollection collection)

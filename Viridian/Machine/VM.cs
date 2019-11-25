@@ -11,9 +11,6 @@ using Viridian.Utilities;
 
 namespace Viridian.Machine
 {
-    // TODO: tests that are missing for the methods below
-    // TODO: add metrics control
-
     public class VM
     {
         public string ServerName { get; private set; }
@@ -556,14 +553,14 @@ namespace Viridian.Machine
             var definitionsList = new List<ManagementObject>();
 
             foreach (var def in Utils.AggregationMetricDefinitionCaptions)
-                using (var definition = Metrics.GetBaseMetricDefForMEByName(GetComputerSystemByName(), def))
+                using (var definition = Metric.GetBaseMetricDefForMEByName(GetComputerSystemByName(), def))
                     if (definition != null)
                         definitionsList.Add(definition);
 
             return definitionsList;
         }
 
-        public void SetAggregationMetricsForDrives(Utils.MetricOperation operation)
+        public void SetAggregationMetricsForDrives(Metric.MetricCollectionEnabled operation)
         {
             using (var vm = GetComputerSystemByName())
             {
@@ -574,11 +571,11 @@ namespace Viridian.Machine
                 foreach (var scsiController in scsiControllers)
                     using (var driveCollection = scsiController.GetRelated("Msvm_ResourceAllocationSettingData", null, null, null, "Dependent", "Antecedent", false, null))
                     foreach (ManagementObject drive in driveCollection)
-                            Metrics.SetAllMetrics(drive, operation);
+                            Metric.Instance.SetAllMetrics(drive, operation);
             }
         }
 
-        public void SetBaseMetricsForEthernetSwitchPortAclSettingData(Utils.MetricOperation operation)
+        public void SetBaseMetricsForEthernetSwitchPortAclSettingData(Metric.MetricCollectionEnabled operation)
         {
             using (var vm = GetComputerSystemByName())
             using (var vms = Utils.GetVirtualMachineSettings(vm))
@@ -586,11 +583,11 @@ namespace Viridian.Machine
                 using (var epasd = SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope))
                 using (var espasdCollection = SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(epasd))
                         foreach (ManagementObject espasd in espasdCollection)
-                            foreach (ManagementObject baseMetricDef in Metrics.GetAllBaseMetricDefinitions(espasd))
-                                Metrics.SetBaseMetric(espasd, baseMetricDef, operation);
+                            foreach (ManagementObject baseMetricDef in Metric.GetAllBaseMetricDefinitions(espasd))
+                                Metric.Instance.SetBaseMetric(espasd, baseMetricDef, operation);
         }
 
-        public void SetAggregationMetricsForEthernetSwitchPortAclSettingData(Utils.MetricOperation operation)
+        public void SetAggregationMetricsForEthernetSwitchPortAclSettingData(Metric.MetricCollectionEnabled operation)
         {
             using (var vm = GetComputerSystemByName())
             using (var vms = Utils.GetVirtualMachineSettings(vm))
@@ -598,7 +595,7 @@ namespace Viridian.Machine
                     using (var epasd = SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope))
                     using (var espasdCollection = SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(epasd))
                         foreach (ManagementObject espasd in espasdCollection)
-                                Metrics.SetAllMetrics(espasd, operation);
+                                Metric.Instance.SetAllMetrics(espasd, operation);
         }
 
         #endregion
