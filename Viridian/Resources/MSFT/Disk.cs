@@ -1,10 +1,11 @@
 ﻿using System.Management;
 using Viridian.Exceptions;
+using Viridian.Resources.MSFT;
 using Viridian.Utilities;
 
 namespace Viridian.Storage.Virtual.Hard
 {
-    public class Disk
+    public sealed class Disk
     {
         private const string serverName = ".";
         private const string scopePath = @"\Root\Microsoft\Windows\Storage";
@@ -31,17 +32,6 @@ namespace Viridian.Storage.Virtual.Hard
             FileBackedVirtual = 15,
             StorageSpaces = 16,
             NVMe = 17
-        }
-
-        public enum MbrType : ushort
-        {
-            None = 0, // custom added
-            FAT12 = 1,
-            FAT16 = 4,
-            Extended = 5,
-            Huge = 6, 
-            IFS = 7,
-            FAT32 = 12
         }
 
         public enum DiskHealthStatus : ushort
@@ -103,21 +93,6 @@ namespace Viridian.Storage.Virtual.Hard
             Fixed = 2
         }
 
-        public class GptType
-        {
-            private GptType(string value) { Value = value; }
-
-            public string Value { get; set; }
-
-            public static GptType SystemPartitionEFI { get { return new GptType("{c12a7328-f81f-11d2-ba4b-00a0c93ec93b}"); } }
-            public static GptType MicrosoftReserved { get { return new GptType("{e3c9e316-0b5c-4db8-817d-f92df00215ae}"); } }
-            public static GptType BasicData { get { return new GptType("{ebd0a0a2-b9e5-4433-87c0-68b6b72699c7}"); } }
-            public static GptType LDMMetadata { get { return new GptType("{5808c8aa-7e8f-42e0-85d2-e1e90434cfb3}"); } }
-            public static GptType LDMData { get { return new GptType("{af9b60a0-1431-4f62-bc68-3311714a69ad}"); } }
-            public static GptType MicrosoftRecovery { get { return new GptType("{de94bba4-06d1-4d40-a16a-bfd50179d6ac}"); } }
-
-        }
-
         public Disk(string diskPath)
         {
             scope = Utils.GetScope(serverName, scopePath);
@@ -177,8 +152,6 @@ namespace Viridian.Storage.Virtual.Hard
 
         public string Clear(bool RemoveData, bool RemoveOEM, bool ZeroOutEntireDisk)
         {
-            var scope = Utils.GetScope(serverName, scopePath);
-
             using (var ip = MSFT_Disk.GetMethodParameters(nameof(Clear)))
             {
                 ip[nameof(RemoveData)] = RemoveData;
@@ -196,8 +169,6 @@ namespace Viridian.Storage.Virtual.Hard
 
         public string ConvertStyle(DiskPartitionStyle PartitionStyle)
         {
-            var scope = Utils.GetScope(serverName, scopePath);
-
             using (var ip = MSFT_Disk.GetMethodParameters(nameof(ConvertStyle)))
             {
                 ip[nameof(PartitionStyle)] = PartitionStyle;
@@ -211,28 +182,26 @@ namespace Viridian.Storage.Virtual.Hard
             }
         }
 
-        public ManagementObject CreatePartition(ulong Size, bool UseMaximumSize, ulong Offset, uint Alignment, char DriveLetter, bool AssignDriveLetter, MbrType MbrType, string GptType, bool IsHidden, bool IsActive)
+        public ManagementObject CreatePartition(ulong Size, bool UseMaximumSize, ulong Offset, uint Alignment, char DriveLetter, bool AssignDriveLetter, Partition.PartitionMBRType MbrType, string GptType, bool IsHidden, bool IsActive)
         {
-            var scope = Utils.GetScope(serverName, scopePath);
-
             using (var ip = MSFT_Disk.GetMethodParameters(nameof(CreatePartition)))
             {
                 if (UseMaximumSize == false) 
                     ip[nameof(Size)] = Size;
                 ip[nameof(UseMaximumSize)] = UseMaximumSize;
-                if (MbrType != MbrType.None)
+                if (MbrType != Partition.PartitionMBRType.None)
                     ip[nameof(Offset)] = Offset;
                 ip[nameof(Alignment)] = Alignment;
                 if (AssignDriveLetter)
                     ip[nameof(DriveLetter)] = DriveLetter;
                 ip[nameof(AssignDriveLetter)] = AssignDriveLetter;
-                if (MbrType != MbrType.None)
+                if (MbrType != Partition.PartitionMBRType.None)
                     ip[nameof(MbrType)] = MbrType;
-                if (MbrType == MbrType.None)
+                if (MbrType == Partition.PartitionMBRType.None)
                     ip[nameof(GptType)] = GptType;
 
                 ip[nameof(IsHidden)] = IsHidden;
-                if (MbrType != MbrType.None)
+                if (MbrType != Partition.PartitionMBRType.None)
                     ip[nameof(IsActive)] = IsActive;
 
                 using (var op = MSFT_Disk.InvokeMethod(nameof(CreatePartition), ip, null))
@@ -246,8 +215,6 @@ namespace Viridian.Storage.Virtual.Hard
 
         public string Initialize(DiskPartitionStyle PartitionStyle)
         {
-            var scope = Utils.GetScope(serverName, scopePath);
-
             using (var ip = MSFT_Disk.GetMethodParameters(nameof(Initialize)))
             {
                 ip[nameof(PartitionStyle)] = PartitionStyle;
@@ -263,8 +230,6 @@ namespace Viridian.Storage.Virtual.Hard
 
         public string Offline()
         {
-            var scope = Utils.GetScope(serverName, scopePath);
-
             using (var ip = MSFT_Disk.GetMethodParameters(nameof(Offline)))
             using (var op = MSFT_Disk.InvokeMethod(nameof(Offline), ip, null))
             {
@@ -276,8 +241,6 @@ namespace Viridian.Storage.Virtual.Hard
 
         public string Online()
         {
-            var scope = Utils.GetScope(serverName, scopePath);
-
             using (var ip = MSFT_Disk.GetMethodParameters(nameof(Online)))
             using (var op = MSFT_Disk.InvokeMethod(nameof(Online), ip, null))
             {
@@ -289,8 +252,6 @@ namespace Viridian.Storage.Virtual.Hard
 
         public string Refresh()
         {
-            var scope = Utils.GetScope(serverName, scopePath);
-
             using (var ip = MSFT_Disk.GetMethodParameters(nameof(Refresh)))
             using (var op = MSFT_Disk.InvokeMethod(nameof(Refresh), ip, null))
             {
@@ -302,13 +263,11 @@ namespace Viridian.Storage.Virtual.Hard
 
         public string SetAttributes(bool IsReadOnly, uint Signature, string Guid)
         {
-            var scope = Utils.GetScope(serverName, scopePath);
-
             using (var ip = MSFT_Disk.GetMethodParameters(nameof(Refresh)))
             {
                 ip[nameof(IsReadOnly)] = IsReadOnly;
                 ip[nameof(Signature)] = Signature;
-                ip[nameof(Guid)] = Guid ?? throw new ViridianException($"{nameof(Guid)} is null!"); ;
+                ip[nameof(Guid)] = Guid ?? throw new ViridianException($"{nameof(Guid)} is null!");
 
                 using (var op = MSFT_Disk.InvokeMethod(nameof(Refresh), ip, null))
                 {
@@ -319,40 +278,9 @@ namespace Viridian.Storage.Virtual.Hard
             }
         }
 
-        #region Utils
-
-        public static ManagementObject GetMsftVolumeOfMsftPartition(ManagementObject partition, int volumeIndex)
+        ~Disk()
         {
-            using (var volumeCollection = partition.GetRelated("MSFT_Volume"))
-            {
-                var countVolume = 0;
-                foreach (ManagementObject volume in volumeCollection)
-                {
-                    if (countVolume == volumeIndex)
-                        return volume;
-
-                    countVolume++;
-                }
-            }
-
-            throw new ViridianException("Volume not found!");
+            MSFT_Disk.Dispose();
         }
-
-        public static void FormatMsftVolume(ManagementObject msftVolume, string serverName, string scopePath)
-        {
-            var scope = Utils.GetScope(serverName, scopePath);
-
-            using (var ip = msftVolume.GetMethodParameters("Format"))
-            {
-                ip["FileSystem"] = "NTFS";
-                ip["Full"] = true;
-                ip["Compress"] = true;
-
-                using (var op = msftVolume.InvokeMethod("Format", ip, null))
-                    Job.Validator.ValidateOutput(op, scope);
-            }
-        }
-
-        #endregion
     }
 }

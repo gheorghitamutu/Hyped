@@ -5,6 +5,7 @@ using System.Management;
 using Viridian.Machine;
 using Viridian.Resources.Controllers;
 using Viridian.Resources.Drives;
+using Viridian.Resources.MSFT;
 using Viridian.Service.Msvm;
 using Viridian.Storage.Virtual.Hard;
 
@@ -19,7 +20,7 @@ namespace ViridianTester.Resources.Physical
         const string virtualSystemSubType = "Microsoft:Hyper-V:SubType:2"; // Generation 2
 
         [TestMethod]
-        public void ViridianDVD_AddToVmSCSIDVD()
+        public void ViridianDVD_AddVHDXtoSyntheticDiskDriveOfSCSIofVM()
         {
             // Arrange
             var vmName = "vm_test_add_vhdx_to_synthetic_disk_drive_of_scsi_of_vm";
@@ -44,11 +45,9 @@ namespace ViridianTester.Resources.Physical
             var msftDisk = new Disk(vhdxName);
             msftDisk.Initialize(Disk.DiskPartitionStyle.GPT);
 
-            using (var partition = msftDisk.CreatePartition(0, true, 0, 0, ' ', false, Disk.MbrType.None, Disk.GptType.BasicData.Value, false, true))
-            {
-                var volume = Disk.GetMsftVolumeOfMsftPartition(partition, 0);
-                Disk.FormatMsftVolume(volume, serverName, storageScopePath);
-            }
+            var partition = new Partition(msftDisk.CreatePartition(0, true, 0, 0, ' ', false, Partition.PartitionMBRType.None, Partition.PartitionGPTType.BasicData.Value, false, true));            
+            var volume = partition.GetMsftVolume(0);
+            Partition.FormatMsftVolume(volume, serverName, storageScopePath);
 
             using (var msi = ImageManagement.Instance.FindMountedStorageImageInstance(vhdxName, ImageManagement.CriterionType.Path))
             using (var op = msi.InvokeMethod("DetachVirtualHardDisk", null, null))
