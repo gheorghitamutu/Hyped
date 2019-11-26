@@ -9,7 +9,7 @@ namespace Viridian.Resources.MSFT
         private const string serverName = ".";
         private const string scopePath = @"\Root\Microsoft\Windows\Storage";
         private ManagementObject MSFT_Partition = null;
-        private static ManagementScope scope = null;
+        private ManagementScope scope = null;
 
         public class PartitionGPTType
         {
@@ -35,7 +35,6 @@ namespace Viridian.Resources.MSFT
             IFS = 7,
             FAT32 = 12
         }
-
         public enum PartitionOperationalStatus : ushort
         {
             Unknown = 0,
@@ -228,21 +227,6 @@ namespace Viridian.Resources.MSFT
             }
 
             throw new ViridianException("Volume not found!");
-        }
-
-        public static void FormatMsftVolume(ManagementObject msftVolume, string serverName, string scopePath)
-        {
-            var scope = Utils.GetScope(serverName, scopePath);
-
-            using (var ip = msftVolume.GetMethodParameters("Format"))
-            {
-                ip["FileSystem"] = "NTFS";
-                ip["Full"] = true;
-                ip["Compress"] = true;
-
-                using (var op = msftVolume.InvokeMethod("Format", ip, null))
-                    Job.Validator.ValidateOutput(op, scope);
-            }
         }
 
         #endregion

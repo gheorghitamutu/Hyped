@@ -10,7 +10,7 @@ namespace Viridian.Storage.Virtual.Hard
         private const string serverName = ".";
         private const string scopePath = @"\Root\Microsoft\Windows\Storage";
         private ManagementObject MSFT_Disk = null;
-        private static ManagementScope scope = null;
+        private ManagementScope scope = null;
 
         public enum DiskBusType : ushort
         {

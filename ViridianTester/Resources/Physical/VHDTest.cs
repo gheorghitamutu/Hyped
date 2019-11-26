@@ -46,8 +46,9 @@ namespace ViridianTester.Resources.Physical
             msftDisk.Initialize(Disk.DiskPartitionStyle.GPT);
 
             var partition = new Partition(msftDisk.CreatePartition(0, true, 0, 0, ' ', false, Partition.PartitionMBRType.None, Partition.PartitionGPTType.BasicData.Value, false, true));            
-            var volume = partition.GetMsftVolume(0);
-            Partition.FormatMsftVolume(volume, serverName, storageScopePath);
+            var volume = new Volume(partition.GetMsftVolume(0));
+
+            volume.Format(Volume.VolumeFileSystem.NTFS.Value, "Test", 4096, true, true, true, true, true, false, false);
 
             using (var msi = ImageManagement.Instance.FindMountedStorageImageInstance(vhdxName, ImageManagement.CriterionType.Path))
             using (var op = msi.InvokeMethod("DetachVirtualHardDisk", null, null))
