@@ -21,7 +21,7 @@ namespace ViridianTester.Statistics
         {
             // Arrange
             var vmName = "vm_test_get_aggregation_metric_value_collection_for_vm";
-            var vmState = VirtualSystemManagement.RequestedStateVM.Running;
+            var vmState = VirtualSystemManagement.RequestedStateVSM.Running;
 
             // Act
             var vm = new VM(serverName, scopePath, vmName, virtualSystemSubType);
@@ -48,7 +48,7 @@ namespace ViridianTester.Statistics
             Assert.AreEqual(vm.GetCurrentState(), vmState);
             Assert.AreEqual(mapped.Count, 4);
 
-            vm.RequestStateChange(VirtualSystemManagement.RequestedStateVM.Off);
+            vm.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Off);
             Metric.Instance.SetAllMetrics(vm.GetComputerSystemByName(), Metric.MetricCollectionEnabled.Disable);
             vm.RemoveVm();
         }
@@ -58,7 +58,7 @@ namespace ViridianTester.Statistics
         {
             // Arrange
             var vmName = "vm_test_get_base_metric_value_collection_for_synthetic_ethernet_ports_from_vm";
-            var vmState = VirtualSystemManagement.RequestedStateVM.Running;
+            var vmState = VirtualSystemManagement.RequestedStateVSM.Running;
 
             // Act
             var vm = new VM(serverName, scopePath, vmName, virtualSystemSubType);
@@ -88,7 +88,7 @@ namespace ViridianTester.Statistics
             Assert.AreEqual(vm.GetCurrentState(), vmState);
             Assert.AreEqual(sut.Count, 1);
 
-            vm.RequestStateChange(VirtualSystemManagement.RequestedStateVM.Off);
+            vm.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Off);
             vm.SetBaseMetricsForEthernetSwitchPortAclSettingData(Metric.MetricCollectionEnabled.Disable);
             vm.RemoveVm();
         }

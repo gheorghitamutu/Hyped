@@ -80,39 +80,19 @@ namespace Viridian.Machine
 
         public void CreateVm()
         {
-            var vssdPath = new ManagementPath()
-            {
-                Server = ServerName,
-                NamespacePath = @"\Root\Virtualization\V2",
-                ClassName = "Msvm_VirtualSystemSettingData"
-            };
-
-            using (var vssdClass = new ManagementClass(vssdPath) { Scope = Scope })
-            {
-                var vssd = vssdClass.CreateInstance();
-
-                if (vssd == null)
-                    throw new ViridianException("Failed creating virtual system setting class instance!");
-
+            using (var vssd = Utils.GetServiceObject(Scope, "Msvm_VirtualSystemSettingData"))
+            { 
                 vssd["ElementName"] = VmName;
                 vssd["ConfigurationDataRoot"] = @"C:\ProgramData\Microsoft\Windows\Hyper-V\";
                 vssd["VirtualSystemSubtype"] = VirtualSystemSubtype;
 
-                using (var vsmsCollection = new ManagementClass("Msvm_VirtualSystemManagementService") { Scope = Scope })
-                using (var vsms = Utils.GetFirstObjectFromCollection(vsmsCollection.GetInstances()))
-                using (var ip = vsms.GetMethodParameters("DefineSystem"))
-                {
-                    ip["SystemSettings"] = vssd.GetText(TextFormat.WmiDtd20);
-
-                    using (var op = vsms.InvokeMethod("DefineSystem", ip, null))
-                        Validator.ValidateOutput(op, Scope);
-                }
+                VirtualSystemManagement.Instance.DefineSystem(vssd.GetText(TextFormat.WmiDtd20), null, null);
             }
         }
 
         public void RemoveVm()
         {
-            using (ManagementObject vm = GetComputerSystemByName())
+            using (var vm = GetComputerSystemByName())
                 VirtualSystemManagement.Instance.DestroySystem(vm);
         }
 
@@ -154,7 +134,7 @@ namespace Viridian.Machine
             using (var vm = GetComputerSystemByName())
             {
                 if (saveMachineState)
-                    RequestStateChange(VirtualSystemManagement.RequestedStateVM.Saved);
+                    RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Saved);
 
                 string snapshotSettings = "";
 
@@ -177,7 +157,7 @@ namespace Viridian.Machine
                 VirtualSystemSnapshot.Instance.CreateSnapshot(vm.Path.Path, snapshotSettings, (ushort)snapshotType);
 
                 if (saveMachineState)
-                    RequestStateChange(VirtualSystemManagement.RequestedStateVM.Running);
+                    RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Running);
             }
         }
 
@@ -212,7 +192,7 @@ namespace Viridian.Machine
 
                     // In order to apply a snapshot, the virtual machine must first be saved/off
                     if ((ushort)vm["EnabledState"] != (ushort)EnabledState.Disabled)
-                        RequestStateChange(VirtualSystemManagement.RequestedStateVM.Off);
+                        RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Off);
 
                     VirtualSystemSnapshot.Instance.ApplySnapshot(snapshot);
 
@@ -254,7 +234,7 @@ namespace Viridian.Machine
 
         #region State
 
-        public void RequestStateChange(VirtualSystemManagement.RequestedStateVM RequestedState, ulong TimeoutPeriod = 0)
+        public void RequestStateChange(VirtualSystemManagement.RequestedStateVSM RequestedState, ulong TimeoutPeriod = 0)
         {
             using (var vm = GetComputerSystemByName())
             using (var ip = vm.GetMethodParameters(nameof(RequestStateChange)))
@@ -267,10 +247,10 @@ namespace Viridian.Machine
             }
         }
 
-        public VirtualSystemManagement.RequestedStateVM GetCurrentState()
+        public VirtualSystemManagement.RequestedStateVSM GetCurrentState()
         {
             using (var vm = GetComputerSystemByName())
-                return (VirtualSystemManagement.RequestedStateVM)Enum.ToObject(typeof(VirtualSystemManagement.RequestedStateVM), vm["EnabledState"]);
+                return (VirtualSystemManagement.RequestedStateVSM)Enum.ToObject(typeof(VirtualSystemManagement.RequestedStateVSM), vm["EnabledState"]);
         }
 
         #endregion

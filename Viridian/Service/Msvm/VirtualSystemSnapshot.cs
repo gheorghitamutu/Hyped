@@ -58,7 +58,7 @@ namespace Viridian.Service.Msvm
         string Caption => Msvm_VirtualSystemSnapshotService[nameof(Caption)].ToString();
         string Description => Msvm_VirtualSystemSnapshotService[nameof(Description)].ToString();
         string ElementName => Msvm_VirtualSystemSnapshotService[nameof(ElementName)].ToString();
-        DateTime InstallDate => (DateTime)Msvm_VirtualSystemSnapshotService[nameof(InstallDate)];
+        DateTime InstallDate => ManagementDateTimeConverter.ToDateTime(Msvm_VirtualSystemSnapshotService[nameof(InstallDate)].ToString());
         string Name => Msvm_VirtualSystemSnapshotService[nameof(Name)].ToString();
         ushort[] OperationalStatus => (ushort[])Msvm_VirtualSystemSnapshotService[nameof(OperationalStatus)];
         string[] StatusDescriptions => (string[])Msvm_VirtualSystemSnapshotService[nameof(StatusDescriptions)];
@@ -72,7 +72,7 @@ namespace Viridian.Service.Msvm
         string OtherEnabledState => Msvm_VirtualSystemSnapshotService[nameof(OtherEnabledState)].ToString();
         ushort RequestedState => (ushort)Msvm_VirtualSystemSnapshotService[nameof(RequestedState)];
         ushort EnabledDefault => (ushort)Msvm_VirtualSystemSnapshotService[nameof(EnabledDefault)];
-        DateTime TimeOfLastStateChange => (DateTime)Msvm_VirtualSystemSnapshotService[nameof(TimeOfLastStateChange)];
+        DateTime TimeOfLastStateChange => ManagementDateTimeConverter.ToDateTime(Msvm_VirtualSystemSnapshotService[nameof(TimeOfLastStateChange)].ToString());
         ushort[] AvailableRequestedStates => (ushort[])Msvm_VirtualSystemSnapshotService[nameof(AvailableRequestedStates)];
         ushort TransitioningToState => (ushort)Msvm_VirtualSystemSnapshotService[nameof(TransitioningToState)];
         string SystemCreationClassName => Msvm_VirtualSystemSnapshotService[nameof(SystemCreationClassName)].ToString();

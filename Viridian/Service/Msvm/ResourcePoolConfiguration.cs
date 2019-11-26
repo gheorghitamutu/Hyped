@@ -45,7 +45,7 @@ namespace Viridian.Resources.Msvm
         string Caption => MsvmResourcePoolConfigurationService[nameof(Caption)].ToString();
         string Description => MsvmResourcePoolConfigurationService[nameof(Description)].ToString();
         string ElementName => MsvmResourcePoolConfigurationService[nameof(ElementName)].ToString();
-        DateTime InstallDate => (DateTime)MsvmResourcePoolConfigurationService[nameof(InstallDate)];
+        DateTime InstallDate => ManagementDateTimeConverter.ToDateTime(MsvmResourcePoolConfigurationService[nameof(InstallDate)].ToString());
         ushort[] OperationalStatus => (ushort[])MsvmResourcePoolConfigurationService[nameof(OperationalStatus)];
         string[] StatusDescriptions => (string[])MsvmResourcePoolConfigurationService[nameof(StatusDescriptions)];
         string Status => MsvmResourcePoolConfigurationService[nameof(Status)].ToString();
@@ -58,7 +58,7 @@ namespace Viridian.Resources.Msvm
         string OtherEnabledState => MsvmResourcePoolConfigurationService[nameof(OtherEnabledState)].ToString();
         ushort RequestedState => (ushort)MsvmResourcePoolConfigurationService[nameof(RequestedState)];
         ushort EnabledDefault => (ushort)MsvmResourcePoolConfigurationService[nameof(EnabledDefault)];
-        DateTime TimeOfLastStateChange => (DateTime)MsvmResourcePoolConfigurationService[nameof(TimeOfLastStateChange)];
+        DateTime TimeOfLastStateChange => ManagementDateTimeConverter.ToDateTime(MsvmResourcePoolConfigurationService[nameof(TimeOfLastStateChange)].ToString());
         ushort[] AvailableRequestedStates => (ushort[])MsvmResourcePoolConfigurationService[nameof(AvailableRequestedStates)];
         ushort TransitioningToState => (ushort)MsvmResourcePoolConfigurationService[nameof(TransitioningToState)];
         string SystemCreationClassName => MsvmResourcePoolConfigurationService[nameof(SystemCreationClassName)].ToString();

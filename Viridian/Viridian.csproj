@@ -57,6 +57,7 @@
     <Compile Include="Resources\Network\NetSwitch.cs" />
     <Compile Include="Resources\Network\SyntheticEthernetAdapter.cs" />
     <Compile Include="Service\Msvm\ImageManagement.cs" />
+    <Compile Include="Service\Msvm\VirtualEthernetSwitchManagement.cs" />
     <Compile Include="Service\Msvm\VirtualSystemManagement.cs" />
     <Compile Include="Service\Msvm\VirtualSystemSnapshot.cs" />
     <Compile Include="Service\Msvm\Metric.cs" />

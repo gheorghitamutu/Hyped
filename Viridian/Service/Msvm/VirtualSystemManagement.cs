@@ -14,7 +14,7 @@ namespace Viridian.Service.Msvm
         private static ManagementObject Msvm_VirtualSystemManagementService = null;
         private static ManagementScope scope = null;
         
-        public enum RequestedStateVM : uint
+        public enum RequestedStateVSM : uint
         {
             Other = 1,
             Running = 2,
@@ -61,7 +61,7 @@ namespace Viridian.Service.Msvm
         string Caption => Msvm_VirtualSystemManagementService[nameof(Caption)].ToString();
         string Description => Msvm_VirtualSystemManagementService[nameof(Description)].ToString();
         string ElementName => Msvm_VirtualSystemManagementService[nameof(ElementName)].ToString();
-        DateTime InstallDate => (DateTime)Msvm_VirtualSystemManagementService[nameof(InstallDate)];
+        DateTime InstallDate => ManagementDateTimeConverter.ToDateTime(Msvm_VirtualSystemManagementService[nameof(InstallDate)].ToString());
         string Name => Msvm_VirtualSystemManagementService[nameof(Name)].ToString();
         ushort[] OperationalStatus => (ushort[])Msvm_VirtualSystemManagementService[nameof(OperationalStatus)];
         string[] StatusDescriptions => (string[])Msvm_VirtualSystemManagementService[nameof(StatusDescriptions)];
@@ -75,7 +75,7 @@ namespace Viridian.Service.Msvm
         string OtherEnabledState => Msvm_VirtualSystemManagementService[nameof(OtherEnabledState)].ToString();
         ushort RequestedState => (ushort)Msvm_VirtualSystemManagementService[nameof(RequestedState)];
         ushort EnabledDefault => (ushort)Msvm_VirtualSystemManagementService[nameof(EnabledDefault)];
-        DateTime TimeOfLastStateChange => (DateTime)Msvm_VirtualSystemManagementService[nameof(TimeOfLastStateChange)];
+        DateTime TimeOfLastStateChange => ManagementDateTimeConverter.ToDateTime(Msvm_VirtualSystemManagementService[nameof(TimeOfLastStateChange)].ToString());
         ushort[] AvailableRequestedStates => (ushort[])Msvm_VirtualSystemManagementService[nameof(AvailableRequestedStates)];
         ushort TransitioningToState => (ushort)Msvm_VirtualSystemManagementService[nameof(TransitioningToState)];
         string SystemCreationClassName => Msvm_VirtualSystemManagementService[nameof(SystemCreationClassName)].ToString();
@@ -215,8 +215,8 @@ namespace Viridian.Service.Msvm
             using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(DefineSystem)))
             {
                 ip[nameof(SystemSettings)] = SystemSettings ?? throw new ViridianException($"{nameof(SystemSettings)} is null!");
-                ip[nameof(ResourceSettings)] = ResourceSettings ?? throw new ViridianException($"{nameof(ResourceSettings)} is null!");
-                ip[nameof(ReferenceConfiguration)] = ReferenceConfiguration ?? throw new ViridianException($"{nameof(ReferenceConfiguration)} is null!");
+                ip[nameof(ResourceSettings)] = ResourceSettings;
+                ip[nameof(ReferenceConfiguration)] = ReferenceConfiguration;
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(DefineSystem), ip, null))
                 {
@@ -605,7 +605,7 @@ namespace Viridian.Service.Msvm
             }
         }
 
-        public void RequestStateChange(RequestedStateVM RequestedState, ulong TimeoutPeriod = 0)
+        public void RequestStateChange(RequestedStateVSM RequestedState, ulong TimeoutPeriod = 0)
         {
             using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(RequestStateChange)))
             {

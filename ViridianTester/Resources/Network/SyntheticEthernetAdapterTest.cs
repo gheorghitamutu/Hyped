@@ -17,7 +17,7 @@ namespace ViridianTester.Resources.Network
         {
             // Arrange
             var vmName = "vm_test_add_synthetic_ethernet_adapter_to_vm";
-            var vmState = VirtualSystemManagement.RequestedStateVM.Running;
+            var vmState = VirtualSystemManagement.RequestedStateVSM.Running;
 
             // Act
             var vm = new VM(serverName, scopePath, vmName, virtualSystemSubType);
@@ -29,7 +29,7 @@ namespace ViridianTester.Resources.Network
             // Assert
             Assert.AreEqual(vmState, vm.GetCurrentState());
             Assert.AreEqual(1, vm.GetSyntheticAdapterCollection().Count);
-            vm.RequestStateChange(VirtualSystemManagement.RequestedStateVM.Off);
+            vm.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Off);
             vm.RemoveVm();
         }
     }

@@ -87,7 +87,7 @@ namespace Viridian.Service.Msvm
         string Caption => Msvm_ImageManagementService[nameof(Caption)].ToString();
         string Description => Msvm_ImageManagementService[nameof(Description)].ToString();
         string ElementName => Msvm_ImageManagementService[nameof(ElementName)].ToString();
-        DateTime InstallDate => (DateTime)Msvm_ImageManagementService[nameof(InstallDate)];
+        DateTime InstallDate => ManagementDateTimeConverter.ToDateTime(Msvm_ImageManagementService[nameof(InstallDate)].ToString());
         ushort[] OperationalStatus => (ushort[])Msvm_ImageManagementService[nameof(OperationalStatus)];
         string[] StatusDescriptions => (string[])Msvm_ImageManagementService[nameof(StatusDescriptions)];
         string Status => Msvm_ImageManagementService[nameof(Status)].ToString();
@@ -100,7 +100,7 @@ namespace Viridian.Service.Msvm
         string OtherEnabledState => Msvm_ImageManagementService[nameof(OtherEnabledState)].ToString();
         ushort RequestedState => (ushort)Msvm_ImageManagementService[nameof(RequestedState)];
         ushort EnabledDefault => (ushort)Msvm_ImageManagementService[nameof(EnabledDefault)];
-        DateTime TimeOfLastStateChange => (DateTime)Msvm_ImageManagementService[nameof(TimeOfLastStateChange)];
+        DateTime TimeOfLastStateChange => ManagementDateTimeConverter.ToDateTime(Msvm_ImageManagementService[nameof(TimeOfLastStateChange)].ToString());
         ushort[] AvailableRequestedStates => (ushort[])Msvm_ImageManagementService[nameof(AvailableRequestedStates)];
         ushort TransitioningToState => (ushort)Msvm_ImageManagementService[nameof(TransitioningToState)];
         string SystemCreationClassName => Msvm_ImageManagementService[nameof(SystemCreationClassName)].ToString();

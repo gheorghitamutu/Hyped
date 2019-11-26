@@ -67,7 +67,7 @@ namespace Viridian.Statistics
         string Caption => Msvm_MetricService[nameof(Caption)].ToString();
         string Description => Msvm_MetricService[nameof(Description)].ToString();
         string ElementName => Msvm_MetricService[nameof(ElementName)].ToString();
-        DateTime InstallDate => (DateTime)Msvm_MetricService[nameof(InstallDate)];
+        DateTime InstallDate => ManagementDateTimeConverter.ToDateTime(Msvm_MetricService[nameof(InstallDate)].ToString());
         string Name => Msvm_MetricService[nameof(Name)].ToString();
         ushort[] OperationalStatus => (ushort[])Msvm_MetricService[nameof(OperationalStatus)];
         string[] StatusDescriptions => (string[])Msvm_MetricService[nameof(StatusDescriptions)];
@@ -81,7 +81,7 @@ namespace Viridian.Statistics
         string OtherEnabledState => Msvm_MetricService[nameof(OtherEnabledState)].ToString();
         ushort RequestedState => (ushort)Msvm_MetricService[nameof(RequestedState)];
         ushort EnabledDefault => (ushort)Msvm_MetricService[nameof(EnabledDefault)];
-        DateTime TimeOfLastStateChange => (DateTime)Msvm_MetricService[nameof(TimeOfLastStateChange)];
+        DateTime TimeOfLastStateChange => ManagementDateTimeConverter.ToDateTime(Msvm_MetricService[nameof(TimeOfLastStateChange)].ToString());
         ushort[] AvailableRequestedStates => (ushort[])Msvm_MetricService[nameof(AvailableRequestedStates)];
         ushort TransitioningToState => (ushort)Msvm_MetricService[nameof(TransitioningToState)];
         string SystemCreationClassName => Msvm_MetricService[nameof(SystemCreationClassName)].ToString();
