@@ -24,7 +24,7 @@ namespace ViridianTester.Statistics
         const string virtualSystemSubType = "Microsoft:Hyper-V:SubType:2"; // Generation 2
 
         [TestMethod]
-        public void ViridiaStatisticsMetrics_GetAggregationMetricValueCollectionForVm()
+        public void ViridianStatisticsMetrics_GetAggregationMetricValueCollectionForVm()
         {
             // Arrange
             var vmName = "vm_test_get_aggregation_metric_value_collection_for_vm";
@@ -61,7 +61,7 @@ namespace ViridianTester.Statistics
         }
 
         [TestMethod]
-        public void ViridiaStatisticsMetrics_GetBaseMetricValueCollectionForSyntheticEthernetPortsFromVm()
+        public void ViridianStatisticsMetrics_GetBaseMetricValueCollectionForSyntheticEthernetPortsFromVm()
         {
             // Arrange
             var vmName = "vm_test_get_base_metric_value_collection_for_synthetic_ethernet_ports_from_vm";
@@ -101,7 +101,7 @@ namespace ViridianTester.Statistics
         }
 
         [TestMethod]
-        public void ViridiaStatisticsMetrics_GetAggregationMetricValueCollectionOfVHDXOfSyntheticDiskOfSCSIOfVM()
+        public void ViridianStatisticsMetrics_GetAggregationMetricValueCollectionOfVHDXOfSyntheticDiskOfSCSIOfVM()
         {
             // Arrange
             var vmName = "vm_test_get_aggregation_metric_value_collection_of_vhdx_of_scsi_of_vm";
@@ -172,7 +172,7 @@ namespace ViridianTester.Statistics
         }
 
         [TestMethod]
-        public void ViridiaStatisticsMetrics_GetBaseMetricValueCollectionOfVHDXOfSyntheticDiskOfSCSIOfVM()
+        public void ViridianStatisticsMetrics_GetBaseMetricValueCollectionOfVHDXOfSyntheticDiskOfSCSIOfVM()
         {
             // Arrange
             var vmName = "vm_test_get_base_metric_value_collection_of_vhdx_of_scsi_of_vm";

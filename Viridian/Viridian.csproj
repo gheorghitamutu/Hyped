@@ -55,6 +55,7 @@
     <Compile Include="Resources\Drives\SyntheticDisk.cs" />
     <Compile Include="Resources\MSFT\Partition.cs" />
     <Compile Include="Resources\MSFT\Volume.cs" />
+    <Compile Include="Resources\Msvm\MountedStorageImage.cs" />
     <Compile Include="Resources\Physical\VHD.cs" />
     <Compile Include="Resources\Network\NetSwitch.cs" />
     <Compile Include="Resources\Network\SyntheticEthernetAdapter.cs" />

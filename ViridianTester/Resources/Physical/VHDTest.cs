@@ -6,6 +6,7 @@ using Viridian.Machine;
 using Viridian.Resources.Controllers;
 using Viridian.Resources.Drives;
 using Viridian.Resources.MSFT;
+using Viridian.Resources.Msvm;
 using Viridian.Service.Msvm;
 using Viridian.Storage.Virtual.Hard;
 
@@ -49,9 +50,8 @@ namespace ViridianTester.Resources.Physical
 
             volume.Format(Volume.VolumeFileSystem.NTFS.Value, "Test", 4096, true, true, true, true, true, false, false);
 
-            using (var msi = ImageManagement.Instance.FindMountedStorageImageInstance(vhdxName, ImageManagement.CriterionType.Path))
-            using (var op = msi.InvokeMethod("DetachVirtualHardDisk", null, null))
-                Viridian.Job.Validator.ValidateOutput(op, vm.Scope);
+            var msi = new MountedStorageImage(ImageManagement.Instance.FindMountedStorageImageInstance(vhdxName, ImageManagement.CriterionType.Path));
+            msi.DetachVirtualHardDisk();
             // end operations on the host
 
             var sut = new VHD();
