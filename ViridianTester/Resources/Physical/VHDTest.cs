@@ -15,8 +15,7 @@ namespace ViridianTester.Resources.Physical
     public class VHDTest
     {
         const string serverName = "."; // local
-        const string v2ScopePath = @"\Root\Virtualization\V2"; // API v2 
-        const string storageScopePath = @"\Root\Microsoft\Windows\Storage"; // API v2 
+        const string scopePath = @"\Root\Virtualization\V2"; // API v2 
         const string virtualSystemSubType = "Microsoft:Hyper-V:SubType:2"; // Generation 2
 
         [TestMethod]
@@ -27,7 +26,7 @@ namespace ViridianTester.Resources.Physical
             var vhdxName = AppDomain.CurrentDomain.BaseDirectory + "\\dummyPath.vhdx";
 
             // Act
-            var vm = new VM(serverName, v2ScopePath, vmName, virtualSystemSubType);
+            var vm = new VM(serverName, scopePath, vmName, virtualSystemSubType);
             vm.CreateVm();
 
             var scsi = new SCSI();
@@ -38,7 +37,7 @@ namespace ViridianTester.Resources.Physical
 
             // operations on the host
             using (var vhdsd = ImageManagement.CreateVirtualHardDiskSettingData(ImageManagement.VirtualHardDiskType.Dynamic, ImageManagement.VirtualDiskFormat.VHDX, vhdxName, null, 1024 * 1024 * 1024))
-                ImageManagement.Instance.CreateVirtualHardDisk(vhdsd.GetText(System.Management.TextFormat.WmiDtd20));
+                ImageManagement.Instance.CreateVirtualHardDisk(vhdsd.GetText(TextFormat.WmiDtd20));
 
             ImageManagement.Instance.AttachVirtualHardDisk(vhdxName, false, false);
 
@@ -53,11 +52,10 @@ namespace ViridianTester.Resources.Physical
             using (var msi = ImageManagement.Instance.FindMountedStorageImageInstance(vhdxName, ImageManagement.CriterionType.Path))
             using (var op = msi.InvokeMethod("DetachVirtualHardDisk", null, null))
                 Viridian.Job.Validator.ValidateOutput(op, vm.Scope);
+            // end operations on the host
 
             var sut = new VHD();
             sut.AddToSyntheticDiskDrive(vm, vhdxName, 0, 0, VHD.HardDiskAccess.ReadWrite);
-
-            // end operations on the host
 
             // Assert
             Assert.IsTrue(File.Exists(vhdxName));

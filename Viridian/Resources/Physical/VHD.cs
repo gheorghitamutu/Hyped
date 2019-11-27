@@ -17,7 +17,7 @@ namespace Viridian.Resources.Drives
             ReadWrite = 3
         }
 
-        public void AddToSyntheticDiskDrive(VM vm, string hostResource, int scsiIndex, int address, HardDiskAccess access)
+        public string[] AddToSyntheticDiskDrive(VM vm, string hostResource, int scsiIndex, int address, HardDiskAccess access)
         {
             using (var vms = Utils.GetVirtualMachineSettings(vm.VmName, vm.Scope))
             using (var scsiController = vm.GetScsiController(scsiIndex))
@@ -30,7 +30,7 @@ namespace Viridian.Resources.Drives
                 rasd["Parent"] = parent ?? throw new ViridianException("Failure retrieving Syntethic Disk Drive class!");
                 rasd["HostResource"] = new[] { hostResource };
 
-                VirtualSystemManagement.Instance.AddResourceSettings(vms, new[] { rasd.GetText(TextFormat.WmiDtd20) });
+                return VirtualSystemManagement.Instance.AddResourceSettings(vms, new[] { rasd.GetText(TextFormat.WmiDtd20) });
             }
         }
 
