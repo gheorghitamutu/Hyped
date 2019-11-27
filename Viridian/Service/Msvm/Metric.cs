@@ -4,17 +4,14 @@ using System.Globalization;
 using System.Management;
 using Viridian.Exceptions;
 using Viridian.Job;
+using Viridian.Service.Msvm;
 using Viridian.Utilities;
 
 namespace Viridian.Statistics
 {       
-    public sealed class Metric
+    public sealed class Metric : BaseService
     {
         private static Metric instance = null;
-        private const string serverName = ".";
-        private const string scopePath = @"\Root\Virtualization\V2";
-        private static ManagementObject Msvm_MetricService = null;
-        private static ManagementScope scope = null;
 
         public enum MetricCollectionEnabled : ushort
         {
@@ -36,17 +33,7 @@ namespace Viridian.Statistics
             Reset = 11
         };
 
-        private Metric()
-        {
-            scope = new ManagementScope(new ManagementPath { Server = serverName, NamespacePath = scopePath }, null);
-
-            using (var vsms = new ManagementClass(nameof(Msvm_MetricService)))
-            {
-                vsms.Scope = scope;
-
-                Msvm_MetricService = Utils.GetFirstObjectFromCollection(vsms.GetInstances());
-            }
-        }
+        private Metric() : base("Msvm_MetricService") { }
 
         public static Metric Instance
         {
@@ -59,40 +46,13 @@ namespace Viridian.Statistics
             }
         }
 
-        public ManagementObject MsvmMetricService => Msvm_MetricService ?? throw new ViridianException($"{nameof(Msvm_MetricService)} is null!");
-
-        #region MsvmProperties
-
-        string InstanceID => Msvm_MetricService[nameof(InstanceID)].ToString();
-        string Caption => Msvm_MetricService[nameof(Caption)].ToString();
-        string Description => Msvm_MetricService[nameof(Description)].ToString();
-        string ElementName => Msvm_MetricService[nameof(ElementName)].ToString();
-        DateTime InstallDate => ManagementDateTimeConverter.ToDateTime(Msvm_MetricService[nameof(InstallDate)].ToString());
-        string Name => Msvm_MetricService[nameof(Name)].ToString();
-        ushort[] OperationalStatus => (ushort[])Msvm_MetricService[nameof(OperationalStatus)];
-        string[] StatusDescriptions => (string[])Msvm_MetricService[nameof(StatusDescriptions)];
-        string Status => Msvm_MetricService[nameof(Status)].ToString();
-        ushort HealthState => (ushort)Msvm_MetricService[nameof(HealthState)];
-        ushort CommunicationStatus => (ushort)Msvm_MetricService[nameof(CommunicationStatus)];
-        ushort DetailedStatus => (ushort)Msvm_MetricService[nameof(DetailedStatus)];
-        ushort OperatingStatus => (ushort)Msvm_MetricService[nameof(OperatingStatus)];
-        ushort PrimaryStatus => (ushort)Msvm_MetricService[nameof(PrimaryStatus)];
-        ushort EnabledState => (ushort)Msvm_MetricService[nameof(EnabledState)];
-        string OtherEnabledState => Msvm_MetricService[nameof(OtherEnabledState)].ToString();
-        ushort RequestedState => (ushort)Msvm_MetricService[nameof(RequestedState)];
-        ushort EnabledDefault => (ushort)Msvm_MetricService[nameof(EnabledDefault)];
-        DateTime TimeOfLastStateChange => ManagementDateTimeConverter.ToDateTime(Msvm_MetricService[nameof(TimeOfLastStateChange)].ToString());
-        ushort[] AvailableRequestedStates => (ushort[])Msvm_MetricService[nameof(AvailableRequestedStates)];
-        ushort TransitioningToState => (ushort)Msvm_MetricService[nameof(TransitioningToState)];
-        string SystemCreationClassName => Msvm_MetricService[nameof(SystemCreationClassName)].ToString();
-        string SystemName => Msvm_MetricService[nameof(SystemName)].ToString();
-        string CreationClassName => Msvm_MetricService[nameof(CreationClassName)].ToString();
-        string PrimaryOwnerName => Msvm_MetricService[nameof(PrimaryOwnerName)].ToString();
-        string PrimaryOwnerContact => Msvm_MetricService[nameof(PrimaryOwnerContact)].ToString();
-        string StartMode => Msvm_MetricService[nameof(StartMode)].ToString();
-        bool Started => (bool)Msvm_MetricService[nameof(Started)];
-
-        #endregion
+#pragma warning disable CA1303 // Do not pass literals as localized parameters
+#pragma warning disable CA1707 // Identifiers should not contain underscores
+#pragma warning disable CA1065 // Do not raise exceptions in unexpected locations
+        public ManagementObject Msvm_MetricService => Service ?? throw new ViridianException($"{nameof(ServiceName)} is null!");
+#pragma warning restore CA1065 // Do not raise exceptions in unexpected locations
+#pragma warning restore CA1707 // Identifiers should not contain underscores
+#pragma warning restore CA1303 // Do not pass literals as localized parameters
 
         public void ControlMetrics(string Subject, string Definition, MetricCollectionEnabled MetricCollectionEnabled)
         {
@@ -103,7 +63,7 @@ namespace Viridian.Statistics
                 ip[nameof(MetricCollectionEnabled)] = MetricCollectionEnabled;
 
                 using (var op = Msvm_MetricService.InvokeMethod(nameof(ControlMetrics), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -116,7 +76,7 @@ namespace Viridian.Statistics
                 ip[nameof(MetricCollectionEnabled)] = MetricCollectionEnabled;
 
                 using (var op = Msvm_MetricService.InvokeMethod(nameof(ControlMetricsByClass), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -129,7 +89,7 @@ namespace Viridian.Statistics
                 ip[nameof(RestartGathering)] = RestartGathering;
 
                 using (var op = Msvm_MetricService.InvokeMethod(nameof(ControlSampleTimes), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -142,7 +102,7 @@ namespace Viridian.Statistics
                 ip[nameof(Count)] = Count;
 
                 using (var op = Msvm_MetricService.InvokeMethod(nameof(GetMetricValues), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -153,7 +113,7 @@ namespace Viridian.Statistics
                 ip[nameof(SettingData)] = SettingData ?? throw new ViridianException($"{nameof(SettingData)} is null!");
 
                 using (var op = Msvm_MetricService.InvokeMethod(nameof(ModifyServiceSettings), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -165,7 +125,7 @@ namespace Viridian.Statistics
                 ip[nameof(TimeoutPeriod)] = null; // CIM_DateTime
 
                 using (var op = Msvm_MetricService.InvokeMethod(nameof(RequestStateChange), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -178,7 +138,7 @@ namespace Viridian.Statistics
 
                 using (var op = Msvm_MetricService.InvokeMethod(nameof(ShowMetrics), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return new object[] { op["ManagedElements"] as string[], op["MetricNames"] as string[], op["MetricCollectionEnabled"] as MetricCollectionEnabled[] };
                 }
@@ -194,25 +154,25 @@ namespace Viridian.Statistics
 
                 using (var op = Msvm_MetricService.InvokeMethod(nameof(ShowMetricsByClass), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return new object[] { op["DefinitionList"] as string[], op["MetricNames"] as string[], op["MetricCollectionEnabled"] as MetricCollectionEnabled[] };
                 }
             }
         }
 
-        public void StartService()
+        public override void StartService()
         {
             using (var ip = Msvm_MetricService.GetMethodParameters(nameof(StartService)))
             using (var op = Msvm_MetricService.InvokeMethod(nameof(StartService), ip, null))
-                Validator.ValidateOutput(op, scope);
+                Validator.ValidateOutput(op, Scope);
         }
 
-        public void StopService()
+        public override void StopService()
         {
             using (var ip = Msvm_MetricService.GetMethodParameters(nameof(StopService)))
             using (var op = Msvm_MetricService.InvokeMethod(nameof(StopService), ip, null))
-                Validator.ValidateOutput(op, scope);
+                Validator.ValidateOutput(op, Scope);
         }
 
 
@@ -250,7 +210,7 @@ namespace Viridian.Statistics
         {
             using (var mssdClass = new ManagementClass("Msvm_MetricServiceSettingData"))
             {
-                mssdClass.Scope = scope;
+                mssdClass.Scope = Scope;
 
                 using (var mssd = mssdClass.CreateInstance())
                 {

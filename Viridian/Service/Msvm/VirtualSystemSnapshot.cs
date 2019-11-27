@@ -6,13 +6,9 @@ using Viridian.Utilities;
 
 namespace Viridian.Service.Msvm
 {
-    public sealed class VirtualSystemSnapshot
+    public sealed class VirtualSystemSnapshot : BaseService
     {
         private static VirtualSystemSnapshot instance = null;
-        private const string serverName = ".";
-        private const string scopePath = @"\Root\Virtualization\V2";
-        private static ManagementObject Msvm_VirtualSystemSnapshotService = null;
-        private static ManagementScope scope = null;
 
         public enum State : ushort
         {
@@ -27,17 +23,7 @@ namespace Viridian.Service.Msvm
             Reset = 11
         }
 
-        private VirtualSystemSnapshot()
-        {
-            scope = new ManagementScope(new ManagementPath { Server = serverName, NamespacePath = scopePath }, null);
-
-            using (var vsms = new ManagementClass(nameof(Msvm_VirtualSystemSnapshotService)))
-            {
-                vsms.Scope = scope;
-
-                Msvm_VirtualSystemSnapshotService = Utils.GetFirstObjectFromCollection(vsms.GetInstances());
-            } 
-        }
+        private VirtualSystemSnapshot() : base("Msvm_VirtualSystemSnapshotService") { }
 
         public static VirtualSystemSnapshot Instance
         {
@@ -50,41 +36,8 @@ namespace Viridian.Service.Msvm
             }
         }
 
-        public ManagementObject MsvmVirtualSystemSnapshotService => Msvm_VirtualSystemSnapshotService ?? throw new ViridianException($"{nameof(Msvm_VirtualSystemSnapshotService)} is null!");
-
-        #region MsvmProperties
-
-        string InstanceID => Msvm_VirtualSystemSnapshotService[nameof(InstanceID)].ToString();
-        string Caption => Msvm_VirtualSystemSnapshotService[nameof(Caption)].ToString();
-        string Description => Msvm_VirtualSystemSnapshotService[nameof(Description)].ToString();
-        string ElementName => Msvm_VirtualSystemSnapshotService[nameof(ElementName)].ToString();
-        DateTime InstallDate => ManagementDateTimeConverter.ToDateTime(Msvm_VirtualSystemSnapshotService[nameof(InstallDate)].ToString());
-        string Name => Msvm_VirtualSystemSnapshotService[nameof(Name)].ToString();
-        ushort[] OperationalStatus => (ushort[])Msvm_VirtualSystemSnapshotService[nameof(OperationalStatus)];
-        string[] StatusDescriptions => (string[])Msvm_VirtualSystemSnapshotService[nameof(StatusDescriptions)];
-        string Status => Msvm_VirtualSystemSnapshotService[nameof(Status)].ToString();
-        ushort HealthState => (ushort)Msvm_VirtualSystemSnapshotService[nameof(HealthState)];
-        ushort CommunicationStatus => (ushort)Msvm_VirtualSystemSnapshotService[nameof(CommunicationStatus)];
-        ushort DetailedStatus => (ushort)Msvm_VirtualSystemSnapshotService[nameof(DetailedStatus)];
-        ushort OperatingStatus => (ushort)Msvm_VirtualSystemSnapshotService[nameof(OperatingStatus)];
-        ushort PrimaryStatus => (ushort)Msvm_VirtualSystemSnapshotService[nameof(PrimaryStatus)];
-        ushort EnabledState => (ushort)Msvm_VirtualSystemSnapshotService[nameof(EnabledState)];
-        string OtherEnabledState => Msvm_VirtualSystemSnapshotService[nameof(OtherEnabledState)].ToString();
-        ushort RequestedState => (ushort)Msvm_VirtualSystemSnapshotService[nameof(RequestedState)];
-        ushort EnabledDefault => (ushort)Msvm_VirtualSystemSnapshotService[nameof(EnabledDefault)];
-        DateTime TimeOfLastStateChange => ManagementDateTimeConverter.ToDateTime(Msvm_VirtualSystemSnapshotService[nameof(TimeOfLastStateChange)].ToString());
-        ushort[] AvailableRequestedStates => (ushort[])Msvm_VirtualSystemSnapshotService[nameof(AvailableRequestedStates)];
-        ushort TransitioningToState => (ushort)Msvm_VirtualSystemSnapshotService[nameof(TransitioningToState)];
-        string SystemCreationClassName => Msvm_VirtualSystemSnapshotService[nameof(SystemCreationClassName)].ToString();
-        string SystemName => Msvm_VirtualSystemSnapshotService[nameof(SystemName)].ToString();
-        string CreationClassName => Msvm_VirtualSystemSnapshotService[nameof(CreationClassName)].ToString();
-        string PrimaryOwnerName => Msvm_VirtualSystemSnapshotService[nameof(PrimaryOwnerName)].ToString();
-        string PrimaryOwnerContact => Msvm_VirtualSystemSnapshotService[nameof(PrimaryOwnerContact)].ToString();
-        string StartMode => Msvm_VirtualSystemSnapshotService[nameof(StartMode)].ToString();
-        bool Started => (bool)Msvm_VirtualSystemSnapshotService[nameof(Started)];
-
-        #endregion
-
+        public ManagementObject Msvm_VirtualSystemSnapshotService => Service ?? throw new ViridianException($"{nameof(ServiceName)} is null!");
+              
         public void ApplySnapshot(ManagementObject Snapshot)
         {
             using (var ip = Msvm_VirtualSystemSnapshotService.GetMethodParameters(nameof(ApplySnapshot)))
@@ -92,7 +45,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(Snapshot)] = Snapshot ?? throw new ViridianException($"{nameof(Snapshot)} is null!");
 
                 using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(ApplySnapshot), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -103,7 +56,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(SnapshotSettingData)] = SnapshotSettingData ?? throw new ViridianException($"{nameof(SnapshotSettingData)} is null!");
 
                 using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(ClearSnapshotState), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -115,9 +68,9 @@ namespace Viridian.Service.Msvm
                 ip[nameof(SnapshotSettings)] = SnapshotSettings ?? throw new ViridianException($"{nameof(SnapshotSettings)} is null!");
                 ip[nameof(SnapshotType)] = SnapshotType;
 
-                using (var op = MsvmVirtualSystemSnapshotService.InvokeMethod(nameof(CreateSnapshot), ip, null))
+                using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(CreateSnapshot), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return op["ResultingSnapshot"] as ManagementObject;
                 }
@@ -130,8 +83,8 @@ namespace Viridian.Service.Msvm
             {
                 ip[nameof(AffectedSnapshot)] = AffectedSnapshot ?? throw new ViridianException($"{nameof(AffectedSnapshot)} is null!");
 
-                using (var op = MsvmVirtualSystemSnapshotService.InvokeMethod(nameof(DestroySnapshot), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(DestroySnapshot), ip, null))
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -141,8 +94,8 @@ namespace Viridian.Service.Msvm
             {
                 ip[nameof(SnapshotSettingData)] = SnapshotSettingData ?? throw new ViridianException($"{nameof(SnapshotSettingData)} is null!");
 
-                using (var op = MsvmVirtualSystemSnapshotService.InvokeMethod(nameof(DestroySnapshotTree), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(DestroySnapshotTree), ip, null))
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -153,8 +106,8 @@ namespace Viridian.Service.Msvm
                 ip[nameof(RequestedState)] = RequestedState;
                 ip[nameof(TimeoutPeriod)] = TimeoutPeriod;
 
-                using (var op = MsvmVirtualSystemSnapshotService.InvokeMethod(nameof(RequestStateChange), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(RequestStateChange), ip, null))
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -165,23 +118,13 @@ namespace Viridian.Service.Msvm
                 ip[nameof(AffectedSnapshot)] = AffectedSnapshot;
                 ip[nameof(ReferencePointSettings)] = ReferencePointSettings;
 
-                using (var op = MsvmVirtualSystemSnapshotService.InvokeMethod(nameof(ConvertToReferencePoint), ip, null))
+                using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(ConvertToReferencePoint), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return op["ResultingReferencePoint"] as ManagementObject;
                 }
             }
-        }
-
-        public void StartService()
-        {
-            throw new NotSupportedException("StartService method is not supported!");
-        }
-
-        public void StopService()
-        {
-            throw new NotSupportedException("StopService method is not supported!");
         }
 
         ~VirtualSystemSnapshot()

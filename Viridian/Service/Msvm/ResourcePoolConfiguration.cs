@@ -1,30 +1,15 @@
-﻿using System;
-using System.Management;
+﻿using System.Management;
 using Viridian.Exceptions;
 using Viridian.Job;
-using Viridian.Utilities;
+using Viridian.Service.Msvm;
 
 namespace Viridian.Resources.Msvm
 {
-    public sealed class ResourcePoolConfiguration
+    public sealed class ResourcePoolConfiguration : BaseService
     {
         private static ResourcePoolConfiguration instance = null;
-        private const string serverName = ".";
-        private const string scopePath = @"\Root\Virtualization\V2";
-        private static ManagementObject Msvm_ResourcePoolConfigurationService = null;
-        private static ManagementScope scope = null;
 
-        private ResourcePoolConfiguration()
-        {
-            scope = new ManagementScope(new ManagementPath { Server = serverName, NamespacePath = scopePath }, null);
-
-            using (var vsms = new ManagementClass(nameof(Msvm_ResourcePoolConfigurationService)))
-            {
-                vsms.Scope = scope;
-
-                Msvm_ResourcePoolConfigurationService = Utils.GetFirstObjectFromCollection(vsms.GetInstances());
-            }
-        }
+        private ResourcePoolConfiguration() : base("Msvm_ResourcePoolConfigurationService") { }
 
         public static ResourcePoolConfiguration Instance
         {
@@ -37,40 +22,13 @@ namespace Viridian.Resources.Msvm
             }
         }
 
-        public ManagementObject MsvmResourcePoolConfigurationService => Msvm_ResourcePoolConfigurationService ?? throw new ViridianException($"{nameof(Msvm_ResourcePoolConfigurationService)} is null!");
-
-        #region MsvmProperties
-
-        string InstanceID => MsvmResourcePoolConfigurationService[nameof(InstanceID)].ToString();
-        string Caption => MsvmResourcePoolConfigurationService[nameof(Caption)].ToString();
-        string Description => MsvmResourcePoolConfigurationService[nameof(Description)].ToString();
-        string ElementName => MsvmResourcePoolConfigurationService[nameof(ElementName)].ToString();
-        DateTime InstallDate => ManagementDateTimeConverter.ToDateTime(MsvmResourcePoolConfigurationService[nameof(InstallDate)].ToString());
-        ushort[] OperationalStatus => (ushort[])MsvmResourcePoolConfigurationService[nameof(OperationalStatus)];
-        string[] StatusDescriptions => (string[])MsvmResourcePoolConfigurationService[nameof(StatusDescriptions)];
-        string Status => MsvmResourcePoolConfigurationService[nameof(Status)].ToString();
-        ushort HealthState => (ushort)MsvmResourcePoolConfigurationService[nameof(HealthState)];
-        ushort CommunicationStatus => (ushort)MsvmResourcePoolConfigurationService[nameof(CommunicationStatus)];
-        ushort DetailedStatus => (ushort)MsvmResourcePoolConfigurationService[nameof(DetailedStatus)];
-        ushort OperatingStatus => (ushort)MsvmResourcePoolConfigurationService[nameof(OperatingStatus)];
-        ushort PrimaryStatus => (ushort)MsvmResourcePoolConfigurationService[nameof(PrimaryStatus)];
-        ushort EnabledState => (ushort)MsvmResourcePoolConfigurationService[nameof(EnabledState)];
-        string OtherEnabledState => MsvmResourcePoolConfigurationService[nameof(OtherEnabledState)].ToString();
-        ushort RequestedState => (ushort)MsvmResourcePoolConfigurationService[nameof(RequestedState)];
-        ushort EnabledDefault => (ushort)MsvmResourcePoolConfigurationService[nameof(EnabledDefault)];
-        DateTime TimeOfLastStateChange => ManagementDateTimeConverter.ToDateTime(MsvmResourcePoolConfigurationService[nameof(TimeOfLastStateChange)].ToString());
-        ushort[] AvailableRequestedStates => (ushort[])MsvmResourcePoolConfigurationService[nameof(AvailableRequestedStates)];
-        ushort TransitioningToState => (ushort)MsvmResourcePoolConfigurationService[nameof(TransitioningToState)];
-        string SystemCreationClassName => MsvmResourcePoolConfigurationService[nameof(SystemCreationClassName)].ToString();
-        string SystemName => MsvmResourcePoolConfigurationService[nameof(SystemName)].ToString();
-        string CreationClassName => MsvmResourcePoolConfigurationService[nameof(CreationClassName)].ToString();
-        string Name => MsvmResourcePoolConfigurationService[nameof(Name)].ToString();
-        string PrimaryOwnerName => MsvmResourcePoolConfigurationService[nameof(PrimaryOwnerName)].ToString();
-        string PrimaryOwnerContact => MsvmResourcePoolConfigurationService[nameof(PrimaryOwnerContact)].ToString();
-        string StartMode => MsvmResourcePoolConfigurationService[nameof(StartMode)].ToString();
-        bool Started => (bool)MsvmResourcePoolConfigurationService[nameof(Started)];
-
-        #endregion
+#pragma warning disable CA1303 // Do not pass literals as localized parameters
+#pragma warning disable CA1707 // Identifiers should not contain underscores
+#pragma warning disable CA1065 // Do not raise exceptions in unexpected locations
+        public ManagementObject Msvm_ResourcePoolConfigurationService => Service ?? throw new ViridianException($"{nameof(ServiceName)} is null!");
+#pragma warning restore CA1065 // Do not raise exceptions in unexpected locations
+#pragma warning restore CA1707 // Identifiers should not contain underscores
+#pragma warning restore CA1303 // Do not pass literals as localized parameters
 
         public ManagementObject CreatePool(string PoolSettings, string[] ParentPools, string[] AllocationSettings)
         {
@@ -82,9 +40,9 @@ namespace Viridian.Resources.Msvm
 
                 using (var op = Msvm_ResourcePoolConfigurationService.InvokeMethod(nameof(CreatePool), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
-                    return new ManagementObject(scope, new ManagementPath(op["Pool"].ToString()), null);
+                    return new ManagementObject(Scope, new ManagementPath(op["Pool"].ToString()), null);
                 }
             }
         }
@@ -96,7 +54,7 @@ namespace Viridian.Resources.Msvm
                 ip[nameof(Pool)] = Pool ?? throw new ViridianException($"{nameof(Pool)} is null!");
 
                 using (var op = Msvm_ResourcePoolConfigurationService.InvokeMethod(nameof(DeletePool), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -109,7 +67,7 @@ namespace Viridian.Resources.Msvm
                 ip[nameof(AllocationSettings)] = AllocationSettings ?? throw new ViridianException($"{nameof(AllocationSettings)} is null!");
 
                 using (var op = Msvm_ResourcePoolConfigurationService.InvokeMethod(nameof(ModifyPoolResources), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -121,7 +79,7 @@ namespace Viridian.Resources.Msvm
                 ip[nameof(PoolSettings)] = PoolSettings ?? throw new ViridianException($"{nameof(PoolSettings)} is null!");
 
                 using (var op = Msvm_ResourcePoolConfigurationService.InvokeMethod(nameof(ModifyPoolSettings), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 

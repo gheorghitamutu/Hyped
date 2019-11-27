@@ -6,13 +6,9 @@ using Viridian.Utilities;
 
 namespace Viridian.Service.Msvm
 {
-    public sealed class VirtualSystemManagement
+    public sealed class VirtualSystemManagement : BaseService
     {
         private static VirtualSystemManagement instance = null;
-        private const string serverName = ".";
-        private const string scopePath = @"\Root\Virtualization\V2";
-        private static ManagementObject Msvm_VirtualSystemManagementService = null;
-        private static ManagementScope scope = null;
         
         public enum RequestedStateVSM : uint
         {
@@ -30,17 +26,7 @@ namespace Viridian.Service.Msvm
             FastSaving = 32780,
         };
 
-        private VirtualSystemManagement()
-        {
-            scope = new ManagementScope(new ManagementPath { Server = serverName, NamespacePath = scopePath }, null);
-
-            using (var vsms = new ManagementClass(nameof(Msvm_VirtualSystemManagementService)))
-            {
-                vsms.Scope = scope;
-
-                Msvm_VirtualSystemManagementService = Utils.GetFirstObjectFromCollection(vsms.GetInstances());
-            }
-        }
+        private VirtualSystemManagement() : base("Msvm_VirtualSystemManagementService") { }
 
         public static VirtualSystemManagement Instance
         {
@@ -53,40 +39,13 @@ namespace Viridian.Service.Msvm
             }
         }
 
-        public ManagementObject MsvmVirtualSystemManagementService => Msvm_VirtualSystemManagementService ?? throw new ViridianException($"{nameof(Msvm_VirtualSystemManagementService)} is null!");
-
-        #region MsvmProperties
-
-        string InstanceID => Msvm_VirtualSystemManagementService[nameof(InstanceID)].ToString();
-        string Caption => Msvm_VirtualSystemManagementService[nameof(Caption)].ToString();
-        string Description => Msvm_VirtualSystemManagementService[nameof(Description)].ToString();
-        string ElementName => Msvm_VirtualSystemManagementService[nameof(ElementName)].ToString();
-        DateTime InstallDate => ManagementDateTimeConverter.ToDateTime(Msvm_VirtualSystemManagementService[nameof(InstallDate)].ToString());
-        string Name => Msvm_VirtualSystemManagementService[nameof(Name)].ToString();
-        ushort[] OperationalStatus => (ushort[])Msvm_VirtualSystemManagementService[nameof(OperationalStatus)];
-        string[] StatusDescriptions => (string[])Msvm_VirtualSystemManagementService[nameof(StatusDescriptions)];
-        string Status => Msvm_VirtualSystemManagementService[nameof(Status)].ToString();
-        ushort HealthState => (ushort)Msvm_VirtualSystemManagementService[nameof(HealthState)];
-        ushort CommunicationStatus => (ushort)Msvm_VirtualSystemManagementService[nameof(CommunicationStatus)];
-        ushort DetailedStatus => (ushort)Msvm_VirtualSystemManagementService[nameof(DetailedStatus)];
-        ushort OperatingStatus => (ushort)Msvm_VirtualSystemManagementService[nameof(OperatingStatus)];
-        ushort PrimaryStatus => (ushort)Msvm_VirtualSystemManagementService[nameof(PrimaryStatus)];
-        ushort EnabledState => (ushort)Msvm_VirtualSystemManagementService[nameof(EnabledState)];
-        string OtherEnabledState => Msvm_VirtualSystemManagementService[nameof(OtherEnabledState)].ToString();
-        ushort RequestedState => (ushort)Msvm_VirtualSystemManagementService[nameof(RequestedState)];
-        ushort EnabledDefault => (ushort)Msvm_VirtualSystemManagementService[nameof(EnabledDefault)];
-        DateTime TimeOfLastStateChange => ManagementDateTimeConverter.ToDateTime(Msvm_VirtualSystemManagementService[nameof(TimeOfLastStateChange)].ToString());
-        ushort[] AvailableRequestedStates => (ushort[])Msvm_VirtualSystemManagementService[nameof(AvailableRequestedStates)];
-        ushort TransitioningToState => (ushort)Msvm_VirtualSystemManagementService[nameof(TransitioningToState)];
-        string SystemCreationClassName => Msvm_VirtualSystemManagementService[nameof(SystemCreationClassName)].ToString();
-        string SystemName => Msvm_VirtualSystemManagementService[nameof(SystemName)].ToString();
-        string CreationClassName => Msvm_VirtualSystemManagementService[nameof(CreationClassName)].ToString();
-        string PrimaryOwnerName => Msvm_VirtualSystemManagementService[nameof(PrimaryOwnerName)].ToString();
-        string PrimaryOwnerContact => Msvm_VirtualSystemManagementService[nameof(PrimaryOwnerContact)].ToString();
-        string StartMode => Msvm_VirtualSystemManagementService[nameof(StartMode)].ToString();
-        bool Started => (bool)Msvm_VirtualSystemManagementService[nameof(Started)];
-
-        #endregion
+#pragma warning disable CA1303 // Do not pass literals as localized parameters
+#pragma warning disable CA1707 // Identifiers should not contain underscores
+#pragma warning disable CA1065 // Do not raise exceptions in unexpected locations
+        public ManagementObject Msvm_VirtualSystemManagementService => Service ?? throw new ViridianException($"{nameof(ServiceName)} is null!");
+#pragma warning restore CA1065 // Do not raise exceptions in unexpected locations
+#pragma warning restore CA1707 // Identifiers should not contain underscores
+#pragma warning restore CA1303 // Do not pass literals as localized parameters
 
         public string[] AddBootSourceSettings(string AffectedConfiguration, string[] BootSourceSettings)
         {
@@ -97,7 +56,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(AddBootSourceSettings), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return op["ResultingBootSourceSettings"] as string[];
                 }
@@ -113,7 +72,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(AddFeatureSettings), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return op["ResultingFeatureSettings"] as string[];
                 }
@@ -129,7 +88,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(AddGuestServiceSettings), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return op["ResultingGuestServiceSettings"] as string[];
                 }
@@ -145,7 +104,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(SharedSecret)] = SharedSecret ?? throw new ViridianException($"{nameof(SharedSecret)} is null!");
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(AddFibreChannelChap), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -157,7 +116,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(DataItems)] = DataItems ?? throw new ViridianException($"{nameof(DataItems)} is null!");
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(AddKvpItems), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -170,7 +129,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(AddResourceSettings), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return op["ResultingResourceSettings"] as string[];
                 }
@@ -186,7 +145,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(AddSystemComponentSettings), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return op["ResultingComponentSettings"] as string[];
                 }
@@ -203,7 +162,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(DefinePlannedSystem), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return op["ResultingSystem"] as ManagementObject;
                 }
@@ -220,7 +179,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(DefineSystem), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return op["ResultingSystem"] as ManagementObject;
                 }
@@ -234,7 +193,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(AffectedSystem)] = AffectedSystem ?? throw new ViridianException($"{nameof(AffectedSystem)} is null!");
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(DestroySystem), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -247,7 +206,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(DiagnoseNetworkConnection), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return op["DiagnosticInformation"] as string;
                 }
@@ -263,7 +222,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(ExportSettingData)] = ExportSettingData ?? throw new ViridianException($"{nameof(ExportSettingData)} is null!");
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(ExportSystemDefinition), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -275,7 +234,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(FormatError), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return op["ErrorMessage"] as string;
                 }
@@ -290,7 +249,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(GenerateWwpn), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return op["GeneratedWwpn"] as string[];
                 }
@@ -302,7 +261,7 @@ namespace Viridian.Service.Msvm
             using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(GetCurrentWwpnFromGenerator)))
             using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(GetCurrentWwpnFromGenerator), ip, null))
             {
-                Validator.ValidateOutput(op, scope);
+                Validator.ValidateOutput(op, Scope);
 
                 return op["CurrentWwpn"] as string;
             }
@@ -316,7 +275,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(GetDefinitionFileSummaryInformation), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return op["SummaryInformation"] as string[];
                 }
@@ -331,7 +290,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(GetSizeOfSystemFiles), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return (ulong)op["Size"];
                 }
@@ -347,7 +306,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(GetSummaryInformation), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return op["SummaryInformation"] as ManagementBaseObject[];
                 }
@@ -364,7 +323,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(GetVirtualSystemThumbnailImage), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return op["ImageData"] as byte[];
                 }
@@ -380,7 +339,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(ImportSnapshotDefinitions), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return op["ImportedSnapshots"] as string[];
                 }
@@ -397,7 +356,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(ImportSystemDefinition), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return op["ImportedSystem"] as ManagementObject;
                 }
@@ -411,7 +370,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(SettingData)] = SettingData ?? throw new ViridianException($"{nameof(SettingData)} is null!");
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(ModifyDiskMergeSettings), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -423,7 +382,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(ModifyFeatureSettings), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return op["ResultingFeatureSettings"] as ManagementObject[];
                 }
@@ -438,7 +397,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(ModifyGuestServiceSettings), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return op["ResultingGuestServiceSettings"] as string[];
                 }
@@ -453,7 +412,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(ModifyKvpItems), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return op["DataItems"] as string[];
                 }
@@ -468,7 +427,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(ModifyResourceSettings), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return op["ResultingResourceSettings"] as string[];
                 }
@@ -482,7 +441,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(SettingData)] = SettingData ?? throw new ViridianException($"{nameof(SettingData)} is null!");
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(ModifyServiceSettings), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
             
@@ -494,7 +453,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(ModifySystemComponentSettings), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return op["ResultingComponentSettings"] as string[];
                 }
@@ -508,7 +467,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(SystemSettings)] = SystemSettings ?? throw new ViridianException($"{nameof(SystemSettings)} is null!");
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(ModifySystemSettings), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -520,7 +479,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(RealizePlannedSystem), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return op["ResultingSystem"] as ManagementObject;
                 }
@@ -534,7 +493,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(FeatureSettings)] = FeatureSettings ?? throw new ViridianException($"{nameof(FeatureSettings)} is null!");
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(RemoveFeatureSettings), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -545,7 +504,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(BootSourceSettings)] = BootSourceSettings ?? throw new ViridianException($"{nameof(BootSourceSettings)} is null!");
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(RemoveBootSourceSettings), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -556,7 +515,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(FcPortSettings)] = FcPortSettings ?? throw new ViridianException($"{nameof(FcPortSettings)} is null!");
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(RemoveFibreChannelChap), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -568,7 +527,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(DataItems)] = DataItems ?? throw new ViridianException($"{nameof(DataItems)} is null!");
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(RemoveKvpItems), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -579,7 +538,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(GuestServiceSettings)] = GuestServiceSettings ?? throw new ViridianException($"{nameof(GuestServiceSettings)} is null!");
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(RemoveGuestServiceSettings), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -590,7 +549,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(ResourceSettings)] = ResourceSettings ?? throw new ViridianException($"{nameof(ResourceSettings)} is null!");
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(RemoveResourceSettings), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -601,7 +560,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(ComponentSettings)] = ComponentSettings ?? throw new ViridianException($"{nameof(ComponentSettings)} is null!");
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(RemoveSystemComponentSettings), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -613,7 +572,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(TimeoutPeriod)] = null; // CIM_DateTime
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(RequestStateChange), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -631,7 +590,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(TestNetworkConnection), ip, null))
                 {
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
 
                     return (uint)op["RoundTripTime"];
                 }
@@ -646,7 +605,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(NetworkConfiguration)] = NetworkConfiguration ?? throw new ViridianException($"{nameof(NetworkConfiguration)} is null!");
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(SetGuestNetworkAdapterConfiguration), ip, null))    
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
         public void SetInitialMachineConfigurationData(ManagementObject TargetSystem, byte[] ImcData)
@@ -657,22 +616,22 @@ namespace Viridian.Service.Msvm
                 ip[nameof(ImcData)] = ImcData ?? throw new ViridianException($"{nameof(ImcData)} is null!");
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(SetInitialMachineConfigurationData), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
-        public void StartService()
+        public override void StartService()
         {
             using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(StartService)))
             using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(StartService), ip, null))
-                Validator.ValidateOutput(op, scope);
+                Validator.ValidateOutput(op, Scope);
         }
 
-        public void StopService()
+        public override void StopService()
         {
             using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(StopService)))
             using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(StopService), ip, null))
-                Validator.ValidateOutput(op, scope);
+                Validator.ValidateOutput(op, Scope);
         }
 
         public void UpgradeSystemVersion(ManagementObject ComputerSystem, string UpgradeSettingData)
@@ -683,7 +642,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(UpgradeSettingData)] = UpgradeSettingData ?? throw new ViridianException($"{nameof(UpgradeSettingData)} is null!");
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(UpgradeSystemVersion), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
@@ -694,7 +653,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(PlannedSystem)] = PlannedSystem ?? throw new ViridianException($"{nameof(PlannedSystem)} is null!");
 
                 using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(ValidatePlannedSystem), ip, null))
-                    Validator.ValidateOutput(op, scope);
+                    Validator.ValidateOutput(op, Scope);
             }
         }
 
