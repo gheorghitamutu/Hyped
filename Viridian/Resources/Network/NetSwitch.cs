@@ -84,7 +84,7 @@ namespace Viridian.Resources.Network
         public static void CreateInternalSwitch(ManagementScope scope, string switchName, string switchNotes)
         {
             using (var host = Utils.GetVirtualMachine(Environment.MachineName, scope))
-            using (var depasd = GetDefaultEthernetPortAllocationSettingData(scope))
+            using (var depasd = GetDefaultEthernetPortAllocationSettingData())
             {
                 depasd["ElementName"] = switchName + "_Internal";
                 depasd["HostResource"] = new string[] { host.Path.Path };
@@ -98,7 +98,7 @@ namespace Viridian.Resources.Network
         public static void CreateExternalOnlySwitch(ManagementScope scope, string externalAdapterName, string switchName, string switchNotes)
         {
             using (var eep = FindExternalAdapter(scope, externalAdapterName))
-            using (var depasd = GetDefaultEthernetPortAllocationSettingData(scope))
+            using (var depasd = GetDefaultEthernetPortAllocationSettingData())
             {
                 depasd["ElementName"] = switchName + "_External";
                 depasd["HostResource"] = new string[] { eep.Path.Path };
@@ -113,8 +113,8 @@ namespace Viridian.Resources.Network
         {
             using (var eep = FindExternalAdapter(scope, externalAdapterName))
             using (var host = Utils.GetVirtualMachine(Environment.MachineName, scope))
-            using (var depasdInternal = GetDefaultEthernetPortAllocationSettingData(scope))
-            using (var depasdExternal = GetDefaultEthernetPortAllocationSettingData(scope))
+            using (var depasdInternal = GetDefaultEthernetPortAllocationSettingData())
+            using (var depasdExternal = GetDefaultEthernetPortAllocationSettingData())
             {
                 depasdExternal["ElementName"] = switchName + "_External";
                 depasdExternal["HostResource"] = new string[] { eep.Path.Path };
@@ -182,7 +182,7 @@ namespace Viridian.Resources.Network
                 using (var eepCollection = mos.Get())
                 {
                     using (var eep = Utils.GetFirstObjectFromCollection(eepCollection))
-                    using (var depasd = GetDefaultEthernetPortAllocationSettingData(scope))
+                    using (var depasd = GetDefaultEthernetPortAllocationSettingData())
                     {
                         depasd["ElementName"] = switchName + "_External";
                         depasd["HostResource"] = new string[] { eep.Path.Path };
@@ -758,15 +758,9 @@ namespace Viridian.Resources.Network
 
         #region Utils
 
-        public static ManagementObject GetDefaultEthernetPortAllocationSettingData(ManagementScope scope)
+        public static ManagementObject GetDefaultEthernetPortAllocationSettingData()
         {
-            using (var rp = Utils.GetWmiObject(scope, "Msvm_ResourcePool", "ResourceType = 33 and Primordial = True"))
-                return ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(rp);
-        }
-
-        public static ManagementObject GetDefaultEthernetConnectionSettingData(ManagementScope scope)
-        {
-            using (var rp = Utils.GetWmiObject(scope, "Msvm_ResourcePool", "ResourceSubType = 'Microsoft:Hyper-V:Ethernet Connection' and Primordial = True"))
+            using (var rp = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.EthernetConnection.ResourceSubType))
                 return ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(rp);
         }
 

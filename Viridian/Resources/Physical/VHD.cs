@@ -21,9 +21,9 @@ namespace Viridian.Resources.Drives
         {
             using (var vms = Utils.GetVirtualMachineSettings(vm.VmName, vm.Scope))
             using (var scsiController = vm.GetScsiController(scsiIndex))
-            using (var parent = Utils.GetScsiControllerChildBySubtypeAndIndex(scsiController, Utils.GetResourceSubType("SyntheticDisk"), address))
-            using (var rp = Utils.GetWmiObject(vm.Scope, "Msvm_ResourcePool", "ResourceSubType = 'Microsoft:Hyper-V:Virtual Hard Disk' and Primordial = True"))
-            using (var rasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(rp))
+            using (var parent = Utils.GetScsiControllerChildBySubtypeAndIndex(scsiController, ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType, address))
+            using (var pool = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.VirtualHardDisk.ResourceSubType))
+            using (var rasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(pool))
             {
                 rasd["Access"] = (ushort)access;
                 rasd["Address"] = address;
@@ -66,7 +66,7 @@ namespace Viridian.Resources.Drives
         public static bool IsVHDAttached(VM vm, int scsiIndex, int driveIndex)
         {
             using (var scsi = vm.GetScsiController(scsiIndex))
-            using (var dvd = Utils.GetScsiControllerChildBySubtypeAndIndex(scsi, Utils.GetResourceSubType("SyntheticDisk"), driveIndex))
+            using (var dvd = Utils.GetScsiControllerChildBySubtypeAndIndex(scsi, ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType, driveIndex))
             using (var dvdChildren = dvd.GetRelated("Msvm_StorageAllocationSettingData", null, null, null, "Dependent", "Antecedent", false, null))
                 foreach (var media in dvdChildren)
                     if (media["Caption"].ToString() == "Hard Disk Image")

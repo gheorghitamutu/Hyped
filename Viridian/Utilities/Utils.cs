@@ -11,29 +11,6 @@ namespace Viridian.Utilities
     {
         #region Constants
 
-        private static readonly string[][] ResourceTypeInformation = // Resource Type -> resource pool IDs!
-        {
-            //      Display Name          Resource Type Resource Subtype
-            new[] { "RDV",                "1",          "Microsoft:Hyper-V:Rdv Component" },
-            new[] { "Processor",          "3",          "Microsoft:Hyper-V:Processor" },
-            new[] { "Memory",             "4",          "Microsoft:Hyper-V:Memory" },
-            new[] { "ScsiHBA",            "6",          "Microsoft:Hyper-V:Synthetic SCSI Controller" },
-            new[] { "FCPort",             "7",          "Microsoft:Hyper-V:Synthetic FiberChannel Port" },
-            new[] { "EmulatedEthernet",   "10",         "Microsoft:Hyper-V:Emulated Ethernet Port" },
-            new[] { "SyntheticEthernet",  "10",         "Microsoft:Hyper-V:Synthetic Ethernet Port" },
-            new[] { "Mouse",              "13",         "Microsoft:Hyper-V:Synthetic Mouse" },
-            new[] { "SyntheticDVD",       "16",         "Microsoft:Hyper-V:Synthetic DVD Drive" },
-            new[] { "PhysicalDisk",       "17",         "Microsoft:Hyper-V:Physical Disk Drive" },
-            new[] { "SyntheticDisk",      "17",         "Microsoft:Hyper-V:Synthetic Disk Drive" },
-            new[] { "CD/DVD",             "31",         "Microsoft:Hyper-V:Virtual CD/DVD Disk" },
-            new[] { "3DGraphics",         "24",         "Microsoft:Hyper-V:Synthetic 3D Display Controller" },
-            new[] { "Graphics",           "24",         "Microsoft:Hyper-V:Synthetic Display Controller" },
-            new[] { "VHD",                "31",         "Microsoft:Hyper-V:Virtual Hard Disk" },
-            new[] { "Floppy",             "31",         "Microsoft:Hyper-V:Virtual Floppy Disk" },
-            new[] { "EthernetConnection", "33",         "Microsoft:Hyper-V:Ethernet Connection" },
-            new[] { "FCConnection",       "64764",      "Microsoft:Hyper-V:FiberChannel Connection" }
-        };
-
         public static readonly string[] AggregationMetricDefinitionCaptions =
         {
             "Average Memory Utilization",
@@ -70,33 +47,6 @@ namespace Viridian.Utilities
 
         public static ManagementScope GetScope(string serverName, string scopePath) => new ManagementScope(new ManagementPath { Server = serverName, NamespacePath = scopePath }, null);
 
-        public static ManagementObject GetWmiObject(ManagementScope scope, string classname, string where)
-        {
-            using (var collection = GetWmiObjects(scope, classname, where))
-            {
-                if (collection.Count != 1)
-                    throw new ViridianException($"Cannot locate {classname} where {@where}!");
-
-                using (var collectionEnumerator = collection.GetEnumerator())
-                {
-                    collectionEnumerator.MoveNext();
-
-                    if (!(collectionEnumerator.Current is ManagementObject result))
-                        throw new ViridianException($"Failure retrieving {classname} where {@where}!");
-
-                    return result;
-                }
-            }
-        }
-
-        public static ManagementObjectCollection GetWmiObjects(ManagementScope scope, string classname, string where)
-        {
-            var query = where != null ? $"select * from {classname} where {where}" : $"select * from {classname}";
-
-            using (var mos = new ManagementObjectSearcher(scope, new ObjectQuery(query)))
-                return mos.Get();
-        }
-
         public static ManagementObject GetFirstObjectFromCollection(ManagementObjectCollection collection)
         {
             if (collection is null)
@@ -119,7 +69,7 @@ namespace Viridian.Utilities
             using (var mos = new ManagementObjectSearcher(scope, vmQuery))
                 return GetFirstObjectFromCollection(mos.Get());
         }
-               
+
         public static ManagementObjectCollection GetVmCollection(string serverName, string scopePath)
         {
             var scope = GetScope(serverName, scopePath);
@@ -189,24 +139,6 @@ namespace Viridian.Utilities
         {
             using (var pool = GetResourcePool(resourceType, resourceSubType, poolId, scope))
                 return pool.Path.Path;
-        }
-
-        public static string GetResourceType(string displayName)
-        {
-            foreach (var resource in ResourceTypeInformation)
-                if (string.Equals(displayName, resource[0], StringComparison.CurrentCultureIgnoreCase))
-                    return resource[1];
-
-            throw new ViridianException($"Invalid resource {displayName} specified.");
-        }
-
-        public static string GetResourceSubType(string displayName)
-        {
-            foreach (var resource in ResourceTypeInformation)
-                if (string.Equals(displayName, resource[0], StringComparison.CurrentCultureIgnoreCase))
-                    return resource[2];
-
-            throw new ViridianException($"Invalid resource {displayName} specified.");
         }
 
         public static string[] GetParentPoolArrayFromPoolIds(ManagementScope scope, string resourceType, string resourceSubType, IEnumerable<string> poolIdArray)

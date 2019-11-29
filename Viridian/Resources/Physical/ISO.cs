@@ -11,10 +11,10 @@ namespace Viridian.Resources.Physical
     {
         public void AddIso(VM vm, string hostResource, int scsiIndex, int address)
         {
+            using (var pool = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.VirtualCDDVDDisk.ResourceSubType))
+            using (var sasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(pool))
             using (var scsi = vm.GetScsiController(scsiIndex))
-            using (var parent = Utils.GetScsiControllerChildBySubtypeAndIndex(scsi, Utils.GetResourceSubType("SyntheticDVD"), address))
-            using (var dvd = Utils.GetWmiObject(vm.Scope, "Msvm_ResourcePool", "ResourceSubType = 'Microsoft:Hyper-V:Virtual CD/DVD Disk' and Primordial = True"))
-            using (var sasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(dvd))
+            using (var parent = Utils.GetScsiControllerChildBySubtypeAndIndex(scsi, ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType, address))
             {
                 sasd["Address"] = address;
                 sasd["Parent"] = parent ?? throw new ViridianException("Failure retrieving Virtual CD/DVD Disk class!");

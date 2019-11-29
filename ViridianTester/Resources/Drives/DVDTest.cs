@@ -2,6 +2,7 @@
 using Viridian.Machine;
 using Viridian.Resources.Controllers;
 using Viridian.Resources.Drives;
+using Viridian.Resources.Msvm;
 using Viridian.Utilities;
 
 namespace ViridianTester.Resources.Drives
@@ -30,9 +31,7 @@ namespace ViridianTester.Resources.Drives
             sut.AddToScsi(vm, 0, 0);
 
             var scope = Utils.GetScope(serverName, scopePath);
-            var rt = Utils.GetResourceType("SyntheticDVD");
-            var rst = Utils.GetResourceSubType("SyntheticDVD");
-            var dvdDrives = Utils.GetResourceAllocationSettingDataResourcesByTypeAndSubtype(vmName, scope, rt, rst);
+            var dvdDrives = Utils.GetResourceAllocationSettingDataResourcesByTypeAndSubtype(vmName, scope, ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType);
 
             // Assert
             Assert.AreEqual(1, dvdDrives.Count);

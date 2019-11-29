@@ -4,6 +4,7 @@ using System.Linq;
 using System.Management;
 using Viridian.Exceptions;
 using Viridian.Job;
+using Viridian.Resources.Msvm;
 using Viridian.Resources.Network;
 using Viridian.Service.Msvm;
 using Viridian.Statistics;
@@ -383,9 +384,7 @@ namespace Viridian.Machine
 
         public ManagementObject GetScsiController(int index)
         {
-            var rt = Utils.GetResourceType("ScsiHBA");
-            var rst = Utils.GetResourceSubType("ScsiHBA");
-            var scsiControllers = Utils.GetResourceAllocationSettingDataResourcesByTypeAndSubtype(VmName, Scope, rt, rst);
+            var scsiControllers = Utils.GetResourceAllocationSettingDataResourcesByTypeAndSubtype(VmName, Scope, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType);
 
             if (scsiControllers.Count < index)
                 throw new ViridianException("Invalid SCSI controller index specified!");
@@ -463,7 +462,7 @@ namespace Viridian.Machine
             using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope, switchName))
             using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
             using (var syntheticAdapter = SyntheticEthernetAdapter.AddSyntheticAdapter(this, adapterName))
-            using (var epasd = NetSwitch.GetDefaultEthernetPortAllocationSettingData(Scope))
+            using (var epasd = NetSwitch.GetDefaultEthernetPortAllocationSettingData())
             {
                 epasd["Parent"] = syntheticAdapter.Path.Path;
                 epasd["HostResource"] = new string[] { ves.Path.Path };
@@ -544,9 +543,7 @@ namespace Viridian.Machine
         {
             using (var vm = GetComputerSystemByName())
             {
-                var rt = Utils.GetResourceType("ScsiHBA");
-                var rst = Utils.GetResourceSubType("ScsiHBA");
-                var scsiControllers = Utils.GetResourceAllocationSettingDataResourcesByTypeAndSubtype(VmName, Scope, rt, rst);
+                var scsiControllers = Utils.GetResourceAllocationSettingDataResourcesByTypeAndSubtype(VmName, Scope, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType);
 
                 foreach (var scsiController in scsiControllers)
                     using (var driveCollection = scsiController.GetRelated("Msvm_ResourceAllocationSettingData", null, null, null, "Dependent", "Antecedent", false, null))

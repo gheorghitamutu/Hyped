@@ -51,7 +51,7 @@ namespace Viridian.Resources.Network
             using (var rp = Utils.GetResourcePool("33", "Microsoft:Hyper-V:Ethernet Connection", resourcePoolName, virtualMachine.Scope))
             using (var vms = Utils.GetVirtualMachineSettings(vm))
             using (var syntheticAdapter = AddSyntheticAdapter(virtualMachine))
-            using (var depasd = NetSwitch.GetDefaultEthernetPortAllocationSettingData(virtualMachine.Scope))
+            using (var depasd = NetSwitch.GetDefaultEthernetPortAllocationSettingData())
             {
                 depasd["Parent"] = syntheticAdapter.Path.Path;
                 depasd["PoolId"] = resourcePoolName;

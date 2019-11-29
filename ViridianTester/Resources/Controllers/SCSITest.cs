@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Viridian.Machine;
 using Viridian.Resources.Controllers;
+using Viridian.Resources.Msvm;
 using Viridian.Utilities;
 
 namespace ViridianTester.Resources.Controllers
@@ -26,9 +27,7 @@ namespace ViridianTester.Resources.Controllers
             sut.AddToVm(vm);
 
             var scope = Utils.GetScope(serverName, scopePath);
-            var rt = Utils.GetResourceType("ScsiHBA");
-            var rst = Utils.GetResourceSubType("ScsiHBA");
-            var scsiControllers = Utils.GetResourceAllocationSettingDataResourcesByTypeAndSubtype(vmName, scope, rt, rst);
+            var scsiControllers = Utils.GetResourceAllocationSettingDataResourcesByTypeAndSubtype(vmName, scope, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType);
 
             // Assert
             Assert.AreEqual(1, scsiControllers.Count);

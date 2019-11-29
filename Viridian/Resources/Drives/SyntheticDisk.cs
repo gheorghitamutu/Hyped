@@ -11,8 +11,8 @@ namespace Viridian.Resources.Drives
     {
         public void AddToScsi(VM vm, int scsiIndex, int addressOnParent)
         {
-            using (var rp = Utils.GetWmiObject(vm.Scope, "Msvm_ResourcePool", "ResourceSubType = 'Microsoft:Hyper-V:Synthetic Disk Drive' and Primordial = True"))
-            using (var rasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(rp))
+            using (var pool = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType))
+            using (var rasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(pool))
             using (var vms = Utils.GetVirtualMachineSettings(vm.VmName, vm.Scope))
             using (var scsiController = vm.GetScsiController(scsiIndex))
             {

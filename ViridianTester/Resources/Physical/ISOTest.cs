@@ -4,6 +4,7 @@ using System.IO;
 using Viridian.Machine;
 using Viridian.Resources.Controllers;
 using Viridian.Resources.Drives;
+using Viridian.Resources.Msvm;
 using Viridian.Resources.Physical;
 using Viridian.Utilities;
 
@@ -41,9 +42,7 @@ namespace ViridianTester.Resources.Physical
                 sut.AddIso(vm, isoName, 0, 0);
 
                 var scope = Utils.GetScope(serverName, scopePath);
-                var rt = Utils.GetResourceType("SyntheticDVD");
-                var rst = Utils.GetResourceSubType("SyntheticDVD");
-                var dvdDrives = Utils.GetResourceAllocationSettingDataResourcesByTypeAndSubtype(vmName, scope, rt, rst);
+                var dvdDrives = Utils.GetResourceAllocationSettingDataResourcesByTypeAndSubtype(vmName, scope, ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType);
 
                 // Assert
                 Assert.IsTrue(File.Exists(isoName));
