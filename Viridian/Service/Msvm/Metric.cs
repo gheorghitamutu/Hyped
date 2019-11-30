@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Management;
 using Viridian.Exceptions;
 using Viridian.Job;
@@ -31,6 +32,38 @@ namespace Viridian.Statistics
             Quiesce = 9,
             Reboot = 10,
             Reset = 11
+        };
+
+        public static readonly string[] AggregationMetricDefinitionCaptions =
+        {
+            "Average Memory Utilization",
+            "Aggregated Average Memory Utilization",
+            "Maximum for Memory Utilization",
+            "Aggregated Maximum for Memory Utilization",
+            "Average CPU Utilization",
+            "Aggregated Average CPU Utilization",
+            "Average Disk Latency",
+            "Aggregated Average Normalized Disk Throughput",
+            "Aggregated Average Disk Latency",
+            "Average Normalized Disk Throughput",
+            "Maximum for Disk Allocation",
+            "Aggregated Maximum for Disk Allocations",
+            "Minimum for Memory Utilization",
+            "Aggregated Minimum for Memory Utilization"
+        };
+
+        public static readonly string[] BaseMetricDefinitionCaptions =
+        {
+            "Filtered Outgoing Network Traffic",
+            "Aggregated Filtered Outgoing Network Traffic",
+            "Normalized I/O Operations Completed",
+            "Disk Data Written",
+            "Aggregated Disk Data Read",
+            "Filtered Incoming Network Traffic",
+            "Aggregated Filtered Incoming Network Traffic",
+            "Disk Data Read",
+            "Aggregated Normalized I/O Operations Completed",
+            "Aggregated Disk Data Written"
         };
 
         private Metric() : base("Msvm_MetricService") { }
@@ -264,24 +297,22 @@ namespace Viridian.Statistics
             if (msvmObject is null)
                 throw new ViridianException("", new ArgumentNullException(nameof(msvmObject)));
 
-            using (var md = Utils.GetBaseMetricDefinition(metricDefinitionName, msvmObject.Scope))
+            using (var md = GetBaseMetricDefinition(metricDefinitionName, msvmObject.Scope))
             {
                 if (md == null) // definition for this metric has not been found
                     return null;
 
                 var escapedObjPath = Utils.EscapeObjectPath(msvmObject.Path.Path);
                 var escapedMdPath = Utils.EscapeObjectPath(md.Path.Path);
-                var wqlQuery = string.Format(CultureInfo.InvariantCulture, "SELECT * FROM Msvm_MetricDefForME WHERE Antecedent=\"{0}\" AND Dependent=\"{1}\"", escapedObjPath, escapedMdPath);
-                var query = new SelectQuery(wqlQuery);
 
-                using (var mos = new ManagementObjectSearcher(msvmObject.Scope, query))
-                using (var definitionsCollection = mos.Get())
-                {
-                    if (definitionsCollection.Count > 0)
-                        return Utils.GetFirstObjectFromCollection(definitionsCollection);
-                    else
-                        return null;
-                }
+                using (var mos = new ManagementObjectSearcher(msvmObject.Scope, new ObjectQuery("SELECT * FROM Msvm_MetricDefForME")))
+                    return mos
+                        .Get()
+                        .Cast<ManagementObject>()
+                        .Where((c) =>
+                            c["Antecedent"]?.ToString() == escapedObjPath &&
+                            c["Dependent"]?.ToString() == escapedMdPath)
+                        .FirstOrDefault();
             }
         }
 
@@ -317,6 +348,12 @@ namespace Viridian.Statistics
                 throw new ViridianException("", new ArgumentNullException(nameof(msvmObject)));
 
             return msvmObject.GetRelated("Msvm_AggregationMetricDefinition", "Msvm_MetricDefForME", null, null, null, null, false, null);
+        }
+               
+        public static ManagementObject GetBaseMetricDefinition(string ElementName, ManagementScope scope)
+        {
+            using (var mos = new ManagementObjectSearcher(scope, new ObjectQuery("SELECT * FROM CIM_BaseMetricDefinition")))
+                return mos.Get().Cast<ManagementObject>().Where((c) => c[nameof(ElementName)]?.ToString() == ElementName).FirstOrDefault();
         }
 
         #endregion

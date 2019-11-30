@@ -2,7 +2,6 @@
 using Viridian.Machine;
 using Viridian.Resources.Controllers;
 using Viridian.Resources.Msvm;
-using Viridian.Utilities;
 
 namespace ViridianTester.Resources.Controllers
 {
@@ -26,8 +25,7 @@ namespace ViridianTester.Resources.Controllers
             var sut = new SCSI();
             sut.AddToVm(vm);
 
-            var scope = Utils.GetScope(serverName, scopePath);
-            var scsiControllers = Utils.GetResourceAllocationSettingDataResourcesByTypeAndSubtype(vmName, scope, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType);
+            var scsiControllers = vm.GetResourceAllocationSettingData(ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType);
 
             // Assert
             Assert.AreEqual(1, scsiControllers.Count);

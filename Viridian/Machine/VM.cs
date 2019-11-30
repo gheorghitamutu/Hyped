@@ -20,7 +20,15 @@ namespace Viridian.Machine
         public string VmName { get; private set; }
         public string VirtualSystemSubtype { get; private set; }
 
-        public ManagementObject GetComputerSystemByName() => Utils.GetFirstObjectFromWqlQueryByClassAndName(VmName, "Msvm_ComputerSystem", Scope);
+        public ManagementObject GetComputerSystemByName()
+        {
+            using (var mos = new ManagementObjectSearcher(Scope, new ObjectQuery("SELECT * FROM Msvm_ComputerSystem")))
+                return mos
+                    .Get()
+                    .Cast<ManagementObject>()
+                    .Where((c) => c["ElementName"]?.ToString() == VmName)
+                    .First();
+        }
 
         public VM(string serverName, string scopePath, string elementName, string virtualSystemSubtype)
         {
@@ -103,7 +111,7 @@ namespace Viridian.Machine
 
         public void SetIncrementalBackup(bool incrementalBackupEnabled)
         {
-            using (var vm = Utils.GetVirtualMachineSettings(VmName, Scope))
+            using (var vm = GetVirtualMachineSettings(VmName, Scope))
             {
                 if ((bool)vm["IncrementalBackupEnabled"] != incrementalBackupEnabled)
                 {
@@ -116,7 +124,7 @@ namespace Viridian.Machine
 
         public bool GetIncrementalBackup()
         {
-            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
+            using (var vms = GetVirtualMachineSettings(VmName, Scope))
                 return (bool)vms["IncrementalBackupEnabled"];
         }
 
@@ -208,7 +216,7 @@ namespace Viridian.Machine
         {
             using (var vm = GetComputerSystemByName())
             using (var lasCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_LastAppliedSnapshot", null, null, null, null, false, null))
-                return Utils.GetFirstObjectFromCollection(lasCollection);
+                return lasCollection.Cast<ManagementObject>().First();
         }
 
         public ManagementObject GetLastCreatedSnapshot()
@@ -216,7 +224,7 @@ namespace Viridian.Machine
             using (var vm = GetComputerSystemByName())
             using (var sovfsCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
             {
-                var lastSnapshotApplied = Utils.GetFirstObjectFromCollection(sovfsCollection);
+                var lastSnapshotApplied = sovfsCollection.Cast<ManagementObject>().First();
 
                 foreach (var snapshot in sovfsCollection)
                 {
@@ -260,13 +268,13 @@ namespace Viridian.Machine
 
         public string[] GetBootSourceOrderedList()
         {
-            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
+            using (var vms = GetVirtualMachineSettings(VmName, Scope))
                 return (string[])vms["BootSourceOrder"];
         }
 
         public void SetBootOrderFromDevicePath(string devicePath)
         {
-            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
+            using (var vms = GetVirtualMachineSettings(VmName, Scope))
             {
                 if (vms["BootSourceOrder"] is string[] prevBootOrder)
                 {
@@ -296,7 +304,7 @@ namespace Viridian.Machine
             if (bootSourceOrder == null)
                 throw new ViridianException("Boot Sources Array is null!");
 
-            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
+            using (var vms = GetVirtualMachineSettings(VmName, Scope))
             {
                 var previousBso = vms["BootSourceOrder"] as string[];
 
@@ -332,13 +340,13 @@ namespace Viridian.Machine
 
         public NetworkBootPreferredProtocol GetNetworkBootPreferredProtocol()
         {
-            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
+            using (var vms = GetVirtualMachineSettings(VmName, Scope))
                 return (NetworkBootPreferredProtocol)Enum.ToObject(typeof(NetworkBootPreferredProtocol), vms["NetworkBootPreferredProtocol"]);
         }
 
         public void SetNetworkBootPreferredProtocol(NetworkBootPreferredProtocol networkBootPreferredProtocol)
         {
-            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
+            using (var vms = GetVirtualMachineSettings(VmName, Scope))
             {
                 vms["NetworkBootPreferredProtocol"] = networkBootPreferredProtocol;
 
@@ -348,13 +356,13 @@ namespace Viridian.Machine
 
         public bool GetPauseAfterBootFailure()
         {
-            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
+            using (var vms = GetVirtualMachineSettings(VmName, Scope))
                 return (bool)vms["PauseAfterBootFailure"];
         }
 
         public void SetPauseAfterBootFailure(bool pauseAfterBootFailure)
         {
-            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
+            using (var vms = GetVirtualMachineSettings(VmName, Scope))
             {
                 vms["PauseAfterBootFailure"] = pauseAfterBootFailure;
 
@@ -364,13 +372,13 @@ namespace Viridian.Machine
 
         public bool GetSecureBoot()
         {
-            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
+            using (var vms = GetVirtualMachineSettings(VmName, Scope))
                 return (bool)vms["SecureBootEnabled"];
         }
 
         public void SetSecureBoot(bool secureBootEnabled)
         {
-            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
+            using (var vms = GetVirtualMachineSettings(VmName, Scope))
             {
                 vms["SecureBootEnabled"] = secureBootEnabled;
 
@@ -384,7 +392,7 @@ namespace Viridian.Machine
 
         public ManagementObject GetScsiController(int index)
         {
-            var scsiControllers = Utils.GetResourceAllocationSettingDataResourcesByTypeAndSubtype(VmName, Scope, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType);
+            var scsiControllers = GetResourceAllocationSettingData(ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType);
 
             if (scsiControllers.Count < index)
                 throw new ViridianException("Invalid SCSI controller index specified!");
@@ -399,14 +407,14 @@ namespace Viridian.Machine
         public ManagementObject GetMemorySettingData()
         {
             using (var vm = GetComputerSystemByName())
-            using (var vssd = Utils.GetFirstObjectFromCollection(vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SettingsDefineState", null, null, "SettingData", "ManagedElement", false, null)))
-            using (var memoryCollection = vssd.GetRelated("Msvm_MemorySettingData ", null, null, null, null, null, false, null))
-                return Utils.GetFirstObjectFromCollection(memoryCollection);
+            using (var vssd = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SettingsDefineState", null, null, "SettingData", "ManagedElement", false, null).Cast<ManagementObject>().First())
+            using (var memoryCollection = vssd.GetRelated("Msvm_MemorySettingData"))
+                return memoryCollection.Cast<ManagementObject>().First();
         }
 
         public ManagementBaseObject[] GetSummaryInformation()
         {
-            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
+            using (var vms = GetVirtualMachineSettings(VmName, Scope))
             {
                 var requestedInformation = new int[]
                 {
@@ -460,7 +468,7 @@ namespace Viridian.Machine
         public void ConnectVmToSwitch(string switchName, string adapterName)
         {
             using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope, switchName))
-            using (var vms = Utils.GetVirtualMachineSettings(VmName, Scope))
+            using (var vms = GetVirtualMachineSettings(VmName, Scope))
             using (var syntheticAdapter = SyntheticEthernetAdapter.AddSyntheticAdapter(this, adapterName))
             using (var epasd = NetSwitch.GetDefaultEthernetPortAllocationSettingData())
             {
@@ -514,7 +522,7 @@ namespace Viridian.Machine
             var list = new List<ManagementObject>();
 
             using (var vm = GetComputerSystemByName())
-            using (var vms = Utils.GetVirtualMachineSettings(vm))
+            using (var vms = GetVirtualMachineSettings(vm))
                 foreach (ManagementObject sepsd in vms.GetRelated("Msvm_SyntheticEthernetPortSettingData"))
                     using (var epasd = SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope))
                         foreach(ManagementObject espasd in SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(epasd))
@@ -527,23 +535,11 @@ namespace Viridian.Machine
 
         #region Metrics
 
-        public List<ManagementObject> GetAllAggregationMetricDefinitions()
-        {
-            var definitionsList = new List<ManagementObject>();
-
-            foreach (var def in Utils.AggregationMetricDefinitionCaptions)
-                using (var definition = Metric.GetBaseMetricDefForMEByName(GetComputerSystemByName(), def))
-                    if (definition != null)
-                        definitionsList.Add(definition);
-
-            return definitionsList;
-        }
-
         public void SetAggregationMetricsForDrives(Metric.MetricCollectionEnabled operation)
         {
             using (var vm = GetComputerSystemByName())
             {
-                var scsiControllers = Utils.GetResourceAllocationSettingDataResourcesByTypeAndSubtype(VmName, Scope, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType);
+                var scsiControllers = GetResourceAllocationSettingData(ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType);
 
                 foreach (var scsiController in scsiControllers)
                     using (var driveCollection = scsiController.GetRelated("Msvm_ResourceAllocationSettingData", null, null, null, "Dependent", "Antecedent", false, null))
@@ -555,7 +551,7 @@ namespace Viridian.Machine
         public void SetBaseMetricsForEthernetSwitchPortAclSettingData(Metric.MetricCollectionEnabled operation)
         {
             using (var vm = GetComputerSystemByName())
-            using (var vms = Utils.GetVirtualMachineSettings(vm))
+            using (var vms = GetVirtualMachineSettings(vm))
             foreach (ManagementObject sepsd in vms.GetRelated("Msvm_SyntheticEthernetPortSettingData"))
                 using (var epasd = SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope))
                 using (var espasdCollection = SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(epasd))
@@ -567,12 +563,50 @@ namespace Viridian.Machine
         public void SetAggregationMetricsForEthernetSwitchPortAclSettingData(Metric.MetricCollectionEnabled operation)
         {
             using (var vm = GetComputerSystemByName())
-            using (var vms = Utils.GetVirtualMachineSettings(vm))
+            using (var vms = GetVirtualMachineSettings(vm))
                 foreach (ManagementObject sepsd in vms.GetRelated("Msvm_SyntheticEthernetPortSettingData"))
                     using (var epasd = SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope))
                     using (var espasdCollection = SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(epasd))
                         foreach (ManagementObject espasd in espasdCollection)
                                 Metric.Instance.SetAllMetrics(espasd, operation);
+        }
+
+        public List<ManagementObject> GetResourceAllocationSettingData(string ResourceType, string ResourceSubType)
+        {
+            using (var vm = GetComputerSystemByName())
+            using (var vssdCollection = vm.GetRelated("Msvm_VirtualSystemSettingData"))
+            {
+                var settings = vssdCollection.Cast<ManagementObject>().First();
+
+                using (var rasdCollection = settings.GetRelated("Msvm_ResourceAllocationSettingData"))
+                    return rasdCollection
+                        .Cast<ManagementObject>()
+                        .Where((c) =>
+                            c[nameof(ResourceType)]?.ToString() == ResourceType &&
+                            c[nameof(ResourceSubType)]?.ToString() == ResourceSubType)
+                        .ToList();
+            }
+        }
+
+        public static ManagementObject GetVirtualMachine(string ElementName, ManagementScope scope)
+        {
+            using (var mos = new ManagementObjectSearcher(scope, new ObjectQuery("SELECT * FROM Msvm_ComputerSystem")))
+                return mos.Get().Cast<ManagementObject>().Where((c) => c[nameof(ElementName)]?.ToString() == ElementName).First();
+        }
+
+        public static ManagementObject GetVirtualMachineSettings(string vmName, ManagementScope scope)
+        {
+            using (var vm = GetVirtualMachine(vmName, scope))
+                return GetVirtualMachineSettings(vm);
+        }
+
+        public static ManagementObject GetVirtualMachineSettings(ManagementObject virtualMachine)
+        {
+            if (virtualMachine is null)
+                throw new ViridianException("", new ArgumentNullException(nameof(virtualMachine)));
+
+            using (var vssd = virtualMachine.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SettingsDefineState", null, null, null, null, false, null))
+                return vssd.Cast<ManagementObject>().First();
         }
 
         #endregion

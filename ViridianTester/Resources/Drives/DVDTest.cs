@@ -30,8 +30,7 @@ namespace ViridianTester.Resources.Drives
             var sut = new DVD();
             sut.AddToScsi(vm, 0, 0);
 
-            var scope = Utils.GetScope(serverName, scopePath);
-            var dvdDrives = Utils.GetResourceAllocationSettingDataResourcesByTypeAndSubtype(vmName, scope, ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType);
+            var dvdDrives = vm.GetResourceAllocationSettingData(ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType);
 
             // Assert
             Assert.AreEqual(1, dvdDrives.Count);

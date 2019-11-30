@@ -1,9 +1,9 @@
 ﻿using System.Management;
 using Viridian.Exceptions;
 using Viridian.Machine;
+using Viridian.Resources.Controllers;
 using Viridian.Resources.Msvm;
 using Viridian.Service.Msvm;
-using Viridian.Utilities;
 
 namespace Viridian.Resources.Drives
 {
@@ -19,9 +19,9 @@ namespace Viridian.Resources.Drives
 
         public string[] AddToSyntheticDiskDrive(VM vm, string hostResource, int scsiIndex, int address, HardDiskAccess access)
         {
-            using (var vms = Utils.GetVirtualMachineSettings(vm.VmName, vm.Scope))
+            using (var vms = VM.GetVirtualMachineSettings(vm.VmName, vm.Scope))
             using (var scsiController = vm.GetScsiController(scsiIndex))
-            using (var parent = Utils.GetScsiControllerChildBySubtypeAndIndex(scsiController, ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType, address))
+            using (var parent = SCSI.GetScsiControllerChildBySubtypeAndIndex(scsiController, ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType, address))
             using (var pool = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.VirtualHardDisk.ResourceSubType))
             using (var rasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(pool))
             {
@@ -36,7 +36,7 @@ namespace Viridian.Resources.Drives
 
         public static void RemoveFromSyntheticDiskDrive(VM vm, string vhdPath, bool removeParent)
         {
-            using (var vms = Utils.GetVirtualMachineSettings(vm.VmName, vm.Scope))
+            using (var vms = VM.GetVirtualMachineSettings(vm.VmName, vm.Scope))
             using (var sasd = vms.GetRelated("Msvm_StorageAllocationSettingData", null, null, null, null, null, false, null))
             {
                 ManagementBaseObject resourceSettings = null;
@@ -66,7 +66,7 @@ namespace Viridian.Resources.Drives
         public static bool IsVHDAttached(VM vm, int scsiIndex, int driveIndex)
         {
             using (var scsi = vm.GetScsiController(scsiIndex))
-            using (var dvd = Utils.GetScsiControllerChildBySubtypeAndIndex(scsi, ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType, driveIndex))
+            using (var dvd = SCSI.GetScsiControllerChildBySubtypeAndIndex(scsi, ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType, driveIndex))
             using (var dvdChildren = dvd.GetRelated("Msvm_StorageAllocationSettingData", null, null, null, "Dependent", "Antecedent", false, null))
                 foreach (var media in dvdChildren)
                     if (media["Caption"].ToString() == "Hard Disk Image")

@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Linq;
 using System.Management;
-using Viridian.Utilities;
 
 namespace Viridian.Service.Msvm
 {
@@ -20,7 +20,7 @@ namespace Viridian.Service.Msvm
             {
                 vsms.Scope = Scope;
 
-                Service = Utils.GetFirstObjectFromCollection(vsms.GetInstances());
+                Service = vsms.GetInstances().Cast<ManagementObject>().First();
             }
 
             ServiceName = MsvmServiceName;

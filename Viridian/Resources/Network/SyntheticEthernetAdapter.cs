@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Globalization;
 using System.Management;
 using Viridian.Exceptions;
@@ -16,8 +17,8 @@ namespace Viridian.Resources.Network
             if (virtualMachine is null)
                 throw new ViridianException("", new ArgumentNullException(nameof(virtualMachine)));
 
-            using (var vms = Utils.GetVirtualMachineSettings(virtualMachine.VmName, virtualMachine.Scope))
-            using (var adapterToAdd = GetDefaultSyntheticAdapter(virtualMachine.Scope))
+            using (var vms = VM.GetVirtualMachineSettings(virtualMachine.VmName, virtualMachine.Scope))
+            using (var adapterToAdd = GetDefaultSyntheticAdapter())
             {
                 adapterToAdd["VirtualSystemIdentifiers"] = new string[] { Guid.NewGuid().ToString("B") };
                 adapterToAdd["ElementName"] = adapterName;
@@ -32,13 +33,9 @@ namespace Viridian.Resources.Network
             }
         }
 
-        public static ManagementObject GetDefaultSyntheticAdapter(ManagementScope scope)
+        public static ManagementObject GetDefaultSyntheticAdapter()
         {
-            var wqlQuery = "Select  * from Msvm_ResourcePool where ResourceSubType = 'Microsoft:Hyper-V:Synthetic Ethernet Port' and Primordial = True";
-            var query = new ObjectQuery(wqlQuery);
-
-            using (var mos = new ManagementObjectSearcher(scope, query))
-            using (var rp = Utils.GetFirstObjectFromCollection(mos.Get()))
+            using (var rp = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.SyntheticEthernetPort.ResourceSubType))
                 return ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(rp);
         }
 
@@ -48,8 +45,8 @@ namespace Viridian.Resources.Network
                 throw new ViridianException("", new ArgumentNullException(nameof(virtualMachine)));
 
             using (var vm = virtualMachine.GetComputerSystemByName())
-            using (var rp = Utils.GetResourcePool("33", "Microsoft:Hyper-V:Ethernet Connection", resourcePoolName, virtualMachine.Scope))
-            using (var vms = Utils.GetVirtualMachineSettings(vm))
+            using (var rp = ResourcePool.GetResourcePool("33", "Microsoft:Hyper-V:Ethernet Connection", resourcePoolName, virtualMachine.Scope))
+            using (var vms = VM.GetVirtualMachineSettings(vm))
             using (var syntheticAdapter = AddSyntheticAdapter(virtualMachine))
             using (var depasd = NetSwitch.GetDefaultEthernetPortAllocationSettingData())
             {
@@ -74,7 +71,7 @@ namespace Viridian.Resources.Network
                 if (epasd.Count != 1)
                     throw new ViridianException(string.Format(CultureInfo.CurrentCulture, "A single Msvm_EthernetPortAllocationSettingData could not be found for parent port \"{0}\"", parentPort.Path.Path));
 
-                return Utils.GetFirstObjectFromCollection(epasd);
+                return epasd.Cast<ManagementObject>().First();
             }
         }
 

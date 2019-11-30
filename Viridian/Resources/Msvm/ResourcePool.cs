@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Management;
-using Viridian.Exceptions;
-using Viridian.Job;
 using Viridian.Utilities;
 
 namespace Viridian.Resources.Msvm
@@ -188,6 +186,21 @@ namespace Viridian.Resources.Msvm
                     .Where((c) => 
                         c[nameof(ResourceSubType)]?.ToString() == ResourceSubType &&
                         (bool)c[nameof(Primordial)] == Primordial)
+                    .First();
+        }
+
+        public static ManagementObject GetResourcePool(string ResourceType, string ResourceSubType, string PoolId, ManagementScope scope)
+        {
+            using (var mos = new ManagementObjectSearcher(scope, new ObjectQuery("SELECT * FROM Msvm_ResourcePool")))
+                return mos
+                    .Get()
+                    .Cast<ManagementObject>()
+                    .Where((c) =>
+                        c[nameof(ResourceType)]?.ToString() == ResourceType &&
+                        (ResourceType == ResourceTypeInfo.Other.ResourceType ?
+                            c["OtherResourceType"]?.ToString() == ResourceSubType :
+                            c[nameof(ResourceSubType)]?.ToString() == ResourceSubType) &&
+                        c[nameof(PoolId)]?.ToString() == PoolId)
                     .First();
         }
 

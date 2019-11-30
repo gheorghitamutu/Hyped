@@ -13,7 +13,7 @@ namespace Viridian.Resources.Drives
         {
             using (var pool = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType))
             using (var rasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(pool))
-            using (var vms = Utils.GetVirtualMachineSettings(vm.VmName, vm.Scope))
+            using (var vms = VM.GetVirtualMachineSettings(vm.VmName, vm.Scope))
             using (var scsiController = vm.GetScsiController(scsiIndex))
             {
                 rasd["Parent"] = scsiController ?? throw new ViridianException("Failure retrieving SCSI Controller class!");

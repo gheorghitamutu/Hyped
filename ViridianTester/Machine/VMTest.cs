@@ -1,6 +1,5 @@
-﻿using System.Management;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Viridian.Exceptions;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using Viridian.Machine;
 using Viridian.Service.Msvm;
 using Viridian.Utilities;
@@ -24,19 +23,10 @@ namespace ViridianTester.Machine
             var sut = new VM(serverName, scopePath, vmName, virtualSystemSubType);
             sut.CreateVm();
 
-            var vmCollection = Utils.GetVmCollection(serverName, scopePath);
-            var createdVmExists = false;
-            foreach (var vm in vmCollection)
-            {
-                if (string.Compare((string)(((ManagementObject)vm)["ElementName"]), vmName) != 0)
-                    continue;
-
-                createdVmExists = true;
-                break;
-            }
+            var vm = VM.GetVirtualMachine(vmName, Utils.GetScope(serverName, scopePath));
 
             // Assert
-            Assert.IsTrue(createdVmExists);
+            Assert.IsNotNull(vm);
             sut.RemoveVm();
         }
 
@@ -52,8 +42,7 @@ namespace ViridianTester.Machine
             sut.RemoveVm();
 
             // Assert
-            Assert.ThrowsException<ViridianException>(() => sut.RemoveVm());
-            Assert.ThrowsException<ViridianException>(() => sut.GetComputerSystemByName());
+            Assert.ThrowsException<InvalidOperationException>(() => sut.GetComputerSystemByName());
         }
 
         [TestMethod]
