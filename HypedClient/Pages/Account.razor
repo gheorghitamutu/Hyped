@@ -9,7 +9,7 @@
         <tbody>
         @if (accounts == null)
         {
-            <p><em>Loading...</em></p>
+            <tr>Loading...</tr>
         }
         else
         {
@@ -17,50 +17,74 @@
             {
                 <tr>
                     <td><label for="email"><b>Email : </b></label></td>
-                    <td><input id="user_email" type="text" placeholder=@account.Email></td>
+                    <td><input type="text" placeholder=@account.Email @bind="_editAccount.Email"></td>
                 </tr>
                 <tr>
                     <td><label for="text"><b>First name : </b></label></td>
-                    <td><input type="text" placeholder=@account.FirstName></td>
+                    <td><input type="text" placeholder=@account.FirstName @bind="_editAccount.FirstName"></td>
                 </tr>
                 <tr>
                     <td><label for="text"><b>Last name : </b></label></td>
-                    <td><input type="text" placeholder=@account.LastName></td>
+                    <td><input type="text" placeholder=@account.LastName @bind="_editAccount.LastName"></td>
                 </tr>
                 <tr>
                     <td><label for="psw"><b>Password : </b></label></td>
-                    <td><input type="password" placeholder=@account.Password></td>
+                    <td><input type="password" placeholder=@account.Password @bind="_editAccount.Password"></td>
                 </tr>
                 <tr>
                     <td><label for="txt"><b>Work Place : </b></label></td>
-                    <td><input type="text" placeholder=@account.Workplace></td>
+                    <td><input type="text" placeholder=@account.Workplace @bind="_editAccount.Workplace"></td>
                 </tr>
                 <tr>
                     <td> <label for="txt"><b>Position title : </b></label></td>
-                    <td><input type="text" placeholder=@account.PositionTitle></td>
+                    <td><input type="text" placeholder=@account.PositionTitle @bind="_editAccount.PositionTitle"></td>
                 </tr>
                 <tr>
                     <td><label for="no"><b>Contact no. : </b></label></td>
-                    <td><input type="number" placeholder=@account.ContactNumber></td>
+                    <td><input type="number" placeholder=@account.ContactNumber @bind="_editAccount.ContactNumber"></td>
                 </tr>
             }
         }
         </tbody>
     </table>
     <div class="container signin">
-        <p>Edit account details? <a href="#">Modify</a>.</p><br />
+        <p>Edit account details? <button @onclick="@SaveItem">Modify</button></p>
     </div>
 </div>
 
 
 @code {
+    private AccountDetails _editAccount = new AccountDetails();
+
     private AccountDetails[] accounts;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync() => await GetTodoItems();
+
+    private async Task GetTodoItems()
     {
         accounts = await Http.GetJsonAsync<AccountDetails[]>("sample-data/account.json");
     }
 
+    private void EditItem(long id)
+    {
+        var editItem = accounts.Single(i => i.Email == _editAccount.Email);
+        _editAccount = new AccountDetails {
+            Email = _editAccount.Email,
+            FirstName = _editAccount.FirstName,
+            LastName = _editAccount.LastName,
+            Password = _editAccount.Password,
+            Workplace = _editAccount.Workplace,
+            PositionTitle = _editAccount.PositionTitle,
+            ContactNumber = _editAccount.ContactNumber
+        };
+        
+
+    }
+
+    private async Task SaveItem() {
+        await Http.PutJsonAsync("sample-data/account.json", _editAccount);
+        await GetTodoItems();
+    }
     public class AccountDetails
     {
         public string Email { get; set; }
