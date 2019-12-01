@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Management;
 using Viridian.Exceptions;
 using Viridian.Job;
 using Viridian.Service.Msvm;
-using Viridian.Utilities;
 
 namespace Viridian.Statistics
-{       
+{
     public sealed class Metric : BaseService
     {
         private static Metric instance = null;
@@ -302,21 +300,18 @@ namespace Viridian.Statistics
                 if (md == null) // definition for this metric has not been found
                     return null;
 
-                var escapedObjPath = Utils.EscapeObjectPath(msvmObject.Path.Path);
-                var escapedMdPath = Utils.EscapeObjectPath(md.Path.Path);
-
                 using (var mos = new ManagementObjectSearcher(msvmObject.Scope, new ObjectQuery("SELECT * FROM Msvm_MetricDefForME")))
                     return mos
                         .Get()
                         .Cast<ManagementObject>()
                         .Where((c) =>
-                            c["Antecedent"]?.ToString() == escapedObjPath &&
-                            c["Dependent"]?.ToString() == escapedMdPath)
+                            string.Equals((string)c?["Antecedent"], msvmObject.Path.Path, StringComparison.OrdinalIgnoreCase) &&
+                            string.Equals((string)c?["Dependent"], md.Path.Path, StringComparison.OrdinalIgnoreCase))
                         .FirstOrDefault();
             }
         }
 
-        public static ManagementObjectCollection GetMetricsByDefinition(ManagementObject msvmObject, ManagementObject metricDefinition)
+        public static List<ManagementObject> GetMetricsByDefinition(ManagementObject msvmObject, ManagementObject metricDefinition)
         {
             if (msvmObject is null)
                 throw new ViridianException("", new ArgumentNullException(nameof(msvmObject)));
@@ -324,30 +319,30 @@ namespace Viridian.Statistics
             if (metricDefinition is null)
                 throw new ViridianException("", new ArgumentNullException(nameof(metricDefinition)));
 
-            var escapedObjPath = Utils.EscapeObjectPath(msvmObject.Path.Path);
-            var escapedMdPath = Utils.EscapeObjectPath(metricDefinition.Path.Path);
-
-            var wqlQuery = string.Format(CultureInfo.InvariantCulture, "SELECT * FROM Msvm_MetricDefForME WHERE Antecedent=\"{0}\" AND Dependent=\"{1}\"", escapedObjPath, escapedMdPath);
-            var query = new SelectQuery(wqlQuery);
-
-            using (var mos = new ManagementObjectSearcher(msvmObject.Scope, query))
-                return mos.Get();
+            using (var mos = new ManagementObjectSearcher(msvmObject.Scope, new ObjectQuery("SELECT * FROM Msvm_MetricDefForME")))
+                return mos
+                    .Get()
+                    .Cast<ManagementObject>()
+                    .Where((c) =>
+                        string.Equals((string)c?["Antecedent"], msvmObject.Path.Path, StringComparison.OrdinalIgnoreCase) &&
+                        string.Equals((string)c?["Dependent"], metricDefinition.Path.Path, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
         }
 
-        public static ManagementObjectCollection GetAllBaseMetricDefinitions(ManagementObject msvmObject)
+        public static List<ManagementObject> GetAllBaseMetricDefinitions(ManagementObject msvmObject)
+        {
+            return msvmObject?.GetRelated("Msvm_BaseMetricDefinition", "Msvm_MetricDefForME", null, null, null, null, false, null).Cast<ManagementObject>().ToList();
+        }
+
+        public static List<ManagementObject> GetAllAggregationMetricDefinitions(ManagementObject msvmObject)
         {
             if (msvmObject is null)
                 throw new ViridianException("", new ArgumentNullException(nameof(msvmObject)));
 
-            return msvmObject.GetRelated("Msvm_BaseMetricDefinition", "Msvm_MetricDefForME", null, null, null, null, false, null);
-        }
-
-        public static ManagementObjectCollection GetAllAggregationMetricDefinitions(ManagementObject msvmObject)
-        {
-            if (msvmObject is null)
-                throw new ViridianException("", new ArgumentNullException(nameof(msvmObject)));
-
-            return msvmObject.GetRelated("Msvm_AggregationMetricDefinition", "Msvm_MetricDefForME", null, null, null, null, false, null);
+            return 
+                msvmObject.GetRelated("Msvm_AggregationMetricDefinition", "Msvm_MetricDefForME", null, null, null, null, false, null)
+                    .Cast<ManagementObject>()
+                    .ToList();
         }
                
         public static ManagementObject GetBaseMetricDefinition(string ElementName, ManagementScope scope)

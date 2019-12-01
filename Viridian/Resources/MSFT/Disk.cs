@@ -1,4 +1,5 @@
-﻿using System.Management;
+﻿using System.Linq;
+using System.Management;
 using Viridian.Exceptions;
 using Viridian.Resources.MSFT;
 using Viridian.Utilities;
@@ -33,14 +34,12 @@ namespace Viridian.Storage.Virtual.Hard
             StorageSpaces = 16,
             NVMe = 17
         }
-
         public enum DiskHealthStatus : ushort
         {
             Healthy = 0,
             Warning = 1,
             Unhealthy = 2
         }
-
         public enum DiskOfflineReason : ushort
         {
             Policy = 1,
@@ -51,7 +50,6 @@ namespace Viridian.Storage.Virtual.Hard
             CriticalWriteFailures = 6,
             DataIntegrityScanRequired = 7,
         }
-
         public enum DiskOperationalStatus : ushort
         {
             Unknown = 0,
@@ -78,14 +76,12 @@ namespace Viridian.Storage.Virtual.Hard
             Offline = 0xD013,
             Failed = 0xD014
         }
-
         public enum DiskPartitionStyle : ushort
         {
             Unknown = 0,
             MBR = 1,
             GPT = 2,
         }
-
         public enum DiskProvisioningType : ushort
         {
             Unknown = 0,
@@ -93,24 +89,12 @@ namespace Viridian.Storage.Virtual.Hard
             Fixed = 2
         }
 
-        public Disk(string diskPath)
+        public Disk(string Location)
         {
             scope = Utils.GetScope(serverName, scopePath);
-            var query = new ObjectQuery("SELECT * FROM MSFT_Disk");
 
-            using (var mos = new ManagementObjectSearcher(scope, query))
-                foreach (ManagementObject disk in mos.Get())
-                {
-                    if (disk["Location"] as string == diskPath)
-                    {
-                        MSFT_Disk = disk;
-                        return;
-                    }
-
-                    disk.Dispose();
-                }
-
-            throw new ViridianException("Disk not found!");
+            using (var mos = new ManagementObjectSearcher(scope, new ObjectQuery("SELECT * FROM MSFT_Disk")))
+                MSFT_Disk = mos.Get().Cast<ManagementObject>().Where((c) => c[nameof(Location)]?.ToString() == Location).First();
         }
 
         public ManagementObject MSFTDisk => MSFT_Disk;
@@ -199,7 +183,6 @@ namespace Viridian.Storage.Virtual.Hard
                     ip[nameof(MbrType)] = MbrType;
                 if (MbrType == Partition.PartitionMBRType.None)
                     ip[nameof(GptType)] = GptType;
-
                 ip[nameof(IsHidden)] = IsHidden;
                 if (MbrType != Partition.PartitionMBRType.None)
                     ip[nameof(IsActive)] = IsActive;

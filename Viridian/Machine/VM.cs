@@ -23,11 +23,7 @@ namespace Viridian.Machine
         public ManagementObject GetComputerSystemByName()
         {
             using (var mos = new ManagementObjectSearcher(Scope, new ObjectQuery("SELECT * FROM Msvm_ComputerSystem")))
-                return mos
-                    .Get()
-                    .Cast<ManagementObject>()
-                    .Where((c) => c["ElementName"]?.ToString() == VmName)
-                    .First();
+                return mos.Get().Cast<ManagementObject>().Where((c) => c["ElementName"]?.ToString() == VmName).First();
         }
 
         public VM(string serverName, string scopePath, string elementName, string virtualSystemSubtype)
@@ -47,7 +43,6 @@ namespace Viridian.Machine
             Disk = 3,
             Recovery = 32768,
         }
-
         public enum EnabledState : uint
         {
             Unknown = 0,
@@ -62,7 +57,6 @@ namespace Viridian.Machine
             Quiesce = 9,
             Starting = 10
         }
-
         public static class VirtualSystemTypeName
         {
             public const string RealizedVm = "Microsoft:Hyper-V:System:Realized";
@@ -76,7 +70,6 @@ namespace Viridian.Machine
             public const string ReplicaPlannedRecoverySnapshot = "Microsoft:Hyper-V:Snapshot:Replica:PlannedFailover";
             public const string ReplicaSettings = "Microsoft:Hyper-V:Replica";
         }
-
         public enum NetworkBootPreferredProtocol
         {
             IPv4 = 4096,
@@ -170,73 +163,46 @@ namespace Viridian.Machine
             }
         }
 
-        public List<ManagementObject> GetSnapshotList(string virtualSystemType)
+        public List<ManagementObject> GetSnapshotList(string VirtualSystemType)
         {
             using (var vm = GetComputerSystemByName())
-            using (var sofvsCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
-            {
-                var queriedSnapshots = new List<ManagementObject>();
-
-                foreach (ManagementObject settings in sofvsCollection)
-                {
-                    if (string.Compare(settings["VirtualSystemType"].ToString(), virtualSystemType) != 0)
-                        continue;
-
-                    queriedSnapshots.Add(settings);
-                }
-
-                return queriedSnapshots;
-            }
+                return 
+                    vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null)
+                        .Cast<ManagementObject>()
+                        .Where((c) => (c[nameof(VirtualSystemType)]?.ToString() == VirtualSystemType))
+                        .ToList();
         }
 
-        public void ApplySnapshot(string snapshotName)
+        public void ApplySnapshot(string ElementName)
         {
             using (var vm = GetComputerSystemByName())
-            using (var sofvsCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
             {
-                foreach (ManagementObject snapshot in sofvsCollection)
-                {
-                    if (snapshot == null || !Equals(snapshot["ElementName"], snapshotName))
-                        continue;
+                // In order to apply a snapshot, the virtual machine must first be saved/off
+                if ((ushort)vm["EnabledState"] != (ushort)EnabledState.Disabled)
+                    RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Off);
 
-                    // In order to apply a snapshot, the virtual machine must first be saved/off
-                    if ((ushort)vm["EnabledState"] != (ushort)EnabledState.Disabled)
-                        RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Off);
-
-                    VirtualSystemSnapshot.Instance.ApplySnapshot(snapshot);
-
-                    return;
-                }
-
-                throw new ViridianException("Snapshot not found!");
+                VirtualSystemSnapshot.Instance.ApplySnapshot(
+                    vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null)
+                        .Cast<ManagementObject>()
+                        .Where((c) => (c[nameof(ElementName)]?.ToString() == ElementName))
+                        .First());
             }
         }
 
         public ManagementObject GetLastAppliedSnapshot()
         {
             using (var vm = GetComputerSystemByName())
-            using (var lasCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_LastAppliedSnapshot", null, null, null, null, false, null))
-                return lasCollection.Cast<ManagementObject>().First();
+                return vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_LastAppliedSnapshot", null, null, null, null, false, null).Cast<ManagementObject>().First();
         }
 
         public ManagementObject GetLastCreatedSnapshot()
         {
             using (var vm = GetComputerSystemByName())
-            using (var sovfsCollection = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null))
-            {
-                var lastSnapshotApplied = sovfsCollection.Cast<ManagementObject>().First();
-
-                foreach (var snapshot in sovfsCollection)
-                {
-                    var dtSnapshot = ManagementDateTimeConverter.ToDateTime(snapshot["CreationTime"].ToString());
-                    var dtLastSnapshotApplied = ManagementDateTimeConverter.ToDateTime(lastSnapshotApplied["CreationTime"].ToString());
-
-                    if (DateTime.Compare(dtLastSnapshotApplied, dtSnapshot) < 0)
-                        lastSnapshotApplied = (ManagementObject)snapshot;
-                }
-
-                return lastSnapshotApplied;
-            }
+                return 
+                    vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null)
+                        .Cast<ManagementObject>()
+                        .OrderByDescending(x => (ManagementDateTimeConverter.ToDateTime(x["CreationTime"].ToString())))
+                        .First();
         }
 
         #endregion
@@ -392,12 +358,10 @@ namespace Viridian.Machine
 
         public ManagementObject GetScsiController(int index)
         {
-            var scsiControllers = GetResourceAllocationSettingData(ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType);
-
-            if (scsiControllers.Count < index)
-                throw new ViridianException("Invalid SCSI controller index specified!");
-
-            return scsiControllers[index];
+            return
+                GetResourceAllocationSettingData(ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType)
+                    .Skip(index)
+                    .First();
         }
 
         #endregion
@@ -408,8 +372,7 @@ namespace Viridian.Machine
         {
             using (var vm = GetComputerSystemByName())
             using (var vssd = vm.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SettingsDefineState", null, null, "SettingData", "ManagedElement", false, null).Cast<ManagementObject>().First())
-            using (var memoryCollection = vssd.GetRelated("Msvm_MemorySettingData"))
-                return memoryCollection.Cast<ManagementObject>().First();
+                return vssd.GetRelated("Msvm_MemorySettingData").Cast<ManagementObject>().First();
         }
 
         public ManagementBaseObject[] GetSummaryInformation()
@@ -481,54 +444,51 @@ namespace Viridian.Machine
 
         public void DisconnectVmFromSwitch(string switchName)
         {
-            using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope, switchName))
             using (var vm = GetComputerSystemByName())
-            {
-                IList<ManagementObject> connectionsToSwitch = NetSwitch.FindConnectionsToSwitch(vm, ves);
-
-                foreach (var connection in connectionsToSwitch)
+            using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope, switchName))
+                foreach (var connection in NetSwitch.FindConnectionsToSwitch(vm, ves))
                 {
                     connection["EnabledState"] = 3;
 
                     VirtualSystemManagement.Instance.ModifyResourceSettings(new string[] { connection.GetText(TextFormat.WmiDtd20) });
                 }
-            }
         }
 
         public void ModifyConnection(string currentSwitchName, string newSwitchName)
         {
             using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope, currentSwitchName))
             using (var newVes = NetSwitch.FindVirtualEthernetSwitch(Scope, newSwitchName))
-            using (var virtualMachine = GetComputerSystemByName())
-            {
-                IList<ManagementObject> currentConnections = NetSwitch.FindConnectionsToSwitch(virtualMachine, ves);
-
-                foreach (var connection in currentConnections)
+            using (var vm = GetComputerSystemByName())
+                foreach (var connection in NetSwitch.FindConnectionsToSwitch(vm, ves))
                 {
                     connection["HostResource"] = new string[] { newVes.Path.Path };
 
                     VirtualSystemManagement.Instance.ModifyResourceSettings(new string[] { connection.GetText(TextFormat.WmiDtd20) });
                 }
-            }
         }
 
-        public ManagementObjectCollection GetSyntheticAdapterCollection()
+        public List<ManagementObject> GetSyntheticAdapterCollection()
         {
-            return GetComputerSystemByName().GetRelated("Msvm_SyntheticEthernetPort");
+            return GetComputerSystemByName().GetRelated("Msvm_SyntheticEthernetPort").Cast<ManagementObject>().ToList();
         }
 
         public List<ManagementObject> GetEthernetSwitchPortAclSettingDatas()
         {
-            var list = new List<ManagementObject>();
+            var aclSettingDataList = new List<ManagementObject>();
 
             using (var vm = GetComputerSystemByName())
             using (var vms = GetVirtualMachineSettings(vm))
-                foreach (ManagementObject sepsd in vms.GetRelated("Msvm_SyntheticEthernetPortSettingData"))
-                    using (var epasd = SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope))
-                        foreach(ManagementObject espasd in SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(epasd))
-                            list.Add(espasd);
+                vms.GetRelated("Msvm_SyntheticEthernetPortSettingData")
+                    .Cast<ManagementObject>()
+                    .ToList()
+                    .ForEach((sepsd) =>
+                        aclSettingDataList.AddRange(
+                            SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(
+                                SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope))
+                                    .Cast<ManagementObject>()
+                                    .ToList()));
 
-            return list;
+            return aclSettingDataList;
         }
 
         #endregion
@@ -538,54 +498,63 @@ namespace Viridian.Machine
         public void SetAggregationMetricsForDrives(Metric.MetricCollectionEnabled operation)
         {
             using (var vm = GetComputerSystemByName())
-            {
-                var scsiControllers = GetResourceAllocationSettingData(ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType);
-
-                foreach (var scsiController in scsiControllers)
-                    using (var driveCollection = scsiController.GetRelated("Msvm_ResourceAllocationSettingData", null, null, null, "Dependent", "Antecedent", false, null))
-                    foreach (ManagementObject drive in driveCollection)
-                            Metric.Instance.SetAllMetrics(drive, operation);
-            }
+                GetResourceAllocationSettingData(ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType)
+                    .Cast<ManagementObject>()
+                    .ToList()
+                    .ForEach(
+                        (controller) =>
+                            controller.GetRelated("Msvm_ResourceAllocationSettingData", null, null, null, "Dependent", "Antecedent", false, null)
+                                .Cast<ManagementObject>()
+                                .ToList()
+                                .ForEach((setting) => Metric.Instance.SetAllMetrics(setting, operation)));
         }
 
         public void SetBaseMetricsForEthernetSwitchPortAclSettingData(Metric.MetricCollectionEnabled operation)
         {
             using (var vm = GetComputerSystemByName())
             using (var vms = GetVirtualMachineSettings(vm))
-            foreach (ManagementObject sepsd in vms.GetRelated("Msvm_SyntheticEthernetPortSettingData"))
-                using (var epasd = SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope))
-                using (var espasdCollection = SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(epasd))
-                        foreach (ManagementObject espasd in espasdCollection)
-                            foreach (ManagementObject baseMetricDef in Metric.GetAllBaseMetricDefinitions(espasd))
-                                Metric.Instance.SetBaseMetric(espasd, baseMetricDef, operation);
+                vms.GetRelated("Msvm_SyntheticEthernetPortSettingData")
+                    .Cast<ManagementObject>()
+                    .ToList()
+                    .ForEach(
+                        (sepsd) =>
+                            SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(
+                                SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope))
+                                    .ForEach(
+                                        (espasd) =>
+                                            Metric.GetAllBaseMetricDefinitions(espasd)
+                                            .ForEach(
+                                                (baseMetricDef) =>
+                                                    Metric.Instance.SetBaseMetric(espasd, baseMetricDef, operation))));
         }
 
         public void SetAggregationMetricsForEthernetSwitchPortAclSettingData(Metric.MetricCollectionEnabled operation)
         {
             using (var vm = GetComputerSystemByName())
             using (var vms = GetVirtualMachineSettings(vm))
-                foreach (ManagementObject sepsd in vms.GetRelated("Msvm_SyntheticEthernetPortSettingData"))
-                    using (var epasd = SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope))
-                    using (var espasdCollection = SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(epasd))
-                        foreach (ManagementObject espasd in espasdCollection)
-                                Metric.Instance.SetAllMetrics(espasd, operation);
+                vms.GetRelated("Msvm_SyntheticEthernetPortSettingData")
+                    .Cast<ManagementObject>()
+                    .ToList()
+                    .ForEach(
+                        (sepsd) =>
+                            SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(
+                                SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope))
+                                    .ForEach(
+                                        (espasd) =>
+                                            Metric.Instance.SetAllMetrics(espasd, operation)));
         }
 
         public List<ManagementObject> GetResourceAllocationSettingData(string ResourceType, string ResourceSubType)
         {
             using (var vm = GetComputerSystemByName())
-            using (var vssdCollection = vm.GetRelated("Msvm_VirtualSystemSettingData"))
-            {
-                var settings = vssdCollection.Cast<ManagementObject>().First();
-
-                using (var rasdCollection = settings.GetRelated("Msvm_ResourceAllocationSettingData"))
-                    return rasdCollection
-                        .Cast<ManagementObject>()
-                        .Where((c) =>
-                            c[nameof(ResourceType)]?.ToString() == ResourceType &&
-                            c[nameof(ResourceSubType)]?.ToString() == ResourceSubType)
-                        .ToList();
-            }
+                return 
+                    vm.GetRelated("Msvm_VirtualSystemSettingData").Cast<ManagementObject>().First()
+                        .GetRelated("Msvm_ResourceAllocationSettingData")
+                            .Cast<ManagementObject>()
+                            .Where((c) =>
+                                c[nameof(ResourceType)]?.ToString() == ResourceType &&
+                                c[nameof(ResourceSubType)]?.ToString() == ResourceSubType)
+                            .ToList();
         }
 
         public static ManagementObject GetVirtualMachine(string ElementName, ManagementScope scope)
@@ -602,11 +571,7 @@ namespace Viridian.Machine
 
         public static ManagementObject GetVirtualMachineSettings(ManagementObject virtualMachine)
         {
-            if (virtualMachine is null)
-                throw new ViridianException("", new ArgumentNullException(nameof(virtualMachine)));
-
-            using (var vssd = virtualMachine.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SettingsDefineState", null, null, null, null, false, null))
-                return vssd.Cast<ManagementObject>().First();
+            return virtualMachine?.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SettingsDefineState", null, null, null, null, false, null).Cast<ManagementObject>().First();
         }
 
         #endregion

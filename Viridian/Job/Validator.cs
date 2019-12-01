@@ -47,7 +47,7 @@ namespace Viridian.Job
 
         public static void ValidateOutput(ManagementBaseObject outputParameters, ManagementScope scope)
         {
-            switch((uint)outputParameters["ReturnValue"])
+            switch((uint)outputParameters?["ReturnValue"])
             {
                 case ReturnCode.InvalidParameter:       throw new ViridianException("Invalid parameter passed to function!");
                 case ReturnCode.NotSupportedVolume:     throw new ViridianException("Not Supported (MSFT_Volume)!");
@@ -120,13 +120,10 @@ namespace Viridian.Job
 
         public static string[] GetMsvmErrorsList(ManagementObject job)
         {
-            if (job == null)
-                throw new ViridianException("Job object is null!");
-
-            using (var ip = job.GetMethodParameters("GetErrorEx"))
+            using (var ip = job?.GetMethodParameters("GetErrorEx"))
             using (var op = job.InvokeMethod("GetErrorEx", ip, null))
             {
-                if (op != null && (uint)op["ReturnValue"] != ReturnCode.Completed)
+                if ((uint)op?["ReturnValue"] != ReturnCode.Completed)
                     throw new ViridianException("GetErrorEx() call on the job failed!", new ManagementException());
 
                 if (op == null)

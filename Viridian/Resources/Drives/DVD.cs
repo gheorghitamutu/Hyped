@@ -1,4 +1,5 @@
-﻿using System.Management;
+﻿using System.Linq;
+using System.Management;
 using Viridian.Machine;
 using Viridian.Resources.Controllers;
 using Viridian.Resources.Msvm;
@@ -10,7 +11,7 @@ namespace Viridian.Resources.Drives
     {
         public void AddToScsi(VM vm, int controllerSlot, int driveSlot)
         {
-            using (var vms = VM.GetVirtualMachineSettings(vm.VmName, vm.Scope))
+            using (var vms = VM.GetVirtualMachineSettings(vm?.VmName, vm?.Scope))
             using (var pool = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType))
             using (var rasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(pool))
             using (var parent = vm.GetScsiController(controllerSlot))
@@ -24,14 +25,13 @@ namespace Viridian.Resources.Drives
 
         public bool IsISOAttached(VM vm, int scsiIndex, int driveIndex)
         {
-            using (var scsi = vm.GetScsiController(scsiIndex))
+            using (var scsi = vm?.GetScsiController(scsiIndex))
             using (var dvd = SCSI.GetScsiControllerChildBySubtypeAndIndex(scsi, ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType, driveIndex))
-            using (var dvdChildren = dvd.GetRelated("Msvm_StorageAllocationSettingData", null, null, null, "Dependent", "Antecedent", false, null))
-                foreach (var media in dvdChildren)
-                    if (media["Caption"].ToString() == "ISO Disk Image")
-                        return true;
-
-            return false;
+                return
+                    dvd.GetRelated("Msvm_StorageAllocationSettingData", null, null, null, "Dependent", "Antecedent", false, null)
+                        .Cast<ManagementObject>()
+                        .Where((c) => c["Caption"]?.ToString() == "ISO Disk Image")
+                        .Any();
         }
     }
 }

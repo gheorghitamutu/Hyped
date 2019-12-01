@@ -1,4 +1,5 @@
-﻿using System.Management;
+﻿using System.Linq;
+using System.Management;
 using Viridian.Exceptions;
 using Viridian.Utilities;
 
@@ -212,21 +213,7 @@ namespace Viridian.Resources.MSFT
 
         public ManagementObject GetMsftVolume(int volumeIndex)
         {
-            using (var volumeCollection = MSFT_Partition.GetRelated("MSFT_Volume"))
-            {
-                var countVolume = 0;
-                foreach (ManagementObject volume in volumeCollection)
-                {
-                    if (countVolume == volumeIndex)
-                        return volume;
-
-                    countVolume++;
-
-                    volume.Dispose();
-                }
-            }
-
-            throw new ViridianException("Volume not found!");
+            return MSFT_Partition.GetRelated("MSFT_Volume").Cast<ManagementObject>().Skip(volumeIndex).First();
         }
 
         #endregion

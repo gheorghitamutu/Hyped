@@ -1,4 +1,5 @@
-﻿using System.Management;
+﻿using System.Linq;
+using System.Management;
 using Viridian.Utilities;
 using static Viridian.Resources.Msvm.ResourcePoolSettingData;
 
@@ -58,7 +59,7 @@ namespace Viridian.Resources.Msvm
 
         public ResourceAllocationSettingData(ManagementObject ResourceAllocationSettingData)
         {
-            scope = ResourceAllocationSettingData.Scope;
+            scope = ResourceAllocationSettingData?.Scope;
 
             Msvm_ResourceAllocationSettingData = ResourceAllocationSettingData;
         }
@@ -67,25 +68,24 @@ namespace Viridian.Resources.Msvm
 
         private static ManagementObject GetResourceAllocationSettingDataForPool(ManagementObject pool, ushort ValueRange, ushort ValueRole)
         {
-            using (var capabilitiesCollection = pool.GetRelated("Msvm_AllocationCapabilities", "Msvm_ElementCapabilities", null, null, null, null, false, null))
-                foreach (ManagementObject capability in capabilitiesCollection)
-                {
-                    using (var relationshipsCollection = capability.GetRelationships("Msvm_SettingsDefineCapabilities"))
-                        foreach (ManagementObject relationship in relationshipsCollection)
-                        {
-                            if ((ushort)relationship[nameof(ValueRole)] != ValueRole || (ushort)relationship[nameof(ValueRange)] != ValueRange)
-                            {
-                                relationship.Dispose();
-                                continue;
-                            }
-
-                            return new ManagementObject(pool.Scope, new ManagementPath(relationship["PartComponent"].ToString()), null);
-                        }
-
-                    capability.Dispose();
-                }
-
-            return null;
+            return
+                new ManagementObject(
+                        pool.Scope,
+                        new ManagementPath(
+                            pool?.GetRelated("Msvm_AllocationCapabilities", "Msvm_ElementCapabilities", null, null, null, null, false, null)
+                                .Cast<ManagementObject>()
+                                .Where(
+                                    (c) =>
+                                        c.GetRelationships("Msvm_SettingsDefineCapabilities")
+                                            .Cast<ManagementObject>()
+                                            .Where((r) => (ushort)r[nameof(ValueRole)] == ValueRole && (ushort)r[nameof(ValueRange)] == ValueRange)
+                                                .Any())
+                            .First()
+                            .GetRelationships("Msvm_SettingsDefineCapabilities")
+                                .Cast<ManagementObject>()
+                                .Where((r) => (ushort)r[nameof(ValueRole)] == ValueRole && (ushort)r[nameof(ValueRange)] == ValueRange)
+                                .First()["PartComponent"].ToString()),
+                        null);
         }
 
         public static ManagementObject GetDefaultResourceAllocationSettingDataForPool(ManagementObject pool) => GetResourceAllocationSettingDataForPool(pool, 0, 0);

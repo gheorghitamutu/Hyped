@@ -12,14 +12,5 @@ namespace Viridian.Utilities
             using (var serviceClass = new ManagementClass(scope, new ManagementPath(serviceName), null))
                 return serviceClass.GetInstances().Cast<ManagementObject>().First();
         }
-
-        public static string EscapeObjectPath(string objectPath)
-        {
-            string escapedObjectPath = objectPath.Replace("\\", "\\\\");
-            escapedObjectPath = escapedObjectPath.Replace("\"", "\\\"");
-
-            return escapedObjectPath;
-        }
-
     }
 }

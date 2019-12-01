@@ -236,7 +236,7 @@ namespace Viridian.Resources.MSFT
         {
             using (var ip = MSFT_Volume.GetMethodParameters(nameof(Repair)))
             {
-                ip[nameof(Size)] = Size;
+                ip[nameof(OfflineScanAndFix)] = OfflineScanAndFix;
                 ip[nameof(Scan)] = Scan;
                 ip[nameof(SpotFix)] = SpotFix;
 

@@ -3,7 +3,6 @@ using Viridian.Exceptions;
 using Viridian.Machine;
 using Viridian.Resources.Msvm;
 using Viridian.Service.Msvm;
-using Viridian.Utilities;
 
 namespace Viridian.Resources.Drives
 {

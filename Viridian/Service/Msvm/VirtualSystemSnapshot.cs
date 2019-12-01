@@ -2,7 +2,6 @@
 using System.Management;
 using Viridian.Exceptions;
 using Viridian.Job;
-using Viridian.Utilities;
 
 namespace Viridian.Service.Msvm
 {
