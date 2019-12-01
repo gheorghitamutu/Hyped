@@ -160,8 +160,7 @@ namespace Viridian.Resources.Msvm
         ulong MaxConsumableResource => (ulong)Msvm_ResourcePool[nameof(MaxConsumableResource)];
 
         #endregion
-
-
+        
         public ResourcePool(ManagementObject MsvmResourcePool)
         {
             scope = Utils.GetScope(serverName, scopePath);

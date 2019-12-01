@@ -17,7 +17,7 @@ namespace Viridian.Resources.Network
             if (virtualMachine is null)
                 throw new ViridianException("", new ArgumentNullException(nameof(virtualMachine)));
 
-            using (var vms = VM.GetVirtualMachineSettings(virtualMachine.VmName, virtualMachine.Scope))
+            using (var vms = VM.GetVirtualMachineSettings(virtualMachine.VmName))
             using (var adapterToAdd = GetDefaultSyntheticAdapter())
             {
                 adapterToAdd["VirtualSystemIdentifiers"] = new string[] { Guid.NewGuid().ToString("B") };
@@ -44,9 +44,8 @@ namespace Viridian.Resources.Network
             if (virtualMachine is null)
                 throw new ViridianException("", new ArgumentNullException(nameof(virtualMachine)));
 
-            using (var vm = virtualMachine.GetComputerSystemByName())
             using (var rp = ResourcePool.GetResourcePool(ResourcePool.ResourceTypeInfo.EthernetConnection.ResourceType, ResourcePool.ResourceTypeInfo.EthernetConnection.ResourceSubType, resourcePoolName, virtualMachine.Scope))
-            using (var vms = VM.GetVirtualMachineSettings(vm))
+            using (var vms = VM.GetVirtualMachineSettings(virtualMachine.MsvmComputerSystem))
             using (var syntheticAdapter = AddSyntheticAdapter(virtualMachine))
             using (var depasd = NetSwitch.GetDefaultEthernetPortAllocationSettingData())
             {

@@ -181,7 +181,7 @@ namespace Viridian.Service.Msvm
                 {
                     Validator.ValidateOutput(op, Scope);
 
-                    return op["ResultingSystem"] as ManagementObject;
+                    return new ManagementObject(new ManagementPath(op["ResultingSystem"] as string));
                 }
             }
         }

@@ -20,7 +20,7 @@ namespace Viridian.Resources.Physical
                 sasd["Parent"] = parent ?? throw new ViridianException("Failure retrieving Virtual CD/DVD Disk class!");
                 sasd["HostResource"] = new[] { hostResource };
 
-                using (var vms = VM.GetVirtualMachineSettings(vm.VmName, vm.Scope))
+                using (var vms = VM.GetVirtualMachineSettings(vm.VmName))
                     VirtualSystemManagement.Instance.AddResourceSettings(vms, new[] { sasd.GetText(TextFormat.WmiDtd20) });
             }
         }

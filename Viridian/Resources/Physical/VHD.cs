@@ -20,7 +20,7 @@ namespace Viridian.Resources.Drives
 
         public string[] AddToSyntheticDiskDrive(VM vm, string hostResource, int scsiIndex, int address, HardDiskAccess access)
         {
-            using (var vms = VM.GetVirtualMachineSettings(vm.VmName, vm.Scope))
+            using (var vms = VM.GetVirtualMachineSettings(vm?.VmName))
             using (var scsiController = vm.GetScsiController(scsiIndex))
             using (var parent = SCSI.GetScsiControllerChildBySubtypeAndIndex(scsiController, ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType, address))
             using (var pool = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.VirtualHardDisk.ResourceSubType))
@@ -37,7 +37,7 @@ namespace Viridian.Resources.Drives
 
         public static void RemoveFromSyntheticDiskDrive(VM vm, string vhdPath)
         {
-            using (var vms = VM.GetVirtualMachineSettings(vm?.VmName, vm?.Scope))
+            using (var vms = VM.GetVirtualMachineSettings(vm?.VmName))
                 vms.GetRelated("Msvm_StorageAllocationSettingData", null, null, null, null, null, false, null)
                     .Cast<ManagementObject>()
                     .Where((settings) => ((string[])settings?["HostResource"])[0] == vhdPath)

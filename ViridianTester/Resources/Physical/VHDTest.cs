@@ -15,10 +15,6 @@ namespace ViridianTester.Resources.Physical
     [TestClass]
     public class VHDTest
     {
-        const string serverName = "."; // local
-        const string scopePath = @"\Root\Virtualization\V2"; // API v2 
-        const string virtualSystemSubType = "Microsoft:Hyper-V:SubType:2"; // Generation 2
-
         [TestMethod]
         public void ViridianDVD_AddVHDXtoSyntheticDiskDriveOfSCSIofVM()
         {
@@ -27,8 +23,7 @@ namespace ViridianTester.Resources.Physical
             var vhdxName = AppDomain.CurrentDomain.BaseDirectory + "\\dummyPath.vhdx";
 
             // Act
-            var vm = new VM(serverName, scopePath, vmName, virtualSystemSubType);
-            vm.CreateVm();
+            var vm = new VM(vmName);
 
             var scsi = new SCSI();
             scsi.AddToVm(vm);
@@ -60,7 +55,7 @@ namespace ViridianTester.Resources.Physical
             // Assert
             Assert.IsTrue(File.Exists(vhdxName));
             Assert.IsTrue(VHD.IsVHDAttached(vm, 0, 0));
-            vm.RemoveVm();
+            vm.DestroySystem();
             File.Delete(vhdxName);
         }
     }

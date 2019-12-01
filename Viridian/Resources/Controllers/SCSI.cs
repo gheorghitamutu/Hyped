@@ -10,7 +10,7 @@ namespace Viridian.Resources.Controllers
     {
         public void AddToVm(VM vm)
         {
-            using(var vms = VM.GetVirtualMachineSettings(vm?.VmName, vm?.Scope))
+            using(var vms = VM.GetVirtualMachineSettings(vm?.VmName))
             using (var pool = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType))
             using (var rasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(pool))
             {

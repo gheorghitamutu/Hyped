@@ -19,26 +19,20 @@ namespace ViridianTester.Statistics
     [TestClass]
     public class MetricsTest
     {
-        const string serverName = "."; // local
-        const string scopePath = @"\Root\Virtualization\V2"; // API v2 
-        const string virtualSystemSubType = "Microsoft:Hyper-V:SubType:2"; // Generation 2
-
         [TestMethod]
         public void ViridianStatisticsMetrics_GetAggregationMetricValueCollectionForVm()
         {
             // Arrange
             var vmName = "vm_test_get_aggregation_metric_value_collection_for_vm";
-            var vmState = VirtualSystemManagement.RequestedStateVSM.Running;
 
             // Act
-            var vm = new VM(serverName, scopePath, vmName, virtualSystemSubType);
-            vm.CreateVm();
+            var vm = new VM(vmName);
 
             Metric.Instance.ConfigureMetricsFlushInterval(new TimeSpan(1000));
-            Metric.Instance.SetAllMetrics(vm.GetComputerSystemByName(), Metric.MetricCollectionEnabled.Enable);
-            vm.RequestStateChange(vmState);
+            Metric.Instance.SetAllMetrics(vm.MsvmComputerSystem, Metric.MetricCollectionEnabled.Enable);
+            vm.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Running);
 
-            var mapped = Metric.GetAggregationMetricValueCollection(vm.GetComputerSystemByName());
+            var mapped = Metric.GetAggregationMetricValueCollection(vm.MsvmComputerSystem);
 
             foreach (var pair in mapped)
             {
@@ -52,12 +46,12 @@ namespace ViridianTester.Statistics
             }
 
             // Assert
-            Assert.AreEqual(vm.GetCurrentState(), vmState);
+            Assert.AreEqual(VM.EnabledStateVM.Enabled, vm.EnabledState);
             Assert.AreEqual(mapped.Count, 4);
 
             vm.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Off);
-            Metric.Instance.SetAllMetrics(vm.GetComputerSystemByName(), Metric.MetricCollectionEnabled.Disable);
-            vm.RemoveVm();
+            Metric.Instance.SetAllMetrics(vm.MsvmComputerSystem, Metric.MetricCollectionEnabled.Disable);
+            vm.DestroySystem();
         }
 
         [TestMethod]
@@ -65,14 +59,12 @@ namespace ViridianTester.Statistics
         {
             // Arrange
             var vmName = "vm_test_get_base_metric_value_collection_for_synthetic_ethernet_ports_from_vm";
-            var vmState = VirtualSystemManagement.RequestedStateVSM.Running;
 
             // Act
-            var vm = new VM(serverName, scopePath, vmName, virtualSystemSubType);
-            vm.CreateVm();
-            vm.RequestStateChange(vmState);
+            var vm = new VM(vmName);
+            vm.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Running);
             vm.ConnectVmToSwitch("Default Switch", "MyNetworkAdapter");
-            NetSwitch.AddCustomFeatureSettings(vm.Scope, vm.VmName, NetSwitch.PortFeatureType.Acl);
+            NetSwitch.AddCustomFeatureSettings(vm, NetSwitch.PortFeatureType.Acl);
             Metric.Instance.ConfigureMetricsFlushInterval(new TimeSpan(1000));
             vm.SetBaseMetricsForEthernetSwitchPortAclSettingData(Metric.MetricCollectionEnabled.Enable);
 
@@ -92,12 +84,12 @@ namespace ViridianTester.Statistics
             }
 
             // Assert
-            Assert.AreEqual(vm.GetCurrentState(), vmState);
+            Assert.AreEqual(vm.EnabledState, VM.EnabledStateVM.Enabled);
             Assert.AreEqual(sut.Count, 1);
 
             vm.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Off);
             vm.SetBaseMetricsForEthernetSwitchPortAclSettingData(Metric.MetricCollectionEnabled.Disable);
-            vm.RemoveVm();
+            vm.DestroySystem();
         }
 
         [TestMethod]
@@ -108,8 +100,7 @@ namespace ViridianTester.Statistics
             var vhdxName = AppDomain.CurrentDomain.BaseDirectory + "\\test_get_aggregation_metric_value_collection_of_vhdx_of_scsi_of_vm.vhdx";
 
             // Act
-            var vm = new VM(serverName, scopePath, vmName, virtualSystemSubType);
-            vm.CreateVm();
+            var vm = new VM(vmName);
 
             var scsi = new SCSI();
             scsi.AddToVm(vm);
@@ -147,7 +138,7 @@ namespace ViridianTester.Statistics
                 Metric.Instance.ConfigureMetricsFlushInterval(new TimeSpan(1000));
                 Metric.Instance.SetAllMetrics(sut, Metric.MetricCollectionEnabled.Enable);
 
-                mapped = Metric.GetAggregationMetricValueCollection(vm.GetComputerSystemByName());
+                mapped = Metric.GetAggregationMetricValueCollection(vm.MsvmComputerSystem);
 
                 foreach (var pair in mapped)
                 {
@@ -167,7 +158,7 @@ namespace ViridianTester.Statistics
             Assert.IsTrue(File.Exists(vhdxName));
             Assert.IsTrue(VHD.IsVHDAttached(vm, 0, 0));
             Assert.AreEqual(mapped.Count, 3);
-            vm.RemoveVm();
+            vm.DestroySystem();
             File.Delete(vhdxName);
         }
 
@@ -179,8 +170,7 @@ namespace ViridianTester.Statistics
             var vhdxName = AppDomain.CurrentDomain.BaseDirectory + "\\test_get_base_metric_value_collection_of_vhdx_of_scsi_of_vm.vhdx";
 
             // Act
-            var vm = new VM(serverName, scopePath, vmName, virtualSystemSubType);
-            vm.CreateVm();
+            var vm = new VM(vmName);
 
             var scsi = new SCSI();
             scsi.AddToVm(vm);
@@ -240,7 +230,7 @@ namespace ViridianTester.Statistics
             Assert.IsTrue(File.Exists(vhdxName));
             Assert.IsTrue(VHD.IsVHDAttached(vm, 0, 0));
             Assert.AreEqual(mapped.Count, 3);
-            vm.RemoveVm();
+            vm.DestroySystem();
             File.Delete(vhdxName);
         }
     }

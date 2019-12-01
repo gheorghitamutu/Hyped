@@ -1,18 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using Viridian.Machine;
 using Viridian.Service.Msvm;
-using Viridian.Utilities;
 
 namespace ViridianTester.Machine
 {
     [TestClass]
     public class VMTest
     {
-        const string serverName = "."; // local
-        const string scopePath = @"\Root\Virtualization\V2"; // API v2 
-        const string virtualSystemSubType = "Microsoft:Hyper-V:SubType:2"; // Generation 2
-
         [TestMethod]
         public void ViridianMachineVM_CreateVm()
         {
@@ -20,14 +14,11 @@ namespace ViridianTester.Machine
             var vmName = "vm_test_create";
 
             // Act
-            var sut = new VM(serverName, scopePath, vmName, virtualSystemSubType);
-            sut.CreateVm();
-
-            var vm = VM.GetVirtualMachine(vmName, Utils.GetScope(serverName, scopePath));
+            var sut = new VM(vmName);
 
             // Assert
-            Assert.IsNotNull(vm);
-            sut.RemoveVm();
+            Assert.IsNotNull(sut.MsvmComputerSystem);
+            sut.DestroySystem();
         }
 
         [TestMethod]
@@ -37,12 +28,11 @@ namespace ViridianTester.Machine
             var vmName = "vm_test_remove";
 
             // Act
-            var sut = new VM(serverName, scopePath, vmName, virtualSystemSubType);
-            sut.CreateVm();
-            sut.RemoveVm();
+            var sut = new VM(vmName);
+            sut.DestroySystem();
 
             // Assert
-            Assert.ThrowsException<InvalidOperationException>(() => sut.GetComputerSystemByName());
+            Assert.AreEqual(sut.MsvmComputerSystem, null);
         }
 
         [TestMethod]
@@ -53,13 +43,12 @@ namespace ViridianTester.Machine
             var status = true;
 
             // Act
-            var sut = new VM(serverName, scopePath, vmName, virtualSystemSubType);
-            sut.CreateVm();
+            var sut = new VM(vmName);
             sut.SetIncrementalBackup(status);
 
             // Assert
             Assert.IsTrue(sut.GetIncrementalBackup());
-            sut.RemoveVm();
+            sut.DestroySystem();
         }
 
         [TestMethod]
@@ -69,13 +58,12 @@ namespace ViridianTester.Machine
             var vmName = "vm_test_create_snapshot";
 
             // Act
-            var sut = new VM(serverName, scopePath, vmName, virtualSystemSubType);
-            sut.CreateVm();
+            var sut = new VM(vmName);
             sut.CreateSnapshot(VM.SnapshotType.Full, false);
 
             // Assert
             Assert.AreEqual(sut.GetSnapshotList(VM.VirtualSystemTypeName.RealizedSnapshot).Count, 1);
-            sut.RemoveVm();
+            sut.DestroySystem();
         }
 
         [TestMethod]
@@ -85,8 +73,7 @@ namespace ViridianTester.Machine
             var vmName = "vm_test_apply_snapshot";
 
             // Act
-            var sut = new VM(serverName, scopePath, vmName, virtualSystemSubType);
-            sut.CreateVm();
+            var sut = new VM(vmName);
             sut.CreateSnapshot(VM.SnapshotType.Full, false);
             var lcs = sut.GetLastCreatedSnapshot();
             var snapshotNameCreated = (string)lcs["ElementName"];
@@ -94,7 +81,7 @@ namespace ViridianTester.Machine
 
             // Assert
             Assert.AreEqual(snapshotNameCreated, sut.GetLastAppliedSnapshot()["ElementName"]);
-            sut.RemoveVm();
+            sut.DestroySystem();
         }
 
         [TestMethod]
@@ -102,17 +89,15 @@ namespace ViridianTester.Machine
         {
             // Arrange
             var vmName = "vm_test_request_state_change";
-            var expectedVmState = VirtualSystemManagement.RequestedStateVSM.Running;
 
             // Act
-            var sut = new VM(serverName, scopePath, vmName, virtualSystemSubType);
-            sut.CreateVm();
-            sut.RequestStateChange(expectedVmState);
+            var sut = new VM(vmName);
+            sut.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Running);
 
             // Assert
-            Assert.AreEqual(sut.GetCurrentState(), expectedVmState);
+            Assert.AreEqual(sut.EnabledState, VM.EnabledStateVM.Enabled);
             sut.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Off);
-            sut.RemoveVm();
+            sut.DestroySystem();
         }
 
         [TestMethod]
@@ -122,14 +107,13 @@ namespace ViridianTester.Machine
             var vmName = "vm_test_set_boot_order_from_device_path";
 
             // Act
-            var sut = new VM(serverName, scopePath, vmName, virtualSystemSubType);
-            sut.CreateVm();
+            var sut = new VM(vmName);
             var bsoList = sut.GetBootSourceOrderedList();
             // SetBootOrderByDevicePath()
 
             // Assert -> TODO: change the assertion when you add Storage related implementation (boot order list will be empty until then)
             Assert.AreEqual(bsoList.Length, 0);
-            sut.RemoveVm();
+            sut.DestroySystem();
         }
 
         [TestMethod]
@@ -139,14 +123,13 @@ namespace ViridianTester.Machine
             var vmName = "vm_test_set_boot_order_by_index";
 
             // Act
-            var sut = new VM(serverName, scopePath, vmName, virtualSystemSubType);
-            sut.CreateVm();
+            var sut = new VM(vmName);
             var bsoList = sut.GetBootSourceOrderedList();
             // SetBootOrderByIndex()           
 
             // Assert -> TODO: change the assertion when you add Storage related implementation (boot order list will be empty until then)
             Assert.AreEqual(bsoList.Length, 0);
-            sut.RemoveVm();
+            sut.DestroySystem();
         }
 
         [TestMethod]
@@ -156,14 +139,13 @@ namespace ViridianTester.Machine
             var vmName = "vm_test_set_network_boot_preferred_protocol";
 
             // Act
-            var sut = new VM(serverName, scopePath, vmName, virtualSystemSubType);
-            sut.CreateVm();
+            var sut = new VM(vmName);
             sut.SetNetworkBootPreferredProtocol(VM.NetworkBootPreferredProtocol.IPv6);
             var nbpp = sut.GetNetworkBootPreferredProtocol();
 
             // Assert
             Assert.AreEqual(nbpp, VM.NetworkBootPreferredProtocol.IPv6);
-            sut.RemoveVm();
+            sut.DestroySystem();
         }
 
         [TestMethod]
@@ -173,13 +155,12 @@ namespace ViridianTester.Machine
             var vmName = "vm_test_set_pause_after_boot_failure";
 
             // Act
-            var sut = new VM(serverName, scopePath, vmName, virtualSystemSubType);
-            sut.CreateVm();            
+            var sut = new VM(vmName);
             sut.SetPauseAfterBootFailure(true);
 
             // Assert
             Assert.AreEqual(sut.GetPauseAfterBootFailure(), true);
-            sut.RemoveVm();
+            sut.DestroySystem();
         }
 
         [TestMethod]
@@ -189,13 +170,12 @@ namespace ViridianTester.Machine
             var vmName = "vm_test_set_secure_boot";
 
             // Act
-            var sut = new VM(serverName, scopePath, vmName, virtualSystemSubType);
-            sut.CreateVm();
+            var sut = new VM(vmName);
             sut.SetSecureBoot(false);
 
             // Assert
             Assert.AreEqual(sut.GetSecureBoot(), false);
-            sut.RemoveVm();
+            sut.DestroySystem();
         }
 
         [TestMethod]
@@ -205,8 +185,7 @@ namespace ViridianTester.Machine
             var vmName = "vm_test_get_summary_info";
 
             // Act
-            var sut = new VM(serverName, scopePath, vmName, virtualSystemSubType);
-            sut.CreateVm();
+            var sut = new VM(vmName);
             sut.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Running);
             var info = sut.GetSummaryInformation();
 
@@ -215,7 +194,7 @@ namespace ViridianTester.Machine
             Assert.AreEqual(vmName, info[0]["ElementName"]);
             Assert.AreEqual(1024UL, info[0]["MemoryUsage"]);
             sut.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Off);
-            sut.RemoveVm();
+            sut.DestroySystem();
         }
 
         [TestMethod]
@@ -225,13 +204,12 @@ namespace ViridianTester.Machine
             var vmName = "vm_test_get_memory_setting_data";
 
             // Act
-            var sut = new VM(serverName, scopePath, vmName, virtualSystemSubType);
-            sut.CreateVm();
+            var sut = new VM(vmName);
             var memory = sut.GetMemorySettingData();
 
             // Assert
             Assert.AreEqual("Memory", memory["ElementName"]);
-            sut.RemoveVm();
+            sut.DestroySystem();
         }
     }
 }

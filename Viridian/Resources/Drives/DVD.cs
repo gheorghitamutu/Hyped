@@ -11,7 +11,7 @@ namespace Viridian.Resources.Drives
     {
         public void AddToScsi(VM vm, int controllerSlot, int driveSlot)
         {
-            using (var vms = VM.GetVirtualMachineSettings(vm?.VmName, vm?.Scope))
+            using (var vms = VM.GetVirtualMachineSettings(vm?.VmName))
             using (var pool = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType))
             using (var rasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(pool))
             using (var parent = vm.GetScsiController(controllerSlot))

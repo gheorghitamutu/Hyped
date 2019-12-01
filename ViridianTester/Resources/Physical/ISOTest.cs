@@ -12,10 +12,6 @@ namespace ViridianTester.Resources.Physical
     [TestClass]
     public class ISOTest
     {
-        const string serverName = "."; // local
-        const string scopePath = @"\Root\Virtualization\V2"; // API v2 
-        const string virtualSystemSubType = "Microsoft:Hyper-V:SubType:2"; // Generation 2
-
         [TestMethod]
         public void ViridianDVD_AddToVmSCSIDVD()
         {
@@ -24,8 +20,7 @@ namespace ViridianTester.Resources.Physical
             var isoName = AppDomain.CurrentDomain.BaseDirectory + "\\dummyPath.iso";
 
             // Act
-            var vm = new VM(serverName, scopePath, vmName, virtualSystemSubType);
-            vm.CreateVm();
+            var vm = new VM(vmName);
 
             var scsi = new SCSI();
             scsi.AddToVm(vm);
@@ -46,7 +41,7 @@ namespace ViridianTester.Resources.Physical
                 Assert.IsTrue(File.Exists(isoName));
                 Assert.AreEqual(1, dvdDrives.Count);
                 Assert.IsTrue(dvd.IsISOAttached(vm, 0, 0));
-                vm.RemoveVm();
+                vm.DestroySystem();
                 File.Delete(isoName);
             }
         }

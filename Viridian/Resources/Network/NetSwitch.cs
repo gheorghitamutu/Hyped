@@ -79,7 +79,7 @@ namespace Viridian.Resources.Network
 
         public static void CreateInternalSwitch(ManagementScope scope, string switchName, string switchNotes)
         {
-            using (var host = VM.GetVirtualMachine(Environment.MachineName, scope))
+            using (var host = VM.GetVirtualMachine(scope))
             using (var depasd = GetDefaultEthernetPortAllocationSettingData())
             {
                 depasd["ElementName"] = switchName + "_Internal";
@@ -108,7 +108,7 @@ namespace Viridian.Resources.Network
         public static void CreateExternalSwitch(ManagementScope scope, string externalAdapterName, string switchName, string switchNotes)
         {
             using (var eep = FindExternalAdapter(scope, externalAdapterName))
-            using (var host = VM.GetVirtualMachine(Environment.MachineName, scope))
+            using (var host = VM.GetVirtualMachine(scope))
             using (var depasdInternal = GetDefaultEthernetPortAllocationSettingData())
             using (var depasdExternal = GetDefaultEthernetPortAllocationSettingData())
             {
@@ -271,13 +271,12 @@ namespace Viridian.Resources.Network
             }
         }
 
-        public static void AddCustomFeatureSettings(ManagementScope scope, string vmName, PortFeatureType featureType)
+        public static void AddCustomFeatureSettings(VM virtualMachine, PortFeatureType featureType)
         {
             string featureId = GetPortFeatureId(featureType);
 
-            using (var vm = VM.GetVirtualMachine(vmName, scope))
-            using (var connections = FindConnections(vm))
-            using (var defaultFeatureSetting = GetDefaultFeatureSetting(featureId, scope))
+            using (var connections = FindConnections(virtualMachine?.MsvmComputerSystem))
+            using (var defaultFeatureSetting = GetDefaultFeatureSetting(featureId, virtualMachine.Scope))
             {
                 switch (featureType)
                 {
@@ -306,13 +305,12 @@ namespace Viridian.Resources.Network
             }
         }
 
-        public static void ModifyCustomFeatureSettings(ManagementScope scope, string vmName, PortFeatureType featureType)
+        public static void ModifyCustomFeatureSettings(VM vm)
         {
             // featureSetting["AllowMacSpoofing"] | featureSetting["IOVQueuePairsRequested"]
             // Msvm_EthernetSwitchPortSecuritySettingData | Msvm_EthernetSwitchPortOffloadSettingData
 
-            using (var vm = VM.GetVirtualMachine(vmName, scope))
-            using (var connections = FindConnections(vm))
+            using (var connections = FindConnections(vm?.MsvmComputerSystem))
             {
                 connections
                     .Cast<ManagementObject>()
@@ -334,10 +332,9 @@ namespace Viridian.Resources.Network
             }
         }
 
-        public static void RemoveFeatureSettings(ManagementScope scope, string virtualMachineName, PortFeatureType featureType)
+        public static void RemoveFeatureSettings(VM vm, PortFeatureType featureType)
         {
-            using (var vm = VM.GetVirtualMachine(virtualMachineName, scope))
-            using (var connections = FindConnections(vm))
+            using (var connections = FindConnections(vm?.MsvmComputerSystem))
             {
                 string featureSettingClass;
 
@@ -455,13 +452,12 @@ namespace Viridian.Resources.Network
             }
         }
 
-        public static void SetRequiredFeature(ManagementScope scope, string vmName, string featureName, bool required)
+        public static void SetRequiredFeature(VM vm, string featureName, bool required)
         {
             var connectionsToModify = new List<string>();
 
-            using (var feature = FindFeatureByName(featureName, scope))
-            using (var vm = VM.GetVirtualMachine(vmName, scope))
-            using (var connectionCollection = FindConnections(vm))
+            using (var feature = FindFeatureByName(featureName, vm?.Scope))
+            using (var connectionCollection = FindConnections(vm.MsvmComputerSystem))
             {
                 foreach (ManagementObject connection in connectionCollection)
                     using (connection)
@@ -549,10 +545,9 @@ namespace Viridian.Resources.Network
                 VirtualEthernetSwitchManagement.Instance.RemoveFeatureSettings(new string[] { vesbsd.Path.Path });
         }
 
-        public static void ModifyClusterMonitored(ManagementScope scope, string virtualMachineName, bool onOff)
+        public static void ModifyClusterMonitored(VM vm, bool onOff)
         {
-            using (var vm = VM.GetVirtualMachine(virtualMachineName, scope))
-            using (var virtualMachineSettings = VM.GetVirtualMachineSettings(vm))
+            using (var virtualMachineSettings = VM.GetVirtualMachineSettings(vm?.MsvmComputerSystem))
             using (var syntheticPortSettings = virtualMachineSettings.GetRelated("Msvm_SyntheticEthernetPortSettingData", "Msvm_VirtualSystemSettingDataComponent", null, null, null, null, false, null))
                 foreach (ManagementObject syntheticEthernetPortSetting in syntheticPortSettings)
                 {
