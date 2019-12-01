@@ -1,0 +1,83 @@
+﻿@page "/machine"
+@inject HttpClient Http
+    <div class="container-fluid border border-dark">
+        <div class="row">
+            <div class="col-md-1 border border-dark ">
+                <span class="oi oi-calculator" aria-hidden="true"></span>New
+            </div>
+            <div class="col-md-1 border border-dark">
+                <span class="oi oi-calculator" aria-hidden="true"></span>Edit
+            </div>
+            <div class="col-md-1 border border-dark">
+                <span class="oi oi-calculator" aria-hidden="true"></span>Delete
+            </div>
+            <div class="col-md-1 border border-dark">
+                <span class="oi oi-calculator" aria-hidden="true"></span>Start
+            </div>
+            <div class="col-md-8 border border-dark">
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 border border-dark">
+
+            </div>
+            <div class="col-xs-12 col-md-8 border border-dark">
+
+            </div>
+        </div>
+    </div>
+
+
+@code {
+    private MachineDetails _editMachine = new MachineDetails();
+
+    private MachineDetails[] machines;
+
+    protected override async Task OnInitializedAsync() => await GetTodoItems();
+
+    private async Task GetTodoItems()
+    {
+        machines = await Http.GetJsonAsync<MachineDetails[]>("sample-data/machine.json");
+    }
+
+    private void EditItem(int id)
+    {
+        var editItem = machines.Single(i => i.MachineId == id);
+        _editMachine = new MachineDetails {
+            OS = editItem.OS,
+            Architecture = editItem.Architecture,
+            ThreadCount = editItem.ThreadCount,
+            RAM = editItem.RAM,
+            IsRunning = editItem.IsRunning,
+            ImageLocation = editItem.ImageLocation,
+            LastRun = editItem.LastRun
+        };
+    }
+
+    private async Task SaveItem() {
+        EditItem(1);
+        // PUT -> to be done from API?
+        await Http.PutJsonAsync<MachineDetails>("/sample-data/account.json", _editMachine);
+        await GetTodoItems();
+    }
+
+    public class MachineDetails
+    {
+        public int MachineId { get; set; }
+
+        public string OS { get; set; }
+
+        public string Architecture { get; set; }
+
+        public string ThreadCount { get; set; }
+
+        public string RAM { get; set; }
+
+        public string IsRunning { get; set; }
+
+        public string ImageLocation { get; set; }
+
+        public string LastRun { get; set; }
+    }
+}
