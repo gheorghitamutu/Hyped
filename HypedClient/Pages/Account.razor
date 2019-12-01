@@ -1,49 +1,80 @@
 ﻿@page "/account"
+@inject HttpClient Http
 
 
 <h1>My account details</h1>
-
-
+<h3> Personal details</h3>
 <div class="container">
-
-    <br /><br /><h3> Personal details</h3><br />
-
-    <label for="email"><b>Email : </b></label>
-    <input type="text" placeholder="email@email.com" readonly<br /><br />
-
-    <label for="text"><b>First name : </b></label>
-    <input type="text" placeholder="John"readonly <br /><br />
-
-    <label for="text"><b>Last name : </b></label>
-    <input type="text" placeholder="Doe" readonly<br /><br />
-
-    <label for="psw"><b>Password : </b></label>
-    <input type="password" placeholder="psw" readonly><br /><br />
-
-
-    <label for="txt"><b>Work Place : </b></label>
-    <input type="text" placeholder="Work Place" readonly><br /><br />
-
-    <label for="txt"><b>Position title : </b></label>
-    <input type="text" placeholder="Position title" readonly><br /><br />
-
-
-    <label for="no"><b>Contact no. : </b></label>
-    <input type="number" placeholder="+040754336558" readonly><br />
-    <hr>
-
+    <table class="table">
+        <tbody>
+        @if (accounts == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            @foreach (var account in accounts)
+            {
+                <tr>
+                    <td><label for="email"><b>Email : </b></label></td>
+                    <td><input id="user_email" type="text" placeholder=@account.Email></td>
+                </tr>
+                <tr>
+                    <td><label for="text"><b>First name : </b></label></td>
+                    <td><input type="text" placeholder=@account.FirstName></td>
+                </tr>
+                <tr>
+                    <td><label for="text"><b>Last name : </b></label></td>
+                    <td><input type="text" placeholder=@account.LastName></td>
+                </tr>
+                <tr>
+                    <td><label for="psw"><b>Password : </b></label></td>
+                    <td><input type="password" placeholder=@account.Password></td>
+                </tr>
+                <tr>
+                    <td><label for="txt"><b>Work Place : </b></label></td>
+                    <td><input type="text" placeholder=@account.Workplace></td>
+                </tr>
+                <tr>
+                    <td> <label for="txt"><b>Position title : </b></label></td>
+                    <td><input type="text" placeholder=@account.PositionTitle></td>
+                </tr>
+                <tr>
+                    <td><label for="no"><b>Contact no. : </b></label></td>
+                    <td><input type="number" placeholder=@account.ContactNumber></td>
+                </tr>
+            }
+        }
+        </tbody>
+    </table>
     <div class="container signin">
         <p>Edit account details? <a href="#">Modify</a>.</p><br />
     </div>
 </div>
 
 
+@code {
+    private AccountDetails[] accounts;
 
-    @code {
-        private int currentCount = 0;
-
-        private void IncrementCount()
-        {
-            currentCount++;
-        }
+    protected override async Task OnInitializedAsync()
+    {
+        accounts = await Http.GetJsonAsync<AccountDetails[]>("sample-data/account.json");
     }
+
+    public class AccountDetails
+    {
+        public string Email { get; set; }
+
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
+
+        public string Password { get; set; }
+
+        public string Workplace { get; set; }
+
+        public string PositionTitle { get; set; }
+
+        public string ContactNumber { get; set; }
+    }
+}
