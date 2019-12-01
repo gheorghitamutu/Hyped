@@ -29,7 +29,7 @@
                 </tr>
                 <tr>
                     <td><label for="psw"><b>Password : </b></label></td>
-                    <td><input type="password" placeholder=@account.Password @bind="_editAccount.Password"></td>
+                    <td><input type="text" placeholder=@account.Password @bind="_editAccount.Password"></td>
                 </tr>
                 <tr>
                     <td><label for="txt"><b>Work Place : </b></label></td>
@@ -41,7 +41,7 @@
                 </tr>
                 <tr>
                     <td><label for="no"><b>Contact no. : </b></label></td>
-                    <td><input type="number" placeholder=@account.ContactNumber @bind="_editAccount.ContactNumber"></td>
+                    <td><input type="text" placeholder=@account.ContactNumber @bind="_editAccount.ContactNumber"></td>
                 </tr>
             }
         }
@@ -65,28 +65,32 @@
         accounts = await Http.GetJsonAsync<AccountDetails[]>("sample-data/account.json");
     }
 
-    private void EditItem(long id)
+    private void EditItem(int id)
     {
-        var editItem = accounts.Single(i => i.Email == _editAccount.Email);
+        var editItem = accounts.Single(i => i.AccountId == id);
         _editAccount = new AccountDetails {
-            Email = _editAccount.Email,
-            FirstName = _editAccount.FirstName,
-            LastName = _editAccount.LastName,
-            Password = _editAccount.Password,
-            Workplace = _editAccount.Workplace,
-            PositionTitle = _editAccount.PositionTitle,
-            ContactNumber = _editAccount.ContactNumber
+            AccountId = editItem.AccountId,
+            Email = editItem.Email,
+            FirstName = editItem.FirstName,
+            LastName = editItem.LastName,
+            Password = editItem.Password,
+            Workplace = editItem.Workplace,
+            PositionTitle = editItem.PositionTitle,
+            ContactNumber = editItem.ContactNumber
         };
-        
-
     }
 
     private async Task SaveItem() {
-        await Http.PutJsonAsync("sample-data/account.json", _editAccount);
+        EditItem(1);
+        // PUT -> to be done from API?
+        await Http.PutJsonAsync<AccountDetails>("/sample-data/account.json", _editAccount);
         await GetTodoItems();
     }
+    
     public class AccountDetails
     {
+        public int AccountId { get; set; }
+
         public string Email { get; set; }
 
         public string FirstName { get; set; }
