@@ -1,5 +1,5 @@
-﻿@page "/login"
-
+@page "/login"
+@inject HttpClient Http
 
 <h1>Sign in</h1>
 
@@ -10,27 +10,72 @@
     <hr>
 
     <label for="email"><b>Email</b></label>
-    <input type="text" placeholder="Enter Email" name="email" required><br /><br />
+    <input type="text" placeholder="Enter Email" @bind="email" name="email" required><br /><br />
 
 
     <label for="psw"><b>Password</b></label>
-    <input type="password" placeholder="Enter Password" name="psw" required><br /><br />
+    <input type="password" placeholder="Enter Password" @bind="psw" name="@psw" required><br /><br />
 
-  
+    <p><button @onclick="Sign_in">Sign in</button></p>
+
+
 
     <div class="container signin">
         <p> Create an account? <a href="#">Register</a>.</p><br />
     </div>
 </div>
 
-    <button class="btn btn-primary" @onclick="IncrementCount">Sign in</button>
 
 
-    @code {
-        private int currentCount = 0;
+@code {
 
-        private void IncrementCount()
+    static string email = @email;
+    static string psw = @psw;
+
+
+    private AccountDetails _editAccount = new AccountDetails();
+
+    private AccountDetails[] accounts;
+    private AccountDetails the_account;
+
+    protected override async Task OnInitializedAsync() => await GetItems();
+
+    private async Task GetItems()
+    {
+        accounts = await Http.GetJsonAsync<AccountDetails[]>("sample-data/account.json");
+    }
+
+    private void Sign_in()
+    {
+        Boolean client_found = false;
+        foreach (AccountDetails account in accounts)
         {
-            currentCount++;
+            if (account.Email == email && account.Password == psw)
+            {
+                client_found = true;
+                the_account = account;
+            }
+
         }
     }
+
+    public class AccountDetails
+    {
+        public int AccountId { get; set; }
+
+        public string Email { get; set; }
+
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
+
+        public string Password { get; set; }
+
+        public string Workplace { get; set; }
+
+        public string PositionTitle { get; set; }
+
+        public string ContactNumber { get; set; }
+    }
+
+}
