@@ -2,13 +2,11 @@
 using System;
 using System.IO;
 using System.Management;
-using Viridian.Machine;
+using Viridian.Msvm.Storage;
+using Viridian.Msvm.VirtualSystem;
 using Viridian.Resources.Controllers;
 using Viridian.Resources.Drives;
-using Viridian.Resources.MSFT;
-using Viridian.Resources.Msvm;
-using Viridian.Service.Msvm;
-using Viridian.Storage.Virtual.Hard;
+using Viridian.WindowsStorageManagement.MSFT;
 
 namespace ViridianTester.Resources.Physical
 {
@@ -32,10 +30,10 @@ namespace ViridianTester.Resources.Physical
             disk.AddToScsi(vm, 0, 0);
 
             // operations on the host
-            using (var vhdsd = ImageManagement.CreateVirtualHardDiskSettingData(ImageManagement.VirtualHardDiskType.Dynamic, ImageManagement.VirtualDiskFormat.VHDX, vhdxName, null, 1024 * 1024 * 1024))
-                ImageManagement.Instance.CreateVirtualHardDisk(vhdsd.GetText(TextFormat.WmiDtd20));
+            using (var vhdsd = ImageManagementService.CreateVirtualHardDiskSettingData(ImageManagementService.VirtualHardDiskType.Dynamic, ImageManagementService.VirtualDiskFormat.VHDX, vhdxName, null, 1024 * 1024 * 1024))
+                ImageManagementService.Instance.CreateVirtualHardDisk(vhdsd.GetText(TextFormat.WmiDtd20));
 
-            ImageManagement.Instance.AttachVirtualHardDisk(vhdxName, false, false);
+            ImageManagementService.Instance.AttachVirtualHardDisk(vhdxName, false, false);
 
             var msftDisk = new Disk(vhdxName);
             msftDisk.Initialize(Disk.DiskPartitionStyle.GPT);
@@ -45,7 +43,7 @@ namespace ViridianTester.Resources.Physical
 
             volume.Format(Volume.VolumeFileSystem.NTFS.Value, "Test", 4096, true, true, true, true, true, false, false);
 
-            var msi = new MountedStorageImage(ImageManagement.Instance.FindMountedStorageImageInstance(vhdxName, ImageManagement.CriterionType.Path));
+            var msi = new MountedStorageImage(ImageManagementService.Instance.FindMountedStorageImageInstance(vhdxName, ImageManagementService.CriterionType.Path));
             msi.DetachVirtualHardDisk();
             // end operations on the host
 

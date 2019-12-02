@@ -3,11 +3,11 @@ using Viridian.Exceptions;
 using Viridian.Job;
 using Viridian.Scopes;
 
-namespace Viridian.Service.Msvm
+namespace Viridian.Msvm.Networking
 {
-    public sealed class VirtualEthernetSwitchManagement : BaseService
+    public sealed class VirtualEthernetSwitchManagementService : BaseService
     {
-        private static VirtualEthernetSwitchManagement instance = null;
+        private static VirtualEthernetSwitchManagementService instance = null;
 
         public enum RequestedStateVESM : uint
         {
@@ -22,14 +22,14 @@ namespace Viridian.Service.Msvm
             Reset = 11
         };
 
-        private VirtualEthernetSwitchManagement() : base("Msvm_VirtualEthernetSwitchManagementService") { }
+        private VirtualEthernetSwitchManagementService() : base("Msvm_VirtualEthernetSwitchManagementService") { }
 
-        public static VirtualEthernetSwitchManagement Instance
+        public static VirtualEthernetSwitchManagementService Instance
         {
             get
             {
                 if (instance == null)
-                    instance = new VirtualEthernetSwitchManagement();
+                    instance = new VirtualEthernetSwitchManagementService();
 
                 return instance;
             }

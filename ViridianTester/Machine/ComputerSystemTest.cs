@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Viridian.Machine;
-using Viridian.Service.Msvm;
+using Viridian.Msvm.VirtualSystem;
+using Viridian.Msvm.VirtualSystemManagement;
 
 namespace ViridianTester.Machine
 {
@@ -92,11 +92,11 @@ namespace ViridianTester.Machine
 
             // Act
             var sut = new ComputerSystem(vmName);
-            sut.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Running);
+            sut.RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Running);
 
             // Assert
             Assert.AreEqual(sut.EnabledState, ComputerSystem.EnabledStateVM.Enabled);
-            sut.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Off);
+            sut.RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Off);
             sut.DestroySystem();
         }
 
@@ -186,14 +186,14 @@ namespace ViridianTester.Machine
 
             // Act
             var sut = new ComputerSystem(vmName);
-            sut.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Running);
+            sut.RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Running);
             var info = sut.GetSummaryInformation();
 
             // Assert
             Assert.AreEqual(1, info.Length);
             Assert.AreEqual(vmName, info[0]["ElementName"]);
             Assert.AreEqual(1024UL, info[0]["MemoryUsage"]);
-            sut.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Off);
+            sut.RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Off);
             sut.DestroySystem();
         }
 

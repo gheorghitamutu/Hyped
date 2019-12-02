@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Viridian.Machine;
+using Viridian.Msvm.VirtualSystem;
+using Viridian.Msvm.VirtualSystemManagement;
 using Viridian.Resources.Network;
-using Viridian.Service.Msvm;
 
 namespace ViridianTester.Resources.Network
 {
@@ -16,14 +16,14 @@ namespace ViridianTester.Resources.Network
 
             // Act
             var vm = new ComputerSystem(vmName);
-            vm.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Running);
+            vm.RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Running);
 
             SyntheticEthernetAdapter.AddSyntheticAdapter(vm, "MyNetworkAdapter");
 
             // Assert
             Assert.AreEqual(vm.EnabledState, ComputerSystem.EnabledStateVM.Enabled);
             Assert.AreEqual(1, vm.GetSyntheticAdapterCollection().Count);
-            vm.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Off);
+            vm.RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Off);
             vm.DestroySystem();
         }
     }

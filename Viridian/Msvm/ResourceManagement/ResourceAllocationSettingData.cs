@@ -1,9 +1,8 @@
 ﻿using System.Linq;
 using System.Management;
 using Viridian.Scopes;
-using static Viridian.Resources.Msvm.ResourcePoolSettingData;
 
-namespace Viridian.Resources.Msvm
+namespace Viridian.Msvm.ResourceManagement
 {
     public sealed class ResourceAllocationSettingData
     {
@@ -15,7 +14,7 @@ namespace Viridian.Resources.Msvm
         string Caption => Msvm_ResourceAllocationSettingData[nameof(Caption)].ToString();
         string Description => Msvm_ResourceAllocationSettingData[nameof(Description)].ToString();
         string ElementName => Msvm_ResourceAllocationSettingData[nameof(ElementName)].ToString();
-        PoolResourceType ResourceType => (PoolResourceType)(ushort)Msvm_ResourceAllocationSettingData[nameof(ResourceType)];
+        ResourcePoolSettingData.PoolResourceType ResourceType => (ResourcePoolSettingData.PoolResourceType)(ushort)Msvm_ResourceAllocationSettingData[nameof(ResourceType)];
         string OtherResourceType => Msvm_ResourceAllocationSettingData[nameof(OtherResourceType)].ToString();
         string ResourceSubType => Msvm_ResourceAllocationSettingData[nameof(ResourceSubType)].ToString();
         string PoolID => Msvm_ResourceAllocationSettingData[nameof(PoolID)].ToString();
@@ -31,7 +30,7 @@ namespace Viridian.Resources.Msvm
         string Parent => Msvm_ResourceAllocationSettingData[nameof(Parent)].ToString();
         string[] Connection => Msvm_ResourceAllocationSettingData[nameof(Connection)] as string[];
         string Address => Msvm_ResourceAllocationSettingData[nameof(Address)].ToString();
-        PoolMappingBehavior MappingBehavior => (PoolMappingBehavior)(ushort)Msvm_ResourceAllocationSettingData[nameof(MappingBehavior)];
+        ResourcePoolSettingData.PoolMappingBehavior MappingBehavior => (ResourcePoolSettingData.PoolMappingBehavior)(ushort)Msvm_ResourceAllocationSettingData[nameof(MappingBehavior)];
         string AddressOnParent => Msvm_ResourceAllocationSettingData[nameof(AddressOnParent)].ToString();
         string VirtualQuantityUnits => Msvm_ResourceAllocationSettingData[nameof(VirtualQuantityUnits)].ToString();
         string[] VirtualSystemIdentifiers => Msvm_ResourceAllocationSettingData[nameof(VirtualSystemIdentifiers)] as string[];

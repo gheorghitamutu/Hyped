@@ -3,7 +3,7 @@ using System.Linq;
 using System.Management;
 using Viridian.Scopes;
 
-namespace Viridian.Service.Msvm
+namespace Viridian.Msvm
 {
     public class BaseService
     {

@@ -1,10 +1,9 @@
 ﻿using System.Linq;
 using System.Management;
 using Viridian.Exceptions;
-using Viridian.Resources.MSFT;
 using Viridian.Scopes;
 
-namespace Viridian.Storage.Virtual.Hard
+namespace Viridian.WindowsStorageManagement.MSFT
 {
     public sealed class Disk
     {

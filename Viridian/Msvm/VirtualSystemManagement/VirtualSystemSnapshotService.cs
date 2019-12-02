@@ -4,11 +4,11 @@ using Viridian.Exceptions;
 using Viridian.Job;
 using Viridian.Scopes;
 
-namespace Viridian.Service.Msvm
+namespace Viridian.Msvm.VirtualSystemManagement
 {
-    public sealed class VirtualSystemSnapshot : BaseService
+    public sealed class VirtualSystemSnapshotService : BaseService
     {
-        private static VirtualSystemSnapshot instance = null;
+        private static VirtualSystemSnapshotService instance = null;
 
         public enum State : ushort
         {
@@ -23,14 +23,14 @@ namespace Viridian.Service.Msvm
             Reset = 11
         }
 
-        private VirtualSystemSnapshot() : base("Msvm_VirtualSystemSnapshotService") { }
+        private VirtualSystemSnapshotService() : base("Msvm_VirtualSystemSnapshotService") { }
 
-        public static VirtualSystemSnapshot Instance
+        public static VirtualSystemSnapshotService Instance
         {
             get
             {
                 if (instance == null)                                    
-                    instance = new VirtualSystemSnapshot();
+                    instance = new VirtualSystemSnapshotService();
 
                 return instance;
             }
@@ -127,7 +127,7 @@ namespace Viridian.Service.Msvm
             }
         }
 
-        ~VirtualSystemSnapshot()
+        ~VirtualSystemSnapshotService()
         {
             if (Msvm_VirtualSystemSnapshotService != null)
                 Msvm_VirtualSystemSnapshotService.Dispose();

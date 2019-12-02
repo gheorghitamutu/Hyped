@@ -51,7 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Job\Validator.cs" />
-    <Compile Include="Machine\ComputerSystem.cs" />
+    <Compile Include="Msvm\VirtualSystem\ComputerSystem.cs" />
     <Compile Include="Properties\Environment.Designer.cs">
       <DependentUpon>Environment.settings</DependentUpon>
       <AutoGen>True</AutoGen>
@@ -63,34 +63,34 @@
       <DependentUpon>VirtualSystemSettingData.settings</DependentUpon>
     </Compile>
     <Compile Include="Resources\Drives\SyntheticDisk.cs" />
-    <Compile Include="Resources\MSFT\Partition.cs" />
-    <Compile Include="Resources\MSFT\Volume.cs" />
-    <Compile Include="Resources\Msvm\MountedStorageImage.cs" />
-    <Compile Include="Resources\Msvm\ResourcePool.cs" />
+    <Compile Include="WindowsStorageManagement\MSFT\Partition.cs" />
+    <Compile Include="WindowsStorageManagement\MSFT\Volume.cs" />
+    <Compile Include="Msvm\Storage\MountedStorageImage.cs" />
+    <Compile Include="Msvm\ResourceManagement\ResourcePool.cs" />
+    <Compile Include="Msvm\VirtualSystem\VirtualSystemSettingData.cs" />
     <Compile Include="Resources\Physical\VHD.cs" />
     <Compile Include="Resources\Network\NetSwitch.cs" />
     <Compile Include="Resources\Network\SyntheticEthernetAdapter.cs" />
-    <Compile Include="Service\Msvm\BaseService.cs" />
-    <Compile Include="Service\Msvm\ImageManagement.cs" />
-    <Compile Include="Service\Msvm\VirtualEthernetSwitchManagement.cs" />
-    <Compile Include="Service\Msvm\VirtualSystemManagement.cs" />
-    <Compile Include="Service\Msvm\VirtualSystemSnapshot.cs" />
-    <Compile Include="Service\Msvm\Metric.cs" />
+    <Compile Include="Msvm\BaseService.cs" />
+    <Compile Include="Msvm\Storage\ImageManagementService.cs" />
+    <Compile Include="Msvm\Networking\VirtualEthernetSwitchManagementService.cs" />
+    <Compile Include="Msvm\VirtualSystemManagement\VirtualSystemManagementService.cs" />
+    <Compile Include="Msvm\VirtualSystemManagement\VirtualSystemSnapshotService.cs" />
+    <Compile Include="Msvm\Metrics\MetricService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Exceptions\ViridianException.cs" />
     <Compile Include="Resources\Drives\DVD.cs" />
-    <Compile Include="Resources\Msvm\ResourceAllocationSettingData.cs" />
-    <Compile Include="Service\Msvm\ResourcePoolConfiguration.cs" />
-    <Compile Include="Resources\Msvm\ResourcePoolSettingData.cs" />
+    <Compile Include="Msvm\ResourceManagement\ResourceAllocationSettingData.cs" />
+    <Compile Include="Msvm\ResourceManagement\ResourcePoolConfigurationService.cs" />
+    <Compile Include="Msvm\ResourceManagement\ResourcePoolSettingData.cs" />
     <Compile Include="Resources\Controllers\SCSI.cs" />
     <Compile Include="Resources\Physical\ISO.cs" />
-    <Compile Include="Resources\MSFT\Disk.cs" />
+    <Compile Include="WindowsStorageManagement\MSFT\Disk.cs" />
     <Compile Include="Scope\Scope.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
     <None Include="Properties\VirtualSystemSettingData.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

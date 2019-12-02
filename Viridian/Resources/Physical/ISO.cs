@@ -1,9 +1,9 @@
 ﻿using System.Management;
 using Viridian.Exceptions;
-using Viridian.Machine;
+using Viridian.Msvm.ResourceManagement;
+using Viridian.Msvm.VirtualSystem;
+using Viridian.Msvm.VirtualSystemManagement;
 using Viridian.Resources.Controllers;
-using Viridian.Resources.Msvm;
-using Viridian.Service.Msvm;
 
 namespace Viridian.Resources.Physical
 {
@@ -20,8 +20,7 @@ namespace Viridian.Resources.Physical
                 sasd["Parent"] = parent ?? throw new ViridianException("Failure retrieving Virtual CD/DVD Disk class!");
                 sasd["HostResource"] = new[] { hostResource };
 
-                using (var vms = ComputerSystem.GetVirtualMachineSettings(vm.ElementName))
-                    VirtualSystemManagement.Instance.AddResourceSettings(vms, new[] { sasd.GetText(TextFormat.WmiDtd20) });
+                VirtualSystemManagementService.Instance.AddResourceSettings(vm.VirtualSystemSettingData.MsvmVirtualSystemSettingData, new[] { sasd.GetText(TextFormat.WmiDtd20) });
             }
         }
     }

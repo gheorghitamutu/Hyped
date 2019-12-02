@@ -4,11 +4,11 @@ using Viridian.Exceptions;
 using Viridian.Job;
 using Viridian.Scopes;
 
-namespace Viridian.Service.Msvm
+namespace Viridian.Msvm.Storage
 {
-    public sealed class ImageManagement : BaseService
+    public sealed class ImageManagementService : BaseService
     {
-        private static ImageManagement instance = null;
+        private static ImageManagementService instance = null;
 
         public enum VirtualHardDiskType : ushort
         {
@@ -52,14 +52,14 @@ namespace Viridian.Service.Msvm
             Reset = 11
         }
 
-        private ImageManagement() : base("Msvm_ImageManagementService") {}
+        private ImageManagementService() : base("Msvm_ImageManagementService") {}
 
-        public static ImageManagement Instance
+        public static ImageManagementService Instance
         {
             get
             {
                 if (instance == null)
-                    instance = new ImageManagement();
+                    instance = new ImageManagementService();
 
                 return instance;
             }

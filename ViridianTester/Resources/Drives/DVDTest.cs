@@ -1,8 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Viridian.Machine;
+using Viridian.Msvm.ResourceManagement;
+using Viridian.Msvm.VirtualSystem;
 using Viridian.Resources.Controllers;
 using Viridian.Resources.Drives;
-using Viridian.Resources.Msvm;
 
 namespace ViridianTester.Resources.Drives
 {

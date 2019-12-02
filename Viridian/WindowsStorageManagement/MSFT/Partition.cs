@@ -3,7 +3,7 @@ using System.Management;
 using Viridian.Exceptions;
 using Viridian.Scopes;
 
-namespace Viridian.Resources.MSFT
+namespace Viridian.WindowsStorageManagement.MSFT
 {
     public sealed class Partition
     {

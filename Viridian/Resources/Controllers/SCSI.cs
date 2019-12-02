@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using System.Management;
-using Viridian.Machine;
-using Viridian.Resources.Msvm;
-using Viridian.Service.Msvm;
+using Viridian.Msvm.ResourceManagement;
+using Viridian.Msvm.VirtualSystem;
+using Viridian.Msvm.VirtualSystemManagement;
 
 namespace Viridian.Resources.Controllers
 {
@@ -10,13 +10,12 @@ namespace Viridian.Resources.Controllers
     {
         public void AddToVm(ComputerSystem vm)
         {
-            using(var vms = ComputerSystem.GetVirtualMachineSettings(vm?.ElementName))
             using (var pool = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType))
             using (var rasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(pool))
             {
                 rasd["Parent"] = null;
 
-                VirtualSystemManagement.Instance.AddResourceSettings(vms, new[] { rasd.GetText(TextFormat.WmiDtd20) });
+                VirtualSystemManagementService.Instance.AddResourceSettings(vm?.VirtualSystemSettingData.MsvmVirtualSystemSettingData, new[] { rasd.GetText(TextFormat.WmiDtd20) });
             }
         }
 

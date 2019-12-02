@@ -3,7 +3,7 @@ using System.Linq;
 using System.Management;
 using Viridian.Scopes;
 
-namespace Viridian.Resources.Msvm
+namespace Viridian.Msvm.ResourceManagement
 {
     public sealed class ResourcePool
     {

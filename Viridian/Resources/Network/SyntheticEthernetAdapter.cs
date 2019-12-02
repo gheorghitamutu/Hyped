@@ -2,29 +2,28 @@
 using System.Linq;
 using System.Management;
 using Viridian.Exceptions;
-using Viridian.Machine;
-using Viridian.Resources.Msvm;
-using Viridian.Service.Msvm;
 using System.Collections.Generic;
 using Viridian.Scopes;
+using Viridian.Msvm.ResourceManagement;
+using Viridian.Msvm.VirtualSystem;
+using Viridian.Msvm.VirtualSystemManagement;
 
 namespace Viridian.Resources.Network
 {
     public static class SyntheticEthernetAdapter
     {
-        public static ManagementObject AddSyntheticAdapter(ComputerSystem virtualMachine, string adapterName = "Network Adapter")
+        public static ManagementObject AddSyntheticAdapter(ComputerSystem vm, string adapterName = "Network Adapter")
         {
-            if (virtualMachine is null)
-                throw new ViridianException("", new ArgumentNullException(nameof(virtualMachine)));
+            if (vm is null)
+                throw new ViridianException("", new ArgumentNullException(nameof(vm)));
 
-            using (var vms = ComputerSystem.GetVirtualMachineSettings(virtualMachine.ElementName))
             using (var adapterToAdd = GetDefaultSyntheticAdapter())
             {
                 adapterToAdd["VirtualSystemIdentifiers"] = new string[] { Guid.NewGuid().ToString("B") };
                 adapterToAdd["ElementName"] = adapterName;
                 adapterToAdd["StaticMacAddress"] = false;
 
-                var resultingResourceSettings = VirtualSystemManagement.Instance.AddResourceSettings(vms, new string[] { adapterToAdd.GetText(TextFormat.WmiDtd20) });
+                var resultingResourceSettings = VirtualSystemManagementService.Instance.AddResourceSettings(vm.VirtualSystemSettingData.MsvmVirtualSystemSettingData, new string[] { adapterToAdd.GetText(TextFormat.WmiDtd20) });
 
                 ManagementObject addedAdapter = new ManagementObject(resultingResourceSettings[0]);
                 addedAdapter.Get();                
@@ -39,20 +38,19 @@ namespace Viridian.Resources.Network
                 return ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(rp);
         }
 
-        public static void ConnectVmUsingResourcePool(ComputerSystem virtualMachine, string resourcePoolName)
+        public static void ConnectVmUsingResourcePool(ComputerSystem vm, string resourcePoolName)
         {
-            if (virtualMachine is null)
-                throw new ViridianException("", new ArgumentNullException(nameof(virtualMachine)));
+            if (vm is null)
+                throw new ViridianException("", new ArgumentNullException(nameof(vm)));
 
             using (var rp = ResourcePool.GetResourcePool(ResourcePool.ResourceTypeInfo.EthernetConnection.ResourceType, ResourcePool.ResourceTypeInfo.EthernetConnection.ResourceSubType, resourcePoolName, Scope.Virtualization.SpecificScope))
-            using (var vms = ComputerSystem.GetVirtualMachineSettings(virtualMachine.MsvmComputerSystem))
-            using (var syntheticAdapter = AddSyntheticAdapter(virtualMachine))
+            using (var syntheticAdapter = AddSyntheticAdapter(vm))
             using (var depasd = NetSwitch.GetDefaultEthernetPortAllocationSettingData())
             {
                 depasd["Parent"] = syntheticAdapter.Path.Path;
                 depasd["PoolId"] = resourcePoolName;
 
-                VirtualSystemManagement.Instance.AddResourceSettings(vms, new string[] { depasd.GetText(TextFormat.WmiDtd20) });
+                VirtualSystemManagementService.Instance.AddResourceSettings(vm.VirtualSystemSettingData.MsvmVirtualSystemSettingData, new string[] { depasd.GetText(TextFormat.WmiDtd20) });
             }
         }
 

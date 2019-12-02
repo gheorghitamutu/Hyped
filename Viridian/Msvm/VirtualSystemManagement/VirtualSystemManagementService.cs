@@ -1,14 +1,13 @@
-﻿using System;
-using System.Management;
+﻿using System.Management;
 using Viridian.Exceptions;
 using Viridian.Job;
 using Viridian.Scopes;
 
-namespace Viridian.Service.Msvm
+namespace Viridian.Msvm.VirtualSystemManagement
 {
-    public sealed class VirtualSystemManagement : BaseService
+    public sealed class VirtualSystemManagementService : BaseService
     {
-        private static VirtualSystemManagement instance = null;
+        private static VirtualSystemManagementService instance = null;
         
         public enum RequestedStateVSM : uint
         {
@@ -26,14 +25,14 @@ namespace Viridian.Service.Msvm
             FastSaving = 32780,
         };
 
-        private VirtualSystemManagement() : base("Msvm_VirtualSystemManagementService") { }
+        private VirtualSystemManagementService() : base("Msvm_VirtualSystemManagementService") { }
 
-        public static VirtualSystemManagement Instance
+        public static VirtualSystemManagementService Instance
         {
             get
             {
                 if (instance == null)
-                    instance = new VirtualSystemManagement();
+                    instance = new VirtualSystemManagementService();
 
                 return instance;
             }
@@ -657,7 +656,7 @@ namespace Viridian.Service.Msvm
             }
         }
 
-        ~VirtualSystemManagement()
+        ~VirtualSystemManagementService()
         {
             if (Msvm_VirtualSystemManagementService != null)
                 Msvm_VirtualSystemManagementService.Dispose();

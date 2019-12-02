@@ -1,10 +1,10 @@
 ﻿using System.Linq;
 using System.Management;
 using Viridian.Exceptions;
-using Viridian.Machine;
+using Viridian.Msvm.ResourceManagement;
+using Viridian.Msvm.VirtualSystem;
+using Viridian.Msvm.VirtualSystemManagement;
 using Viridian.Resources.Controllers;
-using Viridian.Resources.Msvm;
-using Viridian.Service.Msvm;
 
 namespace Viridian.Resources.Drives
 {
@@ -20,7 +20,6 @@ namespace Viridian.Resources.Drives
 
         public string[] AddToSyntheticDiskDrive(ComputerSystem vm, string hostResource, int scsiIndex, int address, HardDiskAccess access)
         {
-            using (var vms = ComputerSystem.GetVirtualMachineSettings(vm?.ElementName))
             using (var scsiController = vm.GetScsiController(scsiIndex))
             using (var parent = SCSI.GetScsiControllerChildBySubtypeAndIndex(scsiController, ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType, address))
             using (var pool = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.VirtualHardDisk.ResourceSubType))
@@ -31,19 +30,17 @@ namespace Viridian.Resources.Drives
                 rasd["Parent"] = parent ?? throw new ViridianException("Failure retrieving Syntethic Disk Drive class!");
                 rasd["HostResource"] = new[] { hostResource };
 
-                return VirtualSystemManagement.Instance.AddResourceSettings(vms, new[] { rasd.GetText(TextFormat.WmiDtd20) });
+                return VirtualSystemManagementService.Instance.AddResourceSettings(vm.VirtualSystemSettingData.MsvmVirtualSystemSettingData, new[] { rasd.GetText(TextFormat.WmiDtd20) });
             }
         }
 
         public static void RemoveFromSyntheticDiskDrive(ComputerSystem vm, string vhdPath)
         {
-            using (var vms = ComputerSystem.GetVirtualMachineSettings(vm?.ElementName))
-                vms.GetRelated("Msvm_StorageAllocationSettingData", null, null, null, null, null, false, null)
-                    .Cast<ManagementObject>()
-                    .Where((settings) => ((string[])settings?["HostResource"])[0] == vhdPath)
-                    .ToList()
-                    .ForEach((settings) => VirtualSystemManagement.Instance.RemoveResourceSettings(new[] { settings }));
-            
+            vm.VirtualSystemSettingData.MsvmVirtualSystemSettingData.GetRelated("Msvm_StorageAllocationSettingData", null, null, null, null, null, false, null)
+                .Cast<ManagementObject>()
+                .Where((settings) => ((string[])settings?["HostResource"])[0] == vhdPath)
+                .ToList()
+                .ForEach((settings) => VirtualSystemManagementService.Instance.RemoveResourceSettings(new[] { settings }));
         }
 
         public static bool IsVHDAttached(ComputerSystem vm, int scsiIndex, int driveIndex)

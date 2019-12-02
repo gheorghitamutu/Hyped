@@ -1,10 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
-using Viridian.Machine;
+using Viridian.Msvm.ResourceManagement;
+using Viridian.Msvm.VirtualSystem;
 using Viridian.Resources.Controllers;
 using Viridian.Resources.Drives;
-using Viridian.Resources.Msvm;
 using Viridian.Resources.Physical;
 
 namespace ViridianTester.Resources.Physical

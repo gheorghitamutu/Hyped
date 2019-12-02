@@ -3,7 +3,7 @@ using System.Management;
 using Viridian.Job;
 using Viridian.Scopes;
 
-namespace Viridian.Resources.Msvm
+namespace Viridian.Msvm.Storage
 {
     public sealed class MountedStorageImage
     {

@@ -5,13 +5,12 @@ using System.Management;
 using Viridian.Exceptions;
 using Viridian.Job;
 using Viridian.Scopes;
-using Viridian.Service.Msvm;
 
-namespace Viridian.Statistics
+namespace Viridian.Msvm.Metrics
 {
-    public sealed class Metric : BaseService
+    public sealed class MetricService : BaseService
     {
-        private static Metric instance = null;
+        private static MetricService instance = null;
 
         public enum MetricCollectionEnabled : ushort
         {
@@ -65,14 +64,14 @@ namespace Viridian.Statistics
             "Aggregated Disk Data Written"
         };
 
-        private Metric() : base("Msvm_MetricService") { }
+        private MetricService() : base("Msvm_MetricService") { }
 
-        public static Metric Instance
+        public static MetricService Instance
         {
             get
             {
                 if (instance == null)
-                    instance = new Metric();
+                    instance = new MetricService();
 
                 return instance;
             }

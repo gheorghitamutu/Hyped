@@ -5,15 +5,15 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Management;
-using Viridian.Machine;
+using Viridian.Msvm.Metrics;
+using Viridian.Msvm.Storage;
+using Viridian.Msvm.VirtualSystem;
+using Viridian.Msvm.VirtualSystemManagement;
 using Viridian.Resources.Controllers;
 using Viridian.Resources.Drives;
-using Viridian.Resources.MSFT;
 using Viridian.Resources.Network;
 using Viridian.Scopes;
-using Viridian.Service.Msvm;
-using Viridian.Statistics;
-using Viridian.Storage.Virtual.Hard;
+using Viridian.WindowsStorageManagement.MSFT;
 
 namespace ViridianTester.Statistics
 {
@@ -29,11 +29,11 @@ namespace ViridianTester.Statistics
             // Act
             var vm = new ComputerSystem(vmName);
 
-            Metric.Instance.ConfigureMetricsFlushInterval(new TimeSpan(1000));
-            Metric.Instance.SetAllMetrics(vm.MsvmComputerSystem, Metric.MetricCollectionEnabled.Enable);
-            vm.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Running);
+            MetricService.Instance.ConfigureMetricsFlushInterval(new TimeSpan(1000));
+            MetricService.Instance.SetAllMetrics(vm.MsvmComputerSystem, MetricService.MetricCollectionEnabled.Enable);
+            vm.RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Running);
 
-            var mapped = Metric.GetAggregationMetricValueCollection(vm.MsvmComputerSystem);
+            var mapped = MetricService.GetAggregationMetricValueCollection(vm.MsvmComputerSystem);
 
             foreach (var pair in mapped)
             {
@@ -50,8 +50,8 @@ namespace ViridianTester.Statistics
             Assert.AreEqual(ComputerSystem.EnabledStateVM.Enabled, vm.EnabledState);
             Assert.AreEqual(mapped.Count, 4);
 
-            vm.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Off);
-            Metric.Instance.SetAllMetrics(vm.MsvmComputerSystem, Metric.MetricCollectionEnabled.Disable);
+            vm.RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Off);
+            MetricService.Instance.SetAllMetrics(vm.MsvmComputerSystem, MetricService.MetricCollectionEnabled.Disable);
             vm.DestroySystem();
         }
 
@@ -63,15 +63,15 @@ namespace ViridianTester.Statistics
 
             // Act
             var vm = new ComputerSystem(vmName);
-            vm.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Running);
+            vm.RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Running);
             vm.ConnectVmToSwitch("Default Switch", "MyNetworkAdapter");
             NetSwitch.AddCustomFeatureSettings(vm, NetSwitch.PortFeatureType.Acl);
-            Metric.Instance.ConfigureMetricsFlushInterval(new TimeSpan(1000));
-            vm.SetBaseMetricsForEthernetSwitchPortAclSettingData(Metric.MetricCollectionEnabled.Enable);
+            MetricService.Instance.ConfigureMetricsFlushInterval(new TimeSpan(1000));
+            vm.SetBaseMetricsForEthernetSwitchPortAclSettingData(MetricService.MetricCollectionEnabled.Enable);
 
             var port = vm.GetEthernetSwitchPortAclSettingDatas();
 
-            var sut = Metric.GetBaseMetricValueCollection(port.FirstOrDefault());
+            var sut = MetricService.GetBaseMetricValueCollection(port.FirstOrDefault());
 
             foreach (var pair in sut)
             {
@@ -88,8 +88,8 @@ namespace ViridianTester.Statistics
             Assert.AreEqual(vm.EnabledState, ComputerSystem.EnabledStateVM.Enabled);
             Assert.AreEqual(sut.Count, 1);
 
-            vm.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Off);
-            vm.SetBaseMetricsForEthernetSwitchPortAclSettingData(Metric.MetricCollectionEnabled.Disable);
+            vm.RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Off);
+            vm.SetBaseMetricsForEthernetSwitchPortAclSettingData(MetricService.MetricCollectionEnabled.Disable);
             vm.DestroySystem();
         }
 
@@ -110,10 +110,10 @@ namespace ViridianTester.Statistics
             disk.AddToScsi(vm, 0, 0);
 
             // operations on the host
-            using (var vhdsd = ImageManagement.CreateVirtualHardDiskSettingData(ImageManagement.VirtualHardDiskType.Dynamic, ImageManagement.VirtualDiskFormat.VHDX, vhdxName, null, 1024 * 1024 * 1024))
-                ImageManagement.Instance.CreateVirtualHardDisk(vhdsd.GetText(TextFormat.WmiDtd20));
+            using (var vhdsd = ImageManagementService.CreateVirtualHardDiskSettingData(ImageManagementService.VirtualHardDiskType.Dynamic, ImageManagementService.VirtualDiskFormat.VHDX, vhdxName, null, 1024 * 1024 * 1024))
+                ImageManagementService.Instance.CreateVirtualHardDisk(vhdsd.GetText(TextFormat.WmiDtd20));
 
-            ImageManagement.Instance.AttachVirtualHardDisk(vhdxName, false, false);
+            ImageManagementService.Instance.AttachVirtualHardDisk(vhdxName, false, false);
 
             var msftDisk = new Disk(vhdxName);
             msftDisk.Initialize(Disk.DiskPartitionStyle.GPT);
@@ -123,7 +123,7 @@ namespace ViridianTester.Statistics
 
             volume.Format(Volume.VolumeFileSystem.NTFS.Value, "Test", 4096, true, true, true, true, true, false, false);
 
-            using (var msi = ImageManagement.Instance.FindMountedStorageImageInstance(vhdxName, ImageManagement.CriterionType.Path))
+            using (var msi = ImageManagementService.Instance.FindMountedStorageImageInstance(vhdxName, ImageManagementService.CriterionType.Path))
             using (var op = msi.InvokeMethod("DetachVirtualHardDisk", null, null))
                 Viridian.Job.Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             // end operations on the host
@@ -134,12 +134,12 @@ namespace ViridianTester.Statistics
             var vhdxString = vhd.AddToSyntheticDiskDrive(vm, vhdxName, 0, 0, VHD.HardDiskAccess.ReadWrite); // expecting 1 element
             using (var sut = new ManagementObject(new ManagementPath(vhdxString[0])))
             {
-                vm.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Running);
+                vm.RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Running);
 
-                Metric.Instance.ConfigureMetricsFlushInterval(new TimeSpan(1000));
-                Metric.Instance.SetAllMetrics(sut, Metric.MetricCollectionEnabled.Enable);
+                MetricService.Instance.ConfigureMetricsFlushInterval(new TimeSpan(1000));
+                MetricService.Instance.SetAllMetrics(sut, MetricService.MetricCollectionEnabled.Enable);
 
-                mapped = Metric.GetAggregationMetricValueCollection(vm.MsvmComputerSystem);
+                mapped = MetricService.GetAggregationMetricValueCollection(vm.MsvmComputerSystem);
 
                 foreach (var pair in mapped)
                 {
@@ -152,7 +152,7 @@ namespace ViridianTester.Statistics
                     Trace.Write("----------------------------------------\n");
                 }
 
-                vm.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Off);
+                vm.RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Off);
             }
 
             // Assert
@@ -180,10 +180,10 @@ namespace ViridianTester.Statistics
             disk.AddToScsi(vm, 0, 0);
 
             // operations on the host
-            using (var vhdsd = ImageManagement.CreateVirtualHardDiskSettingData(ImageManagement.VirtualHardDiskType.Dynamic, ImageManagement.VirtualDiskFormat.VHDX, vhdxName, null, 1024 * 1024 * 1024))
-                ImageManagement.Instance.CreateVirtualHardDisk(vhdsd.GetText(TextFormat.WmiDtd20));
+            using (var vhdsd = ImageManagementService.CreateVirtualHardDiskSettingData(ImageManagementService.VirtualHardDiskType.Dynamic, ImageManagementService.VirtualDiskFormat.VHDX, vhdxName, null, 1024 * 1024 * 1024))
+                ImageManagementService.Instance.CreateVirtualHardDisk(vhdsd.GetText(TextFormat.WmiDtd20));
 
-            ImageManagement.Instance.AttachVirtualHardDisk(vhdxName, false, false);
+            ImageManagementService.Instance.AttachVirtualHardDisk(vhdxName, false, false);
 
             var msftDisk = new Disk(vhdxName);
             msftDisk.Initialize(Disk.DiskPartitionStyle.GPT);
@@ -193,7 +193,7 @@ namespace ViridianTester.Statistics
 
             volume.Format(Volume.VolumeFileSystem.NTFS.Value, "Test", 4096, true, true, true, true, true, false, false);
 
-            using (var msi = ImageManagement.Instance.FindMountedStorageImageInstance(vhdxName, ImageManagement.CriterionType.Path))
+            using (var msi = ImageManagementService.Instance.FindMountedStorageImageInstance(vhdxName, ImageManagementService.CriterionType.Path))
             using (var op = msi.InvokeMethod("DetachVirtualHardDisk", null, null))
                 Viridian.Job.Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             // end operations on the host
@@ -204,14 +204,14 @@ namespace ViridianTester.Statistics
             var vhdxString = vhd.AddToSyntheticDiskDrive(vm, vhdxName, 0, 0, VHD.HardDiskAccess.ReadWrite); // expecting 1 element
             using (var sut = new ManagementObject(new ManagementPath(vhdxString[0])))
             {
-                vm.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Running);
+                vm.RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Running);
 
-                Metric.Instance.ConfigureMetricsFlushInterval(new TimeSpan(1000));
+                MetricService.Instance.ConfigureMetricsFlushInterval(new TimeSpan(1000));
 
-                foreach (ManagementObject baseMetricDef in Metric.GetAllBaseMetricDefinitions(sut))
-                    Metric.Instance.SetBaseMetric(sut, baseMetricDef, Metric.MetricCollectionEnabled.Enable);
+                foreach (ManagementObject baseMetricDef in MetricService.GetAllBaseMetricDefinitions(sut))
+                    MetricService.Instance.SetBaseMetric(sut, baseMetricDef, MetricService.MetricCollectionEnabled.Enable);
 
-                mapped = Metric.GetBaseMetricValueCollection(sut);
+                mapped = MetricService.GetBaseMetricValueCollection(sut);
 
                 foreach (var pair in mapped)
                 {
@@ -224,7 +224,7 @@ namespace ViridianTester.Statistics
                     Trace.Write("--------------------------------------------------------------------------------\n");
                 }
 
-                vm.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Off);
+                vm.RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Off);
             }
 
             // Assert

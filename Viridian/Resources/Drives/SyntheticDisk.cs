@@ -1,8 +1,8 @@
 ﻿using System.Management;
 using Viridian.Exceptions;
-using Viridian.Machine;
-using Viridian.Resources.Msvm;
-using Viridian.Service.Msvm;
+using Viridian.Msvm.ResourceManagement;
+using Viridian.Msvm.VirtualSystem;
+using Viridian.Msvm.VirtualSystemManagement;
 
 namespace Viridian.Resources.Drives
 {
@@ -12,13 +12,12 @@ namespace Viridian.Resources.Drives
         {
             using (var pool = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType))
             using (var rasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(pool))
-            using (var vms = ComputerSystem.GetVirtualMachineSettings(vm.ElementName))
             using (var scsiController = vm.GetScsiController(scsiIndex))
             {
                 rasd["Parent"] = scsiController ?? throw new ViridianException("Failure retrieving SCSI Controller class!");
                 rasd["AddressOnParent"] = addressOnParent;
 
-                VirtualSystemManagement.Instance.AddResourceSettings(vms, new[] { rasd.GetText(TextFormat.WmiDtd20) });
+                VirtualSystemManagementService.Instance.AddResourceSettings(vm.VirtualSystemSettingData.MsvmVirtualSystemSettingData, new[] { rasd.GetText(TextFormat.WmiDtd20) });
             }
         }
     }

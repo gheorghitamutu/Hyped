@@ -2,22 +2,21 @@
 using Viridian.Exceptions;
 using Viridian.Job;
 using Viridian.Scopes;
-using Viridian.Service.Msvm;
 
-namespace Viridian.Resources.Msvm
+namespace Viridian.Msvm.ResourceManagement
 {
-    public sealed class ResourcePoolConfiguration : BaseService
+    public sealed class ResourcePoolConfigurationService : BaseService
     {
-        private static ResourcePoolConfiguration instance = null;
+        private static ResourcePoolConfigurationService instance = null;
 
-        private ResourcePoolConfiguration() : base("Msvm_ResourcePoolConfigurationService") { }
+        private ResourcePoolConfigurationService() : base("Msvm_ResourcePoolConfigurationService") { }
 
-        public static ResourcePoolConfiguration Instance
+        public static ResourcePoolConfigurationService Instance
         {
             get
             {
                 if (instance == null)
-                    instance = new ResourcePoolConfiguration();
+                    instance = new ResourcePoolConfigurationService();
 
                 return instance;
             }
@@ -84,7 +83,7 @@ namespace Viridian.Resources.Msvm
             }
         }
 
-        ~ResourcePoolConfiguration()
+        ~ResourcePoolConfigurationService()
         {
             if (Msvm_ResourcePoolConfigurationService != null)
                 Msvm_ResourcePoolConfigurationService.Dispose();

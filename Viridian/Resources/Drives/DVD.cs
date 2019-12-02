@@ -1,9 +1,9 @@
 ﻿using System.Linq;
 using System.Management;
-using Viridian.Machine;
+using Viridian.Msvm.ResourceManagement;
+using Viridian.Msvm.VirtualSystem;
+using Viridian.Msvm.VirtualSystemManagement;
 using Viridian.Resources.Controllers;
-using Viridian.Resources.Msvm;
-using Viridian.Service.Msvm;
 
 namespace Viridian.Resources.Drives
 {
@@ -11,7 +11,6 @@ namespace Viridian.Resources.Drives
     {
         public void AddToScsi(ComputerSystem vm, int controllerSlot, int driveSlot)
         {
-            using (var vms = ComputerSystem.GetVirtualMachineSettings(vm?.ElementName))
             using (var pool = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType))
             using (var rasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(pool))
             using (var parent = vm.GetScsiController(controllerSlot))
@@ -19,7 +18,7 @@ namespace Viridian.Resources.Drives
                 rasd["Parent"] = parent;
                 rasd["AddressOnParent"] = driveSlot;
 
-                VirtualSystemManagement.Instance.AddResourceSettings(vms, new[] { rasd.GetText(TextFormat.WmiDtd20) });
+                VirtualSystemManagementService.Instance.AddResourceSettings(vm.VirtualSystemSettingData.MsvmVirtualSystemSettingData, new[] { rasd.GetText(TextFormat.WmiDtd20) });
             }
         }
 
