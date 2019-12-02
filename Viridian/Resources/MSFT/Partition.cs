@@ -7,8 +7,6 @@ namespace Viridian.Resources.MSFT
 {
     public sealed class Partition
     {
-        private const string serverName = ".";
-        private const string scopePath = @"\Root\Microsoft\Windows\Storage";
         private ManagementObject MSFT_Partition = null;
         private ManagementScope scope = null;
 
@@ -56,7 +54,7 @@ namespace Viridian.Resources.MSFT
 
         public Partition(ManagementObject MsftPartition)
         {
-            scope = Utils.GetScope(serverName, scopePath);
+            scope = Utils.GetScope(Properties.Environment.Default.Server, Properties.Environment.Default.Storage);
             MSFT_Partition = MsftPartition;
         }
 

@@ -16,7 +16,7 @@ namespace ViridianTester.Resources.Drives
             var vmName = "vm_test_add_dvd_drive_to_scsi_of_vm";
 
             // Act
-            var vm = new VM(vmName);
+            var vm = new ComputerSystem(vmName);
 
             var scsi = new SCSI();
             scsi.AddToVm(vm);

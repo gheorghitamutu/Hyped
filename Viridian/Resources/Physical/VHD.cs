@@ -18,9 +18,9 @@ namespace Viridian.Resources.Drives
             ReadWrite = 3
         }
 
-        public string[] AddToSyntheticDiskDrive(VM vm, string hostResource, int scsiIndex, int address, HardDiskAccess access)
+        public string[] AddToSyntheticDiskDrive(ComputerSystem vm, string hostResource, int scsiIndex, int address, HardDiskAccess access)
         {
-            using (var vms = VM.GetVirtualMachineSettings(vm?.VmName))
+            using (var vms = ComputerSystem.GetVirtualMachineSettings(vm?.ElementName))
             using (var scsiController = vm.GetScsiController(scsiIndex))
             using (var parent = SCSI.GetScsiControllerChildBySubtypeAndIndex(scsiController, ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType, address))
             using (var pool = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.VirtualHardDisk.ResourceSubType))
@@ -35,9 +35,9 @@ namespace Viridian.Resources.Drives
             }
         }
 
-        public static void RemoveFromSyntheticDiskDrive(VM vm, string vhdPath)
+        public static void RemoveFromSyntheticDiskDrive(ComputerSystem vm, string vhdPath)
         {
-            using (var vms = VM.GetVirtualMachineSettings(vm?.VmName))
+            using (var vms = ComputerSystem.GetVirtualMachineSettings(vm?.ElementName))
                 vms.GetRelated("Msvm_StorageAllocationSettingData", null, null, null, null, null, false, null)
                     .Cast<ManagementObject>()
                     .Where((settings) => ((string[])settings?["HostResource"])[0] == vhdPath)
@@ -46,14 +46,14 @@ namespace Viridian.Resources.Drives
             
         }
 
-        public static bool IsVHDAttached(VM vm, int scsiIndex, int driveIndex)
+        public static bool IsVHDAttached(ComputerSystem vm, int scsiIndex, int driveIndex)
         {
             using (var scsi = vm?.GetScsiController(scsiIndex))
             using (var dvd = SCSI.GetScsiControllerChildBySubtypeAndIndex(scsi, ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType, driveIndex))
                 return
                     dvd.GetRelated("Msvm_StorageAllocationSettingData", null, null, null, "Dependent", "Antecedent", false, null)
                         .Cast<ManagementObject>()
-                        .Where((media) => (media["Caption"].ToString() == "Hard Disk Image"))
+                        .Where((media) => media["Caption"].ToString() == "Hard Disk Image")
                         .Any();
         }
     }

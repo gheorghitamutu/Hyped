@@ -51,7 +51,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Job\Validator.cs" />
-    <Compile Include="Machine\VM.cs" />
+    <Compile Include="Machine\ComputerSystem.cs" />
+    <Compile Include="Properties\Environment.Designer.cs">
+      <DependentUpon>Environment.settings</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
     <Compile Include="Resources\Drives\SyntheticDisk.cs" />
     <Compile Include="Resources\MSFT\Partition.cs" />
     <Compile Include="Resources\MSFT\Volume.cs" />
@@ -75,11 +80,20 @@
     <Compile Include="Resources\Controllers\SCSI.cs" />
     <Compile Include="Resources\Physical\ISO.cs" />
     <Compile Include="Resources\MSFT\Disk.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="Utilities\Utils.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
+    <None Include="Properties\VirtualSystemSettingData .settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+    </None>
+    <None Include="Properties\Environment.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Environment.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.2.9.7\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />

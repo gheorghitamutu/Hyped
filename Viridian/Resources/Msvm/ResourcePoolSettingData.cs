@@ -5,8 +5,6 @@ namespace Viridian.Resources.Msvm
 {
     public sealed class ResourcePoolSettingData
     {
-        private const string serverName = ".";
-        private const string scopePath = @"\Root\Virtualization\V2";
         private static ManagementObject Msvm_ResourcePoolSettingData = null;
         private static ManagementScope scope = null;
 
@@ -84,7 +82,7 @@ namespace Viridian.Resources.Msvm
 
         public ResourcePoolSettingData(ushort ResourceType, string ResourceSubType, string PoolId, string ElementName)
         {
-            scope = Utils.GetScope(serverName, scopePath);
+            scope = Utils.GetScope(Properties.Environment.Default.Server, Properties.Environment.Default.Virtualization);
 
             using (var rpsdClass = new ManagementClass(nameof(Msvm_ResourcePoolSettingData)) { Scope = scope })
             {

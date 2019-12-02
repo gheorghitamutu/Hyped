@@ -8,9 +8,9 @@ namespace Viridian.Resources.Controllers
 {
     public class SCSI
     {
-        public void AddToVm(VM vm)
+        public void AddToVm(ComputerSystem vm)
         {
-            using(var vms = VM.GetVirtualMachineSettings(vm?.VmName))
+            using(var vms = ComputerSystem.GetVirtualMachineSettings(vm?.ElementName))
             using (var pool = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType))
             using (var rasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(pool))
             {

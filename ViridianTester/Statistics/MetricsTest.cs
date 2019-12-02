@@ -26,7 +26,7 @@ namespace ViridianTester.Statistics
             var vmName = "vm_test_get_aggregation_metric_value_collection_for_vm";
 
             // Act
-            var vm = new VM(vmName);
+            var vm = new ComputerSystem(vmName);
 
             Metric.Instance.ConfigureMetricsFlushInterval(new TimeSpan(1000));
             Metric.Instance.SetAllMetrics(vm.MsvmComputerSystem, Metric.MetricCollectionEnabled.Enable);
@@ -46,7 +46,7 @@ namespace ViridianTester.Statistics
             }
 
             // Assert
-            Assert.AreEqual(VM.EnabledStateVM.Enabled, vm.EnabledState);
+            Assert.AreEqual(ComputerSystem.EnabledStateVM.Enabled, vm.EnabledState);
             Assert.AreEqual(mapped.Count, 4);
 
             vm.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Off);
@@ -61,7 +61,7 @@ namespace ViridianTester.Statistics
             var vmName = "vm_test_get_base_metric_value_collection_for_synthetic_ethernet_ports_from_vm";
 
             // Act
-            var vm = new VM(vmName);
+            var vm = new ComputerSystem(vmName);
             vm.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Running);
             vm.ConnectVmToSwitch("Default Switch", "MyNetworkAdapter");
             NetSwitch.AddCustomFeatureSettings(vm, NetSwitch.PortFeatureType.Acl);
@@ -84,7 +84,7 @@ namespace ViridianTester.Statistics
             }
 
             // Assert
-            Assert.AreEqual(vm.EnabledState, VM.EnabledStateVM.Enabled);
+            Assert.AreEqual(vm.EnabledState, ComputerSystem.EnabledStateVM.Enabled);
             Assert.AreEqual(sut.Count, 1);
 
             vm.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Off);
@@ -100,7 +100,7 @@ namespace ViridianTester.Statistics
             var vhdxName = AppDomain.CurrentDomain.BaseDirectory + "\\test_get_aggregation_metric_value_collection_of_vhdx_of_scsi_of_vm.vhdx";
 
             // Act
-            var vm = new VM(vmName);
+            var vm = new ComputerSystem(vmName);
 
             var scsi = new SCSI();
             scsi.AddToVm(vm);
@@ -170,7 +170,7 @@ namespace ViridianTester.Statistics
             var vhdxName = AppDomain.CurrentDomain.BaseDirectory + "\\test_get_base_metric_value_collection_of_vhdx_of_scsi_of_vm.vhdx";
 
             // Act
-            var vm = new VM(vmName);
+            var vm = new ComputerSystem(vmName);
 
             var scsi = new SCSI();
             scsi.AddToVm(vm);

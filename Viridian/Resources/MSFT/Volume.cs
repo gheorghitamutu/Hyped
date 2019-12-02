@@ -7,8 +7,6 @@ namespace Viridian.Resources.MSFT
 {
     public sealed class Volume
     {
-        private const string serverName = ".";
-        private const string scopePath = @"\Root\Microsoft\Windows\Storage";
         private ManagementObject MSFT_Volume = null;
         private ManagementScope scope = null;
 
@@ -74,7 +72,7 @@ namespace Viridian.Resources.MSFT
 
         public Volume(ManagementObject MsftVolume)
         {
-            scope = Utils.GetScope(serverName, scopePath);
+            scope = Utils.GetScope(Properties.Environment.Default.Server, Properties.Environment.Default.Storage);
             MSFT_Volume = MsftVolume;
         }
 

@@ -20,7 +20,7 @@ namespace ViridianTester.Resources.Physical
             var isoName = AppDomain.CurrentDomain.BaseDirectory + "\\dummyPath.iso";
 
             // Act
-            var vm = new VM(vmName);
+            var vm = new ComputerSystem(vmName);
 
             var scsi = new SCSI();
             scsi.AddToVm(vm);

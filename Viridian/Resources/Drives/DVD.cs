@@ -9,9 +9,9 @@ namespace Viridian.Resources.Drives
 {
     public class DVD
     {
-        public void AddToScsi(VM vm, int controllerSlot, int driveSlot)
+        public void AddToScsi(ComputerSystem vm, int controllerSlot, int driveSlot)
         {
-            using (var vms = VM.GetVirtualMachineSettings(vm?.VmName))
+            using (var vms = ComputerSystem.GetVirtualMachineSettings(vm?.ElementName))
             using (var pool = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType))
             using (var rasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(pool))
             using (var parent = vm.GetScsiController(controllerSlot))
@@ -23,7 +23,7 @@ namespace Viridian.Resources.Drives
             }
         }
 
-        public bool IsISOAttached(VM vm, int scsiIndex, int driveIndex)
+        public bool IsISOAttached(ComputerSystem vm, int scsiIndex, int driveIndex)
         {
             using (var scsi = vm?.GetScsiController(scsiIndex))
             using (var dvd = SCSI.GetScsiControllerChildBySubtypeAndIndex(scsi, ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType, driveIndex))

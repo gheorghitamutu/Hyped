@@ -8,8 +8,6 @@ namespace Viridian.Storage.Virtual.Hard
 {
     public sealed class Disk
     {
-        private const string serverName = ".";
-        private const string scopePath = @"\Root\Microsoft\Windows\Storage";
         private ManagementObject MSFT_Disk = null;
         private ManagementScope scope = null;
 
@@ -91,7 +89,7 @@ namespace Viridian.Storage.Virtual.Hard
 
         public Disk(string Location)
         {
-            scope = Utils.GetScope(serverName, scopePath);
+            scope = Utils.GetScope(Properties.Environment.Default.Server, Properties.Environment.Default.Storage);
 
             using (var mos = new ManagementObjectSearcher(scope, new ObjectQuery("SELECT * FROM MSFT_Disk")))
                 MSFT_Disk = mos.Get().Cast<ManagementObject>().Where((c) => c[nameof(Location)]?.ToString() == Location).First();
@@ -191,7 +189,7 @@ namespace Viridian.Storage.Virtual.Hard
                 {
                     Job.Validator.ValidateOutput(op, scope);
                     
-                    return new ManagementObject(scopePath, ((ManagementBaseObject)op["CreatedPartition"])["__PATH"] as string, null);
+                    return new ManagementObject(Properties.Environment.Default.Storage, ((ManagementBaseObject)op["CreatedPartition"])["__PATH"] as string, null);
                 }
             }
         }

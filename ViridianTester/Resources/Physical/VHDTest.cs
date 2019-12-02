@@ -23,7 +23,7 @@ namespace ViridianTester.Resources.Physical
             var vhdxName = AppDomain.CurrentDomain.BaseDirectory + "\\dummyPath.vhdx";
 
             // Act
-            var vm = new VM(vmName);
+            var vm = new ComputerSystem(vmName);
 
             var scsi = new SCSI();
             scsi.AddToVm(vm);

@@ -387,7 +387,7 @@ namespace Viridian.Service.Msvm
         {
             var managementPath = new ManagementPath()
             { 
-                Server = serverName,
+                Server = Properties.Environment.Default.Server,
                 NamespacePath = Instance.Msvm_ImageManagementService.Path.Path,
                 ClassName = "Msvm_VirtualHardDiskSettingData"
             };

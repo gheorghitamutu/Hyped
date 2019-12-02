@@ -7,8 +7,6 @@ namespace Viridian.Resources.Msvm
 {
     public sealed class ResourceAllocationSettingData
     {
-        private const string serverName = ".";
-        private const string scopePath = @"\Root\Virtualization\V2";
         private static ManagementObject Msvm_ResourceAllocationSettingData = null;
         private static ManagementScope scope = null;
 
@@ -43,7 +41,7 @@ namespace Viridian.Resources.Msvm
 
         public ResourceAllocationSettingData(ushort ResourceType, string ResourceSubType, string PoolId, string[] HostResource)
         {
-            scope = Utils.GetScope(serverName, scopePath);
+            scope = Utils.GetScope(Properties.Environment.Default.Server, Properties.Environment.Default.Virtualization);
 
             using (var rpsdClass = new ManagementClass(nameof(Msvm_ResourceAllocationSettingData)) { Scope = scope })
             {

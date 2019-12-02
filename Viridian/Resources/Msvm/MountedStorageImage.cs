@@ -7,8 +7,6 @@ namespace Viridian.Resources.Msvm
 {
     public sealed class MountedStorageImage
     {
-        private const string serverName = ".";
-        private const string scopePath = @"\Root\Virtualization\V2";
         private ManagementObject Msvm_MountedStorageImage = null;
         private ManagementScope scope = null;
 
@@ -51,7 +49,7 @@ namespace Viridian.Resources.Msvm
 
         public MountedStorageImage(ManagementObject MsvmMountedStorageImage)
         {
-            scope = Utils.GetScope(serverName, scopePath);
+            scope = Utils.GetScope(Properties.Environment.Default.Server, Properties.Environment.Default.Virtualization);
             Msvm_MountedStorageImage = MsvmMountedStorageImage;
         }
 

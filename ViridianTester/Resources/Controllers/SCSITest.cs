@@ -15,7 +15,7 @@ namespace ViridianTester.Resources.Controllers
             var vmName = "vm_test_add_scsi_controller_to_vm";
 
             // Act
-            var vm = new VM(vmName);
+            var vm = new ComputerSystem(vmName);
 
             var sut = new SCSI();
             sut.AddToVm(vm);

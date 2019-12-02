@@ -56,7 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Machine\VMTest.cs" />
+    <Compile Include="Machine\ComputerSystemTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Exception\ViridianExceptionTest.cs" />
     <Compile Include="Resources\Controllers\SCSITest.cs" />

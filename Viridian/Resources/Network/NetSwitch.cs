@@ -79,7 +79,7 @@ namespace Viridian.Resources.Network
 
         public static void CreateInternalSwitch(ManagementScope scope, string switchName, string switchNotes)
         {
-            using (var host = VM.GetVirtualMachine(scope))
+            using (var host = ComputerSystem.GetVirtualMachine(scope))
             using (var depasd = GetDefaultEthernetPortAllocationSettingData())
             {
                 depasd["ElementName"] = switchName + "_Internal";
@@ -108,7 +108,7 @@ namespace Viridian.Resources.Network
         public static void CreateExternalSwitch(ManagementScope scope, string externalAdapterName, string switchName, string switchNotes)
         {
             using (var eep = FindExternalAdapter(scope, externalAdapterName))
-            using (var host = VM.GetVirtualMachine(scope))
+            using (var host = ComputerSystem.GetVirtualMachine(scope))
             using (var depasdInternal = GetDefaultEthernetPortAllocationSettingData())
             using (var depasdExternal = GetDefaultEthernetPortAllocationSettingData())
             {
@@ -271,7 +271,7 @@ namespace Viridian.Resources.Network
             }
         }
 
-        public static void AddCustomFeatureSettings(VM virtualMachine, PortFeatureType featureType)
+        public static void AddCustomFeatureSettings(ComputerSystem virtualMachine, PortFeatureType featureType)
         {
             string featureId = GetPortFeatureId(featureType);
 
@@ -305,7 +305,7 @@ namespace Viridian.Resources.Network
             }
         }
 
-        public static void ModifyCustomFeatureSettings(VM vm)
+        public static void ModifyCustomFeatureSettings(ComputerSystem vm)
         {
             // featureSetting["AllowMacSpoofing"] | featureSetting["IOVQueuePairsRequested"]
             // Msvm_EthernetSwitchPortSecuritySettingData | Msvm_EthernetSwitchPortOffloadSettingData
@@ -332,7 +332,7 @@ namespace Viridian.Resources.Network
             }
         }
 
-        public static void RemoveFeatureSettings(VM vm, PortFeatureType featureType)
+        public static void RemoveFeatureSettings(ComputerSystem vm, PortFeatureType featureType)
         {
             using (var connections = FindConnections(vm?.MsvmComputerSystem))
             {
@@ -452,7 +452,7 @@ namespace Viridian.Resources.Network
             }
         }
 
-        public static void SetRequiredFeature(VM vm, string featureName, bool required)
+        public static void SetRequiredFeature(ComputerSystem vm, string featureName, bool required)
         {
             var connectionsToModify = new List<string>();
 
@@ -545,9 +545,9 @@ namespace Viridian.Resources.Network
                 VirtualEthernetSwitchManagement.Instance.RemoveFeatureSettings(new string[] { vesbsd.Path.Path });
         }
 
-        public static void ModifyClusterMonitored(VM vm, bool onOff)
+        public static void ModifyClusterMonitored(ComputerSystem vm, bool onOff)
         {
-            using (var virtualMachineSettings = VM.GetVirtualMachineSettings(vm?.MsvmComputerSystem))
+            using (var virtualMachineSettings = ComputerSystem.GetVirtualMachineSettings(vm?.MsvmComputerSystem))
             using (var syntheticPortSettings = virtualMachineSettings.GetRelated("Msvm_SyntheticEthernetPortSettingData", "Msvm_VirtualSystemSettingDataComponent", null, null, null, null, false, null))
                 foreach (ManagementObject syntheticEthernetPortSetting in syntheticPortSettings)
                 {
@@ -788,7 +788,7 @@ namespace Viridian.Resources.Network
 
         public static ManagementObjectCollection FindConnections(ManagementObject virtualMachine)
         {
-            using (ManagementObject vms = VM.GetVirtualMachineSettings(virtualMachine))
+            using (ManagementObject vms = ComputerSystem.GetVirtualMachineSettings(virtualMachine))
                 return vms.GetRelated("Msvm_EthernetPortAllocationSettingData", "Msvm_VirtualSystemSettingDataComponent", null, null, null, null, false, null);
         }
 

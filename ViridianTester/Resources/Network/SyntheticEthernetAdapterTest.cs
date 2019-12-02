@@ -15,13 +15,13 @@ namespace ViridianTester.Resources.Network
             var vmName = "vm_test_add_synthetic_ethernet_adapter_to_vm";
 
             // Act
-            var vm = new VM(vmName);
+            var vm = new ComputerSystem(vmName);
             vm.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Running);
 
             SyntheticEthernetAdapter.AddSyntheticAdapter(vm, "MyNetworkAdapter");
 
             // Assert
-            Assert.AreEqual(vm.EnabledState, VM.EnabledStateVM.Enabled);
+            Assert.AreEqual(vm.EnabledState, ComputerSystem.EnabledStateVM.Enabled);
             Assert.AreEqual(1, vm.GetSyntheticAdapterCollection().Count);
             vm.RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Off);
             vm.DestroySystem();

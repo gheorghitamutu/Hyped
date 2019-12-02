@@ -4,7 +4,6 @@ using System.Linq;
 using System.Management;
 using Viridian.Exceptions;
 using Viridian.Job;
-using Viridian.Resources.Drives;
 using Viridian.Resources.Msvm;
 using Viridian.Resources.Network;
 using Viridian.Service.Msvm;
@@ -13,21 +12,18 @@ using Viridian.Utilities;
 
 namespace Viridian.Machine
 {
-    public class VM
+    public class ComputerSystem
     {
-        private const string serverName = ".";
-        private const string scopePath = @"\Root\Virtualization\V2";
-        private const string VirtualSystemSubtype = "Microsoft:Hyper-V:SubType:2";
         private ManagementObject Msvm_ComputerSystem = null; // don't directly use it unless explicitly required (Name property)!
 
         public ManagementScope Scope { get; private set; }
 
-        public string VmName { get; private set; }
+        private string elementName = null;
 
-        public VM(string ElementName)
+        public ComputerSystem(string ElementName)
         {
-            Scope = Utils.GetScope(serverName, scopePath);
-            VmName = ElementName;
+            Scope = Utils.GetScope(Properties.Environment.Default.Server, Properties.Environment.Default.Virtualization);
+            this.ElementName = ElementName;
 
             Define();
         }
@@ -40,11 +36,9 @@ namespace Viridian.Machine
                     return null;
 
                 if (Name == null)
-                    using (var mos = new ManagementObjectSearcher(Scope, new ObjectQuery("SELECT * FROM Msvm_ComputerSystem")))
-                        return mos.Get().Cast<ManagementObject>().Where((c) => c[nameof(ElementName)]?.ToString() == VmName).FirstOrDefault();
+                    return QueryMsvm_ComputerSystem(nameof(ElementName), ElementName);
 
-                using (var mos = new ManagementObjectSearcher(Scope, new ObjectQuery("SELECT * FROM Msvm_ComputerSystem")))
-                    return mos.Get().Cast<ManagementObject>().Where((c) => c[nameof(Name)]?.ToString() == Name).FirstOrDefault();
+                return QueryMsvm_ComputerSystem(nameof(Name), Name);
             }
 
             set
@@ -60,21 +54,26 @@ namespace Viridian.Machine
         {
             if (MsvmComputerSystem == null)
             {
-                using (var mos = new ManagementObjectSearcher(Scope, new ObjectQuery("SELECT * FROM Msvm_ComputerSystem")))
-                    Msvm_ComputerSystem = mos.Get().Cast<ManagementObject>().Where((c) => c[nameof(ElementName)]?.ToString() == VmName).FirstOrDefault();
+                Msvm_ComputerSystem = QueryMsvm_ComputerSystem(nameof(ElementName), ElementName);
 
                 if (MsvmComputerSystem == null)
                 {
                     using (var vssd = Utils.GetServiceObject(Scope, "Msvm_VirtualSystemSettingData"))
                     {
-                        vssd[nameof(ElementName)] = VmName;
-                        vssd["ConfigurationDataRoot"] = @"C:\ProgramData\Microsoft\Windows\Hyper-V\";
-                        vssd[nameof(VirtualSystemSubtype)] = VirtualSystemSubtype;
+                        vssd[nameof(ElementName)] = ElementName;
+                        vssd[nameof(Properties.Environment.Default.ConfigurationDataRoot)] = Properties.Environment.Default.ConfigurationDataRoot;
+                        vssd[nameof(Properties.Environment.Default.VirtualSystemSubtype)] = Properties.Environment.Default.VirtualSystemSubtype;
 
                         MsvmComputerSystem = VirtualSystemManagement.Instance.DefineSystem(vssd.GetText(TextFormat.WmiDtd20), null, null);
                     }
                 }
             }
+        }
+
+        private ManagementObject QueryMsvm_ComputerSystem(string name, string value)
+        {
+            using (var mos = new ManagementObjectSearcher(Scope, new ObjectQuery("SELECT * FROM Msvm_ComputerSystem")))
+                return mos.Get().Cast<ManagementObject>().Where((c) => c[name]?.ToString() == value).FirstOrDefault();
         }
 
         #region Enums
@@ -99,19 +98,6 @@ namespace Viridian.Machine
             Disk = 3,
             Recovery = 32768,
         }
-        public static class VirtualSystemTypeName
-        {
-            public const string RealizedVm = "Microsoft:Hyper-V:System:Realized";
-            public const string PlannedVm = "Microsoft:Hyper-V:System:Planned";
-            public const string RealizedSnapshot = "Microsoft:Hyper-V:Snapshot:Realized";
-            public const string RecoverySnapshot = "Microsoft:Hyper-V:Snapshot:Recovery";
-            public const string PlannedSnapshot = "Microsoft:Hyper-V:Snapshot:Planned";
-            public const string MissingSnapshot = "Microsoft:Hyper-V:Snapshot:Missing";
-            public const string ReplicaStandardRecoverySnapshot = "Microsoft:Hyper-V:Snapshot:Replica:Standard";
-            public const string ReplicaApplicationConsistentRecoverySnapshot = "Microsoft:Hyper-V:Snapshot:Replica:ApplicationConsistent";
-            public const string ReplicaPlannedRecoverySnapshot = "Microsoft:Hyper-V:Snapshot:Replica:PlannedFailover";
-            public const string ReplicaSettings = "Microsoft:Hyper-V:Replica";
-        }
         public enum NetworkBootPreferredProtocol
         {
             IPv4 = 4096,
@@ -128,11 +114,6 @@ namespace Viridian.Machine
 
             public static DescriptionInfo MicrosoftVirtualComputerSystem => new DescriptionInfo("Microsoft Virtual Computer System");
             public static DescriptionInfo MicrosoftHostingComputerSystem => new DescriptionInfo("Microsoft Hosting Computer System");
-        }
-
-        public void AddToSyntheticDiskDrive(object vm, string vhdxName, int v1, int v2, VHD.HardDiskAccess readWrite)
-        {
-            throw new NotImplementedException();
         }
 
         public enum EnabledDefaultVM : ushort
@@ -224,7 +205,11 @@ namespace Viridian.Machine
         string InstanceID => MsvmComputerSystem[nameof(InstanceID)].ToString();
         string Caption => MsvmComputerSystem[nameof(Caption)].ToString();
         string Description => MsvmComputerSystem[nameof(Description)].ToString();
-        string ElementName => MsvmComputerSystem[nameof(ElementName)].ToString();
+        public string ElementName 
+        {
+            get { return Msvm_ComputerSystem != null ? MsvmComputerSystem[nameof(ElementName)].ToString() : elementName; }
+            private set { elementName = value; }
+        }
         DateTime InstallDate => ManagementDateTimeConverter.ToDateTime(MsvmComputerSystem[nameof(InstallDate)].ToString());
         OperationalStatusVM[] OperationalStatus => (OperationalStatusVM[])MsvmComputerSystem[nameof(OperationalStatus)];
         string[] StatusDescriptions => (string[])MsvmComputerSystem[nameof(StatusDescriptions)];
@@ -331,7 +316,7 @@ namespace Viridian.Machine
 
         public void SetIncrementalBackup(bool incrementalBackupEnabled)
         {
-            using (var vm = GetVirtualMachineSettings(VmName))
+            using (var vm = GetVirtualMachineSettings(ElementName))
             {
                 if ((bool)vm["IncrementalBackupEnabled"] != incrementalBackupEnabled)
                 {
@@ -344,7 +329,7 @@ namespace Viridian.Machine
 
         public bool GetIncrementalBackup()
         {
-            using (var vms = GetVirtualMachineSettings(VmName))
+            using (var vms = GetVirtualMachineSettings(ElementName))
                 return (bool)vms["IncrementalBackupEnabled"];
         }
 
@@ -387,12 +372,11 @@ namespace Viridian.Machine
                 RequestStateChange(VirtualSystemManagement.RequestedStateVSM.Running);
         }
 
-        public List<ManagementObject> GetSnapshotList(string VirtualSystemType)
+        public List<ManagementObject> GetSnapshotList()
         {
                 return
                     MsvmComputerSystem.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null)
                         .Cast<ManagementObject>()
-                        .Where((c) => (c[nameof(VirtualSystemType)]?.ToString() == VirtualSystemType))
                         .ToList();
         }
 
@@ -429,13 +413,13 @@ namespace Viridian.Machine
 
         public string[] GetBootSourceOrderedList()
         {
-            using (var vms = GetVirtualMachineSettings(VmName))
+            using (var vms = GetVirtualMachineSettings(ElementName))
                 return (string[])vms["BootSourceOrder"];
         }
 
         public void SetBootOrderFromDevicePath(string devicePath)
         {
-            using (var vms = GetVirtualMachineSettings(VmName))
+            using (var vms = GetVirtualMachineSettings(ElementName))
             {
                 if (vms["BootSourceOrder"] is string[] prevBootOrder)
                 {
@@ -465,7 +449,7 @@ namespace Viridian.Machine
             if (bootSourceOrder == null)
                 throw new ViridianException("Boot Sources Array is null!");
 
-            using (var vms = GetVirtualMachineSettings(VmName))
+            using (var vms = GetVirtualMachineSettings(ElementName))
             {
                 var previousBso = vms["BootSourceOrder"] as string[];
 
@@ -501,13 +485,13 @@ namespace Viridian.Machine
 
         public NetworkBootPreferredProtocol GetNetworkBootPreferredProtocol()
         {
-            using (var vms = GetVirtualMachineSettings(VmName))
+            using (var vms = GetVirtualMachineSettings(ElementName))
                 return (NetworkBootPreferredProtocol)Enum.ToObject(typeof(NetworkBootPreferredProtocol), vms["NetworkBootPreferredProtocol"]);
         }
 
         public void SetNetworkBootPreferredProtocol(NetworkBootPreferredProtocol networkBootPreferredProtocol)
         {
-            using (var vms = GetVirtualMachineSettings(VmName))
+            using (var vms = GetVirtualMachineSettings(ElementName))
             {
                 vms["NetworkBootPreferredProtocol"] = networkBootPreferredProtocol;
 
@@ -517,13 +501,13 @@ namespace Viridian.Machine
 
         public bool GetPauseAfterBootFailure()
         {
-            using (var vms = GetVirtualMachineSettings(VmName))
+            using (var vms = GetVirtualMachineSettings(ElementName))
                 return (bool)vms["PauseAfterBootFailure"];
         }
 
         public void SetPauseAfterBootFailure(bool pauseAfterBootFailure)
         {
-            using (var vms = GetVirtualMachineSettings(VmName))
+            using (var vms = GetVirtualMachineSettings(ElementName))
             {
                 vms["PauseAfterBootFailure"] = pauseAfterBootFailure;
 
@@ -533,13 +517,13 @@ namespace Viridian.Machine
 
         public bool GetSecureBoot()
         {
-            using (var vms = GetVirtualMachineSettings(VmName))
+            using (var vms = GetVirtualMachineSettings(ElementName))
                 return (bool)vms["SecureBootEnabled"];
         }
 
         public void SetSecureBoot(bool secureBootEnabled)
         {
-            using (var vms = GetVirtualMachineSettings(VmName))
+            using (var vms = GetVirtualMachineSettings(ElementName))
             {
                 vms["SecureBootEnabled"] = secureBootEnabled;
 
@@ -571,7 +555,7 @@ namespace Viridian.Machine
 
         public ManagementBaseObject[] GetSummaryInformation()
         {
-            using (var vms = GetVirtualMachineSettings(VmName))
+            using (var vms = GetVirtualMachineSettings(ElementName))
             {
                 var requestedInformation = new int[]
                 {
@@ -625,7 +609,7 @@ namespace Viridian.Machine
         public void ConnectVmToSwitch(string switchName, string adapterName)
         {
             using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope, switchName))
-            using (var vms = GetVirtualMachineSettings(VmName))
+            using (var vms = GetVirtualMachineSettings(ElementName))
             using (var syntheticAdapter = SyntheticEthernetAdapter.AddSyntheticAdapter(this, adapterName))
             using (var epasd = NetSwitch.GetDefaultEthernetPortAllocationSettingData())
             {
@@ -746,7 +730,7 @@ namespace Viridian.Machine
 
         public static ManagementObject GetVirtualMachineSettings(string vmName)
         {
-            return GetVirtualMachineSettings(new VM(vmName).MsvmComputerSystem);
+            return GetVirtualMachineSettings(new ComputerSystem(vmName).MsvmComputerSystem);
         }
 
         public static ManagementObject GetVirtualMachineSettings(ManagementObject virtualMachine)
@@ -766,7 +750,7 @@ namespace Viridian.Machine
 
         #endregion
 
-        ~VM()
+        ~ComputerSystem()
         {
             if (Msvm_ComputerSystem != null)
                 Msvm_ComputerSystem.Dispose();

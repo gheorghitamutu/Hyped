@@ -7,8 +7,6 @@ namespace Viridian.Resources.Msvm
 {
     public sealed class ResourcePool
     {
-        private const string serverName = ".";
-        private const string scopePath = @"\Root\Virtualization\V2";
         private ManagementObject Msvm_ResourcePool = null;
         private ManagementScope scope = null;
 
@@ -163,7 +161,7 @@ namespace Viridian.Resources.Msvm
         
         public ResourcePool(ManagementObject MsvmResourcePool)
         {
-            scope = Utils.GetScope(serverName, scopePath);
+            scope = Utils.GetScope(Properties.Environment.Default.Server, Properties.Environment.Default.Virtualization);
             Msvm_ResourcePool = MsvmResourcePool;
         }
 
@@ -178,7 +176,7 @@ namespace Viridian.Resources.Msvm
 
         public static ManagementObject GetPool(string ResourceSubType, bool Primordial = true)
         {
-            using (var mos = new ManagementObjectSearcher(Utils.GetScope(serverName, scopePath), new ObjectQuery("SELECT * FROM Msvm_ResourcePool")))
+            using (var mos = new ManagementObjectSearcher(Utils.GetScope(Properties.Environment.Default.Server, Properties.Environment.Default.Virtualization), new ObjectQuery("SELECT * FROM Msvm_ResourcePool")))
                 return mos
                     .Get()
                     .Cast<ManagementObject>()
