@@ -1,12 +1,12 @@
 [
   {
-    "MachineId" : 1,
+    "MachineId" : "1",
     "OS" : "Linux",
     "Architecture" : "x64",
     "ThreadCount" : "8",
-    "RAM" : 16
+    "RAM" : "16",
     "IsRunning" : "Yes",
-    "ImageLocation" : "D:\VM\Linux.vhdx"
+    "ImageLocation" : "D:\VM\Linux.vhdx",
     "LastRun" : "7:54-01/12/2019"
   }
 ]
