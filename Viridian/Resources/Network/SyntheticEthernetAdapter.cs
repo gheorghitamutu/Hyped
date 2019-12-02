@@ -5,8 +5,8 @@ using Viridian.Exceptions;
 using Viridian.Machine;
 using Viridian.Resources.Msvm;
 using Viridian.Service.Msvm;
-using Viridian.Utilities;
 using System.Collections.Generic;
+using Viridian.Scopes;
 
 namespace Viridian.Resources.Network
 {
@@ -44,7 +44,7 @@ namespace Viridian.Resources.Network
             if (virtualMachine is null)
                 throw new ViridianException("", new ArgumentNullException(nameof(virtualMachine)));
 
-            using (var rp = ResourcePool.GetResourcePool(ResourcePool.ResourceTypeInfo.EthernetConnection.ResourceType, ResourcePool.ResourceTypeInfo.EthernetConnection.ResourceSubType, resourcePoolName, virtualMachine.Scope))
+            using (var rp = ResourcePool.GetResourcePool(ResourcePool.ResourceTypeInfo.EthernetConnection.ResourceType, ResourcePool.ResourceTypeInfo.EthernetConnection.ResourceSubType, resourcePoolName, Scope.Virtualization.SpecificScope))
             using (var vms = ComputerSystem.GetVirtualMachineSettings(virtualMachine.MsvmComputerSystem))
             using (var syntheticAdapter = AddSyntheticAdapter(virtualMachine))
             using (var depasd = NetSwitch.GetDefaultEthernetPortAllocationSettingData())

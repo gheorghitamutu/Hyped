@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using System.Management;
-using Viridian.Utilities;
+using Viridian.Scopes;
 using static Viridian.Resources.Msvm.ResourcePoolSettingData;
 
 namespace Viridian.Resources.Msvm
@@ -8,7 +8,6 @@ namespace Viridian.Resources.Msvm
     public sealed class ResourceAllocationSettingData
     {
         private static ManagementObject Msvm_ResourceAllocationSettingData = null;
-        private static ManagementScope scope = null;
 
         #region MsvmProperties
 
@@ -41,9 +40,7 @@ namespace Viridian.Resources.Msvm
 
         public ResourceAllocationSettingData(ushort ResourceType, string ResourceSubType, string PoolId, string[] HostResource)
         {
-            scope = Utils.GetScope(Properties.Environment.Default.Server, Properties.Environment.Default.Virtualization);
-
-            using (var rpsdClass = new ManagementClass(nameof(Msvm_ResourceAllocationSettingData)) { Scope = scope })
+            using (var rpsdClass = new ManagementClass(nameof(Msvm_ResourceAllocationSettingData)) { Scope = Scope.Virtualization.SpecificScope })
             {
                 Msvm_ResourceAllocationSettingData = rpsdClass.CreateInstance();
 
@@ -57,8 +54,6 @@ namespace Viridian.Resources.Msvm
 
         public ResourceAllocationSettingData(ManagementObject ResourceAllocationSettingData)
         {
-            scope = ResourceAllocationSettingData?.Scope;
-
             Msvm_ResourceAllocationSettingData = ResourceAllocationSettingData;
         }
 

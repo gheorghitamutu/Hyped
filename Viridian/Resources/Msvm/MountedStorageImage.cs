@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Management;
 using Viridian.Job;
-using Viridian.Utilities;
+using Viridian.Scopes;
 
 namespace Viridian.Resources.Msvm
 {
     public sealed class MountedStorageImage
     {
         private ManagementObject Msvm_MountedStorageImage = null;
-        private ManagementScope scope = null;
 
         public enum AccessMSI : ushort
         {
@@ -49,7 +48,6 @@ namespace Viridian.Resources.Msvm
 
         public MountedStorageImage(ManagementObject MsvmMountedStorageImage)
         {
-            scope = Utils.GetScope(Properties.Environment.Default.Server, Properties.Environment.Default.Virtualization);
             Msvm_MountedStorageImage = MsvmMountedStorageImage;
         }
 
@@ -59,7 +57,7 @@ namespace Viridian.Resources.Msvm
         {
             using (var ip = Msvm_MountedStorageImage.GetMethodParameters(nameof(DetachVirtualHardDisk)))
             using (var op = Msvm_MountedStorageImage.InvokeMethod(nameof(DetachVirtualHardDisk), ip, null))
-                Validator.ValidateOutput(op, scope);
+                Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
         }
 
         ~MountedStorageImage()

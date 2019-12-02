@@ -57,6 +57,11 @@
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Properties\VirtualSystemSettingData.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>VirtualSystemSettingData.settings</DependentUpon>
+    </Compile>
     <Compile Include="Resources\Drives\SyntheticDisk.cs" />
     <Compile Include="Resources\MSFT\Partition.cs" />
     <Compile Include="Resources\MSFT\Volume.cs" />
@@ -80,15 +85,16 @@
     <Compile Include="Resources\Controllers\SCSI.cs" />
     <Compile Include="Resources\Physical\ISO.cs" />
     <Compile Include="Resources\MSFT\Disk.cs" />
-    <Compile Include="Settings.cs" />
-    <Compile Include="Utilities\Utils.cs" />
+    <Compile Include="Scope\Scope.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
-    <None Include="Properties\VirtualSystemSettingData .settings">
+    <None Include="Properties\VirtualSystemSettingData.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>VirtualSystemSettingData.Designer.cs</LastGenOutput>
     </None>
     <None Include="Properties\Environment.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

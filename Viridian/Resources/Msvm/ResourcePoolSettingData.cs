@@ -1,12 +1,11 @@
 ﻿using System.Management;
-using Viridian.Utilities;
+using Viridian.Scopes;
 
 namespace Viridian.Resources.Msvm
 {
     public sealed class ResourcePoolSettingData
     {
         private static ManagementObject Msvm_ResourcePoolSettingData = null;
-        private static ManagementScope scope = null;
 
         public enum PoolLoadBalancingBehavior : ushort
         {
@@ -82,9 +81,7 @@ namespace Viridian.Resources.Msvm
 
         public ResourcePoolSettingData(ushort ResourceType, string ResourceSubType, string PoolId, string ElementName)
         {
-            scope = Utils.GetScope(Properties.Environment.Default.Server, Properties.Environment.Default.Virtualization);
-
-            using (var rpsdClass = new ManagementClass(nameof(Msvm_ResourcePoolSettingData)) { Scope = scope })
+            using (var rpsdClass = new ManagementClass(nameof(Msvm_ResourcePoolSettingData)) { Scope = Scope.Virtualization.SpecificScope })
             {
                 Msvm_ResourcePoolSettingData = rpsdClass.CreateInstance();
 

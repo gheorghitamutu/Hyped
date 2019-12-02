@@ -6,9 +6,9 @@ using Viridian.Exceptions;
 using Viridian.Job;
 using Viridian.Resources.Msvm;
 using Viridian.Resources.Network;
+using Viridian.Scopes;
 using Viridian.Service.Msvm;
 using Viridian.Statistics;
-using Viridian.Utilities;
 
 namespace Viridian.Machine
 {
@@ -16,13 +16,10 @@ namespace Viridian.Machine
     {
         private ManagementObject Msvm_ComputerSystem = null; // don't directly use it unless explicitly required (Name property)!
 
-        public ManagementScope Scope { get; private set; }
-
         private string elementName = null;
 
         public ComputerSystem(string ElementName)
         {
-            Scope = Utils.GetScope(Properties.Environment.Default.Server, Properties.Environment.Default.Virtualization);
             this.ElementName = ElementName;
 
             Define();
@@ -58,7 +55,7 @@ namespace Viridian.Machine
 
                 if (MsvmComputerSystem == null)
                 {
-                    using (var vssd = Utils.GetServiceObject(Scope, "Msvm_VirtualSystemSettingData"))
+                    using (var vssd = GetMsvmObject("Msvm_VirtualSystemSettingData"))
                     {
                         vssd[nameof(ElementName)] = ElementName;
                         vssd[nameof(Properties.Environment.Default.ConfigurationDataRoot)] = Properties.Environment.Default.ConfigurationDataRoot;
@@ -68,12 +65,6 @@ namespace Viridian.Machine
                     }
                 }
             }
-        }
-
-        private ManagementObject QueryMsvm_ComputerSystem(string name, string value)
-        {
-            using (var mos = new ManagementObjectSearcher(Scope, new ObjectQuery("SELECT * FROM Msvm_ComputerSystem")))
-                return mos.Get().Cast<ManagementObject>().Where((c) => c[name]?.ToString() == value).FirstOrDefault();
         }
 
         #region Enums
@@ -115,7 +106,6 @@ namespace Viridian.Machine
             public static DescriptionInfo MicrosoftVirtualComputerSystem => new DescriptionInfo("Microsoft Virtual Computer System");
             public static DescriptionInfo MicrosoftHostingComputerSystem => new DescriptionInfo("Microsoft Hosting Computer System");
         }
-
         public enum EnabledDefaultVM : ushort
         {
             Enabled = 2,
@@ -261,7 +251,7 @@ namespace Viridian.Machine
             using (var ip = MsvmComputerSystem.GetMethodParameters(nameof(InjectNonMaskableInterrupt)))
             {
                 using (var op = MsvmComputerSystem.InvokeMethod(nameof(InjectNonMaskableInterrupt), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
         public void RequestReplicationStateChange(ReplicationStateVM RequestedState, ulong TimeoutPeriod = 0)
@@ -272,7 +262,7 @@ namespace Viridian.Machine
                 ip[nameof(TimeoutPeriod)] = null; // CIM_DateTime
 
                 using (var op = MsvmComputerSystem.InvokeMethod(nameof(RequestReplicationStateChange), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
         public void RequestReplicationStateChangeEx(string ReplicationRelationship, ReplicationStateVM RequestedState, ulong TimeoutPeriod = 0)
@@ -284,7 +274,7 @@ namespace Viridian.Machine
                 ip[nameof(TimeoutPeriod)] = null; // CIM_DateTime
 
                 using (var op = MsvmComputerSystem.InvokeMethod(nameof(RequestReplicationStateChangeEx), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
         public void RequestStateChange(VirtualSystemManagement.RequestedStateVSM RequestedState, ulong TimeoutPeriod = 0)
@@ -295,7 +285,7 @@ namespace Viridian.Machine
                 ip[nameof(TimeoutPeriod)] = null; // CIM_DateTime
 
                 using (var op = MsvmComputerSystem.InvokeMethod(nameof(RequestStateChange), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 
@@ -353,7 +343,7 @@ namespace Viridian.Machine
             // Set the SnapshotSettings property. Backup/Recovery snapshots require special settings.
             if (snapshotType == SnapshotType.Recovery)
             {
-                using (var vsssd = Utils.GetServiceObject(Scope, "Msvm_VirtualSystemSnapshotSettingData"))
+                using (var vsssd = GetMsvmObject("Msvm_VirtualSystemSnapshotSettingData"))
                     snapshotSettings = vsssd.GetText(TextFormat.CimDtd20);
 
                 // Make sure you activate Volume Shadow Copy service on Guest and install KB3063109.
@@ -608,7 +598,7 @@ namespace Viridian.Machine
 
         public void ConnectVmToSwitch(string switchName, string adapterName)
         {
-            using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope, switchName))
+            using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope.Virtualization.SpecificScope, switchName))
             using (var vms = GetVirtualMachineSettings(ElementName))
             using (var syntheticAdapter = SyntheticEthernetAdapter.AddSyntheticAdapter(this, adapterName))
             using (var epasd = NetSwitch.GetDefaultEthernetPortAllocationSettingData())
@@ -622,7 +612,7 @@ namespace Viridian.Machine
 
         public void DisconnectVmFromSwitch(string switchName)
         {
-            using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope, switchName))
+            using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope.Virtualization.SpecificScope, switchName))
                 foreach (var connection in NetSwitch.FindConnectionsToSwitch(MsvmComputerSystem, ves))
                 {
                     connection["EnabledState"] = 3;
@@ -633,8 +623,8 @@ namespace Viridian.Machine
 
         public void ModifyConnection(string currentSwitchName, string newSwitchName)
         {
-            using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope, currentSwitchName))
-            using (var newVes = NetSwitch.FindVirtualEthernetSwitch(Scope, newSwitchName))
+            using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope.Virtualization.SpecificScope, currentSwitchName))
+            using (var newVes = NetSwitch.FindVirtualEthernetSwitch(Scope.Virtualization.SpecificScope, newSwitchName))
                 foreach (var connection in NetSwitch.FindConnectionsToSwitch(MsvmComputerSystem, ves))
                 {
                     connection["HostResource"] = new string[] { newVes.Path.Path };
@@ -659,7 +649,7 @@ namespace Viridian.Machine
                     .ForEach((sepsd) =>
                         aclSettingDataList.AddRange(
                             SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(
-                                SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope))
+                                SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope.Virtualization.SpecificScope))
                                     .Cast<ManagementObject>()
                                     .ToList()));
 
@@ -692,7 +682,7 @@ namespace Viridian.Machine
                     .ForEach(
                         (sepsd) =>
                             SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(
-                                SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope))
+                                SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope.Virtualization.SpecificScope))
                                     .ForEach(
                                         (espasd) =>
                                             Metric.GetAllBaseMetricDefinitions(espasd)
@@ -710,7 +700,7 @@ namespace Viridian.Machine
                     .ForEach(
                         (sepsd) =>
                             SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(
-                                SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope))
+                                SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope.Virtualization.SpecificScope))
                                     .ForEach(
                                         (espasd) =>
                                             Metric.Instance.SetAllMetrics(espasd, operation)));
@@ -742,10 +732,16 @@ namespace Viridian.Machine
 
         #region Utils
 
-        public static ManagementObject GetVirtualMachine(ManagementScope scope)
+        public static ManagementObject QueryMsvm_ComputerSystem(string name, string value)
         {
-            using (var mos = new ManagementObjectSearcher(scope, new ObjectQuery("SELECT * FROM Msvm_ComputerSystem")))
-                return mos.Get().Cast<ManagementObject>().Where((c) => c["Name"]?.ToString() == Environment.MachineName).FirstOrDefault();
+            using (var mos = new ManagementObjectSearcher(Scope.Virtualization.SpecificScope, new ObjectQuery("SELECT * FROM Msvm_ComputerSystem")))
+                return mos.Get().Cast<ManagementObject>().Where((c) => c[name]?.ToString() == value).FirstOrDefault();
+        }
+
+        private static ManagementObject GetMsvmObject(string serviceName)
+        {
+            using (var serviceClass = new ManagementClass(Scope.Virtualization.SpecificScope, new ManagementPath(serviceName), null))
+                return serviceClass.GetInstances().Cast<ManagementObject>().First();
         }
 
         #endregion

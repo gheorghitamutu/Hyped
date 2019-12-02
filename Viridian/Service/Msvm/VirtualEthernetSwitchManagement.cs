@@ -1,6 +1,7 @@
 ﻿using System.Management;
 using Viridian.Exceptions;
 using Viridian.Job;
+using Viridian.Scopes;
 
 namespace Viridian.Service.Msvm
 {
@@ -51,7 +52,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualEthernetSwitchManagementService.InvokeMethod(nameof(AddFeatureSettings), ip, null))
                 {
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
 
                     return op["ResultingFeatureSettings"] as string[];
                 }
@@ -67,7 +68,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualEthernetSwitchManagementService.InvokeMethod(nameof(AddResourceSettings), ip, null))
                 {
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
 
                     return op["ResultingResourceSettings"] as string[];
                 }
@@ -84,7 +85,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualEthernetSwitchManagementService.InvokeMethod(nameof(DefineSystem), ip, null))
                 {
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
 
                     return op["ResultingSystem"] as string;
                 }
@@ -98,7 +99,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(AffectedSystem)] = AffectedSystem ?? throw new ViridianException($"{nameof(AffectedSystem)} is null!");
 
                 using (var op = Msvm_VirtualEthernetSwitchManagementService.InvokeMethod(nameof(DestroySystem), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 
@@ -110,7 +111,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualEthernetSwitchManagementService.InvokeMethod(nameof(ModifyFeatureSettings), ip, null))
                 {
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
 
                     return op["ResultingFeatureSettings"] as string[];
                 }
@@ -125,7 +126,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_VirtualEthernetSwitchManagementService.InvokeMethod(nameof(ModifyResourceSettings), ip, null))
                 {
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
 
                     return op["ResultingResourceSettings"] as string[];
                 }
@@ -139,7 +140,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(SystemSettings)] = SystemSettings ?? throw new ViridianException($"{nameof(SystemSettings)} is null!");
 
                 using (var op = Msvm_VirtualEthernetSwitchManagementService.InvokeMethod(nameof(ModifySystemSettings), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 
@@ -150,7 +151,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(FeatureSettings)] = FeatureSettings ?? throw new ViridianException($"{nameof(FeatureSettings)} is null!");
 
                 using (var op = Msvm_VirtualEthernetSwitchManagementService.InvokeMethod(nameof(RemoveFeatureSettings), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 
@@ -161,7 +162,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(ResourceSettings)] = ResourceSettings ?? throw new ViridianException($"{nameof(ResourceSettings)} is null!");
 
                 using (var op = Msvm_VirtualEthernetSwitchManagementService.InvokeMethod(nameof(RemoveResourceSettings), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 
@@ -173,7 +174,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(TimeoutPeriod)] = null; // CIM_DateTime
 
                 using (var op = Msvm_VirtualEthernetSwitchManagementService.InvokeMethod(nameof(RequestStateChange), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 
@@ -181,14 +182,14 @@ namespace Viridian.Service.Msvm
         {
             using (var ip = Msvm_VirtualEthernetSwitchManagementService.GetMethodParameters(nameof(StartService)))
             using (var op = Msvm_VirtualEthernetSwitchManagementService.InvokeMethod(nameof(StartService), ip, null))
-                Validator.ValidateOutput(op, Scope);
+                Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
         }
 
         public override void StopService()
         {
             using (var ip = Msvm_VirtualEthernetSwitchManagementService.GetMethodParameters(nameof(StopService)))
             using (var op = Msvm_VirtualEthernetSwitchManagementService.InvokeMethod(nameof(StopService), ip, null))
-                Validator.ValidateOutput(op, Scope);
+                Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
         }
 
     }

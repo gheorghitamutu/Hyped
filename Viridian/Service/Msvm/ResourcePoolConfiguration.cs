@@ -1,6 +1,7 @@
 ﻿using System.Management;
 using Viridian.Exceptions;
 using Viridian.Job;
+using Viridian.Scopes;
 using Viridian.Service.Msvm;
 
 namespace Viridian.Resources.Msvm
@@ -40,9 +41,9 @@ namespace Viridian.Resources.Msvm
 
                 using (var op = Msvm_ResourcePoolConfigurationService.InvokeMethod(nameof(CreatePool), ip, null))
                 {
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
 
-                    return new ManagementObject(Scope, new ManagementPath(op["Pool"].ToString()), null);
+                    return new ManagementObject(Scope.Virtualization.SpecificScope, new ManagementPath(op["Pool"].ToString()), null);
                 }
             }
         }
@@ -54,7 +55,7 @@ namespace Viridian.Resources.Msvm
                 ip[nameof(Pool)] = Pool ?? throw new ViridianException($"{nameof(Pool)} is null!");
 
                 using (var op = Msvm_ResourcePoolConfigurationService.InvokeMethod(nameof(DeletePool), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 
@@ -67,7 +68,7 @@ namespace Viridian.Resources.Msvm
                 ip[nameof(AllocationSettings)] = AllocationSettings ?? throw new ViridianException($"{nameof(AllocationSettings)} is null!");
 
                 using (var op = Msvm_ResourcePoolConfigurationService.InvokeMethod(nameof(ModifyPoolResources), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 
@@ -79,7 +80,7 @@ namespace Viridian.Resources.Msvm
                 ip[nameof(PoolSettings)] = PoolSettings ?? throw new ViridianException($"{nameof(PoolSettings)} is null!");
 
                 using (var op = Msvm_ResourcePoolConfigurationService.InvokeMethod(nameof(ModifyPoolSettings), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 

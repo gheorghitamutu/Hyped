@@ -2,6 +2,7 @@
 using System.Management;
 using Viridian.Exceptions;
 using Viridian.Job;
+using Viridian.Scopes;
 
 namespace Viridian.Service.Msvm
 {
@@ -79,7 +80,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(ReadOnly)] = ReadOnly;
 
                 using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(AttachVirtualHardDisk), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 
@@ -91,7 +92,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(Mode)] = Mode;
 
                 using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(CompactVirtualHardDisk), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 
@@ -103,7 +104,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(VirtualDiskSettingData)] = VirtualDiskSettingData ?? throw new ViridianException($"{nameof(VirtualDiskSettingData)} is null!");
 
                 using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(ConvertVirtualHardDisk), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 
@@ -114,7 +115,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(VirtualDiskSettingData)] = VirtualDiskSettingData ?? throw new ViridianException($"{nameof(VirtualDiskSettingData)} is null!");
 
                 using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(CreateVirtualHardDisk), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 
@@ -125,7 +126,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(Path)] = Path ?? throw new ViridianException($"{nameof(Path)} is null!");
 
                 using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(CreateVirtualFloppyDisk), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 
@@ -136,7 +137,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(VirtualHardDiskPath)] = VirtualHardDiskPath ?? throw new ViridianException($"{nameof(VirtualHardDiskPath)} is null!");
 
                 using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(ConvertVirtualHardDiskToVHDSet), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 
@@ -149,7 +150,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(PersistReferenceSnapshot)] = PersistReferenceSnapshot;
 
                 using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(DeleteVHDSnapshot), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 
@@ -162,7 +163,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(FindMountedStorageImageInstance), ip, null))
                 {
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
 
                     return new ManagementObject(op["Image"] as string);
                 }
@@ -181,7 +182,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(GetVirtualDiskChanges), ip, null))
                 {
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
 
                     return new object[] { (ulong)op["ProcessedByteLength"], (ulong[])op["ChangedByteOffsets"], (ulong[])op["ChangedByteLengths"] };
                 }
@@ -196,7 +197,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(GetVirtualHardDiskSettingData), ip, null))
                 {
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
 
                     return op["SettingData"].ToString();
                 }
@@ -211,7 +212,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(GetVirtualHardDiskState), ip, null))
                 {
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
 
                     return op["State"].ToString();
                 }
@@ -227,7 +228,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(GetVHDSetInformation), ip, null))
                 {
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
 
                     return op["Information"].ToString();
                 }
@@ -244,7 +245,7 @@ namespace Viridian.Service.Msvm
 
                 using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(GetVHDSnapshotInformation), ip, null))
                 {
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
 
                     return op["SnapshotInformation"] as string[];
                 }
@@ -259,7 +260,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(DestinationPath)] = DestinationPath ?? throw new ViridianException($"{nameof(DestinationPath)} is null!");
 
                 using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(MergeVirtualHardDisk), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 
@@ -270,7 +271,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(VHDSetPath)] = VHDSetPath ?? throw new ViridianException($"{nameof(VHDSetPath)} is null!");
 
                 using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(OptimizeVHDSet), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 
@@ -282,7 +283,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(MaxInternalSize)] = MaxInternalSize;
 
                 using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(ResizeVirtualHardDisk), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 
@@ -294,7 +295,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(TimeoutPeriod)] = TimeoutPeriod;
 
                 using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(RequestStateChange), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 
@@ -308,7 +309,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(IgnoreIDMismatch)] = IgnoreIDMismatch;
 
                 using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(SetParentVirtualHardDisk), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 
@@ -319,7 +320,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(VirtualDiskSettingData)] = VirtualDiskSettingData ?? throw new ViridianException($"{nameof(VirtualDiskSettingData)} is null!");
 
                 using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(SetVirtualHardDiskSettingData), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 
@@ -330,7 +331,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(Information)] = Information ?? throw new ViridianException($"{nameof(Information)} is null!");
 
                 using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(SetVHDSnapshotInformation), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 
@@ -338,14 +339,14 @@ namespace Viridian.Service.Msvm
         {
             using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(StartService)))
             using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(StartService), ip, null))
-                Validator.ValidateOutput(op, Scope);
+                Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
         }
 
         public override void StopService()
         {
             using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(StopService)))
             using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(StopService), ip, null))
-                Validator.ValidateOutput(op, Scope);
+                Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
         }
 
         public void Unmount(string Path)
@@ -355,7 +356,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(Path)] = Path ?? throw new ViridianException($"{nameof(Path)} is null!");
 
                 using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(Unmount), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 
@@ -366,7 +367,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(Path)] = Path ?? throw new ViridianException($"{nameof(Path)} is null!");
 
                 using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(ValidatePersistentReservationSupport), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 
@@ -377,7 +378,7 @@ namespace Viridian.Service.Msvm
                 ip[nameof(Path)] = Path ?? throw new ViridianException($"{nameof(Path)} is null!");
 
                 using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(ValidateVirtualHardDisk), ip, null))
-                    Validator.ValidateOutput(op, Scope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
             }
         }
 

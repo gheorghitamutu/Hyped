@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Management;
-using Viridian.Utilities;
+using Viridian.Scopes;
 
 namespace Viridian.Resources.Msvm
 {
     public sealed class ResourcePool
     {
         private ManagementObject Msvm_ResourcePool = null;
-        private ManagementScope scope = null;
 
         public enum CommunicationStatusRP : ushort
         {
@@ -161,7 +160,6 @@ namespace Viridian.Resources.Msvm
         
         public ResourcePool(ManagementObject MsvmResourcePool)
         {
-            scope = Utils.GetScope(Properties.Environment.Default.Server, Properties.Environment.Default.Virtualization);
             Msvm_ResourcePool = MsvmResourcePool;
         }
 
@@ -176,7 +174,7 @@ namespace Viridian.Resources.Msvm
 
         public static ManagementObject GetPool(string ResourceSubType, bool Primordial = true)
         {
-            using (var mos = new ManagementObjectSearcher(Utils.GetScope(Properties.Environment.Default.Server, Properties.Environment.Default.Virtualization), new ObjectQuery("SELECT * FROM Msvm_ResourcePool")))
+            using (var mos = new ManagementObjectSearcher(Scope.Virtualization.SpecificScope, new ObjectQuery("SELECT * FROM Msvm_ResourcePool")))
                 return mos
                     .Get()
                     .Cast<ManagementObject>()

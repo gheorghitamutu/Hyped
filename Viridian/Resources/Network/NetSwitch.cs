@@ -7,6 +7,7 @@ using Viridian.Exceptions;
 using Viridian.Job;
 using Viridian.Machine;
 using Viridian.Resources.Msvm;
+using Viridian.Scopes;
 using Viridian.Service.Msvm;
 
 // TODO: change all <Operation>Custom<AppliedOn> to handle actual param settings
@@ -79,7 +80,7 @@ namespace Viridian.Resources.Network
 
         public static void CreateInternalSwitch(ManagementScope scope, string switchName, string switchNotes)
         {
-            using (var host = ComputerSystem.GetVirtualMachine(scope))
+            using (var host = ComputerSystem.QueryMsvm_ComputerSystem("Name", Environment.MachineName))
             using (var depasd = GetDefaultEthernetPortAllocationSettingData())
             {
                 depasd["ElementName"] = switchName + "_Internal";
@@ -108,7 +109,7 @@ namespace Viridian.Resources.Network
         public static void CreateExternalSwitch(ManagementScope scope, string externalAdapterName, string switchName, string switchNotes)
         {
             using (var eep = FindExternalAdapter(scope, externalAdapterName))
-            using (var host = ComputerSystem.GetVirtualMachine(scope))
+            using (var host = ComputerSystem.QueryMsvm_ComputerSystem("Name", Environment.MachineName))
             using (var depasdInternal = GetDefaultEthernetPortAllocationSettingData())
             using (var depasdExternal = GetDefaultEthernetPortAllocationSettingData())
             {
@@ -276,7 +277,7 @@ namespace Viridian.Resources.Network
             string featureId = GetPortFeatureId(featureType);
 
             using (var connections = FindConnections(virtualMachine?.MsvmComputerSystem))
-            using (var defaultFeatureSetting = GetDefaultFeatureSetting(featureId, virtualMachine.Scope))
+            using (var defaultFeatureSetting = GetDefaultFeatureSetting(featureId, Scope.Virtualization.SpecificScope))
             {
                 switch (featureType)
                 {
@@ -456,7 +457,7 @@ namespace Viridian.Resources.Network
         {
             var connectionsToModify = new List<string>();
 
-            using (var feature = FindFeatureByName(featureName, vm?.Scope))
+            using (var feature = FindFeatureByName(featureName, Scope.Virtualization.SpecificScope))
             using (var connectionCollection = FindConnections(vm.MsvmComputerSystem))
             {
                 foreach (ManagementObject connection in connectionCollection)
