@@ -1,4 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
 using Viridian.Msvm.VirtualSystem;
 using Viridian.Msvm.VirtualSystemManagement;
 
@@ -44,10 +46,10 @@ namespace ViridianTester.Machine
 
             // Act
             var sut = new ComputerSystem(vmName);
-            sut.SetIncrementalBackup(status);
+            sut.VirtualSystemSettingData.ModifySystemSettings(new Dictionary<string, object>() { { nameof(sut.VirtualSystemSettingData.IncrementalBackupEnabled), status } });
 
             // Assert
-            Assert.IsTrue(sut.GetIncrementalBackup());
+            Assert.IsTrue(sut.VirtualSystemSettingData.IncrementalBackupEnabled);
             sut.DestroySystem();
         }
 
@@ -108,7 +110,7 @@ namespace ViridianTester.Machine
 
             // Act
             var sut = new ComputerSystem(vmName);
-            var bsoList = sut.GetBootSourceOrderedList();
+            var bsoList = sut.VirtualSystemSettingData.BootSourceOrder;
             // SetBootOrderByDevicePath()
 
             // Assert -> TODO: change the assertion when you add Storage related implementation (boot order list will be empty until then)
@@ -124,7 +126,7 @@ namespace ViridianTester.Machine
 
             // Act
             var sut = new ComputerSystem(vmName);
-            var bsoList = sut.GetBootSourceOrderedList();
+            var bsoList = sut.VirtualSystemSettingData.BootSourceOrder;
             // SetBootOrderByIndex()           
 
             // Assert -> TODO: change the assertion when you add Storage related implementation (boot order list will be empty until then)
@@ -140,11 +142,10 @@ namespace ViridianTester.Machine
 
             // Act
             var sut = new ComputerSystem(vmName);
-            sut.SetNetworkBootPreferredProtocol(ComputerSystem.NetworkBootPreferredProtocol.IPv6);
-            var nbpp = sut.GetNetworkBootPreferredProtocol();
+            sut.VirtualSystemSettingData.ModifySystemSettings(new Dictionary<string, object>() { { nameof(sut.VirtualSystemSettingData.NetworkBootPreferredProtocol), VirtualSystemSettingData.NetworkBootPreferredProtocolVSSD.IPv6 } });
 
             // Assert
-            Assert.AreEqual(nbpp, ComputerSystem.NetworkBootPreferredProtocol.IPv6);
+            Assert.AreEqual(sut.VirtualSystemSettingData.NetworkBootPreferredProtocol, VirtualSystemSettingData.NetworkBootPreferredProtocolVSSD.IPv6);
             sut.DestroySystem();
         }
 
@@ -153,13 +154,14 @@ namespace ViridianTester.Machine
         {
             // Arrange
             var vmName = "vm_test_set_pause_after_boot_failure";
+            var status = true;
 
             // Act
             var sut = new ComputerSystem(vmName);
-            sut.SetPauseAfterBootFailure(true);
+            sut.VirtualSystemSettingData.ModifySystemSettings(new Dictionary<string, object>() { { nameof(sut.VirtualSystemSettingData.PauseAfterBootFailure), status } });
 
             // Assert
-            Assert.AreEqual(sut.GetPauseAfterBootFailure(), true);
+            Assert.AreEqual(sut.VirtualSystemSettingData.PauseAfterBootFailure, status);
             sut.DestroySystem();
         }
 
@@ -168,13 +170,14 @@ namespace ViridianTester.Machine
         {
             // Arrange
             var vmName = "vm_test_set_secure_boot";
+            var status = false;
 
             // Act
             var sut = new ComputerSystem(vmName);
-            sut.SetSecureBoot(false);
+            sut.VirtualSystemSettingData.ModifySystemSettings(new Dictionary<string, object>() { { nameof(sut.VirtualSystemSettingData.SecureBootEnabled), status } });
 
             // Assert
-            Assert.AreEqual(sut.GetSecureBoot(), false);
+            Assert.AreEqual(sut.VirtualSystemSettingData.SecureBootEnabled, status);
             sut.DestroySystem();
         }
 

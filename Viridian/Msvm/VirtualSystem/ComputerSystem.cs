@@ -92,11 +92,6 @@ namespace Viridian.Msvm.VirtualSystem
             Disk = 3,
             Recovery = 32768,
         }
-        public enum NetworkBootPreferredProtocol
-        {
-            IPv4 = 4096,
-            IPv6 = 4097
-        }
         public class DescriptionInfo
         {
             private DescriptionInfo(string Name)
@@ -305,25 +300,6 @@ namespace Viridian.Msvm.VirtualSystem
 
         #endregion
 
-        #region Backup
-
-        public void SetIncrementalBackup(bool incrementalBackupEnabled)
-        {
-            if ((bool)VirtualSystemSettingData.MsvmVirtualSystemSettingData["IncrementalBackupEnabled"] != incrementalBackupEnabled)
-            {
-                VirtualSystemSettingData.MsvmVirtualSystemSettingData["IncrementalBackupEnabled"] = incrementalBackupEnabled;
-
-                VirtualSystemManagementService.Instance.ModifySystemSettings(VirtualSystemSettingData.MsvmVirtualSystemSettingData.GetText(TextFormat.CimDtd20));
-            }
-        }
-
-        public bool GetIncrementalBackup()
-        {
-            return (bool)VirtualSystemSettingData.MsvmVirtualSystemSettingData["IncrementalBackupEnabled"];
-        }
-
-        #endregion
-
         #region Snapshots
 
         public void CreateSnapshot(SnapshotType snapshotType, bool saveMachineState)
@@ -331,8 +307,8 @@ namespace Viridian.Msvm.VirtualSystem
             if (snapshotType == SnapshotType.Recovery && saveMachineState)
                 throw new ViridianException("You cannot create a recovery snapshot while the machine is in saved state!");
 
-            if (snapshotType == SnapshotType.Recovery)
-                SetIncrementalBackup(true);
+            if (snapshotType == SnapshotType.Recovery && VirtualSystemSettingData.IncrementalBackupEnabled == false)
+                VirtualSystemSettingData.ModifySystemSettings(new Dictionary<string, object>() { { nameof(VirtualSystemSettingData.IncrementalBackupEnabled), true } });
 
             if (saveMachineState)
                 RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Saved);
@@ -400,14 +376,9 @@ namespace Viridian.Msvm.VirtualSystem
 
         #region Boot
 
-        public string[] GetBootSourceOrderedList()
-        {
-            return (string[])VirtualSystemSettingData.MsvmVirtualSystemSettingData["BootSourceOrder"];
-        }
-
         public void SetBootOrderFromDevicePath(string devicePath)
         {
-            if (VirtualSystemSettingData.MsvmVirtualSystemSettingData["BootSourceOrder"] is string[] prevBootOrder)
+            if (VirtualSystemSettingData.BootSourceOrder is string[] prevBootOrder)
             {
                 var bso = new string[prevBootOrder.Length];
 
@@ -415,7 +386,7 @@ namespace Viridian.Msvm.VirtualSystem
                 foreach (var bs in prevBootOrder)
                     using (var entry = new ManagementObject(new ManagementPath(bs)))
                     {
-                        var fdp = entry["FirmwareDevicePath"].ToString();
+                        var fdp = entry["FirmwareDevicePath"] as string;
 
                         if (string.Equals(devicePath, fdp, StringComparison.OrdinalIgnoreCase))
                             bso[0] = bs;
@@ -423,10 +394,8 @@ namespace Viridian.Msvm.VirtualSystem
                             bso[index++] = bs;
                     }
 
-                VirtualSystemSettingData.MsvmVirtualSystemSettingData["BootSourceOrder"] = bso;
+                VirtualSystemSettingData.ModifySystemSettings(new Dictionary<string, object>() { { nameof(VirtualSystemSettingData.BootSourceOrder), bso } });
             }
-
-            VirtualSystemManagementService.Instance.ModifySystemSettings(VirtualSystemSettingData.MsvmVirtualSystemSettingData.GetText(TextFormat.WmiDtd20));
         }
 
         public void SetBootOrderByIndex(uint[] bootSourceOrder)
@@ -463,42 +432,6 @@ namespace Viridian.Msvm.VirtualSystem
             }
 
             VirtualSystemManagementService.Instance.ModifySystemSettings(VirtualSystemSettingData.MsvmVirtualSystemSettingData.GetText(TextFormat.WmiDtd20));
-        }
-
-        public NetworkBootPreferredProtocol GetNetworkBootPreferredProtocol()
-        {
-            return (NetworkBootPreferredProtocol)Enum.ToObject(typeof(NetworkBootPreferredProtocol), VirtualSystemSettingData.MsvmVirtualSystemSettingData["NetworkBootPreferredProtocol"]);
-        }
-
-        public void SetNetworkBootPreferredProtocol(NetworkBootPreferredProtocol networkBootPreferredProtocol)
-        {
-            VirtualSystemSettingData.MsvmVirtualSystemSettingData["NetworkBootPreferredProtocol"] = networkBootPreferredProtocol;
-
-            VirtualSystemManagementService.Instance.ModifySystemSettings(VirtualSystemSettingData.MsvmVirtualSystemSettingData.GetText(TextFormat.WmiDtd20));
-        }
-
-        public bool GetPauseAfterBootFailure()
-        {
-            return (bool)VirtualSystemSettingData.MsvmVirtualSystemSettingData["PauseAfterBootFailure"];
-        }
-
-        public void SetPauseAfterBootFailure(bool pauseAfterBootFailure)
-        {
-            VirtualSystemSettingData.MsvmVirtualSystemSettingData["PauseAfterBootFailure"] = pauseAfterBootFailure;
-
-            VirtualSystemManagementService.Instance.ModifySystemSettings(VirtualSystemSettingData.MsvmVirtualSystemSettingData.GetText(TextFormat.WmiDtd20));
-        }
-
-        public bool GetSecureBoot()
-        {
-            return (bool)VirtualSystemSettingData.MsvmVirtualSystemSettingData["SecureBootEnabled"];
-        }
-
-        public void SetSecureBoot(bool secureBootEnabled)
-        {
-                VirtualSystemSettingData.MsvmVirtualSystemSettingData["SecureBootEnabled"] = secureBootEnabled;
-
-                VirtualSystemManagementService.Instance.ModifySystemSettings(VirtualSystemSettingData.MsvmVirtualSystemSettingData.GetText(TextFormat.WmiDtd20));
         }
 
         #endregion
