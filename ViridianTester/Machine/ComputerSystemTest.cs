@@ -64,7 +64,7 @@ namespace ViridianTester.Machine
             sut.CreateSnapshot(ComputerSystem.SnapshotType.Full, false);
 
             // Assert
-            Assert.AreEqual(sut.GetSnapshotList().Count, 1);
+            Assert.AreEqual(sut.VirtualSystemSettingData.GetSnapshotList().Count, 1);
             sut.DestroySystem();
         }
 
@@ -77,12 +77,11 @@ namespace ViridianTester.Machine
             // Act
             var sut = new ComputerSystem(vmName);
             sut.CreateSnapshot(ComputerSystem.SnapshotType.Full, false);
-            var lcs = sut.GetLastCreatedSnapshot();
-            var snapshotNameCreated = (string)lcs["ElementName"];
-            sut.ApplySnapshot(snapshotNameCreated);
+            var lcs = sut.VirtualSystemSettingData.GetLastCreatedSnapshot();
+            sut.ApplySnapshot(lcs.ElementName);
 
             // Assert
-            Assert.AreEqual(snapshotNameCreated, sut.GetLastAppliedSnapshot()["ElementName"]);
+            Assert.AreEqual(lcs.ElementName, sut.VirtualSystemSettingData.GetLastAppliedSnapshot().ElementName);
             sut.DestroySystem();
         }
 
@@ -190,7 +189,7 @@ namespace ViridianTester.Machine
             // Act
             var sut = new ComputerSystem(vmName);
             sut.RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Running);
-            var info = sut.GetSummaryInformation();
+            var info = sut.VirtualSystemSettingData.GetSummaryInformation();
 
             // Assert
             Assert.AreEqual(1, info.Length);
@@ -208,10 +207,10 @@ namespace ViridianTester.Machine
 
             // Act
             var sut = new ComputerSystem(vmName);
-            var memory = sut.GetMemorySettingData();
+            var memory = sut.VirtualSystemSettingData.GetMemorySettingData();
 
             // Assert
-            Assert.AreEqual("Memory", memory["ElementName"]);
+            Assert.AreEqual(1048576UL, memory["Limit"]);
             sut.DestroySystem();
         }
     }

@@ -52,6 +52,11 @@
   <ItemGroup>
     <Compile Include="Job\Validator.cs" />
     <Compile Include="Msvm\VirtualSystem\ComputerSystem.cs" />
+    <Compile Include="Properties\ComputerSystem.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>ComputerSystem.settings</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Environment.Designer.cs">
       <DependentUpon>Environment.settings</DependentUpon>
       <AutoGen>True</AutoGen>
@@ -92,6 +97,10 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+    <None Include="Properties\ComputerSystem.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>ComputerSystem.Designer.cs</LastGenOutput>
+    </None>
     <None Include="Properties\VirtualSystemSettingData.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>VirtualSystemSettingData.Designer.cs</LastGenOutput>

@@ -25,7 +25,7 @@ namespace Viridian.Msvm.VirtualSystem
 
             Define();
 
-            VirtualSystemSettingData = new VirtualSystemSettingData(this);
+            VirtualSystemSettingData = new VirtualSystemSettingData(this, Properties.VirtualSystemSettingData.Default.Msvm_SettingsDefineState);
         }
 
         public ManagementObject MsvmComputerSystem
@@ -91,18 +91,6 @@ namespace Viridian.Msvm.VirtualSystem
             Full = 2,
             Disk = 3,
             Recovery = 32768,
-        }
-        public class DescriptionInfo
-        {
-            private DescriptionInfo(string Name)
-            {
-                this.Name = Name;
-            }
-
-            public string Name { get; set; }
-
-            public static DescriptionInfo MicrosoftVirtualComputerSystem => new DescriptionInfo("Microsoft Virtual Computer System");
-            public static DescriptionInfo MicrosoftHostingComputerSystem => new DescriptionInfo("Microsoft Hosting Computer System");
         }
         public enum EnabledDefaultVM : ushort
         {
@@ -337,101 +325,13 @@ namespace Viridian.Msvm.VirtualSystem
                 RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Running);
         }
 
-        public List<ManagementObject> GetSnapshotList()
-        {
-                return
-                    MsvmComputerSystem.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null)
-                        .Cast<ManagementObject>()
-                        .ToList();
-        }
-
         public void ApplySnapshot(string ElementName)
         {
             // In order to apply a snapshot, the virtual machine must first be saved/off
             if (EnabledState != EnabledStateVM.Disabled)
                 RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Off);
 
-            VirtualSystemSnapshotService.Instance.ApplySnapshot(
-                MsvmComputerSystem.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null)
-                    .Cast<ManagementObject>()
-                    .Where((c) => (c[nameof(ElementName)]?.ToString() == ElementName))
-                    .First());
-        }
-
-        public ManagementObject GetLastAppliedSnapshot()
-        {
-            return MsvmComputerSystem.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_LastAppliedSnapshot", null, null, null, null, false, null).Cast<ManagementObject>().First();
-        }
-
-        public ManagementObject GetLastCreatedSnapshot()
-        {
-            return
-                MsvmComputerSystem.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SnapshotOfVirtualSystem", null, null, null, null, false, null)
-                    .Cast<ManagementObject>()
-                    .OrderByDescending(x => (ManagementDateTimeConverter.ToDateTime(x["CreationTime"].ToString())))
-                    .First();
-        }
-
-        #endregion
-
-        #region Boot
-
-        public void SetBootOrderFromDevicePath(string devicePath)
-        {
-            if (VirtualSystemSettingData.BootSourceOrder is string[] prevBootOrder)
-            {
-                var bso = new string[prevBootOrder.Length];
-
-                var index = 1;
-                foreach (var bs in prevBootOrder)
-                    using (var entry = new ManagementObject(new ManagementPath(bs)))
-                    {
-                        var fdp = entry["FirmwareDevicePath"] as string;
-
-                        if (string.Equals(devicePath, fdp, StringComparison.OrdinalIgnoreCase))
-                            bso[0] = bs;
-                        else
-                            bso[index++] = bs;
-                    }
-
-                VirtualSystemSettingData.ModifySystemSettings(new Dictionary<string, object>() { { nameof(VirtualSystemSettingData.BootSourceOrder), bso } });
-            }
-        }
-
-        public void SetBootOrderByIndex(uint[] bootSourceOrder)
-        {
-            if (bootSourceOrder == null)
-                throw new ViridianException("Boot Sources Array is null!");
-
-            var previousBso = VirtualSystemSettingData.MsvmVirtualSystemSettingData["BootSourceOrder"] as string[];
-
-            if (previousBso != null && bootSourceOrder.Length > previousBso.Length)
-                throw new ViridianException("Too many boot devices specified!");
-
-            if (bootSourceOrder.Any(indexBso => previousBso != null && indexBso > previousBso.Length))
-                throw new ViridianException("Invalid boot device index specified!");
-
-            if (previousBso != null)
-            {
-                var newBso = new string[previousBso.Length];
-
-                uint countReorderedBootSources = 0;
-
-                foreach (var i in bootSourceOrder)
-                    newBso[countReorderedBootSources++] = previousBso[i];
-
-                for (uint i = 0; i < previousBso.Length; i++)
-                {
-                    var isReordered = bootSourceOrder.Any(reorderedIndex => i == reorderedIndex);
-
-                    if (!isReordered)
-                        newBso[countReorderedBootSources++] = previousBso[i];
-                }
-
-                VirtualSystemSettingData.MsvmVirtualSystemSettingData["BootSourceOrder"] = newBso;
-            }
-
-            VirtualSystemManagementService.Instance.ModifySystemSettings(VirtualSystemSettingData.MsvmVirtualSystemSettingData.GetText(TextFormat.WmiDtd20));
+            VirtualSystemSnapshotService.Instance.ApplySnapshot(VirtualSystemSettingData.GetSnapshot(ElementName).MsvmVirtualSystemSettingData);
         }
 
         #endregion
@@ -448,75 +348,7 @@ namespace Viridian.Msvm.VirtualSystem
 
         #endregion
 
-        #region Stats
-
-        public ManagementObject GetMemorySettingData()
-        {
-            using (var vssd = MsvmComputerSystem.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_SettingsDefineState", null, null, "SettingData", "ManagedElement", false, null).Cast<ManagementObject>().First())
-                return vssd.GetRelated("Msvm_MemorySettingData").Cast<ManagementObject>().First();
-        }
-
-        public ManagementBaseObject[] GetSummaryInformation()
-        {
-            var requestedInformation = new int[]
-            {
-                    0,      // Name
-                    1,      // ElementName
-                    2,      // CreationTime
-                    3,      // Notes
-                    4,      // NumberOfProcessors
-                    5,      // ThumbnailImage
-                    6,      // ThumbnailImageHeight
-                    7,      // ThumbnailImageWidth
-                    8,      // AllocatedGPU
-                    9,      // VirtualSwitchNames 
-                    10,     // Version | Added in Windows 10 and Windows Server 2016.
-                    11,     // Shielded | Added in Windows 10, version 1703 and Windows Server 2016.
-                    100,    // EnabledState
-                    101,    // ProcessorLoad
-                    102,    // ProcessorLoadHistory
-                    103,    // MemoryUsage
-                    104,    // Heartbeat
-                    105,    // UpTime
-                    106,    // GuestOperatingSystem
-                    107,    // Snapshots
-                    108,    // AsynchronousTasks
-                    109,    // HealthState
-                    110,    // OperationalStatus
-                    111,    // StatusDescriptions
-                    112,    // MemoryAvailable
-                    113,    // AvailableMemoryBuffer
-                    114,    // Replication Mode
-                    115,    // Replication State
-                    116,    // Replication HealthTest Replica System
-                    117,    // Application Health 
-                    118,    // ReplicationStateEx 
-                    119,    // ReplicationHealthEx 
-                    120,    // SwapFilesInUse 
-                    121,    // IntegrationServicesVersionState 
-                    122,    // ReplicationProviderId 
-                    123     // MemorySpansPhysicalNumaNodes 
-            };
-
-            return VirtualSystemManagementService.Instance.GetSummaryInformation(new[] { VirtualSystemSettingData.MsvmVirtualSystemSettingData }, requestedInformation);
-        }
-
-        #endregion
-
         #region Network
-
-        public void ConnectVmToSwitch(string switchName, string adapterName)
-        {
-            using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope.Virtualization.SpecificScope, switchName))
-            using (var syntheticAdapter = SyntheticEthernetAdapter.AddSyntheticAdapter(this, adapterName))
-            using (var epasd = NetSwitch.GetDefaultEthernetPortAllocationSettingData())
-            {
-                epasd["Parent"] = syntheticAdapter.Path.Path;
-                epasd["HostResource"] = new string[] { ves.Path.Path };
-
-                VirtualSystemManagementService.Instance.AddResourceSettings(VirtualSystemSettingData.MsvmVirtualSystemSettingData, new string[] { epasd.GetText(TextFormat.WmiDtd20) });
-            }
-        }
 
         public void DisconnectVmFromSwitch(string switchName)
         {
@@ -544,23 +376,6 @@ namespace Viridian.Msvm.VirtualSystem
         public List<ManagementObject> GetSyntheticAdapterCollection()
         {
             return MsvmComputerSystem.GetRelated("Msvm_SyntheticEthernetPort").Cast<ManagementObject>().ToList();
-        }
-
-        public List<ManagementObject> GetEthernetSwitchPortAclSettingDatas()
-        {
-            var aclSettingDataList = new List<ManagementObject>();
-
-            VirtualSystemSettingData.MsvmVirtualSystemSettingData.GetRelated("Msvm_SyntheticEthernetPortSettingData")
-                    .Cast<ManagementObject>()
-                    .ToList()
-                    .ForEach((sepsd) =>
-                        aclSettingDataList.AddRange(
-                            SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(
-                                SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope.Virtualization.SpecificScope))
-                                    .Cast<ManagementObject>()
-                                    .ToList()));
-
-            return aclSettingDataList;
         }
 
         #endregion

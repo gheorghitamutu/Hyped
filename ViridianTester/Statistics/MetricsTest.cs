@@ -64,12 +64,12 @@ namespace ViridianTester.Statistics
             // Act
             var vm = new ComputerSystem(vmName);
             vm.RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Running);
-            vm.ConnectVmToSwitch("Default Switch", "MyNetworkAdapter");
+            vm.VirtualSystemSettingData.ConnectVmToSwitch("Default Switch", "MyNetworkAdapter");
             NetSwitch.AddCustomFeatureSettings(vm, NetSwitch.PortFeatureType.Acl);
             MetricService.Instance.ConfigureMetricsFlushInterval(new TimeSpan(1000));
             vm.SetBaseMetricsForEthernetSwitchPortAclSettingData(MetricService.MetricCollectionEnabled.Enable);
 
-            var port = vm.GetEthernetSwitchPortAclSettingDatas();
+            var port = vm.VirtualSystemSettingData.GetEthernetSwitchPortAclSettingDatas();
 
             var sut = MetricService.GetBaseMetricValueCollection(port.FirstOrDefault());
 

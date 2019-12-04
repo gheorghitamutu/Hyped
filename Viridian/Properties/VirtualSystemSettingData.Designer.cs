@@ -130,5 +130,41 @@ namespace Viridian.Properties {
                 this["PlannedReplicationSnapshot"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Msvm_SettingsDefineState")]
+        public string Msvm_SettingsDefineState {
+            get {
+                return ((string)(this["Msvm_SettingsDefineState"]));
+            }
+            set {
+                this["Msvm_SettingsDefineState"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Msvm_SnapshotOfVirtualSystem")]
+        public string Msvm_SnapshotOfVirtualSystem {
+            get {
+                return ((string)(this["Msvm_SnapshotOfVirtualSystem"]));
+            }
+            set {
+                this["Msvm_SnapshotOfVirtualSystem"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Msvm_LastAppliedSnapshot")]
+        public string Msvm_LastAppliedSnapshot {
+            get {
+                return ((string)(this["Msvm_LastAppliedSnapshot"]));
+            }
+            set {
+                this["Msvm_LastAppliedSnapshot"] = value;
+            }
+        }
     }
 }
