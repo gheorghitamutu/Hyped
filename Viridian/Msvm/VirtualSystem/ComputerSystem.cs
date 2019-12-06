@@ -4,8 +4,6 @@ using System.Linq;
 using System.Management;
 using Viridian.Exceptions;
 using Viridian.Job;
-using Viridian.Msvm.Metrics;
-using Viridian.Msvm.ResourceManagement;
 using Viridian.Msvm.VirtualSystemManagement;
 using Viridian.Resources.Network;
 using Viridian.Scopes;
@@ -36,9 +34,9 @@ namespace Viridian.Msvm.VirtualSystem
                     return null;
 
                 if (Name == null)
-                    return QueryMsvm_ComputerSystem(nameof(ElementName), ElementName);
+                    return QueryMsvmComputerSystem(nameof(ElementName), ElementName);
 
-                return QueryMsvm_ComputerSystem(nameof(Name), Name);
+                return QueryMsvmComputerSystem(nameof(Name), Name);
             }
 
             set
@@ -54,7 +52,7 @@ namespace Viridian.Msvm.VirtualSystem
         {
             if (MsvmComputerSystem == null)
             {
-                Msvm_ComputerSystem = QueryMsvm_ComputerSystem(nameof(ElementName), ElementName);
+                Msvm_ComputerSystem = QueryMsvmComputerSystem(nameof(ElementName), ElementName);
 
                 if (MsvmComputerSystem == null)
                 {
@@ -85,12 +83,6 @@ namespace Viridian.Msvm.VirtualSystem
             Deferred = 8,
             Quiesce = 9,
             Starting = 10
-        }
-        public enum SnapshotType
-        {
-            Full = 2,
-            Disk = 3,
-            Recovery = 32768,
         }
         public enum EnabledDefaultVM : ushort
         {
@@ -178,55 +170,55 @@ namespace Viridian.Msvm.VirtualSystem
 
         #region MsvmProperties
 
-        string InstanceID => MsvmComputerSystem[nameof(InstanceID)].ToString();
-        string Caption => MsvmComputerSystem[nameof(Caption)].ToString();
-        string Description => MsvmComputerSystem[nameof(Description)].ToString();
+        public string InstanceID => MsvmComputerSystem[nameof(InstanceID)].ToString();
+        public string Caption => MsvmComputerSystem[nameof(Caption)].ToString();
+        public string Description => MsvmComputerSystem[nameof(Description)].ToString();
         public string ElementName 
         {
             get { return Msvm_ComputerSystem != null ? MsvmComputerSystem[nameof(ElementName)].ToString() : elementName; }
             private set { elementName = value; }
         }
-        DateTime InstallDate => ManagementDateTimeConverter.ToDateTime(MsvmComputerSystem[nameof(InstallDate)].ToString());
-        OperationalStatusVM[] OperationalStatus => (OperationalStatusVM[])MsvmComputerSystem[nameof(OperationalStatus)];
-        string[] StatusDescriptions => (string[])MsvmComputerSystem[nameof(StatusDescriptions)];
-        string Status => MsvmComputerSystem[nameof(Status)].ToString();
-        HealthStateVM HealthState => (HealthStateVM)MsvmComputerSystem[nameof(HealthState)];
-        ushort CommunicationStatus => (ushort)MsvmComputerSystem[nameof(CommunicationStatus)];
-        ushort DetailedStatus => (ushort)MsvmComputerSystem[nameof(DetailedStatus)];
-        ushort OperatingStatus => (ushort)MsvmComputerSystem[nameof(OperatingStatus)];
-        ushort PrimaryStatus => (ushort)MsvmComputerSystem[nameof(PrimaryStatus)];
+        public DateTime InstallDate => ManagementDateTimeConverter.ToDateTime(MsvmComputerSystem[nameof(InstallDate)].ToString());
+        public OperationalStatusVM[] OperationalStatus => (OperationalStatusVM[])MsvmComputerSystem[nameof(OperationalStatus)];
+        public string[] StatusDescriptions => (string[])MsvmComputerSystem[nameof(StatusDescriptions)];
+        public string Status => MsvmComputerSystem[nameof(Status)].ToString();
+        public HealthStateVM HealthState => (HealthStateVM)MsvmComputerSystem[nameof(HealthState)];
+        public ushort CommunicationStatus => (ushort)MsvmComputerSystem[nameof(CommunicationStatus)];
+        public ushort DetailedStatus => (ushort)MsvmComputerSystem[nameof(DetailedStatus)];
+        public ushort OperatingStatus => (ushort)MsvmComputerSystem[nameof(OperatingStatus)];
+        public ushort PrimaryStatus => (ushort)MsvmComputerSystem[nameof(PrimaryStatus)];
         public EnabledStateVM EnabledState => (EnabledStateVM)(ushort)MsvmComputerSystem[nameof(EnabledState)];
-        string OtherEnabledState => MsvmComputerSystem[nameof(OtherEnabledState)].ToString();
-        ushort RequestedState => (ushort)MsvmComputerSystem[nameof(RequestedState)];
-        EnabledDefaultVM EnabledDefault => (EnabledDefaultVM)MsvmComputerSystem[nameof(EnabledDefault)];
-        DateTime TimeOfLastStateChange => ManagementDateTimeConverter.ToDateTime(MsvmComputerSystem[nameof(TimeOfLastStateChange)].ToString());
-        VirtualSystemManagementService.RequestedStateVSM[] AvailableRequestedStates => (VirtualSystemManagementService.RequestedStateVSM[])MsvmComputerSystem[nameof(AvailableRequestedStates)];
-        ushort TransitioningToState => (ushort)MsvmComputerSystem[nameof(TransitioningToState)];
-        string CreationClassName => MsvmComputerSystem[nameof(CreationClassName)].ToString();
-        string Name => Msvm_ComputerSystem?[nameof(Name)].ToString();
-        string PrimaryOwnerName => MsvmComputerSystem[nameof(PrimaryOwnerName)].ToString();
-        string PrimaryOwnerContact => MsvmComputerSystem[nameof(PrimaryOwnerContact)].ToString();
-        string[] Roles => (string[])MsvmComputerSystem[nameof(Roles)];
-        string NameFormat => MsvmComputerSystem[nameof(NameFormat)].ToString();
-        string[] OtherIdentifyingInfo => (string[])MsvmComputerSystem[nameof(OtherIdentifyingInfo)];
-        string[] IdentifyingDescriptions => (string[])MsvmComputerSystem[nameof(IdentifyingDescriptions)];
-        ushort[] Dedicated => (ushort[])MsvmComputerSystem[nameof(Dedicated)];
-        string[] OtherDedicatedDescriptions => (string[])MsvmComputerSystem[nameof(OtherDedicatedDescriptions)];
-        ushort ResetCapability => (ushort)MsvmComputerSystem[nameof(ResetCapability)];
-        ushort[] PowerManagementCapabilities => (ushort[])MsvmComputerSystem[nameof(PowerManagementCapabilities)];
-        ulong OnTimeInMilliseconds => (ulong)MsvmComputerSystem[nameof(OnTimeInMilliseconds)];
-        uint ProcessID => (uint)MsvmComputerSystem[nameof(ProcessID)];
-        DateTime TimeOfLastConfigurationChange => ManagementDateTimeConverter.ToDateTime(MsvmComputerSystem[nameof(TimeOfLastConfigurationChange)].ToString());
-        ushort NumberOfNumaNodes => (ushort)MsvmComputerSystem[nameof(NumberOfNumaNodes)];
-        ReplicationStateVM ReplicationState => (ReplicationStateVM)MsvmComputerSystem[nameof(ReplicationState)];
-        ReplicationHealthVM ReplicationHealth => (ReplicationHealthVM)MsvmComputerSystem[nameof(ReplicationHealth)];
-        ReplicationModeVM ReplicationMode => (ReplicationModeVM)MsvmComputerSystem[nameof(ReplicationMode)];
-        FailedOverReplicationTypeVM FailedOverReplicationType => (FailedOverReplicationTypeVM)MsvmComputerSystem[nameof(FailedOverReplicationType)];
-        LastReplicationTypeVM LastReplicationType => (LastReplicationTypeVM)MsvmComputerSystem[nameof(LastReplicationType)];
-        DateTime LastApplicationConsistentReplicationTime => ManagementDateTimeConverter.ToDateTime(MsvmComputerSystem[nameof(LastApplicationConsistentReplicationTime)].ToString());
-        DateTime LastReplicationTime => ManagementDateTimeConverter.ToDateTime(MsvmComputerSystem[nameof(LastReplicationTime)].ToString());
-        DateTime LastSuccessfulBackupTime => ManagementDateTimeConverter.ToDateTime(MsvmComputerSystem[nameof(LastSuccessfulBackupTime)].ToString());
-        EnhancedSessionModeStateVM EnhancedSessionModeState => (EnhancedSessionModeStateVM)MsvmComputerSystem[nameof(EnhancedSessionModeState)];
+        public string OtherEnabledState => MsvmComputerSystem[nameof(OtherEnabledState)].ToString();
+        public VirtualSystemManagementService.RequestedStateVSM RequestedState => (VirtualSystemManagementService.RequestedStateVSM)(ushort)MsvmComputerSystem[nameof(RequestedState)];
+        public EnabledDefaultVM EnabledDefault => (EnabledDefaultVM)MsvmComputerSystem[nameof(EnabledDefault)];
+        public DateTime TimeOfLastStateChange => ManagementDateTimeConverter.ToDateTime(MsvmComputerSystem[nameof(TimeOfLastStateChange)].ToString());
+        public VirtualSystemManagementService.RequestedStateVSM[] AvailableRequestedStates => (VirtualSystemManagementService.RequestedStateVSM[])MsvmComputerSystem[nameof(AvailableRequestedStates)];
+        public ushort TransitioningToState => (ushort)MsvmComputerSystem[nameof(TransitioningToState)];
+        public string CreationClassName => MsvmComputerSystem[nameof(CreationClassName)].ToString();
+        public string Name => Msvm_ComputerSystem?[nameof(Name)].ToString();
+        public string PrimaryOwnerName => MsvmComputerSystem[nameof(PrimaryOwnerName)].ToString();
+        public string PrimaryOwnerContact => MsvmComputerSystem[nameof(PrimaryOwnerContact)].ToString();
+        public string[] Roles => (string[])MsvmComputerSystem[nameof(Roles)];
+        public string NameFormat => MsvmComputerSystem[nameof(NameFormat)].ToString();
+        public string[] OtherIdentifyingInfo => (string[])MsvmComputerSystem[nameof(OtherIdentifyingInfo)];
+        public string[] IdentifyingDescriptions => (string[])MsvmComputerSystem[nameof(IdentifyingDescriptions)];
+        public ushort[] Dedicated => (ushort[])MsvmComputerSystem[nameof(Dedicated)];
+        public string[] OtherDedicatedDescriptions => (string[])MsvmComputerSystem[nameof(OtherDedicatedDescriptions)];
+        public ushort ResetCapability => (ushort)MsvmComputerSystem[nameof(ResetCapability)];
+        public ushort[] PowerManagementCapabilities => (ushort[])MsvmComputerSystem[nameof(PowerManagementCapabilities)];
+        public ulong OnTimeInMilliseconds => (ulong)MsvmComputerSystem[nameof(OnTimeInMilliseconds)];
+        public uint ProcessID => (uint)MsvmComputerSystem[nameof(ProcessID)];
+        public DateTime TimeOfLastConfigurationChange => ManagementDateTimeConverter.ToDateTime(MsvmComputerSystem[nameof(TimeOfLastConfigurationChange)].ToString());
+        public ushort NumberOfNumaNodes => (ushort)MsvmComputerSystem[nameof(NumberOfNumaNodes)];
+        public ReplicationStateVM ReplicationState => (ReplicationStateVM)MsvmComputerSystem[nameof(ReplicationState)];
+        public ReplicationHealthVM ReplicationHealth => (ReplicationHealthVM)MsvmComputerSystem[nameof(ReplicationHealth)];
+        public ReplicationModeVM ReplicationMode => (ReplicationModeVM)MsvmComputerSystem[nameof(ReplicationMode)];
+        public FailedOverReplicationTypeVM FailedOverReplicationType => (FailedOverReplicationTypeVM)MsvmComputerSystem[nameof(FailedOverReplicationType)];
+        public LastReplicationTypeVM LastReplicationType => (LastReplicationTypeVM)MsvmComputerSystem[nameof(LastReplicationType)];
+        public DateTime LastApplicationConsistentReplicationTime => ManagementDateTimeConverter.ToDateTime(MsvmComputerSystem[nameof(LastApplicationConsistentReplicationTime)].ToString());
+        public DateTime LastReplicationTime => ManagementDateTimeConverter.ToDateTime(MsvmComputerSystem[nameof(LastReplicationTime)].ToString());
+        public DateTime LastSuccessfulBackupTime => ManagementDateTimeConverter.ToDateTime(MsvmComputerSystem[nameof(LastSuccessfulBackupTime)].ToString());
+        public EnhancedSessionModeStateVM EnhancedSessionModeState => (EnhancedSessionModeStateVM)MsvmComputerSystem[nameof(EnhancedSessionModeState)];
 
         #endregion
 
@@ -277,78 +269,12 @@ namespace Viridian.Msvm.VirtualSystem
 
         #endregion
 
-        #region Creation
-
         public void DestroySystem()
         {
             VirtualSystemManagementService.Instance.DestroySystem(MsvmComputerSystem);
             Msvm_ComputerSystem.Dispose();
             Msvm_ComputerSystem = null;
         }
-
-        #endregion
-
-        #region Snapshots
-
-        public void CreateSnapshot(SnapshotType snapshotType, bool saveMachineState)
-        {
-            if (snapshotType == SnapshotType.Recovery && saveMachineState)
-                throw new ViridianException("You cannot create a recovery snapshot while the machine is in saved state!");
-
-            if (snapshotType == SnapshotType.Recovery && VirtualSystemSettingData.IncrementalBackupEnabled == false)
-                VirtualSystemSettingData.ModifySystemSettings(new Dictionary<string, object>() { { nameof(VirtualSystemSettingData.IncrementalBackupEnabled), true } });
-
-            if (saveMachineState)
-                RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Saved);
-
-            string snapshotSettings = "";
-
-            // Set the SnapshotSettings property. Backup/Recovery snapshots require special settings.
-            if (snapshotType == SnapshotType.Recovery)
-            {
-                using (var vsssd = GetMsvmObject("Msvm_VirtualSystemSnapshotSettingData"))
-                    snapshotSettings = vsssd.GetText(TextFormat.CimDtd20);
-
-                // Make sure you activate Volume Shadow Copy service on Guest and install KB3063109.
-                // https://support.microsoft.com/en-us/help/3063109/hyper-v-integration-components-update-for-windows-virtual-machines
-                // https://thewincentral.com/how-to-install-cab-files-on-windows-10-for-cumulative-updates
-
-                // Time Synchronization The protocol version of the component installed in the virtual machine does not match the version expected by the hosting system.
-                // https://support.microsoft.com/en-us/help/4014894/vm-integration-services-status-reports-protocol-version-mismatch-on-pr
-
-                // You cannot save actual ram state of the machine with backup/recovery checkpoints; State Saved doesn't make sense then.
-            }
-
-            VirtualSystemSnapshotService.Instance.CreateSnapshot(MsvmComputerSystem.Path.Path, snapshotSettings, (ushort)snapshotType);
-
-            if (saveMachineState)
-                RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Running);
-        }
-
-        public void ApplySnapshot(string ElementName)
-        {
-            // In order to apply a snapshot, the virtual machine must first be saved/off
-            if (EnabledState != EnabledStateVM.Disabled)
-                RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Off);
-
-            VirtualSystemSnapshotService.Instance.ApplySnapshot(VirtualSystemSettingData.GetSnapshot(ElementName).MsvmVirtualSystemSettingData);
-        }
-
-        #endregion
-
-        #region Controllers
-
-        public ManagementObject GetScsiController(int index)
-        {
-            return
-                GetResourceAllocationSettingData(ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType)
-                    .Skip(index)
-                    .First();
-        }
-
-        #endregion
-
-        #region Network
 
         public void DisconnectVmFromSwitch(string switchName)
         {
@@ -378,83 +304,16 @@ namespace Viridian.Msvm.VirtualSystem
             return MsvmComputerSystem.GetRelated("Msvm_SyntheticEthernetPort").Cast<ManagementObject>().ToList();
         }
 
-        #endregion
-
-        #region Metrics
-
-        public void SetAggregationMetricsForDrives(MetricService.MetricCollectionEnabled operation)
+        public static ManagementObject QueryMsvmComputerSystem(string name, string value)
         {
-            GetResourceAllocationSettingData(ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType)
-                .Cast<ManagementObject>()
-                .ToList()
-                .ForEach(
-                    (controller) =>
-                        controller.GetRelated("Msvm_ResourceAllocationSettingData", null, null, null, "Dependent", "Antecedent", false, null)
-                            .Cast<ManagementObject>()
-                            .ToList()
-                            .ForEach((setting) => MetricService.Instance.SetAllMetrics(setting, operation)));
-        }
-
-        public void SetBaseMetricsForEthernetSwitchPortAclSettingData(MetricService.MetricCollectionEnabled operation)
-        {
-            VirtualSystemSettingData.MsvmVirtualSystemSettingData.GetRelated("Msvm_SyntheticEthernetPortSettingData")
-                    .Cast<ManagementObject>()
-                    .ToList()
-                    .ForEach(
-                        (sepsd) =>
-                            SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(
-                                SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope.Virtualization.SpecificScope))
-                                    .ForEach(
-                                        (espasd) =>
-                                            MetricService.GetAllBaseMetricDefinitions(espasd)
-                                            .ForEach(
-                                                (baseMetricDef) =>
-                                                    MetricService.Instance.SetBaseMetric(espasd, baseMetricDef, operation))));
-        }
-
-        public void SetAggregationMetricsForEthernetSwitchPortAclSettingData(MetricService.MetricCollectionEnabled operation)
-        {
-                VirtualSystemSettingData.MsvmVirtualSystemSettingData.GetRelated("Msvm_SyntheticEthernetPortSettingData")
-                    .Cast<ManagementObject>()
-                    .ToList()
-                    .ForEach(
-                        (sepsd) =>
-                            SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(
-                                SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope.Virtualization.SpecificScope))
-                                    .ForEach(
-                                        (espasd) =>
-                                            MetricService.Instance.SetAllMetrics(espasd, operation)));
-        }
-
-        public List<ManagementObject> GetResourceAllocationSettingData(string ResourceType, string ResourceSubType)
-        {
-            return
-                MsvmComputerSystem.GetRelated("Msvm_VirtualSystemSettingData").Cast<ManagementObject>().First()
-                    .GetRelated("Msvm_ResourceAllocationSettingData")
-                        .Cast<ManagementObject>()
-                        .Where((c) =>
-                            c[nameof(ResourceType)]?.ToString() == ResourceType &&
-                            c[nameof(ResourceSubType)]?.ToString() == ResourceSubType)
-                        .ToList();
-        }
-
-        #endregion
-
-        #region Utils
-
-        public static ManagementObject QueryMsvm_ComputerSystem(string name, string value)
-        {
-            using (var mos = new ManagementObjectSearcher(Scope.Virtualization.SpecificScope, new ObjectQuery("SELECT * FROM Msvm_ComputerSystem")))
+            using (var mos = new ManagementObjectSearcher(Scope.Virtualization.SpecificScope, new ObjectQuery($"SELECT * FROM {nameof(Msvm_ComputerSystem)}")))
                 return mos.Get().Cast<ManagementObject>().Where((c) => c[name]?.ToString() == value).FirstOrDefault();
         }
-
         private static ManagementObject GetMsvmObject(string serviceName)
         {
             using (var serviceClass = new ManagementClass(Scope.Virtualization.SpecificScope, new ManagementPath(serviceName), null))
                 return serviceClass.GetInstances().Cast<ManagementObject>().First();
         }
-
-        #endregion
 
         ~ComputerSystem()
         {

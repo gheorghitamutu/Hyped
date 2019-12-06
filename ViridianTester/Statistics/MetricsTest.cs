@@ -67,7 +67,7 @@ namespace ViridianTester.Statistics
             vm.VirtualSystemSettingData.ConnectVmToSwitch("Default Switch", "MyNetworkAdapter");
             NetSwitch.AddCustomFeatureSettings(vm, NetSwitch.PortFeatureType.Acl);
             MetricService.Instance.ConfigureMetricsFlushInterval(new TimeSpan(1000));
-            vm.SetBaseMetricsForEthernetSwitchPortAclSettingData(MetricService.MetricCollectionEnabled.Enable);
+            vm.VirtualSystemSettingData.SetBaseMetricsForEthernetSwitchPortAclSettingData(MetricService.MetricCollectionEnabled.Enable);
 
             var port = vm.VirtualSystemSettingData.GetEthernetSwitchPortAclSettingDatas();
 
@@ -89,7 +89,7 @@ namespace ViridianTester.Statistics
             Assert.AreEqual(sut.Count, 1);
 
             vm.RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Off);
-            vm.SetBaseMetricsForEthernetSwitchPortAclSettingData(MetricService.MetricCollectionEnabled.Disable);
+            vm.VirtualSystemSettingData.SetBaseMetricsForEthernetSwitchPortAclSettingData(MetricService.MetricCollectionEnabled.Disable);
             vm.DestroySystem();
         }
 

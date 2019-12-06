@@ -13,7 +13,7 @@ namespace Viridian.Resources.Physical
         {
             using (var pool = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.VirtualCDDVDDisk.ResourceSubType))
             using (var sasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(pool))
-            using (var scsi = vm.GetScsiController(scsiIndex))
+            using (var scsi = vm.VirtualSystemSettingData.GetScsiController(scsiIndex))
             using (var parent = SCSI.GetScsiControllerChildBySubtypeAndIndex(scsi, ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType, address))
             {
                 sasd["Address"] = address;

@@ -13,7 +13,7 @@ namespace Viridian.Resources.Drives
         {
             using (var pool = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType))
             using (var rasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(pool))
-            using (var parent = vm.GetScsiController(controllerSlot))
+            using (var parent = vm?.VirtualSystemSettingData.GetScsiController(controllerSlot))
             {
                 rasd["Parent"] = parent;
                 rasd["AddressOnParent"] = driveSlot;
@@ -24,7 +24,7 @@ namespace Viridian.Resources.Drives
 
         public bool IsISOAttached(ComputerSystem vm, int scsiIndex, int driveIndex)
         {
-            using (var scsi = vm?.GetScsiController(scsiIndex))
+            using (var scsi = vm?.VirtualSystemSettingData.GetScsiController(scsiIndex))
             using (var dvd = SCSI.GetScsiControllerChildBySubtypeAndIndex(scsi, ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType, driveIndex))
                 return
                     dvd.GetRelated("Msvm_StorageAllocationSettingData", null, null, null, "Dependent", "Antecedent", false, null)

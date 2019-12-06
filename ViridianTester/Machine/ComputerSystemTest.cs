@@ -61,7 +61,7 @@ namespace ViridianTester.Machine
 
             // Act
             var sut = new ComputerSystem(vmName);
-            sut.CreateSnapshot(ComputerSystem.SnapshotType.Full, false);
+            sut.VirtualSystemSettingData.CreateSnapshot(VirtualSystemSettingData.SnapshotType.Full, false);
 
             // Assert
             Assert.AreEqual(sut.VirtualSystemSettingData.GetSnapshotList().Count, 1);
@@ -76,9 +76,9 @@ namespace ViridianTester.Machine
 
             // Act
             var sut = new ComputerSystem(vmName);
-            sut.CreateSnapshot(ComputerSystem.SnapshotType.Full, false);
+            sut.VirtualSystemSettingData.CreateSnapshot(VirtualSystemSettingData.SnapshotType.Full, false);
             var lcs = sut.VirtualSystemSettingData.GetLastCreatedSnapshot();
-            sut.ApplySnapshot(lcs.ElementName);
+            sut.VirtualSystemSettingData.ApplySnapshot(lcs.ElementName);
 
             // Assert
             Assert.AreEqual(lcs.ElementName, sut.VirtualSystemSettingData.GetLastAppliedSnapshot().ElementName);

@@ -20,7 +20,11 @@ namespace ViridianTester.Resources.Controllers
             var sut = new SCSI();
             sut.AddToVm(vm);
 
-            var scsiControllers = vm.GetResourceAllocationSettingData(ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType);
+            var scsiControllers = 
+                vm.VirtualSystemSettingData
+                    .GetResourceAllocationSettingData(
+                        ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType, 
+                        ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType);
 
             // Assert
             Assert.AreEqual(1, scsiControllers.Count);

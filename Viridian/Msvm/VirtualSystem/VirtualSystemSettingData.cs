@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Management;
 using Viridian.Exceptions;
+using Viridian.Msvm.Metrics;
+using Viridian.Msvm.ResourceManagement;
 using Viridian.Msvm.VirtualSystemManagement;
 using Viridian.Resources.Network;
 using Viridian.Scopes;
@@ -52,6 +54,107 @@ namespace Viridian.Msvm.VirtualSystem
             IPv4 = 4096,
             IPv6 = 4097
         }
+        public enum SnapshotType
+        {
+            Full = 2,
+            Disk = 3,
+            Recovery = 32768,
+        }
+        public enum RequestedInformation      : int
+        {
+            Name                               = 0,
+            ElementName                        = 1,  
+            CreationTime                       = 2,  
+            Notes                              = 3,  
+            NumberOfProcessors                 = 4,  
+            ThumbnailImage                     = 5,  
+            ThumbnailImageHeight               = 6,  
+            ThumbnailImageWidth                = 7,  
+            AllocatedGPU                       = 8,  
+            VirtualSwitchNames                 = 9,  
+            Version                            = 10,   // Added in Windows 10 and Windows Server 2016.
+            Shielded                           = 11,   // Added in Windows 10, version 1703 and Windows Server 2016.
+            EnabledState                       = 100,
+            ProcessorLoad                      = 101,
+            ProcessorLoadHistory               = 102,
+            MemoryUsage                        = 103,
+            Heartbeat                          = 104,
+            UpTime                             = 105,
+            GuestOperatingSystem               = 106,
+            Snapshots                          = 107,
+            AsynchronousTasks                  = 108,
+            HealthState                        = 109,
+            OperationalStatus                  = 110,
+            StatusDescriptions                 = 111,
+            MemoryAvailable                    = 112,
+            AvailableMemoryBuffer              = 113,
+            ReplicationMode                    = 114,
+            ReplicationState                   = 115,
+            ReplicationHealthTestReplicaSystem = 116,
+            ApplicationHealth                  = 117,
+            ReplicationStateEx                 = 118,
+            ReplicationHealthEx                = 119,
+            SwapFilesInUse                     = 120,
+            IntegrationServicesVersionState    = 121,
+            ReplicationProviderId              = 122,
+            MemorySpansPhysicalNumaNodes       = 123 
+        }
+        public enum AutomaticCriticalErrorActionVSSD : ushort
+        {
+            None = 0,
+            PauseResume = 1
+        }
+        public enum AutomaticRecoveryActionVSSD : ushort
+        {
+            None = 2,
+            Restart = 3,
+            RevertToSnapshot = 4
+        }
+        public enum AutomaticShutdownActionVSSD : ushort
+        {
+            TurnOff = 2,
+            SaveState = 3,
+            Shutdown = 4
+        }
+        public enum AutomaticStartupActionVSSD : ushort
+        {
+            None = 2,
+            RestartIfPreviouslyActive = 3,
+            AlwaysStart = 4
+        }
+        public enum BootOrderVSSD : ushort
+        {
+            Floppy = 0,
+            CDROM = 1,
+            IDEHardDrive = 2,
+            PXEBoot = 3,
+            SCSIHardDrive = 4
+        }
+        public enum ConsoleModeVSSD : ushort
+        {
+            Default = 0,
+            COM1 = 1,
+            COM2 = 2,
+            None = 3
+        }
+        public enum DebugPortEnabledVSSD : ushort
+        {
+            Off = 0,
+            On = 1,
+            OnAutoAssigned = 2
+        }
+        public enum EnhancedSessionTransportTypeVSSD : ushort // This property was added in Windows 10, version 1803.
+        {
+            VMBusPipe = 0,
+            HyperVSocket = 1
+        }
+        public enum UserSnapshotTypeVSSD : ushort // This property was added in Windows 10, version 1803.
+        {
+            Disable = 2,
+            ProductionFallbackToTest = 3,
+            ProductionNoFallback = 4,
+            Test = 5
+        }
 
         #region MsvmProperties
 
@@ -70,11 +173,11 @@ namespace Viridian.Msvm.VirtualSystem
         public string SuspendDataRoot => MsvmVirtualSystemSettingData[nameof(SuspendDataRoot)] as string;
         public string SwapFileDataRoot => MsvmVirtualSystemSettingData[nameof(SwapFileDataRoot)] as string;
         public string LogDataRoot => MsvmVirtualSystemSettingData[nameof(LogDataRoot)] as string;
-        public ushort AutomaticStartupAction => (ushort)MsvmVirtualSystemSettingData[nameof(AutomaticStartupAction)];
+        public AutomaticStartupActionVSSD AutomaticStartupAction => (AutomaticStartupActionVSSD)(ushort)MsvmVirtualSystemSettingData[nameof(AutomaticStartupAction)];
         public DateTime AutomaticStartupActionDelay => ManagementDateTimeConverter.ToDateTime(MsvmVirtualSystemSettingData[nameof(AutomaticStartupActionDelay)] as string);
         public ushort AutomaticStartupActionSequenceNumber => (ushort)MsvmVirtualSystemSettingData[nameof(AutomaticStartupActionSequenceNumber)];
-        public ushort AutomaticShutdownAction => (ushort)MsvmVirtualSystemSettingData[nameof(AutomaticShutdownAction)];
-        public ushort AutomaticRecoveryAction => (ushort)MsvmVirtualSystemSettingData[nameof(AutomaticRecoveryAction)];
+        public AutomaticShutdownActionVSSD AutomaticShutdownAction => (AutomaticShutdownActionVSSD)(ushort)MsvmVirtualSystemSettingData[nameof(AutomaticShutdownAction)];
+        public AutomaticRecoveryActionVSSD AutomaticRecoveryAction => (AutomaticRecoveryActionVSSD)(ushort)MsvmVirtualSystemSettingData[nameof(AutomaticRecoveryAction)];
         public string RecoveryFile => MsvmVirtualSystemSettingData[nameof(RecoveryFile)] as string;
         public string BIOSGUID => MsvmVirtualSystemSettingData[nameof(BIOSGUID)] as string;
         public string BIOSSerialNumber => MsvmVirtualSystemSettingData[nameof(BIOSSerialNumber)] as string;
@@ -83,14 +186,14 @@ namespace Viridian.Msvm.VirtualSystem
         public string Architecture => MsvmVirtualSystemSettingData[nameof(Architecture)] as string;
         public string ChassisAssetTag => MsvmVirtualSystemSettingData[nameof(ChassisAssetTag)] as string;
         public bool BIOSNumLock => (bool)MsvmVirtualSystemSettingData[nameof(BIOSNumLock)];
-        public ushort[] BootOrder => (ushort[])MsvmVirtualSystemSettingData[nameof(BootOrder)];
+        public BootOrderVSSD[] BootOrder => (BootOrderVSSD[])MsvmVirtualSystemSettingData[nameof(BootOrder)];
         public string Parent => MsvmVirtualSystemSettingData[nameof(Parent)] as string;
-        public ushort UserSnapshotType => (ushort)MsvmVirtualSystemSettingData[nameof(UserSnapshotType)];
+        public UserSnapshotTypeVSSD UserSnapshotType => (UserSnapshotTypeVSSD)MsvmVirtualSystemSettingData[nameof(UserSnapshotType)];
         public bool IsSaved => (bool)MsvmVirtualSystemSettingData[nameof(IsSaved)];
         public string AdditionalRecoveryInformation => MsvmVirtualSystemSettingData[nameof(AdditionalRecoveryInformation)] as string;
         public bool AllowFullSCSICommandSet => (bool)MsvmVirtualSystemSettingData[nameof(AllowFullSCSICommandSet)];
         public uint DebugChannelId => (uint)MsvmVirtualSystemSettingData[nameof(DebugChannelId)];
-        public ushort DebugPortEnabled => (ushort)MsvmVirtualSystemSettingData[nameof(DebugPortEnabled)];
+        public DebugPortEnabledVSSD DebugPortEnabled => (DebugPortEnabledVSSD)(ushort)MsvmVirtualSystemSettingData[nameof(DebugPortEnabled)];
         public uint DebugPort => (uint)MsvmVirtualSystemSettingData[nameof(DebugPort)];
         public string Version => MsvmVirtualSystemSettingData[nameof(Version)] as string;
         public bool IncrementalBackupEnabled => (bool)MsvmVirtualSystemSettingData[nameof(IncrementalBackupEnabled)];
@@ -108,13 +211,13 @@ namespace Viridian.Msvm.VirtualSystem
         public bool LockOnDisconnect => (bool)MsvmVirtualSystemSettingData[nameof(LockOnDisconnect)];
         public string ParentPackage => MsvmVirtualSystemSettingData[nameof(ParentPackage)] as string;
         public DateTime AutomaticCriticalErrorActionTimeout => ManagementDateTimeConverter.ToDateTime(MsvmVirtualSystemSettingData[nameof(AutomaticCriticalErrorActionTimeout)] as string);
-        public ushort AutomaticCriticalErrorAction => (ushort)MsvmVirtualSystemSettingData[nameof(AutomaticCriticalErrorAction)];
-        public ushort ConsoleMode => (ushort)MsvmVirtualSystemSettingData[nameof(ConsoleMode)];
+        public AutomaticCriticalErrorActionVSSD AutomaticCriticalErrorAction => (AutomaticCriticalErrorActionVSSD)(ushort)MsvmVirtualSystemSettingData[nameof(AutomaticCriticalErrorAction)];
+        public ConsoleModeVSSD ConsoleMode => (ConsoleModeVSSD)MsvmVirtualSystemSettingData[nameof(ConsoleMode)];
         public bool SecureBootEnabled => (bool)MsvmVirtualSystemSettingData[nameof(SecureBootEnabled)];
         public string SecureBootTemplateId => MsvmVirtualSystemSettingData[nameof(SecureBootTemplateId)] as string;
         public ulong LowMmioGapSize => (ulong)MsvmVirtualSystemSettingData[nameof(LowMmioGapSize)];
         public ulong HighMmioGapSize => (ulong)MsvmVirtualSystemSettingData[nameof(HighMmioGapSize)];
-        public ushort EnhancedSessionTransportType => (ushort)MsvmVirtualSystemSettingData[nameof(EnhancedSessionTransportType)];
+        public EnhancedSessionTransportTypeVSSD EnhancedSessionTransportType => (EnhancedSessionTransportTypeVSSD)MsvmVirtualSystemSettingData[nameof(EnhancedSessionTransportType)];
 
         #endregion
 
@@ -161,7 +264,6 @@ namespace Viridian.Msvm.VirtualSystem
             using (var vssd = ComputerSystem.MsvmComputerSystem.GetRelated(nameof(Msvm_VirtualSystemSettingData), Properties.VirtualSystemSettingData.Default.Msvm_SettingsDefineState, null, null, "SettingData", "ManagedElement", false, null).Cast<ManagementObject>().First())
                 return vssd.GetRelated("Msvm_MemorySettingData").Cast<ManagementObject>().First();
         }
-
         public void SetBootOrderFromDevicePath(string devicePath)
         {
             if (BootSourceOrder is string[] prevBootOrder)
@@ -187,7 +289,7 @@ namespace Viridian.Msvm.VirtualSystem
         {
             var previousBso = BootSourceOrder as string[];
 
-            if (previousBso != null && bootSourceOrder.Length > previousBso.Length)
+            if (previousBso != null && bootSourceOrder?.Length > previousBso.Length)
                 throw new ViridianException("Too many boot devices specified!");
 
             if (bootSourceOrder.Any(indexBso => previousBso != null && indexBso > previousBso.Length))
@@ -217,47 +319,7 @@ namespace Viridian.Msvm.VirtualSystem
         }
         public ManagementBaseObject[] GetSummaryInformation()
         {
-            var requestedInformation = new int[]
-            {
-                    0,      // Name
-                    1,      // ElementName
-                    2,      // CreationTime
-                    3,      // Notes
-                    4,      // NumberOfProcessors
-                    5,      // ThumbnailImage
-                    6,      // ThumbnailImageHeight
-                    7,      // ThumbnailImageWidth
-                    8,      // AllocatedGPU
-                    9,      // VirtualSwitchNames 
-                    10,     // Version | Added in Windows 10 and Windows Server 2016.
-                    11,     // Shielded | Added in Windows 10, version 1703 and Windows Server 2016.
-                    100,    // EnabledState
-                    101,    // ProcessorLoad
-                    102,    // ProcessorLoadHistory
-                    103,    // MemoryUsage
-                    104,    // Heartbeat
-                    105,    // UpTime
-                    106,    // GuestOperatingSystem
-                    107,    // Snapshots
-                    108,    // AsynchronousTasks
-                    109,    // HealthState
-                    110,    // OperationalStatus
-                    111,    // StatusDescriptions
-                    112,    // MemoryAvailable
-                    113,    // AvailableMemoryBuffer
-                    114,    // Replication Mode
-                    115,    // Replication State
-                    116,    // Replication HealthTest Replica System
-                    117,    // Application Health 
-                    118,    // ReplicationStateEx 
-                    119,    // ReplicationHealthEx 
-                    120,    // SwapFilesInUse 
-                    121,    // IntegrationServicesVersionState 
-                    122,    // ReplicationProviderId 
-                    123     // MemorySpansPhysicalNumaNodes 
-            };
-
-            return VirtualSystemManagementService.Instance.GetSummaryInformation(new[] { MsvmVirtualSystemSettingData }, requestedInformation);
+            return VirtualSystemManagementService.Instance.GetSummaryInformation(new[] { MsvmVirtualSystemSettingData }, (int[])Enum.GetValues(typeof(RequestedInformation)));
         }
         public void ConnectVmToSwitch(string switchName, string adapterName)
         {
@@ -286,6 +348,116 @@ namespace Viridian.Msvm.VirtualSystem
                                     .ToList()));
 
             return aclSettingDataList;
+        }
+        public void CreateSnapshot(SnapshotType snapshotType, bool saveMachineState)
+        {
+            if (snapshotType == SnapshotType.Recovery && saveMachineState)
+                throw new ViridianException("You cannot create a recovery snapshot while the machine is in saved state!");
+
+            var initialState = ComputerSystem.RequestedState;
+
+            if (snapshotType == SnapshotType.Recovery && IncrementalBackupEnabled == false)
+                ModifySystemSettings(new Dictionary<string, object>() { { nameof(IncrementalBackupEnabled), true } });
+
+            if (saveMachineState && initialState != VirtualSystemManagementService.RequestedStateVSM.Saved)
+                ComputerSystem.RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Saved);
+
+            string snapshotSettings = "";
+
+            // Set the SnapshotSettings property. Backup/Recovery snapshots require special settings.
+            if (snapshotType == SnapshotType.Recovery)
+            {
+                using (var vsssd = GetMsvmObject("Msvm_VirtualSystemSnapshotSettingData"))
+                    snapshotSettings = vsssd.GetText(TextFormat.CimDtd20);
+
+                // Make sure you activate Volume Shadow Copy service on Guest and install KB3063109.
+                // https://support.microsoft.com/en-us/help/3063109/hyper-v-integration-components-update-for-windows-virtual-machines
+                // https://thewincentral.com/how-to-install-cab-files-on-windows-10-for-cumulative-updates
+
+                // Time Synchronization The protocol version of the component installed in the virtual machine does not match the version expected by the hosting system.
+                // https://support.microsoft.com/en-us/help/4014894/vm-integration-services-status-reports-protocol-version-mismatch-on-pr
+
+                // You cannot save actual ram state of the machine with backup/recovery checkpoints; State Saved doesn't make sense then.
+            }
+
+            VirtualSystemSnapshotService.Instance.CreateSnapshot(ComputerSystem.MsvmComputerSystem.Path.Path, snapshotSettings, (ushort)snapshotType);
+
+            if (saveMachineState && initialState != VirtualSystemManagementService.RequestedStateVSM.Saved)
+                ComputerSystem.RequestStateChange(initialState);
+        }
+        public void SetBaseMetricsForEthernetSwitchPortAclSettingData(MetricService.MetricCollectionEnabled operation)
+        {
+            MsvmVirtualSystemSettingData.GetRelated("Msvm_SyntheticEthernetPortSettingData")
+                    .Cast<ManagementObject>()
+                    .ToList()
+                    .ForEach((sepsd) =>
+                        SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(
+                            SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope.Virtualization.SpecificScope))
+                                .ForEach((espasd) =>
+                                    MetricService.GetAllBaseMetricDefinitions(espasd)
+                                        .ForEach((baseMetricDef) =>
+                                            MetricService.Instance.SetBaseMetric(espasd, baseMetricDef, operation))));
+        }
+        public void SetAggregationMetricsForEthernetSwitchPortAclSettingData(MetricService.MetricCollectionEnabled operation)
+        {
+            MsvmVirtualSystemSettingData.GetRelated("Msvm_SyntheticEthernetPortSettingData")
+                .Cast<ManagementObject>()
+                .ToList()
+                .ForEach((sepsd) =>
+                    SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(
+                        SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope.Virtualization.SpecificScope))
+                            .ForEach((espasd) =>
+                                MetricService.Instance.SetAllMetrics(espasd, operation)));
+        }
+        public List<ManagementObject> GetResourceAllocationSettingData(string ResourceType, string ResourceSubType)
+        {
+            return
+                MsvmVirtualSystemSettingData
+                    .GetRelated("Msvm_ResourceAllocationSettingData")
+                        .Cast<ManagementObject>()
+                        .Where((c) =>
+                            c[nameof(ResourceType)]?.ToString() == ResourceType &&
+                            c[nameof(ResourceSubType)]?.ToString() == ResourceSubType)
+                        .ToList();
+        }
+        public ManagementObject GetScsiController(int index)
+        {
+            return
+                GetResourceAllocationSettingData(ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType)
+                    .Skip(index)
+                    .First();
+        }
+        public void SetAggregationMetricsForDrives(MetricService.MetricCollectionEnabled operation)
+        {
+            GetResourceAllocationSettingData(ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType)
+                .Cast<ManagementObject>()
+                .ToList()
+                .ForEach(
+                    (controller) =>
+                        controller.GetRelated("Msvm_ResourceAllocationSettingData", null, null, null, "Dependent", "Antecedent", false, null)
+                            .Cast<ManagementObject>()
+                            .ToList()
+                            .ForEach((setting) => MetricService.Instance.SetAllMetrics(setting, operation)));
+        }
+        public void ApplySnapshot(string ElementName)
+        {
+            // In order to apply a snapshot, the virtual machine must first be saved/off
+            if (ComputerSystem.EnabledState != ComputerSystem.EnabledStateVM.Disabled)
+                ComputerSystem.RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Off);
+
+            VirtualSystemSnapshotService.Instance.ApplySnapshot(GetSnapshot(ElementName).MsvmVirtualSystemSettingData);
+        }
+        public List<ManagementObject> GetEthernetPortAllocationSettingDataList()
+        {
+            return 
+                MsvmVirtualSystemSettingData.GetRelated("Msvm_EthernetPortAllocationSettingData", "Msvm_VirtualSystemSettingDataComponent", null, null, null, null, false, null)
+                .Cast<ManagementObject>()
+                .ToList();
+        }
+        private static ManagementObject GetMsvmObject(string serviceName)
+        {
+            using (var serviceClass = new ManagementClass(Scope.Virtualization.SpecificScope, new ManagementPath(serviceName), null))
+                return serviceClass.GetInstances().Cast<ManagementObject>().First();
         }
     }
 }
