@@ -1,47 +1,36 @@
-﻿using System.Management;
-using Viridian.Job;
-using Viridian.Machine;
-using Viridian.Resources.Msvm;
-using Viridian.Utilities;
+﻿using System.Linq;
+using System.Management;
+using Viridian.Msvm.ResourceManagement;
+using Viridian.Msvm.VirtualSystem;
+using Viridian.Msvm.VirtualSystemManagement;
+using Viridian.Resources.Controllers;
 
 namespace Viridian.Resources.Drives
 {
     public class DVD
     {
-        public void AddToScsi(VM vm, int controllerSlot, int driveSlot)
+        public void AddToScsi(ComputerSystem vm, int controllerSlot, int driveSlot)
         {
-            using (var dvd = Utils.GetWmiObject(vm.Scope, "Msvm_ResourcePool", "ResourceSubType = 'Microsoft:Hyper-V:Synthetic DVD Drive'"))
-            using (var rasd = ResourceAllocationSettingData.GetDefaultAllocationSettings(dvd))
-            using (var rasdClone = rasd.Clone() as ManagementObject)
+            using (var pool = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType))
+            using (var rasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(pool))
+            using (var parent = vm?.VirtualSystemSettingData.GetScsiController(controllerSlot))
             {
-                using (var parent = vm.GetScsiController(controllerSlot))
-                {
-                    rasdClone["Parent"] = parent;
-                    rasdClone["AddressOnParent"] = driveSlot;
+                rasd["Parent"] = parent;
+                rasd["AddressOnParent"] = driveSlot;
 
-                    using (var vmms = Utils.GetVirtualMachineManagementService(vm.Scope))
-                    using (var ip = vmms.GetMethodParameters("AddResourceSettings"))
-                    {
-                        ip["AffectedConfiguration"] = Utils.GetVirtualMachineSettings(vm.VmName, vm.Scope);
-                        ip["ResourceSettings"] = new[] { rasdClone.GetText(TextFormat.WmiDtd20) };
-
-                        using (var op = vmms.InvokeMethod("AddResourceSettings", ip, null))
-                            Validator.ValidateOutput(op, vm.Scope);
-                    }
-                }
+                VirtualSystemManagementService.Instance.AddResourceSettings(vm.VirtualSystemSettingData.MsvmVirtualSystemSettingData, new[] { rasd.GetText(TextFormat.WmiDtd20) });
             }
         }
 
-        public bool IsISOAttached(VM vm, int scsiIndex, int driveIndex)
+        public bool IsISOAttached(ComputerSystem vm, int scsiIndex, int driveIndex)
         {
-            using (var scsi = vm.GetScsiController(scsiIndex))
-            using (var dvd = Utils.GetScsiControllerChildBySubtypeAndIndex(scsi, Utils.GetResourceSubType("SyntheticDVD"), driveIndex))
-            using (var dvdChildren = dvd.GetRelated("Msvm_StorageAllocationSettingData", null, null, null, "Dependent", "Antecedent", false, null))
-                foreach (var media in dvdChildren)
-                    if (media["Caption"].ToString() == "ISO Disk Image")
-                        return true;
-
-            return false;
+            using (var scsi = vm?.VirtualSystemSettingData.GetScsiController(scsiIndex))
+            using (var dvd = SCSI.GetScsiControllerChildBySubtypeAndIndex(scsi, ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType, driveIndex))
+                return
+                    dvd.GetRelated("Msvm_StorageAllocationSettingData", null, null, null, "Dependent", "Antecedent", false, null)
+                        .Cast<ManagementObject>()
+                        .Where((c) => c["Caption"]?.ToString() == "ISO Disk Image")
+                        .Any();
         }
     }
 }

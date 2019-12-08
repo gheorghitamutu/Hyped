@@ -1,39 +1,26 @@
 ﻿using System.Management;
 using Viridian.Exceptions;
-using Viridian.Job;
-using Viridian.Machine;
-using Viridian.Resources.Msvm;
-using Viridian.Utilities;
+using Viridian.Msvm.ResourceManagement;
+using Viridian.Msvm.VirtualSystem;
+using Viridian.Msvm.VirtualSystemManagement;
+using Viridian.Resources.Controllers;
 
 namespace Viridian.Resources.Physical
 {
     public class ISO
     {
-        public void AddIso(VM vm, string hostResource, int scsiIndex, int address)
+        public void AddIso(ComputerSystem vm, string hostResource, int scsiIndex, int address)
         {
-            using (var vmms = Utils.GetVirtualMachineManagementService(vm.Scope))
-            using (var scsi = vm.GetScsiController(scsiIndex))
-            using (var parent = Utils.GetScsiControllerChildBySubtypeAndIndex(scsi, Utils.GetResourceSubType("SyntheticDVD"), address))
-            using (var dvd = Utils.GetWmiObject(vm.Scope, "Msvm_ResourcePool", "ResourceSubType = 'Microsoft:Hyper-V:Virtual CD/DVD Disk' and Primordial = True"))
-            using (var sasd = ResourceAllocationSettingData.GetDefaultAllocationSettings(dvd))
-            using (var sasdClone = sasd.Clone() as ManagementObject)
+            using (var pool = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.VirtualCDDVDDisk.ResourceSubType))
+            using (var sasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(pool))
+            using (var scsi = vm.VirtualSystemSettingData.GetScsiController(scsiIndex))
+            using (var parent = SCSI.GetScsiControllerChildBySubtypeAndIndex(scsi, ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType, address))
             {
-                if (sasdClone == null)
-                    throw new ViridianException("Failure retrieving default settings!");
+                sasd["Address"] = address;
+                sasd["Parent"] = parent ?? throw new ViridianException("Failure retrieving Virtual CD/DVD Disk class!");
+                sasd["HostResource"] = new[] { hostResource };
 
-                sasdClone["Address"] = address;
-                sasdClone["Parent"] = parent ?? throw new ViridianException("Failure retrieving Virtual CD/DVD Disk class!");
-                sasdClone["HostResource"] = new[] { hostResource };
-
-                using (var vms = Utils.GetVirtualMachineSettings(vm.VmName, vm.Scope))
-                using (var ip = vmms.GetMethodParameters("AddResourceSettings"))
-                {
-                    ip["AffectedConfiguration"] = vms;
-                    ip["ResourceSettings"] = new[] { sasdClone.GetText(TextFormat.WmiDtd20) };
-
-                    using (var op = vmms.InvokeMethod("AddResourceSettings", ip, null))
-                        Validator.ValidateOutput(op, vm.Scope);
-                }
+                VirtualSystemManagementService.Instance.AddResourceSettings(vm.VirtualSystemSettingData.MsvmVirtualSystemSettingData, new[] { sasd.GetText(TextFormat.WmiDtd20) });
             }
         }
     }
