@@ -20,7 +20,9 @@
                                 <label for="email"><b>VMId : </b></label>
                             </div>
                             <div class="col">
-                                <input type="text" placeholder=@_addMachine.RealID @bind="_addMachine.RealID">
+                                <fieldset>
+                                    <input type="text" placeholder=@_addMachine.RealID @bind="_addMachine.RealID">
+                                </fieldset>
                             </div>
                         </div>
                         <div class="row">
@@ -44,7 +46,9 @@
                                 <label for="psw"><b>LastSave : </b></label>
                             </div>
                             <div class="col">
-                                <input type="text" placeholder=@_addMachine.LastSave @bind="_addMachine.LastSave">
+                                <fieldset disabled>
+                                    <input type="text" placeholder=@_addMachine.LastSave @bind="_addMachine.LastSave">
+                                </fieldset>
                             </div>
                         </div>
                         </div>
@@ -57,10 +61,10 @@
         </div>
     </div>
 
-<div class="container-fluid border border-dark">
+<div class="container-fluid border border-dark fill">
     <div class="row h-100">
         <div class="col-md-1 border border-dark ">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" @onclick="@(()=> LastItem())">
                 <span class="oi oi-calculator" aria-hidden="true"></span>New
             </button>
         </div>
@@ -85,25 +89,25 @@
             }
             else
             {
-                <select class="custom-select" multiple>
-                    @foreach (var machine in machines)
-                    {
-                        <option @onclick="@(() => GetVM(machine))">@machine.Name - @machine.LastSave.</option>
+
+                <div class="list-group" id="list-tab" role="tablist">                    
+                    @foreach (var machine in machines) { 
+                    <a class="list-group-item list-group-item-action" role="tab" @onclick="@(() => GetVM(machine))">@machine.Name</a>
                     }
-                </select>
+                </div>
             }
         </div>
         <div class="col-xs-12 col-md-8 border border-dark h-100">
-            <div>
+            <div class="row">
                 @_editMachine.RealID
             </div>
-            <div>
+            <div class="row">
                 @_editMachine.Name
             </div>
-            <div>
+            <div class="row">
                 @_editMachine.Configuration
             </div>
-            <div>
+            <div class="row">
                 @_editMachine.LastSave
             </div>
         </div>
@@ -144,6 +148,21 @@
             Name = editItem.Name,
             Configuration = editItem.Configuration,
             LastSave = editItem.LastSave,
+        };
+    }
+
+    private void LastItem()
+    {
+        GetMachines();
+        DateTime date = DateTime.Now;
+        var lastItem = machines.LastOrDefault();
+        _addMachine = new MachineDetails
+        {
+            VMId = lastItem.VMId,
+            RealID = Convert.ToString(Convert.ToInt32(lastItem.RealID)+1),
+            Name = lastItem.Name,
+            Configuration = lastItem.Configuration,
+            LastSave = Convert.ToString(date)
         };
     }
 
