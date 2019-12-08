@@ -33,7 +33,7 @@ namespace BackEndAPI
             
             services.AddDbContext<DataContext>(options=>
             {
-            options.UseSqlServer(@"Data Source=.\SQLEXPRESS;Initial Catalog=dotnetvmDB;Trusted_Connection=true",providerOptions=> providerOptions.EnableRetryOnFailure());
+            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),providerOptions=> providerOptions.EnableRetryOnFailure());
             });
             services.AddCors(options =>
             {
