@@ -32,70 +32,84 @@
                 }
                 else
                 {
-                    <tr>
-                        <td><label for="email"><b>First name : </b></label></td>
-                        <td><input type="text" placeholder=@_editAccount.FirstName @bind="_editAccount.FirstName"></td>
-                    </tr>
-                    <tr>
-                        <td><label for="text"><b>Last name : </b></label></td>
-                        <td><input type="text" placeholder=@_editAccount.LastName @bind="_editAccount.LastName"></td>
-                    </tr>
-                    <tr>
-                        <td><label for="text"><b>Email : </b></label></td>
-                        <td><input type="text" placeholder=@_editAccount.Email @bind="_editAccount.Email"></td>
-                    </tr>
-                    <tr>
-                        <td><label for="psw"><b>Country : </b></label></td>
-                        <td><input type="text" placeholder=@_editAccount.Country @bind="_editAccount.Country"></td>
-                    </tr>
-                    <tr>
-                        <td><label for="txt"><b>Password : </b></label></td>
-                        @if (showPassword)
-                        {
-                            <td><input type="password" placeholder=@_editAccount.Password @bind="_editAccount.Password"></td>
-                        }
-                        else
-                        {
-                            <td><input type="text" placeholder=@_editAccount.Password @bind="_editAccount.Password"></td>
-                        }
-                        <td><button @onclick="@(() => InputPasswordVisible())">Show password</button></td>
-                    </tr>
-                    <tr>
-                        <td> <label for="txt"><b>Rights : </b></label></td>
-                        <td><input type="text" placeholder=@_editAccount.Rights @bind="_editAccount.Rights"></td>
-                    </tr>
-                    <tr>
-                        <td><label for="no"><b>Workplace : </b></label></td>
-                        <td><input type="text" placeholder=@_editAccount.Workplace @bind="_editAccount.Workplace"></td>
-                    </tr>
-                    <tr>
-                        <td><label for="no"><b>Position title : </b></label></td>
-                        <td><input type="text" placeholder=@_editAccount.PositionTitle @bind="_editAccount.PositionTitle"></td>
-                    </tr>
-                    <tr>
-                        <td><label for="no"><b>Contact no. : </b></label></td>
-                        <td><input type="text" placeholder=@_editAccount.ContactNumber @bind="_editAccount.ContactNumber"></td>
-                    </tr>
-                    <tr>
-                        <td><label for="no"><b>VMS : </b></label></td>
-                        <td><input type="text" placeholder=@_editAccount.VMS @bind="_editAccount.VMS"></td>
-                    </tr>
+                    @if (_editAccount.LastName == null)
+                    {
+
+                    }
+                    else
+                    {
+                        <tr>
+                            <td><label for="email"><b>First name : </b></label></td>
+                            <td><input type="text" placeholder=@_editAccount.FirstName @bind="_editAccount.FirstName"></td>
+                        </tr>
+                        <tr>
+                            <td><label for="text"><b>Last name : </b></label></td>
+                            <td><input type="text" placeholder=@_editAccount.LastName @bind="_editAccount.LastName"></td>
+                        </tr>
+                        <tr>
+                            <td><label for="text"><b>Email : </b></label></td>
+                            <td><input type="text" placeholder=@_editAccount.Email @bind="_editAccount.Email"></td>
+                        </tr>
+                        <tr>
+                            <td><label for="psw"><b>Country : </b></label></td>
+                            <td><input type="text" placeholder=@_editAccount.Country @bind="_editAccount.Country"></td>
+                        </tr>
+                        <tr>
+                            <td><label for="txt"><b>Password : </b></label></td>
+                            @if (showPassword)
+                            {
+                                <td><input type="password" placeholder=@_editAccount.Password @bind="_editAccount.Password"></td>
+                            }
+                            else
+                            {
+                                <td><input type="text" placeholder=@_editAccount.Password @bind="_editAccount.Password"></td>
+                            }
+                            <td><button @onclick="@(() => InputPasswordVisible())">Show password</button></td>
+                        </tr>
+                        <tr>
+                            <td> <label for="txt"><b>Rights : </b></label></td>
+                            <td><input type="text" placeholder=@_editAccount.Rights @bind="_editAccount.Rights"></td>
+                        </tr>
+                        <tr>
+                            <td><label for="no"><b>Workplace : </b></label></td>
+                            <td><input type="text" placeholder=@_editAccount.Workplace @bind="_editAccount.Workplace"></td>
+                        </tr>
+                        <tr>
+                            <td><label for="no"><b>Position title : </b></label></td>
+                            <td><input type="text" placeholder=@_editAccount.PositionTitle @bind="_editAccount.PositionTitle"></td>
+                        </tr>
+                        <tr>
+                            <td><label for="no"><b>Contact no. : </b></label></td>
+                            <td><input type="text" placeholder=@_editAccount.ContactNumber @bind="_editAccount.ContactNumber"></td>
+                        </tr>
+                        <tr>
+                            <td><label for="no"><b>VMS : </b></label></td>
+                            <td><input type="text" placeholder=@_editAccount.VMS @bind="_editAccount.VMS"></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="container signin">
+                                    <p>Edit account details? <button @onclick="@SaveItem">Modify</button></p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
                 }
             </tbody>
         </table>
         </div>
     </div>
-    <div class="container signin">
-        <p>Edit account details? <button @onclick="@SaveItem">Modify</button></p>
-    </div>
+    
 </div>
 
 
 @code {
 
-    private bool showPassword = false;
+    private bool showPassword = true;
 
-    private string apiUrl = "http://192.168.100.6:45457/api/users";
+    // TO BE MODIFIED, aici am testat cu back-end-ul rulat pe alt PC din retea
+    private string apiUrl = "http://192.168.100.6:45455/api/users";
+    
 
     private AccountDetails _editAccount = new AccountDetails();
 
@@ -143,7 +157,6 @@
     private async Task SaveItem()
     {
         EditItem(_editAccount.UserId);
-        // PUT -> to be done from API?
         await Http.PutJsonAsync<AccountDetails>(apiUrl, _editAccount);
         await GetTodoItems();
     }
