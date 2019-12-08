@@ -3,7 +3,6 @@ using System.Management;
 using Viridian.Msvm.ResourceManagement;
 using Viridian.Msvm.VirtualSystem;
 using Viridian.Msvm.VirtualSystemManagement;
-using Viridian.Resources.Controllers;
 
 namespace Viridian.Resources.Drives
 {
@@ -25,7 +24,7 @@ namespace Viridian.Resources.Drives
         public bool IsISOAttached(ComputerSystem vm, int scsiIndex, int driveIndex)
         {
             using (var scsi = vm?.VirtualSystemSettingData.GetScsiController(scsiIndex))
-            using (var dvd = SCSI.GetScsiControllerChildBySubtypeAndIndex(scsi, ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType, driveIndex))
+            using (var dvd = ResourceAllocationSettingData.GetRelatedResourceAllocationSettingData(scsi, ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType, driveIndex))
                 return
                     dvd.GetRelated("Msvm_StorageAllocationSettingData", null, null, null, "Dependent", "Antecedent", false, null)
                         .Cast<ManagementObject>()

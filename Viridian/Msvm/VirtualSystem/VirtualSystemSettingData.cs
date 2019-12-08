@@ -238,7 +238,6 @@ namespace Viridian.Msvm.VirtualSystem
 
             return modifiedMsvmVirtualSystemSettingData;
         }
-
         public VirtualSystemSettingData GetSnapshot(string ElementName)
         {
             return 
@@ -416,34 +415,26 @@ namespace Viridian.Msvm.VirtualSystem
                             .ForEach((espasd) =>
                                 MetricService.Instance.SetAllMetrics(espasd, operation)));
         }
-        public List<ManagementObject> GetResourceAllocationSettingData(string ResourceType, string ResourceSubType)
-        {
-            return
-                MsvmVirtualSystemSettingData
-                    .GetRelated("Msvm_ResourceAllocationSettingData")
-                        .Cast<ManagementObject>()
-                        .Where((c) =>
-                            c[nameof(ResourceType)]?.ToString() == ResourceType &&
-                            c[nameof(ResourceSubType)]?.ToString() == ResourceSubType)
-                        .ToList();
-        }
         public ManagementObject GetScsiController(int index)
         {
             return
-                GetResourceAllocationSettingData(ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType)
+                ResourceAllocationSettingData.GetRelatedResourceAllocationSettingDataCollection(
+                        MsvmVirtualSystemSettingData, 
+                        ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType,
+                        ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType)
                     .Skip(index)
                     .First();
         }
         public void SetAggregationMetricsForDrives(MetricService.MetricCollectionEnabled operation)
         {
-            GetResourceAllocationSettingData(ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType)
-                .Cast<ManagementObject>()
-                .ToList()
+            ResourceAllocationSettingData
+                .GetRelatedResourceAllocationSettingDataCollection(
+                        MsvmVirtualSystemSettingData, 
+                        ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType, 
+                        ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType)
                 .ForEach(
                     (controller) =>
-                        controller.GetRelated("Msvm_ResourceAllocationSettingData", null, null, null, "Dependent", "Antecedent", false, null)
-                            .Cast<ManagementObject>()
-                            .ToList()
+                        ResourceAllocationSettingData.GetRelatedResourceAllocationSettingDataCollection(controller)
                             .ForEach((setting) => MetricService.Instance.SetAllMetrics(setting, operation)));
         }
         public void ApplySnapshot(string ElementName)
@@ -461,10 +452,22 @@ namespace Viridian.Msvm.VirtualSystem
                 .Cast<ManagementObject>()
                 .ToList();
         }
-        private static ManagementObject GetMsvmObject(string serviceName)
+        public void AddSCSIController()
         {
-            using (var serviceClass = new ManagementClass(Scope.Virtualization.ScopeObject, new ManagementPath(serviceName), null))
-                return serviceClass.GetInstances().Cast<ManagementObject>().First();
+            if (ResourceAllocationSettingData
+                .GetRelatedResourceAllocationSettingDataCollection(
+                        MsvmVirtualSystemSettingData, 
+                        ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType, 
+                        ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType).Count == 2)
+                throw new InvalidOperationException($"You can't add more than 2 [{ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType}]!");
+
+            using (var pool = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType))
+            using (var rasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(pool))
+            {
+                rasd[nameof(Parent)] = null;
+
+                VirtualSystemManagementService.Instance.AddResourceSettings(MsvmVirtualSystemSettingData, new[] { rasd.GetText(TextFormat.WmiDtd20) });
+            }
         }
     }
 }

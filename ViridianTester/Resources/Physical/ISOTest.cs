@@ -3,7 +3,6 @@ using System;
 using System.IO;
 using Viridian.Msvm.ResourceManagement;
 using Viridian.Msvm.VirtualSystem;
-using Viridian.Resources.Controllers;
 using Viridian.Resources.Drives;
 using Viridian.Resources.Physical;
 
@@ -22,8 +21,7 @@ namespace ViridianTester.Resources.Physical
             // Act
             var vm = new ComputerSystem(vmName);
 
-            var scsi = new SCSI();
-            scsi.AddToVm(vm);
+            vm.VirtualSystemSettingData.AddSCSIController();
 
             var dvd = new DVD();
             dvd.AddToScsi(vm, 0, 0);
@@ -35,7 +33,11 @@ namespace ViridianTester.Resources.Physical
                 var sut = new ISO();
                 sut.AddIso(vm, isoName, 0, 0);
 
-                var dvdDrives = vm.VirtualSystemSettingData.GetResourceAllocationSettingData(ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType);
+                var dvdDrives = 
+                    ResourceAllocationSettingData.GetRelatedResourceAllocationSettingDataCollection(
+                        vm?.VirtualSystemSettingData.MsvmVirtualSystemSettingData,
+                        ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceType, 
+                        ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType);
 
                 // Assert
                 Assert.IsTrue(File.Exists(isoName));

@@ -3,7 +3,6 @@ using System.Management;
 using Viridian.Msvm.ResourceManagement;
 using Viridian.Msvm.VirtualSystem;
 using Viridian.Msvm.VirtualSystemManagement;
-using Viridian.Resources.Controllers;
 
 namespace Viridian.Resources.Physical
 {
@@ -14,7 +13,7 @@ namespace Viridian.Resources.Physical
             using (var pool = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.VirtualCDDVDDisk.ResourceSubType))
             using (var sasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(pool))
             using (var scsi = vm.VirtualSystemSettingData.GetScsiController(scsiIndex))
-            using (var parent = SCSI.GetScsiControllerChildBySubtypeAndIndex(scsi, ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType, address))
+            using (var parent = ResourceAllocationSettingData.GetRelatedResourceAllocationSettingData(scsi, ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType, address))
             {
                 sasd["Address"] = address;
                 sasd["Parent"] = parent ?? throw new NullReferenceException($"Failure retrieving Virtual CD/DVD Disk class [{parent}]!");

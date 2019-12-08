@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using Viridian.Msvm.ResourceManagement;
 using Viridian.Msvm.VirtualSystem;
 using Viridian.Msvm.VirtualSystemManagement;
 
@@ -211,6 +212,28 @@ namespace ViridianTester.Machine
             // Assert
             Assert.AreEqual(1048576UL, memory["Limit"]);
             sut.DestroySystem();
+        }
+
+        [TestMethod]
+        public void ViridianMachineComputerSystem_AddSCSIControllerToVm()
+        {
+            // Arrange
+            var vmName = "vm_test_add_scsi_controller_to_vm";
+
+            // Act
+            var vm = new ComputerSystem(vmName);
+
+            vm.VirtualSystemSettingData.AddSCSIController();
+
+            var scsiControllers =
+                ResourceAllocationSettingData.GetRelatedResourceAllocationSettingDataCollection(
+                    vm.VirtualSystemSettingData.MsvmVirtualSystemSettingData,
+                    ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType,
+                    ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType);
+
+            // Assert
+            Assert.AreEqual(1, scsiControllers.Count);
+            vm.DestroySystem();
         }
     }
 }

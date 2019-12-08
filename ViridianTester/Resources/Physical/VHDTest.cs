@@ -4,7 +4,6 @@ using System.IO;
 using System.Management;
 using Viridian.Msvm.Storage;
 using Viridian.Msvm.VirtualSystem;
-using Viridian.Resources.Controllers;
 using Viridian.Resources.Drives;
 using Viridian.WindowsStorageManagement.MSFT;
 
@@ -23,8 +22,7 @@ namespace ViridianTester.Resources.Physical
             // Act
             var vm = new ComputerSystem(vmName);
 
-            var scsi = new SCSI();
-            scsi.AddToVm(vm);
+            vm.VirtualSystemSettingData.AddSCSIController();
 
             var disk = new SyntheticDisk();
             disk.AddToScsi(vm, 0, 0);

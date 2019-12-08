@@ -9,7 +9,6 @@ using Viridian.Msvm.Metrics;
 using Viridian.Msvm.Storage;
 using Viridian.Msvm.VirtualSystem;
 using Viridian.Msvm.VirtualSystemManagement;
-using Viridian.Resources.Controllers;
 using Viridian.Resources.Drives;
 using Viridian.Resources.Network;
 using Viridian.Scopes;
@@ -103,8 +102,7 @@ namespace ViridianTester.Statistics
             // Act
             var vm = new ComputerSystem(vmName);
 
-            var scsi = new SCSI();
-            scsi.AddToVm(vm);
+            vm.VirtualSystemSettingData.AddSCSIController();
 
             var disk = new SyntheticDisk();
             disk.AddToScsi(vm, 0, 0);
@@ -173,8 +171,7 @@ namespace ViridianTester.Statistics
             // Act
             var vm = new ComputerSystem(vmName);
 
-            var scsi = new SCSI();
-            scsi.AddToVm(vm);
+            vm.VirtualSystemSettingData.AddSCSIController();
 
             var disk = new SyntheticDisk();
             disk.AddToScsi(vm, 0, 0);

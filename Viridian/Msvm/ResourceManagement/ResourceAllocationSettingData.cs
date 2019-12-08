@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Management;
 using Viridian.Scopes;
 
@@ -6,7 +8,7 @@ namespace Viridian.Msvm.ResourceManagement
 {
     public sealed class ResourceAllocationSettingData
     {
-        private static ManagementObject Msvm_ResourceAllocationSettingData = null;
+        private static ManagementObject Msvm_ResourceAllocationSettingData = null; // TODO: reconsider this
 
         #region MsvmProperties
 
@@ -87,6 +89,41 @@ namespace Viridian.Msvm.ResourceManagement
         public static ManagementObject GetMaximumResourceAllocationSettingDataForPool(ManagementObject pool) => GetResourceAllocationSettingDataForPool(pool, 2, 3);
 
         public static ManagementObject GetIncrementalResourceAllocationSettingDataForPool(ManagementObject pool) => GetResourceAllocationSettingDataForPool(pool, 3, 3);
+
+        public static ManagementObject GetRelatedResourceAllocationSettingData(ManagementObject msvmObjectRelatedTo, string ResourceSubtype, int index = 0)
+        {
+            var Parent = msvmObjectRelatedTo?.Path.Path;
+
+            return
+                msvmObjectRelatedTo?.GetRelated(nameof(Msvm_ResourceAllocationSettingData))
+                    .Cast<ManagementObject>()
+                    .Where((c) =>
+                        c[nameof(ResourceSubtype)]?.ToString() == ResourceSubtype &&
+                        string.Equals(c[nameof(Parent)]?.ToString(), Parent, StringComparison.InvariantCultureIgnoreCase))
+                    .Skip(index)
+                    .First();
+        }
+        public static List<ManagementObject> GetRelatedResourceAllocationSettingDataCollection(ManagementObject msvmObjectRelatedTo)
+        {
+            var Parent = msvmObjectRelatedTo?.Path.Path;
+
+            return
+                msvmObjectRelatedTo?.GetRelated(nameof(Msvm_ResourceAllocationSettingData))
+                    .Cast<ManagementObject>()
+                    .Where((c) => string.Equals(c[nameof(Parent)]?.ToString(), Parent, StringComparison.InvariantCultureIgnoreCase))
+                    .ToList();
+        }
+        public static List<ManagementObject> GetRelatedResourceAllocationSettingDataCollection(ManagementObject msvmObjectRelatedTo, string ResourceType, string ResourceSubType)
+        {
+            return
+                msvmObjectRelatedTo?
+                    .GetRelated(nameof(Msvm_ResourceAllocationSettingData))
+                        .Cast<ManagementObject>()
+                        .Where((c) =>
+                            c[nameof(ResourceType)]?.ToString() == ResourceType &&
+                            c[nameof(ResourceSubType)]?.ToString() == ResourceSubType)
+                        .ToList();
+        }
 
         #endregion
     }

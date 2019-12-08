@@ -4,7 +4,6 @@ using System.Management;
 using Viridian.Msvm.ResourceManagement;
 using Viridian.Msvm.VirtualSystem;
 using Viridian.Msvm.VirtualSystemManagement;
-using Viridian.Resources.Controllers;
 
 namespace Viridian.Resources.Drives
 {
@@ -21,7 +20,7 @@ namespace Viridian.Resources.Drives
         public string[] AddToSyntheticDiskDrive(ComputerSystem vm, string hostResource, int scsiIndex, int address, HardDiskAccess access)
         {
             using (var scsiController = vm.VirtualSystemSettingData.GetScsiController(scsiIndex))
-            using (var parent = SCSI.GetScsiControllerChildBySubtypeAndIndex(scsiController, ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType, address))
+            using (var parent = ResourceAllocationSettingData.GetRelatedResourceAllocationSettingData(scsiController, ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType, address))
             using (var pool = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.VirtualHardDisk.ResourceSubType))
             using (var rasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(pool))
             {
@@ -46,7 +45,7 @@ namespace Viridian.Resources.Drives
         public static bool IsVHDAttached(ComputerSystem vm, int scsiIndex, int driveIndex)
         {
             using (var scsi = vm?.VirtualSystemSettingData.GetScsiController(scsiIndex))
-            using (var dvd = SCSI.GetScsiControllerChildBySubtypeAndIndex(scsi, ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType, driveIndex))
+            using (var dvd = ResourceAllocationSettingData.GetRelatedResourceAllocationSettingData(scsi, ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType, driveIndex))
                 return
                     dvd.GetRelated("Msvm_StorageAllocationSettingData", null, null, null, "Dependent", "Antecedent", false, null)
                         .Cast<ManagementObject>()
