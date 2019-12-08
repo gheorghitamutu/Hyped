@@ -10,7 +10,7 @@ namespace BackEndAPI.Data
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
-
+            Database.EnsureCreated();
         }
 
         public DbSet<User> Users { get; set; }

@@ -31,9 +31,10 @@ namespace BackEndAPI
         public void ConfigureServices(IServiceCollection services)
         {
             
-            services.AddDbContext<DataContext>(options => {
-                options.UseSqlServer(@"Data Source=tcp:DESKTOP-0OIN8L2,49172;Initial Catalog=dotnetvmDB;User Id=user1;Password=user1;");
-                });
+            services.AddDbContext<DataContext>(options=>
+            {
+            options.UseSqlServer(@"Data Source=.\SQLEXPRESS;Initial Catalog=dotnetvmDB;Trusted_Connection=true",providerOptions=> providerOptions.EnableRetryOnFailure());
+            });
             services.AddCors(options =>
             {
                 options.AddPolicy(MyAllowSpecificOrigins,
