@@ -6,48 +6,85 @@
 <h1>My account details</h1>
 <h3> Personal details</h3>
 <div class="container">
-    <table class="table">
-        <tbody>
-            @if (accounts == null)
-            {
-                <tr>Loading...</tr>
-            }
-            else
-            {
+    <div class="row">
+        <div class="col">
+        @if (accounts == null)
+        {
+
+        }
+        else
+        {
+            <select class="custom-select" multiple>
                 @foreach (var account in accounts)
                 {
+                    <option @onclick="@(() => GetAccount(account))">@account.FirstName @account.LastName</option>
+                }
+            </select>
+        }
+        </div>
+        <div class="col">
+        <table class="table">
+            <tbody>
+
+                @if (accounts == null)
+                {
+                    <tr>Loading...</tr>
+                }
+                else
+                {
                     <tr>
-                        <td><label for="email"><b>Email : </b></label></td>
-                        <td><input type="text" placeholder=@account.Email @bind="_editAccount.Email"></td>
-                    </tr>
-                    <tr>
-                        <td><label for="text"><b>First name : </b></label></td>
-                        <td><input type="text" placeholder=@account.FirstName @bind="_editAccount.FirstName"></td>
+                        <td><label for="email"><b>First name : </b></label></td>
+                        <td><input type="text" placeholder=@_editAccount.FirstName @bind="_editAccount.FirstName"></td>
                     </tr>
                     <tr>
                         <td><label for="text"><b>Last name : </b></label></td>
-                        <td><input type="text" placeholder=@account.LastName @bind="_editAccount.LastName"></td>
+                        <td><input type="text" placeholder=@_editAccount.LastName @bind="_editAccount.LastName"></td>
                     </tr>
                     <tr>
-                        <td><label for="psw"><b>Password : </b></label></td>
-                        <td><input type="text" placeholder=@account.Password @bind="_editAccount.Password"></td>
+                        <td><label for="text"><b>Email : </b></label></td>
+                        <td><input type="text" placeholder=@_editAccount.Email @bind="_editAccount.Email"></td>
                     </tr>
                     <tr>
-                        <td><label for="txt"><b>Work Place : </b></label></td>
-                        <td><input type="text" placeholder=@account.Workplace @bind="_editAccount.Workplace"></td>
+                        <td><label for="psw"><b>Country : </b></label></td>
+                        <td><input type="text" placeholder=@_editAccount.Country @bind="_editAccount.Country"></td>
                     </tr>
                     <tr>
-                        <td> <label for="txt"><b>Position title : </b></label></td>
-                        <td><input type="text" placeholder=@account.PositionTitle @bind="_editAccount.PositionTitle"></td>
+                        <td><label for="txt"><b>Password : </b></label></td>
+                        @if (showPassword)
+                        {
+                            <td><input type="password" placeholder=@_editAccount.Password @bind="_editAccount.Password"></td>
+                        }
+                        else
+                        {
+                            <td><input type="text" placeholder=@_editAccount.Password @bind="_editAccount.Password"></td>
+                        }
+                        <td><button @onclick="@(() => InputPasswordVisible())">Show password</button></td>
+                    </tr>
+                    <tr>
+                        <td> <label for="txt"><b>Rights : </b></label></td>
+                        <td><input type="text" placeholder=@_editAccount.Rights @bind="_editAccount.Rights"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="no"><b>Workplace : </b></label></td>
+                        <td><input type="text" placeholder=@_editAccount.Workplace @bind="_editAccount.Workplace"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="no"><b>Position title : </b></label></td>
+                        <td><input type="text" placeholder=@_editAccount.PositionTitle @bind="_editAccount.PositionTitle"></td>
                     </tr>
                     <tr>
                         <td><label for="no"><b>Contact no. : </b></label></td>
-                        <td><input type="text" placeholder=@account.ContactNumber @bind="_editAccount.ContactNumber"></td>
+                        <td><input type="text" placeholder=@_editAccount.ContactNumber @bind="_editAccount.ContactNumber"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="no"><b>VMS : </b></label></td>
+                        <td><input type="text" placeholder=@_editAccount.VMS @bind="_editAccount.VMS"></td>
                     </tr>
                 }
-            }
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+        </div>
+    </div>
     <div class="container signin">
         <p>Edit account details? <button @onclick="@SaveItem">Modify</button></p>
     </div>
@@ -55,6 +92,11 @@
 
 
 @code {
+
+    private bool showPassword = false;
+
+    private string apiUrl = "http://192.168.100.6:45457/api/users";
+
     private AccountDetails _editAccount = new AccountDetails();
 
     private AccountDetails[] accounts;
@@ -63,49 +105,71 @@
 
     private async Task GetTodoItems()
     {
-        accounts = await Http.GetJsonAsync<AccountDetails[]>("sample-data/account.json");
+        accounts = await Http.GetJsonAsync<AccountDetails[]>(apiUrl);
     }
 
-    private void EditItem(int id)
+    private void InputPasswordVisible()
     {
-        var editItem = accounts.Single(i => i.AccountId == id);
+        if (showPassword)
+            showPassword = false;
+        else
+            showPassword = true;
+    }
+
+    private void GetAccount(AccountDetails account)
+    {
+        _editAccount = account;
+    }
+
+    private void EditItem(string id)
+    {
+        var editItem = accounts.FirstOrDefault(i => i.UserId == id);
         _editAccount = new AccountDetails
         {
-            AccountId = editItem.AccountId,
-            Email = editItem.Email,
+            UserId = editItem.UserId,
             FirstName = editItem.FirstName,
             LastName = editItem.LastName,
+            Email = editItem.Email,
+            Country = editItem.Country,
             Password = editItem.Password,
+            Rights = editItem.Rights,
             Workplace = editItem.Workplace,
             PositionTitle = editItem.PositionTitle,
-            ContactNumber = editItem.ContactNumber
+            ContactNumber = editItem.ContactNumber,
+            VMS = editItem.VMS
         };
     }
 
     private async Task SaveItem()
     {
-        EditItem(1);
+        EditItem(_editAccount.UserId);
         // PUT -> to be done from API?
-        await Http.PutJsonAsync<AccountDetails>("/sample-data/account.json", _editAccount);
+        await Http.PutJsonAsync<AccountDetails>(apiUrl, _editAccount);
         await GetTodoItems();
     }
 
     public class AccountDetails
     {
-        public int AccountId { get; set; }
-
-        public string Email { get; set; }
+        public string UserId { get; set; }
 
         public string FirstName { get; set; }
 
         public string LastName { get; set; }
 
+        public string Email { get; set; }
+
+        public string Country { get; set; }
+
         public string Password { get; set; }
+
+        public string Rights { get; set; }
 
         public string Workplace { get; set; }
 
         public string PositionTitle { get; set; }
 
         public string ContactNumber { get; set; }
+
+        public string VMS { get; set; }
     }
 }
