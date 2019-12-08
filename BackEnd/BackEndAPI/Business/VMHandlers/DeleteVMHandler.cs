@@ -25,6 +25,18 @@ namespace BackEndAPI.Business.VMHandlers
             {
                 throw new Exception("This virtual machine doesn't exist!");
             }
+            //delete this vm's resource folder first
+            if (vm.RealID != null)
+            {
+                var this_vm_path = System.IO.Path.Combine("Resources", vm.RealID);
+
+                if (System.IO.Directory.Exists(this_vm_path))
+                {
+                    System.IO.Directory.Delete(this_vm_path, true);
+                }
+            }
+            
+            //remove the virtual machine from the DB
             context.VMs.Remove(vm);
             await context.SaveChangesAsync(cancellationToken);
             return Unit.Value;

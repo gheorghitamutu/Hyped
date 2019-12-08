@@ -26,6 +26,11 @@ namespace BackEndAPI.Business.UserHandlers
             {
                 throw new Exception("Requested user doesn't exist");
             }
+
+            var vms = await context?.VMs?.ToListAsync();
+            //get this user's virtual machines
+            user.VMS=vms.Where((vm) => vm.UserId == user.UserId).ToList();
+
             return user;
         }
     }

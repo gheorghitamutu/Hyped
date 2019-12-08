@@ -12,8 +12,9 @@ namespace BackEndAPI.Data
         public string Name { get; set; }
         public string Configuration { get; set; }
         public string LastSave { get; set; }
+        public Guid UserId { get; set; }
 
-        public static VM Create(string realid,string name,string configuration,string lastsave)
+        public static VM Create(string realid,string name,string configuration,string lastsave, Guid userId)
         {
             return new VM
             {
@@ -21,7 +22,8 @@ namespace BackEndAPI.Data
                 RealID = realid,
                 Name = name,
                 Configuration = configuration,
-                LastSave = lastsave
+                LastSave = lastsave,
+                UserId = userId
             };
         }
 
