@@ -1,6 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Management;
-using Viridian.Exceptions;
 using Viridian.Scopes;
 
 namespace Viridian.WindowsStorageManagement.MSFT
@@ -244,7 +244,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
             {
                 ip[nameof(IsReadOnly)] = IsReadOnly;
                 ip[nameof(Signature)] = Signature;
-                ip[nameof(Guid)] = Guid ?? throw new ViridianException($"{nameof(Guid)} is null!");
+                ip[nameof(Guid)] = Guid ?? throw new ArgumentNullException(nameof(Guid));
 
                 using (var op = MSFT_Disk.InvokeMethod(nameof(Refresh), ip, null))
                 {

@@ -1,5 +1,5 @@
-﻿using System.Management;
-using Viridian.Exceptions;
+﻿using System;
+using System.Management;
 using Viridian.Msvm.ResourceManagement;
 using Viridian.Msvm.VirtualSystem;
 using Viridian.Msvm.VirtualSystemManagement;
@@ -17,7 +17,7 @@ namespace Viridian.Resources.Physical
             using (var parent = SCSI.GetScsiControllerChildBySubtypeAndIndex(scsi, ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType, address))
             {
                 sasd["Address"] = address;
-                sasd["Parent"] = parent ?? throw new ViridianException("Failure retrieving Virtual CD/DVD Disk class!");
+                sasd["Parent"] = parent ?? throw new NullReferenceException($"Failure retrieving Virtual CD/DVD Disk class [{parent}]!");
                 sasd["HostResource"] = new[] { hostResource };
 
                 VirtualSystemManagementService.Instance.AddResourceSettings(vm.VirtualSystemSettingData.MsvmVirtualSystemSettingData, new[] { sasd.GetText(TextFormat.WmiDtd20) });

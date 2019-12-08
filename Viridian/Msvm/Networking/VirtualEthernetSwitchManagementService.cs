@@ -1,5 +1,5 @@
-﻿using System.Management;
-using Viridian.Exceptions;
+﻿using System;
+using System.Management;
 using Viridian.Job;
 using Viridian.Scopes;
 
@@ -9,7 +9,7 @@ namespace Viridian.Msvm.Networking
     {
         private static VirtualEthernetSwitchManagementService instance = null;
 
-        public enum RequestedStateVESM : uint
+        public enum RequestedStateVESM : System.Int32
         {
             Enabled = 2,
             Disabled = 3,
@@ -38,7 +38,7 @@ namespace Viridian.Msvm.Networking
 #pragma warning disable CA1303 // Do not pass literals as localized parameters
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable CA1065 // Do not raise exceptions in unexpected locations
-        public ManagementObject Msvm_VirtualEthernetSwitchManagementService => Service ?? throw new ViridianException($"{nameof(ServiceName)} is null!");
+        public ManagementObject Msvm_VirtualEthernetSwitchManagementService => Service ?? throw new NullReferenceException(nameof(Service));
 #pragma warning restore CA1065 // Do not raise exceptions in unexpected locations
 #pragma warning restore CA1707 // Identifiers should not contain underscores
 #pragma warning restore CA1303 // Do not pass literals as localized parameters
@@ -47,8 +47,8 @@ namespace Viridian.Msvm.Networking
         {
             using (var ip = Msvm_VirtualEthernetSwitchManagementService.GetMethodParameters(nameof(AddFeatureSettings)))
             {
-                ip[nameof(AffectedConfiguration)] = AffectedConfiguration ?? throw new ViridianException($"{nameof(AffectedConfiguration)} is null!");
-                ip[nameof(FeatureSettings)] = FeatureSettings ?? throw new ViridianException($"{nameof(FeatureSettings)} is null!");
+                ip[nameof(AffectedConfiguration)] = AffectedConfiguration ?? throw new ArgumentNullException(nameof(AffectedConfiguration));
+                ip[nameof(FeatureSettings)] = FeatureSettings ?? throw new ArgumentNullException(nameof(FeatureSettings));
 
                 using (var op = Msvm_VirtualEthernetSwitchManagementService.InvokeMethod(nameof(AddFeatureSettings), ip, null))
                 {
@@ -63,8 +63,8 @@ namespace Viridian.Msvm.Networking
         {
             using (var ip = Msvm_VirtualEthernetSwitchManagementService.GetMethodParameters(nameof(AddResourceSettings)))
             {
-                ip[nameof(AffectedConfiguration)] = AffectedConfiguration ?? throw new ViridianException($"{nameof(AffectedConfiguration)} is null!");
-                ip[nameof(ResourceSettings)] = ResourceSettings ?? throw new ViridianException($"{nameof(ResourceSettings)} is null!");
+                ip[nameof(AffectedConfiguration)] = AffectedConfiguration ?? throw new ArgumentNullException(nameof(AffectedConfiguration));
+                ip[nameof(ResourceSettings)] = ResourceSettings ?? throw new ArgumentNullException(nameof(ResourceSettings));
 
                 using (var op = Msvm_VirtualEthernetSwitchManagementService.InvokeMethod(nameof(AddResourceSettings), ip, null))
                 {
@@ -79,9 +79,9 @@ namespace Viridian.Msvm.Networking
         {
             using (var ip = Msvm_VirtualEthernetSwitchManagementService.GetMethodParameters(nameof(DefineSystem)))
             {
-                ip[nameof(SystemSettings)] = SystemSettings ?? throw new ViridianException($"{nameof(SystemSettings)} is null!");
-                ip[nameof(ResourceSettings)] = ResourceSettings ?? throw new ViridianException($"{nameof(ResourceSettings)} is null!");
-                ip[nameof(ReferenceConfiguration)] = ResourceSettings ?? throw new ViridianException($"{nameof(ReferenceConfiguration)} is null!");
+                ip[nameof(SystemSettings)] = SystemSettings ?? throw new ArgumentNullException(nameof(SystemSettings));
+                ip[nameof(ResourceSettings)] = ResourceSettings ?? throw new ArgumentNullException(nameof(ResourceSettings));
+                ip[nameof(ReferenceConfiguration)] = ResourceSettings ?? throw new ArgumentNullException(nameof(ResourceSettings));
 
                 using (var op = Msvm_VirtualEthernetSwitchManagementService.InvokeMethod(nameof(DefineSystem), ip, null))
                 {
@@ -96,7 +96,7 @@ namespace Viridian.Msvm.Networking
         {
             using (var ip = Msvm_VirtualEthernetSwitchManagementService.GetMethodParameters(nameof(DestroySystem)))
             {
-                ip[nameof(AffectedSystem)] = AffectedSystem ?? throw new ViridianException($"{nameof(AffectedSystem)} is null!");
+                ip[nameof(AffectedSystem)] = AffectedSystem ?? throw new ArgumentNullException(nameof(AffectedSystem));
 
                 using (var op = Msvm_VirtualEthernetSwitchManagementService.InvokeMethod(nameof(DestroySystem), ip, null))
                     Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
@@ -107,7 +107,7 @@ namespace Viridian.Msvm.Networking
         {
             using (var ip = Msvm_VirtualEthernetSwitchManagementService.GetMethodParameters(nameof(ModifyFeatureSettings)))
             {
-                ip[nameof(FeatureSettings)] = FeatureSettings ?? throw new ViridianException($"{nameof(FeatureSettings)} is null!");
+                ip[nameof(FeatureSettings)] = FeatureSettings ?? throw new ArgumentNullException(nameof(FeatureSettings));
 
                 using (var op = Msvm_VirtualEthernetSwitchManagementService.InvokeMethod(nameof(ModifyFeatureSettings), ip, null))
                 {
@@ -122,7 +122,7 @@ namespace Viridian.Msvm.Networking
         {
             using (var ip = Msvm_VirtualEthernetSwitchManagementService.GetMethodParameters(nameof(ModifyResourceSettings)))
             {
-                ip[nameof(ResourceSettings)] = ResourceSettings ?? throw new ViridianException($"{nameof(ResourceSettings)} is null!");
+                ip[nameof(ResourceSettings)] = ResourceSettings ?? throw new ArgumentNullException(nameof(ResourceSettings));
 
                 using (var op = Msvm_VirtualEthernetSwitchManagementService.InvokeMethod(nameof(ModifyResourceSettings), ip, null))
                 {
@@ -137,7 +137,7 @@ namespace Viridian.Msvm.Networking
         {
             using (var ip = Msvm_VirtualEthernetSwitchManagementService.GetMethodParameters(nameof(ModifySystemSettings)))
             {
-                ip[nameof(SystemSettings)] = SystemSettings ?? throw new ViridianException($"{nameof(SystemSettings)} is null!");
+                ip[nameof(SystemSettings)] = SystemSettings ?? throw new ArgumentNullException(nameof(SystemSettings));
 
                 using (var op = Msvm_VirtualEthernetSwitchManagementService.InvokeMethod(nameof(ModifySystemSettings), ip, null))
                     Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
@@ -148,7 +148,7 @@ namespace Viridian.Msvm.Networking
         {
             using (var ip = Msvm_VirtualEthernetSwitchManagementService.GetMethodParameters(nameof(RemoveFeatureSettings)))
             {
-                ip[nameof(FeatureSettings)] = FeatureSettings ?? throw new ViridianException($"{nameof(FeatureSettings)} is null!");
+                ip[nameof(FeatureSettings)] = FeatureSettings ?? throw new ArgumentNullException(nameof(RemoveFeatureSettings));
 
                 using (var op = Msvm_VirtualEthernetSwitchManagementService.InvokeMethod(nameof(RemoveFeatureSettings), ip, null))
                     Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
@@ -159,7 +159,7 @@ namespace Viridian.Msvm.Networking
         {
             using (var ip = Msvm_VirtualEthernetSwitchManagementService.GetMethodParameters(nameof(RemoveResourceSettings)))
             {
-                ip[nameof(ResourceSettings)] = ResourceSettings ?? throw new ViridianException($"{nameof(ResourceSettings)} is null!");
+                ip[nameof(ResourceSettings)] = ResourceSettings ?? throw new ArgumentNullException(nameof(ResourceSettings));
 
                 using (var op = Msvm_VirtualEthernetSwitchManagementService.InvokeMethod(nameof(RemoveResourceSettings), ip, null))
                     Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);

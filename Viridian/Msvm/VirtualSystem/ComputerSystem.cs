@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Management;
-using Viridian.Exceptions;
 using Viridian.Job;
 using Viridian.Msvm.VirtualSystemManagement;
 using Viridian.Resources.Network;
@@ -247,7 +246,7 @@ namespace Viridian.Msvm.VirtualSystem
         {
             using (var ip = MsvmComputerSystem.GetMethodParameters(nameof(RequestReplicationStateChangeEx)))
             {
-                ip[nameof(ReplicationRelationship)] = ReplicationRelationship ?? throw new ViridianException($"{nameof(ReplicationRelationship)} is null!"); ;
+                ip[nameof(ReplicationRelationship)] = ReplicationRelationship ?? throw new ArgumentNullException(nameof(ReplicationRelationship));
                 ip[nameof(RequestedState)] = (ushort)RequestedState;
                 ip[nameof(TimeoutPeriod)] = null; // CIM_DateTime
 

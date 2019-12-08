@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Management;
-using Viridian.Exceptions;
 using Viridian.Msvm.Metrics;
 using Viridian.Msvm.ResourceManagement;
 using Viridian.Msvm.VirtualSystemManagement;
@@ -290,10 +289,10 @@ namespace Viridian.Msvm.VirtualSystem
             var previousBso = BootSourceOrder as string[];
 
             if (previousBso != null && bootSourceOrder?.Length > previousBso.Length)
-                throw new ViridianException("Too many boot devices specified!");
+                throw new InvalidOperationException("Too many boot devices specified!");
 
             if (bootSourceOrder.Any(indexBso => previousBso != null && indexBso > previousBso.Length))
-                throw new ViridianException("Invalid boot device index specified!");
+                throw new ArgumentOutOfRangeException("Invalid boot device index specified!");
 
             if (previousBso != null)
             {
@@ -352,7 +351,7 @@ namespace Viridian.Msvm.VirtualSystem
         public void CreateSnapshot(SnapshotType snapshotType, bool saveMachineState)
         {
             if (snapshotType == SnapshotType.Recovery && saveMachineState)
-                throw new ViridianException("You cannot create a recovery snapshot while the machine is in saved state!");
+                throw new InvalidOperationException("You cannot create a recovery snapshot while the machine is in saved state!");
 
             var initialState = ComputerSystem.RequestedState;
 

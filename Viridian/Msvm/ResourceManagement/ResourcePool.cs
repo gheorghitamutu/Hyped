@@ -174,7 +174,7 @@ namespace Viridian.Msvm.ResourceManagement
 
         public static ManagementObject GetPool(string ResourceSubType, bool Primordial = true)
         {
-            using (var mos = new ManagementObjectSearcher(Scope.Virtualization.SpecificScope, new ObjectQuery("SELECT * FROM Msvm_ResourcePool")))
+            using (var mos = new ManagementObjectSearcher(Scope.Virtualization.SpecificScope, new ObjectQuery($"SELECT * FROM {nameof(Msvm_ResourcePool)}")))
                 return mos
                     .Get()
                     .Cast<ManagementObject>()
@@ -186,14 +186,14 @@ namespace Viridian.Msvm.ResourceManagement
 
         public static ManagementObject GetResourcePool(string ResourceType, string ResourceSubType, string PoolId, ManagementScope scope)
         {
-            using (var mos = new ManagementObjectSearcher(scope, new ObjectQuery("SELECT * FROM Msvm_ResourcePool")))
+            using (var mos = new ManagementObjectSearcher(scope, new ObjectQuery($"SELECT * FROM {nameof(Msvm_ResourcePool)}")))
                 return mos
                     .Get()
                     .Cast<ManagementObject>()
                     .Where((c) =>
                         c[nameof(ResourceType)]?.ToString() == ResourceType &&
                         (ResourceType == ResourceTypeInfo.Other.ResourceType ?
-                            c["OtherResourceType"]?.ToString() == ResourceSubType :
+                            c[nameof(OtherResourceType)]?.ToString() == ResourceSubType :
                             c[nameof(ResourceSubType)]?.ToString() == ResourceSubType) &&
                         c[nameof(PoolId)]?.ToString() == PoolId)
                     .First();

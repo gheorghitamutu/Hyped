@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Management;
-using Viridian.Exceptions;
 using Viridian.Job;
 using Viridian.Scopes;
 
@@ -36,13 +35,13 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        public ManagementObject Msvm_VirtualSystemSnapshotService => Service ?? throw new ViridianException($"{nameof(ServiceName)} is null!");
+        public ManagementObject Msvm_VirtualSystemSnapshotService => Service;
               
         public void ApplySnapshot(ManagementObject Snapshot)
         {
             using (var ip = Msvm_VirtualSystemSnapshotService.GetMethodParameters(nameof(ApplySnapshot)))
             {
-                ip[nameof(Snapshot)] = Snapshot ?? throw new ViridianException($"{nameof(Snapshot)} is null!");
+                ip[nameof(Snapshot)] = Snapshot ?? throw new ArgumentNullException(nameof(Snapshot));
 
                 using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(ApplySnapshot), ip, null))
                     Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
@@ -53,7 +52,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             using (var ip = Msvm_VirtualSystemSnapshotService.GetMethodParameters(nameof(ClearSnapshotState)))
             {
-                ip[nameof(SnapshotSettingData)] = SnapshotSettingData ?? throw new ViridianException($"{nameof(SnapshotSettingData)} is null!");
+                ip[nameof(SnapshotSettingData)] = SnapshotSettingData ?? throw new ArgumentNullException(nameof(SnapshotSettingData));
 
                 using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(ClearSnapshotState), ip, null))
                     Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
@@ -64,8 +63,8 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             using (var ip = Msvm_VirtualSystemSnapshotService.GetMethodParameters(nameof(CreateSnapshot)))
             {
-                ip[nameof(AffectedSystem)] = AffectedSystem ?? throw new ViridianException($"{nameof(AffectedSystem)} is null!");
-                ip[nameof(SnapshotSettings)] = SnapshotSettings ?? throw new ViridianException($"{nameof(SnapshotSettings)} is null!");
+                ip[nameof(AffectedSystem)] = AffectedSystem ?? throw new ArgumentNullException(nameof(AffectedSystem));
+                ip[nameof(SnapshotSettings)] = SnapshotSettings ?? throw new ArgumentNullException(nameof(SnapshotSettings));
                 ip[nameof(SnapshotType)] = SnapshotType;
 
                 using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(CreateSnapshot), ip, null))
@@ -81,7 +80,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             using (var ip = Msvm_VirtualSystemSnapshotService.GetMethodParameters(nameof(DestroySnapshot)))
             {
-                ip[nameof(AffectedSnapshot)] = AffectedSnapshot ?? throw new ViridianException($"{nameof(AffectedSnapshot)} is null!");
+                ip[nameof(AffectedSnapshot)] = AffectedSnapshot ?? throw new ArgumentNullException(nameof(AffectedSnapshot));
 
                 using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(DestroySnapshot), ip, null))
                     Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
@@ -92,7 +91,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             using (var ip = Msvm_VirtualSystemSnapshotService.GetMethodParameters(nameof(DestroySnapshotTree)))
             {
-                ip[nameof(SnapshotSettingData)] = SnapshotSettingData ?? throw new ViridianException($"{nameof(SnapshotSettingData)} is null!");
+                ip[nameof(SnapshotSettingData)] = SnapshotSettingData ?? throw new ArgumentNullException(nameof(SnapshotSettingData));
 
                 using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(DestroySnapshotTree), ip, null))
                     Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);

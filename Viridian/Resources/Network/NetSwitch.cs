@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Management;
-using Viridian.Exceptions;
 using Viridian.Job;
 using Viridian.Msvm.Networking;
 using Viridian.Msvm.ResourceManagement;
@@ -218,7 +217,7 @@ namespace Viridian.Resources.Network
                                         .Path));
 
                 if (portsToDelete.Count == 0)
-                    throw new ViridianException(string.Format(CultureInfo.InvariantCulture, "The switch '{0}' does not have any internal or external ports to remove.", switchName));
+                    throw new InvalidOperationException($"The switch [{switchName}] does not have any internal or external ports to remove!");
 
                 VirtualEthernetSwitchManagementService.Instance.RemoveResourceSettings(portsToDelete.ToArray());
         }
@@ -257,13 +256,13 @@ namespace Viridian.Resources.Network
             }
         }
 
-        public static void AddCustomFeatureSettings(ComputerSystem virtualMachine, PortFeatureType featureType)
+        public static void AddCustomFeatureSettings(ComputerSystem vm, PortFeatureType FeatureType)
         {
-            string featureId = GetPortFeatureId(featureType);
+            string featureId = GetPortFeatureId(FeatureType);
 
             using (var defaultFeatureSetting = GetDefaultFeatureSetting(featureId, Scope.Virtualization.SpecificScope))
             {
-                switch (featureType)
+                switch (FeatureType)
                 {
                     case PortFeatureType.Security:
                         defaultFeatureSetting["AllowMacSpoofing"] = false;
@@ -280,10 +279,10 @@ namespace Viridian.Resources.Network
                         defaultFeatureSetting["IOVOffloadWeight"] = 100;
                         break;
                     default:
-                        throw new ViridianException("", new ArgumentOutOfRangeException(featureType.ToString()));
+                        throw new ArgumentOutOfRangeException(nameof(FeatureType));
                 }
 
-                virtualMachine?.VirtualSystemSettingData.GetEthernetPortAllocationSettingDataList()
+                vm?.VirtualSystemSettingData.GetEthernetPortAllocationSettingDataList()
                     .Cast<ManagementObject>()
                     .ToList()
                     .ForEach((connection) => VirtualSystemManagementService.Instance.AddFeatureSettings(connection.Path.Path, new string[] { defaultFeatureSetting.GetText(TextFormat.WmiDtd20) }));
@@ -309,11 +308,11 @@ namespace Viridian.Resources.Network
                         }));
         }
 
-        public static void RemoveFeatureSettings(ComputerSystem vm, PortFeatureType featureType)
+        public static void RemoveFeatureSettings(ComputerSystem vm, PortFeatureType FeatureType)
         {
             string featureSettingClass;
 
-            switch (featureType)
+            switch (FeatureType)
             {
                 case PortFeatureType.Security:
                     featureSettingClass = "Msvm_EthernetSwitchPortSecuritySettingData";
@@ -325,7 +324,7 @@ namespace Viridian.Resources.Network
                     featureSettingClass = "Msvm_EthernetSwitchPortAclSettingData";
                     break;
                 default:
-                    throw new ViridianException("", new ArgumentOutOfRangeException(featureType.ToString()));
+                    throw new ArgumentOutOfRangeException(nameof(FeatureType));
             }
 
             foreach (var ethernetConnectionSetting in vm?.VirtualSystemSettingData.GetEthernetPortAllocationSettingDataList())
@@ -380,7 +379,7 @@ namespace Viridian.Resources.Network
             }
 
             if (!found)
-                throw new ViridianException(string.Format(CultureInfo.CurrentCulture, "Could not find extension '{0}' on switch '{1}'.", extensionName, switchName));
+                throw new InvalidOperationException($"Could not find extension [{extensionName}] on switch [{switchName}]!");
         }
 
         public static void MoveExtension(ManagementScope scope, string switchName, string extensionName, int offset)
@@ -406,15 +405,14 @@ namespace Viridian.Resources.Network
                 }
 
                 if (extensionIndex == -1)
-                    throw new ViridianException(string.Format(CultureInfo.CurrentCulture, "Could not find extension '{0}' on switch '{1}'.", extensionName, switchName));
+                    throw new InvalidOperationException($"Could not find extension [{extensionName}] on switch [{switchName}]!");
 
                 int newExtensionIndex = extensionIndex + offset;
 
                 if ((newExtensionIndex < 0) || (newExtensionIndex >= extensionOrder.Length))
-                    throw new ViridianException("Invalid move operation.");
-
+                    throw new InvalidOperationException("Invalid move operation.");
                 if (extensionTypes[newExtensionIndex] != extensionTypes[extensionIndex])
-                    throw new ViridianException("Invalid move operation.");
+                    throw new InvalidOperationException("Invalid move operation.");
 
                 string temp = extensionOrder[newExtensionIndex];
                 extensionOrder[newExtensionIndex] = extensionOrder[extensionIndex];
@@ -590,7 +588,7 @@ namespace Viridian.Resources.Network
         public static PortConnectionType DeterminePortType(ManagementObject portSettings)
         {
             if (portSettings is null)
-                throw new ViridianException("", new ArgumentNullException(nameof(portSettings)));
+                throw new ArgumentNullException(nameof(portSettings));
 
             string[] hostResource = (string[])portSettings["HostResource"];
 
@@ -621,7 +619,7 @@ namespace Viridian.Resources.Network
         public static PortFeatureType DeterminePortFeatureType(ManagementObject portFeature)
         {
             if (portFeature is null)
-                throw new ViridianException("", new ArgumentNullException(nameof(portFeature)));
+                throw new ArgumentNullException(nameof(portFeature));
 
             switch (portFeature.Path.ClassName)
             {
@@ -638,7 +636,7 @@ namespace Viridian.Resources.Network
         public static SwitchFeatureType DetermineSwitchFeatureType(ManagementObject switchFeature)
         {
             if (switchFeature is null)
-                throw new ViridianException("", new ArgumentNullException(nameof(switchFeature)));
+                throw new ArgumentNullException(nameof(switchFeature));
 
             switch (switchFeature.Path.ClassName)
             {
@@ -650,7 +648,7 @@ namespace Viridian.Resources.Network
         public static SwitchConnectionType DetermineSwitchConnectionType(List<PortInfo> switchPorts)
         {
             if (switchPorts is null)
-                throw new ViridianException("", new ArgumentNullException(nameof(switchPorts)));
+                throw new ArgumentNullException(nameof(switchPorts));
 
             SwitchConnectionType type = SwitchConnectionType.Private;
 
@@ -678,7 +676,7 @@ namespace Viridian.Resources.Network
         public static IEnumerable<string> GetConnectedVirtualMachineList(List<PortInfo> portList)
         {
             if (portList is null)
-                throw new ViridianException("", new ArgumentNullException(nameof(portList)));
+                throw new ArgumentNullException(nameof(portList));
 
             var virtualMachineNames = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -730,9 +728,9 @@ namespace Viridian.Resources.Network
         public static List<ManagementObject> FindConnectionsToSwitch(ComputerSystem vm, ManagementObject ethernetSwitch)
         {
             if (vm is null)
-                throw new ViridianException("", new ArgumentNullException(nameof(vm)));
+                throw new ArgumentNullException(nameof(vm));
             if (ethernetSwitch is null)
-                throw new ViridianException("", new ArgumentNullException(nameof(ethernetSwitch)));
+                throw new ArgumentNullException(nameof(ethernetSwitch));
 
             var connectionsToSwitch = new List<ManagementObject>();
             foreach (ManagementObject epasd in vm.VirtualSystemSettingData.GetEthernetPortAllocationSettingDataList())
@@ -764,7 +762,7 @@ namespace Viridian.Resources.Network
                 case PortFeatureType.Profile:   return "9940CD46-8B06-43BB-B9D5-93D50381FD56";
                 case PortFeatureType.Security:  return "776E0BA7-94A1-41C8-8F28-951F524251B5";
                 case PortFeatureType.Vlan:      return "952C5004-4465-451C-8CB8-FA9AB382B773";
-                default:                        throw new ViridianException("The given port feature type is unrecognized.");
+                default:                        throw new ArgumentOutOfRangeException($"The given port feature type is unrecognized [{featureType}]!");
             }
         }
 
@@ -789,7 +787,7 @@ namespace Viridian.Resources.Network
             }
 
             if (defaultFeatureSettingPath == null)
-                throw new ViridianException("Unable to find the default feature settings!");
+                throw new InvalidOperationException($"Unable to find the default feature settings [{defaultFeatureSettingPath}]!");
 
             var defaultFeatureSetting = new ManagementObject(defaultFeatureSettingPath)
             {
@@ -812,7 +810,7 @@ namespace Viridian.Resources.Network
             switch (featureType)
             {
                 case SwitchFeatureType.Bandwidth:   return "3EB2B8E8-4ABF-4DBF-9071-16DD47481FBE";
-                default:                            throw new ViridianException("The given switch feature type is unrecognized.");
+                default:                            throw new ArgumentOutOfRangeException($"The given switch feature type is unrecognized [{featureType}]!");
             }
         }
 

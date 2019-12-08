@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Management;
-using Viridian.Exceptions;
 using System.Collections.Generic;
 using Viridian.Scopes;
 using Viridian.Msvm.ResourceManagement;
@@ -15,7 +14,7 @@ namespace Viridian.Resources.Network
         public static ManagementObject AddSyntheticAdapter(ComputerSystem vm, string adapterName = "Network Adapter")
         {
             if (vm is null)
-                throw new ViridianException("", new ArgumentNullException(nameof(vm)));
+                throw new ArgumentNullException(nameof(vm));
 
             using (var adapterToAdd = GetDefaultSyntheticAdapter())
             {
@@ -41,7 +40,7 @@ namespace Viridian.Resources.Network
         public static void ConnectVmUsingResourcePool(ComputerSystem vm, string resourcePoolName)
         {
             if (vm is null)
-                throw new ViridianException("", new ArgumentNullException(nameof(vm)));
+                throw new ArgumentNullException(nameof(vm));
 
             using (var rp = ResourcePool.GetResourcePool(ResourcePool.ResourceTypeInfo.EthernetConnection.ResourceType, ResourcePool.ResourceTypeInfo.EthernetConnection.ResourceSubType, resourcePoolName, Scope.Virtualization.SpecificScope))
             using (var syntheticAdapter = AddSyntheticAdapter(vm))

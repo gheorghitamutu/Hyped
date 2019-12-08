@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Management;
-using Viridian.Exceptions;
 using Viridian.Job;
 using Viridian.Scopes;
 
@@ -80,7 +79,7 @@ namespace Viridian.Msvm.Metrics
 #pragma warning disable CA1303 // Do not pass literals as localized parameters
 #pragma warning disable CA1707 // Identifiers should not contain underscores
 #pragma warning disable CA1065 // Do not raise exceptions in unexpected locations
-        public ManagementObject Msvm_MetricService => Service ?? throw new ViridianException($"{nameof(ServiceName)} is null!");
+        public ManagementObject Msvm_MetricService => Service ?? throw new NullReferenceException($"{nameof(ServiceName)} is null!");
 #pragma warning restore CA1065 // Do not raise exceptions in unexpected locations
 #pragma warning restore CA1707 // Identifiers should not contain underscores
 #pragma warning restore CA1303 // Do not pass literals as localized parameters
@@ -89,7 +88,7 @@ namespace Viridian.Msvm.Metrics
         {
             using (var ip = Msvm_MetricService.GetMethodParameters(nameof(ControlMetrics)))
             {
-                ip[nameof(Subject)] = Subject ?? throw new ViridianException($"{nameof(Subject)} is null!");
+                ip[nameof(Subject)] = Subject ?? throw new ArgumentNullException(nameof(Subject));
                 ip[nameof(Definition)] = Definition;
                 ip[nameof(MetricCollectionEnabled)] = MetricCollectionEnabled;
 
@@ -102,8 +101,8 @@ namespace Viridian.Msvm.Metrics
         {
             using (var ip = Msvm_MetricService.GetMethodParameters(nameof(ControlMetricsByClass)))
             {
-                ip[nameof(Subject)] = Subject ?? throw new ViridianException($"{nameof(Subject)} is null!");
-                ip[nameof(Definition)] = Definition ?? throw new ViridianException($"{nameof(Definition)} is null!");
+                ip[nameof(Subject)] = Subject ?? throw new ArgumentNullException(nameof(Subject));
+                ip[nameof(Definition)] = Definition ?? throw new ArgumentNullException(nameof(Definition));
                 ip[nameof(MetricCollectionEnabled)] = MetricCollectionEnabled;
 
                 using (var op = Msvm_MetricService.InvokeMethod(nameof(ControlMetricsByClass), ip, null))
@@ -115,8 +114,8 @@ namespace Viridian.Msvm.Metrics
         {
             using (var ip = Msvm_MetricService.GetMethodParameters(nameof(ControlSampleTimes)))
             {
-                ip[nameof(StartSampleTime)] = ManagementDateTimeConverter.ToDmtfDateTime(StartSampleTime) ?? throw new ViridianException($"{nameof(StartSampleTime)} is null!");
-                ip[nameof(PreferredSampleInterval)] = ManagementDateTimeConverter.ToDmtfDateTime(PreferredSampleInterval) ?? throw new ViridianException($"{nameof(PreferredSampleInterval)} is null!");
+                ip[nameof(StartSampleTime)] = ManagementDateTimeConverter.ToDmtfDateTime(StartSampleTime) ?? throw new ArgumentNullException(nameof(StartSampleTime));
+                ip[nameof(PreferredSampleInterval)] = ManagementDateTimeConverter.ToDmtfDateTime(PreferredSampleInterval) ?? throw new ArgumentNullException(nameof(PreferredSampleInterval));
                 ip[nameof(RestartGathering)] = RestartGathering;
 
                 using (var op = Msvm_MetricService.InvokeMethod(nameof(ControlSampleTimes), ip, null))
@@ -128,7 +127,7 @@ namespace Viridian.Msvm.Metrics
         {
             using (var ip = Msvm_MetricService.GetMethodParameters(nameof(GetMetricValues)))
             {
-                ip[nameof(Definition)] = Definition ?? throw new ViridianException($"{nameof(Definition)} is null!");
+                ip[nameof(Definition)] = Definition ?? throw new ArgumentNullException(nameof(Definition));
                 ip[nameof(Range)] = Range;
                 ip[nameof(Count)] = Count;
 
@@ -141,7 +140,7 @@ namespace Viridian.Msvm.Metrics
         {
             using (var ip = Msvm_MetricService.GetMethodParameters(nameof(ModifyServiceSettings)))
             {
-                ip[nameof(SettingData)] = SettingData ?? throw new ViridianException($"{nameof(SettingData)} is null!");
+                ip[nameof(SettingData)] = SettingData ?? throw new ArgumentNullException(nameof(SettingData));
 
                 using (var op = Msvm_MetricService.InvokeMethod(nameof(ModifyServiceSettings), ip, null))
                     Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
@@ -164,8 +163,8 @@ namespace Viridian.Msvm.Metrics
         {
             using (var ip = Msvm_MetricService.GetMethodParameters(nameof(ShowMetrics)))
             {
-                ip[nameof(Subject)] = Subject ?? throw new ViridianException($"{nameof(Subject)} is null!");
-                ip[nameof(Definition)] = Definition ?? throw new ViridianException($"{nameof(Definition)} is null!");
+                ip[nameof(Subject)] = Subject ?? throw new ArgumentNullException(nameof(Subject));
+                ip[nameof(Definition)] = Definition ?? throw new ArgumentNullException(nameof(Definition));
 
                 using (var op = Msvm_MetricService.InvokeMethod(nameof(ShowMetrics), ip, null))
                 {
@@ -180,8 +179,8 @@ namespace Viridian.Msvm.Metrics
         {
             using (var ip = Msvm_MetricService.GetMethodParameters(nameof(ShowMetricsByClass)))
             {
-                ip[nameof(Subject)] = Subject ?? throw new ViridianException($"{nameof(Subject)} is null!");
-                ip[nameof(Definition)] = Definition ?? throw new ViridianException($"{nameof(Definition)} is null!");
+                ip[nameof(Subject)] = Subject ?? throw new ArgumentNullException(nameof(Subject));
+                ip[nameof(Definition)] = Definition ?? throw new ArgumentNullException(nameof(Definition));
 
                 using (var op = Msvm_MetricService.InvokeMethod(nameof(ShowMetricsByClass), ip, null))
                 {
@@ -212,7 +211,7 @@ namespace Viridian.Msvm.Metrics
         public void SetAllMetrics(ManagementObject msvmObject, MetricCollectionEnabled operation)
         {
             if (msvmObject is null)
-                throw new ViridianException("", new ArgumentNullException(nameof(msvmObject)));
+                throw new ArgumentNullException(nameof(msvmObject));
 
             ControlMetrics(msvmObject.Path.Path, null, operation);
         }
@@ -220,10 +219,10 @@ namespace Viridian.Msvm.Metrics
         public void SetBaseMetric(ManagementObject msvmObject, ManagementObject baseMetricDef, MetricCollectionEnabled operation)
         {
             if (msvmObject is null)
-                throw new ViridianException("", new ArgumentNullException(nameof(msvmObject)));
+                throw new ArgumentNullException(nameof(msvmObject));
 
             if (baseMetricDef is null)
-                throw new ViridianException("", new ArgumentNullException(nameof(baseMetricDef)));
+                throw new ArgumentNullException(nameof(baseMetricDef));
 
             ControlMetrics(msvmObject.Path.Path, baseMetricDef.Path.Path, operation);
         }
@@ -231,9 +230,9 @@ namespace Viridian.Msvm.Metrics
         public void SetAllMetrics(ManagementObjectCollection msvmObjectCollection, MetricCollectionEnabled operation)
         {
             if (msvmObjectCollection is null)
-                throw new ViridianException("", new ArgumentNullException(nameof(msvmObjectCollection)));
+                throw new ArgumentNullException(nameof(msvmObjectCollection));
 
-            foreach(ManagementObject msvmObject in msvmObjectCollection)
+            foreach (ManagementObject msvmObject in msvmObjectCollection)
                 ControlMetrics(msvmObject.Path.Path, null, operation);
         }
 
@@ -255,7 +254,7 @@ namespace Viridian.Msvm.Metrics
         public static Dictionary<ManagementObject, ManagementObject> GetAggregationMetricValueCollection(ManagementObject msvmObject)
         {
             if (msvmObject is null)
-                throw new ViridianException("", new ArgumentNullException(nameof(msvmObject)));
+                throw new ArgumentNullException(nameof(msvmObject));
 
             using (var amdCollection = msvmObject.GetRelated("Msvm_AggregationMetricDefinition", "Msvm_MetricDefForME", null, null, null, null, false, null))
             using (var amvCollection = msvmObject.GetRelated("Msvm_AggregationMetricValue", "Msvm_MetricForME", null, null, null, null, false, null))
@@ -274,7 +273,7 @@ namespace Viridian.Msvm.Metrics
         public static Dictionary<ManagementObject, ManagementObject> GetBaseMetricValueCollection(ManagementObject msvmObject)
         {
             if (msvmObject is null)
-                throw new ViridianException("", new ArgumentNullException(nameof(msvmObject)));
+                throw new ArgumentNullException(nameof(msvmObject));
 
             using (var amdCollection = msvmObject.GetRelated("Msvm_BaseMetricDefinition", "Msvm_MetricDefForME", null, null, null, null, false, null))
             using (var amvCollection = msvmObject.GetRelated("Msvm_BaseMetricValue", "Msvm_MetricForME", null, null, null, null, false, null))
@@ -293,7 +292,7 @@ namespace Viridian.Msvm.Metrics
         public static ManagementObject GetBaseMetricDefForMEByName(ManagementObject msvmObject, string metricDefinitionName)
         {
             if (msvmObject is null)
-                throw new ViridianException("", new ArgumentNullException(nameof(msvmObject)));
+                throw new ArgumentNullException(nameof(msvmObject));
 
             using (var md = GetBaseMetricDefinition(metricDefinitionName, msvmObject.Scope))
             {
@@ -314,10 +313,10 @@ namespace Viridian.Msvm.Metrics
         public static List<ManagementObject> GetMetricsByDefinition(ManagementObject msvmObject, ManagementObject metricDefinition)
         {
             if (msvmObject is null)
-                throw new ViridianException("", new ArgumentNullException(nameof(msvmObject)));
-            
+                throw new ArgumentNullException(nameof(msvmObject));
+
             if (metricDefinition is null)
-                throw new ViridianException("", new ArgumentNullException(nameof(metricDefinition)));
+                throw new ArgumentNullException(nameof(metricDefinition));
 
             using (var mos = new ManagementObjectSearcher(msvmObject.Scope, new ObjectQuery("SELECT * FROM Msvm_MetricDefForME")))
                 return mos
@@ -337,7 +336,7 @@ namespace Viridian.Msvm.Metrics
         public static List<ManagementObject> GetAllAggregationMetricDefinitions(ManagementObject msvmObject)
         {
             if (msvmObject is null)
-                throw new ViridianException("", new ArgumentNullException(nameof(msvmObject)));
+                throw new ArgumentNullException(nameof(msvmObject));
 
             return 
                 msvmObject.GetRelated("Msvm_AggregationMetricDefinition", "Msvm_MetricDefForME", null, null, null, null, false, null)

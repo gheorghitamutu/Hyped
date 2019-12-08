@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Management;
-using Viridian.Exceptions;
 using Viridian.Scopes;
 
 namespace Viridian.WindowsStorageManagement.MSFT
@@ -124,8 +123,8 @@ namespace Viridian.WindowsStorageManagement.MSFT
         {
             using (var ip = MSFT_Volume.GetMethodParameters(nameof(Format)))
             {
-                ip[nameof(FileSystem)] = FileSystem ?? throw new ViridianException($"{nameof(FileSystem)} is null!");
-                ip[nameof(FileSystemLabel)] = FileSystemLabel ?? throw new ViridianException($"{nameof(FileSystemLabel)} is null!");
+                ip[nameof(FileSystem)] = FileSystem ?? throw new ArgumentNullException(nameof(FileSystem));
+                ip[nameof(FileSystemLabel)] = FileSystemLabel ?? throw new ArgumentNullException(nameof(FileSystemLabel));
                 ip[nameof(AllocationUnitSize)] = AllocationUnitSize;
                 ip[nameof(Full)] = Full;
                 ip[nameof(Force)] = Force;
@@ -135,7 +134,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
                     ip[nameof(SetIntegrityStreams)] = SetIntegrityStreams;
                 if (FileSystem != VolumeFileSystem.ReFS.Value) // not supported in current tests; maybe has something to do with AllocationUnitSize?
                     if (UseLargeFRS)
-                        throw new ViridianException("Not supported UseLargeFRS!", new NotSupportedException());
+                        throw new NotSupportedException($"Not supported [{nameof(UseLargeFRS)}]!");
                     else
                         ip[nameof(UseLargeFRS)] = UseLargeFRS;
                 ip[nameof(DisableHeatGathering)] = DisableHeatGathering;
@@ -186,7 +185,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
         {
             using (var ip = MSFT_Volume.GetMethodParameters(nameof(GetSupportedClusterSizes)))
             {
-                ip[nameof(FileSystem)] = FileSystem ?? throw new ViridianException($"{nameof(FileSystem)} is null!");
+                ip[nameof(FileSystem)] = FileSystem ?? throw new ArgumentNullException(nameof(FileSystem));
 
                 using (var op = MSFT_Volume.InvokeMethod(nameof(GetSupportedClusterSizes), ip, null))
                 {
@@ -294,7 +293,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
         {
             using (var ip = MSFT_Volume.GetMethodParameters(nameof(SetFileSystemLabel)))
             {
-                ip[nameof(FileSystemLabel)] = FileSystemLabel ?? throw new ViridianException($"{nameof(FileSystemLabel)} is null!"); ;
+                ip[nameof(FileSystemLabel)] = FileSystemLabel ?? throw new ArgumentNullException(nameof(FileSystemLabel));
 
                 using (var op = MSFT_Volume.InvokeMethod(nameof(SetFileSystemLabel), ip, null))
                 {
