@@ -125,7 +125,7 @@ namespace ViridianTester.Statistics
 
             using (var msi = ImageManagementService.Instance.FindMountedStorageImageInstance(vhdxName, ImageManagementService.CriterionType.Path))
             using (var op = msi.InvokeMethod("DetachVirtualHardDisk", null, null))
-                Viridian.Job.Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
+                Viridian.Job.Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
             // end operations on the host
 
             Dictionary<ManagementObject, ManagementObject> mapped = null;
@@ -195,7 +195,7 @@ namespace ViridianTester.Statistics
 
             using (var msi = ImageManagementService.Instance.FindMountedStorageImageInstance(vhdxName, ImageManagementService.CriterionType.Path))
             using (var op = msi.InvokeMethod("DetachVirtualHardDisk", null, null))
-                Viridian.Job.Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
+                Viridian.Job.Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
             // end operations on the host
 
             Dictionary<ManagementObject, ManagementObject> mapped = null;

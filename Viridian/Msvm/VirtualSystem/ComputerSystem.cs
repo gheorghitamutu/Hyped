@@ -12,9 +12,9 @@ namespace Viridian.Msvm.VirtualSystem
     public class ComputerSystem
     {
         private ManagementObject Msvm_ComputerSystem = null; // don't directly use it unless explicitly required (Name property)!
-        public VirtualSystemSettingData VirtualSystemSettingData { get; set; }
+        public VirtualSystemSettingData VirtualSystemSettingData { get; private set; }
 
-        private string elementName = null;
+        private string elementName = null; // unique identifier
 
         public ComputerSystem(string ElementName)
         {
@@ -51,19 +51,18 @@ namespace Viridian.Msvm.VirtualSystem
         {
             if (MsvmComputerSystem == null)
             {
-                Msvm_ComputerSystem = QueryMsvmComputerSystem(nameof(ElementName), ElementName);
-
-                if (MsvmComputerSystem == null)
-                {
-                    using (var vssd = GetMsvmObject("Msvm_VirtualSystemSettingData"))
-                    {
-                        vssd[nameof(ElementName)] = ElementName;
-                        vssd[nameof(Properties.Environment.Default.ConfigurationDataRoot)] = Properties.Environment.Default.ConfigurationDataRoot;
-                        vssd[nameof(Properties.Environment.Default.VirtualSystemSubtype)] = Properties.Environment.Default.VirtualSystemSubtype;
-
-                        MsvmComputerSystem = VirtualSystemManagementService.Instance.DefineSystem(vssd.GetText(TextFormat.WmiDtd20), null, null);
-                    }
-                }
+                var computerSystem = QueryMsvmComputerSystem(nameof(ElementName), ElementName);
+                MsvmComputerSystem = computerSystem ??
+                        VirtualSystemManagementService.Instance.DefineSystem(
+                            new VirtualSystemSettingData().ModifyProperties(
+                                new Dictionary<string, object>()
+                                {
+                                    { nameof(ElementName), ElementName },
+                                    { nameof(Properties.Environment.Default.ConfigurationDataRoot), Properties.Environment.Default.ConfigurationDataRoot },
+                                    { nameof(Properties.Environment.Default.VirtualSystemSubtype), Properties.Environment.Default.VirtualSystemSubtype },
+                                }).GetText(TextFormat.WmiDtd20),
+                            null,
+                            null);
             }
         }
 
@@ -226,10 +225,8 @@ namespace Viridian.Msvm.VirtualSystem
         public void InjectNonMaskableInterrupt()
         {
             using (var ip = MsvmComputerSystem.GetMethodParameters(nameof(InjectNonMaskableInterrupt)))
-            {
-                using (var op = MsvmComputerSystem.InvokeMethod(nameof(InjectNonMaskableInterrupt), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
-            }
+            using (var op = MsvmComputerSystem.InvokeMethod(nameof(InjectNonMaskableInterrupt), ip, null))
+                Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
         }
         public void RequestReplicationStateChange(ReplicationStateVM RequestedState, ulong TimeoutPeriod = 0)
         {
@@ -239,7 +236,7 @@ namespace Viridian.Msvm.VirtualSystem
                 ip[nameof(TimeoutPeriod)] = null; // CIM_DateTime
 
                 using (var op = MsvmComputerSystem.InvokeMethod(nameof(RequestReplicationStateChange), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
             }
         }
         public void RequestReplicationStateChangeEx(string ReplicationRelationship, ReplicationStateVM RequestedState, ulong TimeoutPeriod = 0)
@@ -251,7 +248,7 @@ namespace Viridian.Msvm.VirtualSystem
                 ip[nameof(TimeoutPeriod)] = null; // CIM_DateTime
 
                 using (var op = MsvmComputerSystem.InvokeMethod(nameof(RequestReplicationStateChangeEx), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
             }
         }
         public void RequestStateChange(VirtualSystemManagementService.RequestedStateVSM RequestedState, ulong TimeoutPeriod = 0)
@@ -262,7 +259,7 @@ namespace Viridian.Msvm.VirtualSystem
                 ip[nameof(TimeoutPeriod)] = null; // CIM_DateTime
 
                 using (var op = MsvmComputerSystem.InvokeMethod(nameof(RequestStateChange), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
             }
         }
 
@@ -277,25 +274,25 @@ namespace Viridian.Msvm.VirtualSystem
 
         public void DisconnectVmFromSwitch(string switchName)
         {
-            using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope.Virtualization.SpecificScope, switchName))
-                foreach (var connection in NetSwitch.FindConnectionsToSwitch(this, ves))
+            using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope.Virtualization.ScopeObject, switchName))
+                NetSwitch.FindConnectionsToSwitch(this, ves).ForEach((connection) =>
                 {
                     connection["EnabledState"] = 3;
 
                     VirtualSystemManagementService.Instance.ModifyResourceSettings(new string[] { connection.GetText(TextFormat.WmiDtd20) });
-                }
+                });
         }
 
         public void ModifyConnection(string currentSwitchName, string newSwitchName)
         {
-            using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope.Virtualization.SpecificScope, currentSwitchName))
-            using (var newVes = NetSwitch.FindVirtualEthernetSwitch(Scope.Virtualization.SpecificScope, newSwitchName))
-                foreach (var connection in NetSwitch.FindConnectionsToSwitch(this, ves))
+            using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope.Virtualization.ScopeObject, currentSwitchName))
+            using (var newVes = NetSwitch.FindVirtualEthernetSwitch(Scope.Virtualization.ScopeObject, newSwitchName))
+                NetSwitch.FindConnectionsToSwitch(this, ves).ForEach((connection) =>
                 {
                     connection["HostResource"] = new string[] { newVes.Path.Path };
 
                     VirtualSystemManagementService.Instance.ModifyResourceSettings(new string[] { connection.GetText(TextFormat.WmiDtd20) });
-                }
+                });
         }
 
         public List<ManagementObject> GetSyntheticAdapterCollection()
@@ -305,13 +302,8 @@ namespace Viridian.Msvm.VirtualSystem
 
         public static ManagementObject QueryMsvmComputerSystem(string name, string value)
         {
-            using (var mos = new ManagementObjectSearcher(Scope.Virtualization.SpecificScope, new ObjectQuery($"SELECT * FROM {nameof(Msvm_ComputerSystem)}")))
+            using (var mos = new ManagementObjectSearcher(Scope.Virtualization.ScopeObject, new ObjectQuery($"SELECT * FROM {nameof(Msvm_ComputerSystem)}")))
                 return mos.Get().Cast<ManagementObject>().Where((c) => c[name]?.ToString() == value).FirstOrDefault();
-        }
-        private static ManagementObject GetMsvmObject(string serviceName)
-        {
-            using (var serviceClass = new ManagementClass(Scope.Virtualization.SpecificScope, new ManagementPath(serviceName), null))
-                return serviceClass.GetInstances().Cast<ManagementObject>().First();
         }
 
         ~ComputerSystem()

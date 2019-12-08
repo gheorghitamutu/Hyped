@@ -4,6 +4,7 @@ using System.Linq;
 using System.Management;
 using Viridian.Msvm.Metrics;
 using Viridian.Msvm.ResourceManagement;
+using Viridian.Msvm.Threshold;
 using Viridian.Msvm.VirtualSystemManagement;
 using Viridian.Resources.Network;
 using Viridian.Scopes;
@@ -21,7 +22,10 @@ namespace Viridian.Msvm.VirtualSystem
         {
             get
             {
-                if (Attributes == null)
+                if (ComputerSystem == null && Msvm_VirtualSystemSettingData == null)
+                        using (var serviceClass = new ManagementClass(Scope.Virtualization.ScopeObject, new ManagementPath(nameof(Msvm_VirtualSystemSettingData)), null))
+                            Msvm_VirtualSystemSettingData = serviceClass.GetInstances().Cast<ManagementObject>().First();
+                else if (Attributes == null)
                     Msvm_VirtualSystemSettingData = GetMsvmVirtualSystemSettingDataCollection(VSSDAssociation).First();
                 else
                     Msvm_VirtualSystemSettingData =
@@ -32,7 +36,7 @@ namespace Viridian.Msvm.VirtualSystem
                 return Msvm_VirtualSystemSettingData;
             }
 
-            set
+            private set
             {
                 if (Msvm_VirtualSystemSettingData != null)
                     Msvm_VirtualSystemSettingData.Dispose();
@@ -41,7 +45,7 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        public VirtualSystemSettingData(ComputerSystem ComputerSystem, string VSSDAssociation, Dictionary<string, object> Attributes = null)
+        public VirtualSystemSettingData(ComputerSystem ComputerSystem = null, string VSSDAssociation = null, Dictionary<string, object> Attributes = null)
         {
             this.ComputerSystem = ComputerSystem;
             this.VSSDAssociation = VSSDAssociation;
@@ -221,15 +225,20 @@ namespace Viridian.Msvm.VirtualSystem
         #endregion
 
         public void ModifySystemSettings(Dictionary<string, object> Properties)
+        {            
+            VirtualSystemManagementService.Instance.ModifySystemSettings(ModifyProperties(Properties).GetText(TextFormat.WmiDtd20));
+        }
+        public ManagementObject ModifyProperties(Dictionary<string, object> Properties)
         {
-            var newMsvmVirtualSystemSettingData = MsvmVirtualSystemSettingData;
+            var modifiedMsvmVirtualSystemSettingData = MsvmVirtualSystemSettingData;
 
             Properties
                 .ToList()
-                .ForEach((p) => newMsvmVirtualSystemSettingData[p.Key] = p.Value);
+                .ForEach((p) => modifiedMsvmVirtualSystemSettingData[p.Key] = p.Value);
 
-            VirtualSystemManagementService.Instance.ModifySystemSettings(newMsvmVirtualSystemSettingData.GetText(TextFormat.WmiDtd20));
+            return modifiedMsvmVirtualSystemSettingData;
         }
+
         public VirtualSystemSettingData GetSnapshot(string ElementName)
         {
             return 
@@ -322,7 +331,7 @@ namespace Viridian.Msvm.VirtualSystem
         }
         public void ConnectVmToSwitch(string switchName, string adapterName)
         {
-            using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope.Virtualization.SpecificScope, switchName))
+            using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope.Virtualization.ScopeObject, switchName))
             using (var syntheticAdapter = SyntheticEthernetAdapter.AddSyntheticAdapter(ComputerSystem, adapterName))
             using (var epasd = NetSwitch.GetDefaultEthernetPortAllocationSettingData())
             {
@@ -342,7 +351,7 @@ namespace Viridian.Msvm.VirtualSystem
                     .ForEach((sepsd) =>
                         aclSettingDataList.AddRange(
                             SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(
-                                SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope.Virtualization.SpecificScope))
+                                SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope.Virtualization.ScopeObject))
                                     .Cast<ManagementObject>()
                                     .ToList()));
 
@@ -363,11 +372,10 @@ namespace Viridian.Msvm.VirtualSystem
 
             string snapshotSettings = "";
 
-            // Set the SnapshotSettings property. Backup/Recovery snapshots require special settings.
+            // Set the SnapshotSettings property. Backup/Recovery snapshots require additional settings.
             if (snapshotType == SnapshotType.Recovery)
             {
-                using (var vsssd = GetMsvmObject("Msvm_VirtualSystemSnapshotSettingData"))
-                    snapshotSettings = vsssd.GetText(TextFormat.CimDtd20);
+                snapshotSettings = new VirtualSystemSnapshotSettingData().MsvmVirtualSystemSettingData.GetText(TextFormat.CimDtd20);
 
                 // Make sure you activate Volume Shadow Copy service on Guest and install KB3063109.
                 // https://support.microsoft.com/en-us/help/3063109/hyper-v-integration-components-update-for-windows-virtual-machines
@@ -391,7 +399,7 @@ namespace Viridian.Msvm.VirtualSystem
                     .ToList()
                     .ForEach((sepsd) =>
                         SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(
-                            SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope.Virtualization.SpecificScope))
+                            SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope.Virtualization.ScopeObject))
                                 .ForEach((espasd) =>
                                     MetricService.GetAllBaseMetricDefinitions(espasd)
                                         .ForEach((baseMetricDef) =>
@@ -404,7 +412,7 @@ namespace Viridian.Msvm.VirtualSystem
                 .ToList()
                 .ForEach((sepsd) =>
                     SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(
-                        SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope.Virtualization.SpecificScope))
+                        SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope.Virtualization.ScopeObject))
                             .ForEach((espasd) =>
                                 MetricService.Instance.SetAllMetrics(espasd, operation)));
         }
@@ -455,7 +463,7 @@ namespace Viridian.Msvm.VirtualSystem
         }
         private static ManagementObject GetMsvmObject(string serviceName)
         {
-            using (var serviceClass = new ManagementClass(Scope.Virtualization.SpecificScope, new ManagementPath(serviceName), null))
+            using (var serviceClass = new ManagementClass(Scope.Virtualization.ScopeObject, new ManagementPath(serviceName), null))
                 return serviceClass.GetInstances().Cast<ManagementObject>().First();
         }
     }

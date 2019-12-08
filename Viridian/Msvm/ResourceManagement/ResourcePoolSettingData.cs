@@ -81,7 +81,7 @@ namespace Viridian.Msvm.ResourceManagement
 
         public ResourcePoolSettingData(ushort ResourceType, string ResourceSubType, string PoolId, string ElementName)
         {
-            using (var rpsdClass = new ManagementClass(nameof(Msvm_ResourcePoolSettingData)) { Scope = Scope.Virtualization.SpecificScope })
+            using (var rpsdClass = new ManagementClass(nameof(Msvm_ResourcePoolSettingData)) { Scope = Scope.Virtualization.ScopeObject })
             {
                 Msvm_ResourcePoolSettingData = rpsdClass.CreateInstance();
 

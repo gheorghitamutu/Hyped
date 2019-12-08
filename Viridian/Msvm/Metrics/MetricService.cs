@@ -93,7 +93,7 @@ namespace Viridian.Msvm.Metrics
                 ip[nameof(MetricCollectionEnabled)] = MetricCollectionEnabled;
 
                 using (var op = Msvm_MetricService.InvokeMethod(nameof(ControlMetrics), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
             }
         }
 
@@ -106,7 +106,7 @@ namespace Viridian.Msvm.Metrics
                 ip[nameof(MetricCollectionEnabled)] = MetricCollectionEnabled;
 
                 using (var op = Msvm_MetricService.InvokeMethod(nameof(ControlMetricsByClass), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
             }
         }
 
@@ -119,7 +119,7 @@ namespace Viridian.Msvm.Metrics
                 ip[nameof(RestartGathering)] = RestartGathering;
 
                 using (var op = Msvm_MetricService.InvokeMethod(nameof(ControlSampleTimes), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
             }
         }
 
@@ -132,7 +132,7 @@ namespace Viridian.Msvm.Metrics
                 ip[nameof(Count)] = Count;
 
                 using (var op = Msvm_MetricService.InvokeMethod(nameof(GetMetricValues), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
             }
         }
 
@@ -143,7 +143,7 @@ namespace Viridian.Msvm.Metrics
                 ip[nameof(SettingData)] = SettingData ?? throw new ArgumentNullException(nameof(SettingData));
 
                 using (var op = Msvm_MetricService.InvokeMethod(nameof(ModifyServiceSettings), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
             }
         }
 
@@ -155,7 +155,7 @@ namespace Viridian.Msvm.Metrics
                 ip[nameof(TimeoutPeriod)] = null; // CIM_DateTime
 
                 using (var op = Msvm_MetricService.InvokeMethod(nameof(RequestStateChange), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
             }
         }
 
@@ -168,7 +168,7 @@ namespace Viridian.Msvm.Metrics
 
                 using (var op = Msvm_MetricService.InvokeMethod(nameof(ShowMetrics), ip, null))
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
 
                     return new object[] { op["ManagedElements"] as string[], op["MetricNames"] as string[], op["MetricCollectionEnabled"] as MetricCollectionEnabled[] };
                 }
@@ -184,7 +184,7 @@ namespace Viridian.Msvm.Metrics
 
                 using (var op = Msvm_MetricService.InvokeMethod(nameof(ShowMetricsByClass), ip, null))
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
 
                     return new object[] { op["DefinitionList"] as string[], op["MetricNames"] as string[], op["MetricCollectionEnabled"] as MetricCollectionEnabled[] };
                 }
@@ -195,14 +195,14 @@ namespace Viridian.Msvm.Metrics
         {
             using (var ip = Msvm_MetricService.GetMethodParameters(nameof(StartService)))
             using (var op = Msvm_MetricService.InvokeMethod(nameof(StartService), ip, null))
-                Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
+                Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
         }
 
         public override void StopService()
         {
             using (var ip = Msvm_MetricService.GetMethodParameters(nameof(StopService)))
             using (var op = Msvm_MetricService.InvokeMethod(nameof(StopService), ip, null))
-                Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
+                Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
         }
 
 
@@ -240,7 +240,7 @@ namespace Viridian.Msvm.Metrics
         {
             using (var mssdClass = new ManagementClass("Msvm_MetricServiceSettingData"))
             {
-                mssdClass.Scope = Scope.Virtualization.SpecificScope;
+                mssdClass.Scope = Scope.Virtualization.ScopeObject;
 
                 using (var mssd = mssdClass.CreateInstance())
                 {

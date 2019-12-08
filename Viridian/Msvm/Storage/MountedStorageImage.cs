@@ -57,7 +57,7 @@ namespace Viridian.Msvm.Storage
         {
             using (var ip = Msvm_MountedStorageImage.GetMethodParameters(nameof(DetachVirtualHardDisk)))
             using (var op = Msvm_MountedStorageImage.InvokeMethod(nameof(DetachVirtualHardDisk), ip, null))
-                Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
+                Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
         }
 
         ~MountedStorageImage()

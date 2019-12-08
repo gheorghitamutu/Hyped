@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Job\Validator.cs" />
+    <Compile Include="Msvm\Threshold\VirtualSystemSnapshotSettingData.cs" />
     <Compile Include="Msvm\VirtualSystem\ComputerSystem.cs" />
     <Compile Include="Properties\ComputerSystem.Designer.cs">
       <AutoGen>True</AutoGen>

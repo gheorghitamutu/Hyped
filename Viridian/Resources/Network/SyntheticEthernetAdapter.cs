@@ -42,7 +42,7 @@ namespace Viridian.Resources.Network
             if (vm is null)
                 throw new ArgumentNullException(nameof(vm));
 
-            using (var rp = ResourcePool.GetResourcePool(ResourcePool.ResourceTypeInfo.EthernetConnection.ResourceType, ResourcePool.ResourceTypeInfo.EthernetConnection.ResourceSubType, resourcePoolName, Scope.Virtualization.SpecificScope))
+            using (var rp = ResourcePool.GetResourcePool(ResourcePool.ResourceTypeInfo.EthernetConnection.ResourceType, ResourcePool.ResourceTypeInfo.EthernetConnection.ResourceSubType, resourcePoolName, Scope.Virtualization.ScopeObject))
             using (var syntheticAdapter = AddSyntheticAdapter(vm))
             using (var depasd = NetSwitch.GetDefaultEthernetPortAllocationSettingData())
             {

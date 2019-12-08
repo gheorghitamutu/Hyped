@@ -260,7 +260,7 @@ namespace Viridian.Resources.Network
         {
             string featureId = GetPortFeatureId(FeatureType);
 
-            using (var defaultFeatureSetting = GetDefaultFeatureSetting(featureId, Scope.Virtualization.SpecificScope))
+            using (var defaultFeatureSetting = GetDefaultFeatureSetting(featureId, Scope.Virtualization.ScopeObject))
             {
                 switch (FeatureType)
                 {
@@ -428,7 +428,7 @@ namespace Viridian.Resources.Network
         {
             var connectionsToModify = new List<string>();
 
-            using (var feature = FindFeatureByName(featureName, Scope.Virtualization.SpecificScope))
+            using (var feature = FindFeatureByName(featureName, Scope.Virtualization.ScopeObject))
                 foreach (ManagementObject connection in vm.VirtualSystemSettingData.GetEthernetPortAllocationSettingDataList())
                     using (connection)
                     {

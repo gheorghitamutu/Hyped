@@ -39,7 +39,7 @@ namespace Viridian.Msvm.ResourceManagement
 
         public ResourceAllocationSettingData(ushort ResourceType, string ResourceSubType, string PoolId, string[] HostResource)
         {
-            using (var rpsdClass = new ManagementClass(nameof(Msvm_ResourceAllocationSettingData)) { Scope = Scope.Virtualization.SpecificScope })
+            using (var rpsdClass = new ManagementClass(nameof(Msvm_ResourceAllocationSettingData)) { Scope = Scope.Virtualization.ScopeObject })
             {
                 Msvm_ResourceAllocationSettingData = rpsdClass.CreateInstance();
 

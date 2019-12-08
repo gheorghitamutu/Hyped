@@ -14,7 +14,7 @@ namespace Viridian.Msvm
         {
             using (var vsms = new ManagementClass(MsvmServiceName))
             {
-                vsms.Scope = Scope.Virtualization.SpecificScope;
+                vsms.Scope = Scope.Virtualization.ScopeObject;
 
                 Service = vsms.GetInstances().Cast<ManagementObject>().First();
             }

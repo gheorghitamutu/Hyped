@@ -44,7 +44,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
                 ip[nameof(Snapshot)] = Snapshot ?? throw new ArgumentNullException(nameof(Snapshot));
 
                 using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(ApplySnapshot), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
             }
         }
 
@@ -55,7 +55,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
                 ip[nameof(SnapshotSettingData)] = SnapshotSettingData ?? throw new ArgumentNullException(nameof(SnapshotSettingData));
 
                 using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(ClearSnapshotState), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
             }
         }
 
@@ -69,7 +69,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
                 using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(CreateSnapshot), ip, null))
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
 
                     return op["ResultingSnapshot"] as ManagementObject;
                 }
@@ -83,7 +83,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
                 ip[nameof(AffectedSnapshot)] = AffectedSnapshot ?? throw new ArgumentNullException(nameof(AffectedSnapshot));
 
                 using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(DestroySnapshot), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
             }
         }
 
@@ -94,7 +94,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
                 ip[nameof(SnapshotSettingData)] = SnapshotSettingData ?? throw new ArgumentNullException(nameof(SnapshotSettingData));
 
                 using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(DestroySnapshotTree), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
             }
         }
 
@@ -106,7 +106,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
                 ip[nameof(TimeoutPeriod)] = TimeoutPeriod;
 
                 using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(RequestStateChange), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
             }
         }
 
@@ -119,7 +119,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
                 using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(ConvertToReferencePoint), ip, null))
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
+                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
 
                     return op["ResultingReferencePoint"] as ManagementObject;
                 }

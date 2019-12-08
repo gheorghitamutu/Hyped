@@ -46,7 +46,6 @@ namespace Viridian.Msvm.ResourceManagement
             Transitioning = 15,
             InService = 16
         }
-
         public enum OperationalStatusRP : ushort
         {
             OK = 2,
@@ -64,7 +63,6 @@ namespace Viridian.Msvm.ResourceManagement
             Degraded = 2,
             Error = 3
         }
-
         public class ResourceTypeInfo
         {
             private ResourceTypeInfo(string DisplayName, string ResourceType, string ResourceSubType)
@@ -174,7 +172,7 @@ namespace Viridian.Msvm.ResourceManagement
 
         public static ManagementObject GetPool(string ResourceSubType, bool Primordial = true)
         {
-            using (var mos = new ManagementObjectSearcher(Scope.Virtualization.SpecificScope, new ObjectQuery($"SELECT * FROM {nameof(Msvm_ResourcePool)}")))
+            using (var mos = new ManagementObjectSearcher(Scope.Virtualization.ScopeObject, new ObjectQuery($"SELECT * FROM {nameof(Msvm_ResourcePool)}")))
                 return mos
                     .Get()
                     .Cast<ManagementObject>()
