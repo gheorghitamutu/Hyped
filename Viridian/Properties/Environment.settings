@@ -1,0 +1,21 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Viridian.Properties" GeneratedClassName="Environment">
+  <Profiles />
+  <Settings>
+    <Setting Name="Server" Type="System.String" Scope="User">
+      <Value Profile="(Default)">.</Value>
+    </Setting>
+    <Setting Name="Virtualization" Type="System.String" Scope="User">
+      <Value Profile="(Default)">\Root\Virtualization\V2</Value>
+    </Setting>
+    <Setting Name="VirtualSystemSubtype" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Microsoft:Hyper-V:SubType:2</Value>
+    </Setting>
+    <Setting Name="ConfigurationDataRoot" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\ProgramData\Microsoft\Windows\Hyper-V\</Value>
+    </Setting>
+    <Setting Name="Storage" Type="System.String" Scope="User">
+      <Value Profile="(Default)">\Root\Microsoft\Windows\Storage</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

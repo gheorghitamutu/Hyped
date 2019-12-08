@@ -1,29 +1,23 @@
-﻿using System.Management;
-using Viridian.Exceptions;
-using Viridian.Machine;
-using Viridian.Resources.Msvm;
-using Viridian.Service.Msvm;
-using Viridian.Utilities;
+﻿using System;
+using System.Management;
+using Viridian.Msvm.ResourceManagement;
+using Viridian.Msvm.VirtualSystem;
+using Viridian.Msvm.VirtualSystemManagement;
 
 namespace Viridian.Resources.Drives
 {
     public class SyntheticDisk
     {
-        public void AddToScsi(VM vm, int scsiIndex, int addressOnParent)
+        public void AddToScsi(ComputerSystem vm, int scsiIndex, int addressOnParent)
         {
-            using (var rp = Utils.GetWmiObject(vm.Scope, "Msvm_ResourcePool", "ResourceSubType = 'Microsoft:Hyper-V:Synthetic Disk Drive' and Primordial = True"))
-            using (var rasd = ResourceAllocationSettingData.GetDefaultAllocationSettings(rp))
-            using (var rasdClone = rasd.Clone() as ManagementObject)
-            using (var vms = Utils.GetVirtualMachineSettings(vm.VmName, vm.Scope))
-            using (var scsiController = vm.GetScsiController(scsiIndex))
+            using (var pool = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType))
+            using (var rasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(pool))
+            using (var scsiController = vm?.VirtualSystemSettingData.GetScsiController(scsiIndex))
             {
-                if (rasdClone == null)
-                    throw new ViridianException("Failure retrieving default settings!");
+                rasd["Parent"] = scsiController ?? throw new NullReferenceException($"Failure retrieving SCSI Controller class [{nameof(scsiController)}]!");
+                rasd["AddressOnParent"] = addressOnParent;
 
-                rasdClone["Parent"] = scsiController ?? throw new ViridianException("Failure retrieving SCSI Controller class!");
-                rasdClone["AddressOnParent"] = addressOnParent;
-
-                VirtualSystemManagement.Instance.AddResourceSettings(vms, new[] { rasdClone.GetText(TextFormat.WmiDtd20) });
+                VirtualSystemManagementService.Instance.AddResourceSettings(vm.VirtualSystemSettingData.MsvmVirtualSystemSettingData, new[] { rasd.GetText(TextFormat.WmiDtd20) });
             }
         }
     }

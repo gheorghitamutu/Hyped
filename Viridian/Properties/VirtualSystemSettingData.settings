@@ -1,0 +1,42 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Viridian.Properties" GeneratedClassName="VirtualSystemSettingData">
+  <Profiles />
+  <Settings>
+    <Setting Name="RealizedVirtualMachine" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Microsoft:Hyper-V:System:Realized</Value>
+    </Setting>
+    <Setting Name="PlannedVirtualMachine" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Microsoft:Hyper-V:System:Planned</Value>
+    </Setting>
+    <Setting Name="RealizedVirtualMachineSnapshot" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Microsoft:Hyper-V:Snapshot:Realized</Value>
+    </Setting>
+    <Setting Name="RecoveryVirtualMachineSnapshot" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Microsoft:Hyper-V:Snapshot:Recovery</Value>
+    </Setting>
+    <Setting Name="PlannedVirtualMachineSnapshot" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Microsoft:Hyper-V:Snapshot:Planned</Value>
+    </Setting>
+    <Setting Name="MissingSnapshot" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Microsoft:Hyper-V:Snapshot:Missing</Value>
+    </Setting>
+    <Setting Name="TimeBasedReplicationPointSnapshot" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Microsoft:Hyper-V:Snapshot:Replica:Standard</Value>
+    </Setting>
+    <Setting Name="VSSReplicationPointSnapshot" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Microsoft:Hyper-V:Snapshot:Replica:ApplicationConsistent</Value>
+    </Setting>
+    <Setting Name="PlannedReplicationSnapshot" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Microsoft:Hyper-V:Snapshot:Replica:PlannedFailover</Value>
+    </Setting>
+    <Setting Name="Msvm_SettingsDefineState" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Msvm_SettingsDefineState</Value>
+    </Setting>
+    <Setting Name="Msvm_SnapshotOfVirtualSystem" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Msvm_SnapshotOfVirtualSystem</Value>
+    </Setting>
+    <Setting Name="Msvm_LastAppliedSnapshot" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Msvm_LastAppliedSnapshot</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

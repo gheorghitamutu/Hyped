@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Management;
 using System.Threading;
-using Viridian.Exceptions;
 
 namespace Viridian.Job
 {
@@ -25,6 +25,7 @@ namespace Viridian.Job
         private static class ReturnCode
         {
             public const uint Completed = 0;
+            public const uint NotSupportedVolume = 1;
             public const uint Started = 4096;
             public const uint Failed = 32768;
             public const uint AccessDenied = 32769;
@@ -37,17 +38,24 @@ namespace Viridian.Job
             public const uint IncorrectDataType = 32776;
             public const uint SystemNotAvailable = 32777;
             public const uint OutofMemory = 32778;
+            public const uint NotEnoughFreeSpace = 40000;
+            public const uint InvalidPartitionParam = 41006;
             public const uint InvalidAccessPath = 41010;
             public const uint InvalidPartionType = 42007;
+            public const uint InvalidClusterSize = 43000;
         }
 
         public static void ValidateOutput(ManagementBaseObject outputParameters, ManagementScope scope)
         {
-            switch((uint)outputParameters["ReturnValue"])
+            switch((uint)outputParameters?["ReturnValue"])
             {
-                case ReturnCode.InvalidParameter:   throw new ViridianException("Invalid parameter passed to function!");
-                case ReturnCode.InvalidAccessPath:  throw new ViridianException("The access path is not valid (MSFT_Partition)!");
-                case ReturnCode.InvalidPartionType:  throw new ViridianException("The partition type is not valid (MSFT_Partition)!");
+                case ReturnCode.InvalidParameter:       throw new InvalidOperationException("Invalid parameter passed to function!");
+                case ReturnCode.NotSupportedVolume:     throw new InvalidOperationException("Not Supported (MSFT_Volume)!");
+                case ReturnCode.NotEnoughFreeSpace:     throw new InvalidOperationException("Not enough free space (MSFT_Partition)!");
+                case ReturnCode.InvalidPartitionParam:  throw new InvalidOperationException("A parameter is not valid for this type of partition (MSFT_Partition)!");
+                case ReturnCode.InvalidAccessPath:      throw new InvalidOperationException("The access path is not valid (MSFT_Partition)!");
+                case ReturnCode.InvalidPartionType:     throw new InvalidOperationException("The partition type is not valid (MSFT_Partition)!");
+                case ReturnCode.InvalidClusterSize:     throw new InvalidOperationException("The specified cluster size is invalid (MSFT_Volume)!");
             }
 
             var errorMessage = "The method call failed!";
@@ -80,12 +88,13 @@ namespace Viridian.Job
                     var errors = GetMsvmErrorsList(job);
                     if (errors.Length > 0)
                     {
-                        throw new ViridianException(errorMessage, errors);
+                        Trace.WriteLine(errors);
+                        throw new InvalidOperationException(errorMessage);
                     }
                     else if ((uint)outputParameters["ReturnValue"] != ReturnCode.Completed)
                     {
                         errorMessage = $"The method call failed! Error code {(uint)outputParameters["ReturnValue"]}";
-                        throw new ViridianException(errorMessage);
+                        throw new InvalidOperationException(errorMessage);
                     }
                 }
             }
@@ -112,14 +121,11 @@ namespace Viridian.Job
 
         public static string[] GetMsvmErrorsList(ManagementObject job)
         {
-            if (job == null)
-                throw new ViridianException("Job object is null!");
-
-            using (var ip = job.GetMethodParameters("GetErrorEx"))
+            using (var ip = job?.GetMethodParameters("GetErrorEx"))
             using (var op = job.InvokeMethod("GetErrorEx", ip, null))
             {
-                if (op != null && (uint)op["ReturnValue"] != ReturnCode.Completed)
-                    throw new ViridianException("GetErrorEx() call on the job failed!", new ManagementException());
+                if ((uint)op?["ReturnValue"] != ReturnCode.Completed)
+                    throw new ManagementException("GetErrorEx() call on the job failed!");
 
                 if (op == null)
                     return Array.Empty<string>();

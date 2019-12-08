@@ -1,0 +1,12 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Viridian.Properties" GeneratedClassName="ComputerSystem">
+  <Profiles />
+  <Settings>
+    <Setting Name="MicrosoftVirtualComputerSystem" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Microsoft Virtual Computer System</Value>
+    </Setting>
+    <Setting Name="MicrosoftHostingComputerSystem" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Microsoft Hosting Computer System</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

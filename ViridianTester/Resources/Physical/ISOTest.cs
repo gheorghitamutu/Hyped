@@ -1,21 +1,16 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
-using Viridian.Machine;
-using Viridian.Resources.Controllers;
+using Viridian.Msvm.ResourceManagement;
+using Viridian.Msvm.VirtualSystem;
 using Viridian.Resources.Drives;
 using Viridian.Resources.Physical;
-using Viridian.Utilities;
 
 namespace ViridianTester.Resources.Physical
 {
     [TestClass]
     public class ISOTest
     {
-        const string serverName = "."; // local
-        const string scopePath = @"\Root\Virtualization\V2"; // API v2 
-        const string virtualSystemSubType = "Microsoft:Hyper-V:SubType:2"; // Generation 2
-
         [TestMethod]
         public void ViridianDVD_AddToVmSCSIDVD()
         {
@@ -24,11 +19,9 @@ namespace ViridianTester.Resources.Physical
             var isoName = AppDomain.CurrentDomain.BaseDirectory + "\\dummyPath.iso";
 
             // Act
-            var vm = new VM(serverName, scopePath, vmName, virtualSystemSubType);
-            vm.CreateVm();
+            var vm = new ComputerSystem(vmName);
 
-            var scsi = new SCSI();
-            scsi.AddToVm(vm);
+            vm.VirtualSystemSettingData.AddSCSIController();
 
             var dvd = new DVD();
             dvd.AddToScsi(vm, 0, 0);
@@ -40,16 +33,17 @@ namespace ViridianTester.Resources.Physical
                 var sut = new ISO();
                 sut.AddIso(vm, isoName, 0, 0);
 
-                var scope = Utils.GetScope(serverName, scopePath);
-                var rt = Utils.GetResourceType("SyntheticDVD");
-                var rst = Utils.GetResourceSubType("SyntheticDVD");
-                var dvdDrives = Utils.GetResourceAllocationSettingDataResourcesByTypeAndSubtype(vmName, scope, rt, rst);
+                var dvdDrives = 
+                    ResourceAllocationSettingData.GetRelatedResourceAllocationSettingDataCollection(
+                        vm?.VirtualSystemSettingData.MsvmVirtualSystemSettingData,
+                        ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceType, 
+                        ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType);
 
                 // Assert
                 Assert.IsTrue(File.Exists(isoName));
                 Assert.AreEqual(1, dvdDrives.Count);
                 Assert.IsTrue(dvd.IsISOAttached(vm, 0, 0));
-                vm.RemoveVm();
+                vm.DestroySystem();
                 File.Delete(isoName);
             }
         }
