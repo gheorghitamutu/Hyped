@@ -89,7 +89,6 @@
             }
             else
             {
-
                 <div class="list-group" id="list-tab" role="tablist">                    
                     @foreach (var machine in machines) { 
                     <a class="list-group-item list-group-item-action" role="tab" @onclick="@(() => GetVM(machine))">@machine.Name</a>
