@@ -118,7 +118,7 @@
 @code {
 
     // TO BE MODIFIED, aici am testat cu back-end-ul rulat pe alt PC din retea
-    private string apiUrl = "http://192.168.100.6:45455/api/vms";
+    private string apiUrl = "https://localhost:5001/api/vms";
 
     private MachineDetails _editMachine = new MachineDetails();
 
@@ -148,6 +148,7 @@
             Name = editItem.Name,
             Configuration = editItem.Configuration,
             LastSave = editItem.LastSave,
+            UserId = editItem.UserId
         };
     }
 
@@ -156,14 +157,31 @@
         GetMachines();
         DateTime date = DateTime.Now;
         var lastItem = machines.LastOrDefault();
-        _addMachine = new MachineDetails
+        if (lastItem == null)
         {
+            _addMachine = new MachineDetails
+            {
+            VMId = _addMachine.VMId,
+            RealID = _addMachine.RealID,
+            Name = _addMachine.Name,
+            Configuration = _addMachine.Configuration,
+            LastSave = Convert.ToString(date),
+            UserId = Guid.Parse("bd189d4a-08b9-408f-a627-5c31551ef118")
+            };
+        }
+        else
+        {
+            _addMachine = new MachineDetails
+            {
             VMId = lastItem.VMId,
             RealID = Convert.ToString(Convert.ToInt32(lastItem.RealID)+1),
             Name = lastItem.Name,
             Configuration = lastItem.Configuration,
-            LastSave = Convert.ToString(date)
-        };
+            LastSave = Convert.ToString(date),
+            UserId = Guid.Parse("bd189d4a-08b9-408f-a627-5c31551ef118")
+            };
+        }
+        
     }
 
     private async Task SaveItem()
@@ -190,5 +208,7 @@
         public string Configuration { get; set; }
 
         public string LastSave { get; set; }
+
+        public Guid UserId { get; set; }
     }
 }

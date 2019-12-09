@@ -14,6 +14,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Viridian", "Viridian\Viridian.csproj", "{8D0323A7-A3B7-4691-8B52-326F03478F74}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HypedClient", "HypedClient\HypedClient.csproj", "{2DF555C9-2809-460F-AAD5-B17259A11AEE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8D0323A7-A3B7-4691-8B52-326F03478F74} = {8D0323A7-A3B7-4691-8B52-326F03478F74}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackEndAPI", "BackEnd\BackEndAPI\BackEndAPI.csproj", "{678D9448-B56D-40CA-B21B-34B38EF42290}"
 EndProject
