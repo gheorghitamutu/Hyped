@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Management;
+using Viridian.Msvm.Storage;
 using Viridian.Msvm.VirtualSystem;
 using Viridian.Msvm.VirtualSystemManagement;
 using Viridian.Scopes;
@@ -11,27 +12,13 @@ namespace Viridian.Msvm.ResourceManagement
     public sealed class ResourceAllocationSettingData
     {
         private ManagementObject Msvm_ResourceAllocationSettingData = null;
-        private VirtualSystemSettingData virtualSystemSettingData = null;
+        private VirtualSystemSettingData VirtualSystemSettingData { get; set; }
         private string[] virtualSystemIdentifiers = null;
 
-        public ResourceAllocationSettingData(ushort ResourceType, string ResourceSubType, string PoolId, string[] HostResource)
-        {
-            using (var rpsdClass = new ManagementClass(nameof(Msvm_ResourceAllocationSettingData)) { Scope = Scope.Virtualization.ScopeObject })
-            {
-                Msvm_ResourceAllocationSettingData = rpsdClass.CreateInstance();
-
-                Msvm_ResourceAllocationSettingData[nameof(ResourceType)] = ResourceType;
-                Msvm_ResourceAllocationSettingData[nameof(ResourceSubType)] = ResourceType != 0 ? string.Empty : ResourceSubType;
-                Msvm_ResourceAllocationSettingData[nameof(OtherResourceType)] = ResourceType == 0 ? string.Empty : ResourceSubType;
-                Msvm_ResourceAllocationSettingData[nameof(PoolId)] = PoolId;
-                Msvm_ResourceAllocationSettingData[nameof(HostResource)] = HostResource;
-            }
-        }
-
-        public ResourceAllocationSettingData(ManagementObject ResourceAllocationSettingData, VirtualSystemSettingData virtualSystemSettingData = null)
+        public ResourceAllocationSettingData(ManagementObject ResourceAllocationSettingData, VirtualSystemSettingData VirtualSystemSettingData = null)
         {
             MsvmResourceAllocationSettingData = ResourceAllocationSettingData;
-            this.virtualSystemSettingData = virtualSystemSettingData;
+            this.VirtualSystemSettingData = VirtualSystemSettingData;
         }
 
         public ManagementObject MsvmResourceAllocationSettingData
@@ -57,29 +44,29 @@ namespace Viridian.Msvm.ResourceManagement
 
         #region MsvmProperties
 
-        public string InstanceID => MsvmResourceAllocationSettingData[nameof(InstanceID)].ToString();
-        public string Caption => MsvmResourceAllocationSettingData[nameof(Caption)].ToString();
-        public string Description => MsvmResourceAllocationSettingData[nameof(Description)].ToString();
-        public string ElementName => MsvmResourceAllocationSettingData[nameof(ElementName)].ToString();
+        public string InstanceID => MsvmResourceAllocationSettingData[nameof(InstanceID)] as string;
+        public string Caption => MsvmResourceAllocationSettingData[nameof(Caption)] as string;
+        public string Description => MsvmResourceAllocationSettingData[nameof(Description)] as string;
+        public string ElementName => MsvmResourceAllocationSettingData[nameof(ElementName)] as string;
         public ResourcePoolSettingData.PoolResourceType ResourceType => (ResourcePoolSettingData.PoolResourceType)(ushort)MsvmResourceAllocationSettingData[nameof(ResourceType)];
-        public string OtherResourceType => MsvmResourceAllocationSettingData[nameof(OtherResourceType)].ToString();
-        public string ResourceSubType => MsvmResourceAllocationSettingData[nameof(ResourceSubType)].ToString();
-        public string PoolID => MsvmResourceAllocationSettingData[nameof(PoolID)].ToString();
+        public string OtherResourceType => MsvmResourceAllocationSettingData[nameof(OtherResourceType)] as string;
+        public string ResourceSubType => MsvmResourceAllocationSettingData[nameof(ResourceSubType)] as string;
+        public string PoolID => MsvmResourceAllocationSettingData[nameof(PoolID)] as string;
         public ushort ConsumerVisibility => (ushort)MsvmResourceAllocationSettingData[nameof(ConsumerVisibility)];
         public string[] HostResource => MsvmResourceAllocationSettingData[nameof(HostResource)] as string[];
-        public string AllocationUnits => MsvmResourceAllocationSettingData[nameof(AllocationUnits)].ToString();
+        public string AllocationUnits => MsvmResourceAllocationSettingData[nameof(AllocationUnits)] as string;
         public ulong VirtualQuantity => (ulong)MsvmResourceAllocationSettingData[nameof(VirtualQuantity)];
         public ulong Reservation => (ulong)MsvmResourceAllocationSettingData[nameof(Reservation)];
         public ulong Limit => (ulong)MsvmResourceAllocationSettingData[nameof(Limit)];
         public uint Weight => (uint)MsvmResourceAllocationSettingData[nameof(Weight)];
         public bool AutomaticAllocation => (bool)MsvmResourceAllocationSettingData[nameof(AutomaticAllocation)];
         public bool AutomaticDeallocation => (bool)MsvmResourceAllocationSettingData[nameof(AutomaticDeallocation)];
-        public string Parent => MsvmResourceAllocationSettingData[nameof(Parent)].ToString();
+        public string Parent => MsvmResourceAllocationSettingData[nameof(Parent)] as string;
         public string[] Connection => MsvmResourceAllocationSettingData[nameof(Connection)] as string[];
-        public string Address => MsvmResourceAllocationSettingData[nameof(Address)].ToString();
+        public string Address => MsvmResourceAllocationSettingData[nameof(Address)] as string;
         public ResourcePoolSettingData.PoolMappingBehavior MappingBehavior => (ResourcePoolSettingData.PoolMappingBehavior)(ushort)MsvmResourceAllocationSettingData[nameof(MappingBehavior)];
-        public string AddressOnParent => MsvmResourceAllocationSettingData[nameof(AddressOnParent)].ToString();
-        public string VirtualQuantityUnits => MsvmResourceAllocationSettingData[nameof(VirtualQuantityUnits)].ToString();
+        public string AddressOnParent => MsvmResourceAllocationSettingData[nameof(AddressOnParent)] as string;
+        public string VirtualQuantityUnits => MsvmResourceAllocationSettingData[nameof(VirtualQuantityUnits)] as string;
         public string[] VirtualSystemIdentifiers
         {
             get { return Msvm_ResourceAllocationSettingData != null ? MsvmResourceAllocationSettingData[nameof(VirtualSystemIdentifiers)] as string[] : virtualSystemIdentifiers; }
@@ -99,7 +86,20 @@ namespace Viridian.Msvm.ResourceManagement
                 RASD[nameof(Parent)] = MsvmResourceAllocationSettingData;
                 RASD[nameof(AddressOnParent)] = AddressOnParent;
 
-                return VirtualSystemManagementService.Instance.AddResourceSettings(virtualSystemSettingData.MsvmVirtualSystemSettingData, new[] { RASD.GetText(TextFormat.WmiDtd20) });
+                return VirtualSystemManagementService.Instance.AddResourceSettings(VirtualSystemSettingData.MsvmVirtualSystemSettingData, new[] { RASD.GetText(TextFormat.WmiDtd20) });
+            }
+        }
+
+        public string[] AddChild(int Address, string ResourceSubType, string HostResource)
+        {
+            using (var pool = ResourcePool.GetPool(ResourceSubType))
+            using (var RASD = GetDefaultResourceAllocationSettingDataForPool(pool))
+            {
+                RASD[nameof(Parent)] = MsvmResourceAllocationSettingData;
+                RASD[nameof(Address)] = Address;
+                RASD[nameof(HostResource)] = new[] { HostResource };
+
+                return VirtualSystemManagementService.Instance.AddResourceSettings(VirtualSystemSettingData.MsvmVirtualSystemSettingData, new[] { RASD.GetText(TextFormat.WmiDtd20) });
             }
         }
 
@@ -111,31 +111,17 @@ namespace Viridian.Msvm.ResourceManagement
                     MsvmResourceAllocationSettingData?
                         .GetRelated(nameof(Msvm_ResourceAllocationSettingData))
                         .Cast<ManagementObject>()
-                        .Select((child) => new ResourceAllocationSettingData(child, virtualSystemSettingData))
+                        .Select((child) => new ResourceAllocationSettingData(child, VirtualSystemSettingData))
                         .ToList();
             }
 
-            private set
-            {
-                // nothing
-            }
+            private set { }
         }
 
-        public List<ManagementObject> SASDChildren
+        public List<StorageAllocationSettingData> SASDChildren
         {
-            get
-            {
-                return
-                    MsvmResourceAllocationSettingData?
-                        .GetRelated("Msvm_StorageAllocationSettingData")
-                        .Cast<ManagementObject>()
-                        .ToList();
-            }
-
-            private set
-            {
-                // nothing
-            }
+            get { return StorageAllocationSettingData.GetRelatedSASD(this); }
+            private set { }
         }
 
         private static ManagementObject GetResourceAllocationSettingDataForPool(ManagementObject pool, ushort ValueRange, ushort ValueRole)
