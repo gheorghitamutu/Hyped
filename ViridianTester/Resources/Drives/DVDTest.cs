@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq;
 using Viridian.Msvm.ResourceManagement;
 using Viridian.Msvm.VirtualSystem;
 using Viridian.Resources.Drives;
@@ -16,13 +17,10 @@ namespace ViridianTester.Resources.Drives
 
             // Act
             var vm = new ComputerSystem(vmName);
-
             vm.VirtualSystemSettingData.AddSCSIController();
+            vm.VirtualSystemSettingData.ControllersSCSI[0].AddChild(0, ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType);
 
-            var sut = new DVD();
-            sut.AddToScsi(vm, 0, 0);
-
-            var dvdDrives = ResourceAllocationSettingData.GetRelatedResourceAllocationSettingDataCollection(vm.VirtualSystemSettingData.MsvmVirtualSystemSettingData, ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceType, ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType);
+            var dvdDrives = vm.VirtualSystemSettingData.ControllersSCSI[0].RASDChildren.Where((child) => child.ResourceSubType == ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType).ToList();
 
             // Assert
             Assert.AreEqual(1, dvdDrives.Count);

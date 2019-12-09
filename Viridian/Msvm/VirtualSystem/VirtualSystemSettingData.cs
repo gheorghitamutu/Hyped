@@ -38,9 +38,7 @@ namespace Viridian.Msvm.VirtualSystem
 
             private set
             {
-                if (Msvm_VirtualSystemSettingData != null)
-                    Msvm_VirtualSystemSettingData.Dispose();
-
+                Msvm_VirtualSystemSettingData?.Dispose();
                 Msvm_VirtualSystemSettingData = value;
             }
         }
@@ -415,16 +413,6 @@ namespace Viridian.Msvm.VirtualSystem
                             .ForEach((espasd) =>
                                 MetricService.Instance.SetAllMetrics(espasd, operation)));
         }
-        public ManagementObject GetScsiController(int index)
-        {
-            return
-                ResourceAllocationSettingData.GetRelatedResourceAllocationSettingDataCollection(
-                        MsvmVirtualSystemSettingData, 
-                        ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType,
-                        ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType)
-                    .Skip(index)
-                    .First();
-        }
         public void SetAggregationMetricsForDrives(MetricService.MetricCollectionEnabled operation)
         {
             ResourceAllocationSettingData
@@ -468,6 +456,29 @@ namespace Viridian.Msvm.VirtualSystem
 
                 VirtualSystemManagementService.Instance.AddResourceSettings(MsvmVirtualSystemSettingData, new[] { rasd.GetText(TextFormat.WmiDtd20) });
             }
+        }
+        public List<ResourceAllocationSettingData> ControllersSCSI
+        {
+            get 
+            {
+                return
+                    ResourceAllocationSettingData.GetRelatedResourceAllocationSettingDataCollection(
+                            MsvmVirtualSystemSettingData,
+                            ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceType,
+                            ResourcePool.ResourceTypeInfo.SyntheticSCSIController.ResourceSubType)
+                        .Select((rasd) => new ResourceAllocationSettingData(rasd, this))
+                        .ToList();
+            }
+
+            private set
+            {
+                // nothing
+            }
+        }
+
+        ~VirtualSystemSettingData()
+        {
+            Msvm_VirtualSystemSettingData?.Dispose();
         }
     }
 }

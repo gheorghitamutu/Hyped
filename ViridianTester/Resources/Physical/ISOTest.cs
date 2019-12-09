@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
+using System.Linq;
 using Viridian.Msvm.ResourceManagement;
 using Viridian.Msvm.VirtualSystem;
 using Viridian.Resources.Drives;
@@ -20,11 +21,8 @@ namespace ViridianTester.Resources.Physical
 
             // Act
             var vm = new ComputerSystem(vmName);
-
             vm.VirtualSystemSettingData.AddSCSIController();
-
-            var dvd = new DVD();
-            dvd.AddToScsi(vm, 0, 0);
+            vm.VirtualSystemSettingData.ControllersSCSI[0].AddChild(0, ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType);
 
             using (var isoFile = File.Create(isoName))
             {
@@ -33,16 +31,12 @@ namespace ViridianTester.Resources.Physical
                 var sut = new ISO();
                 sut.AddIso(vm, isoName, 0, 0);
 
-                var dvdDrives = 
-                    ResourceAllocationSettingData.GetRelatedResourceAllocationSettingDataCollection(
-                        vm?.VirtualSystemSettingData.MsvmVirtualSystemSettingData,
-                        ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceType, 
-                        ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType);
+                var dvdDrives = vm.VirtualSystemSettingData.ControllersSCSI[0].RASDChildren.Where((child) => child.ResourceSubType == ResourcePool.ResourceTypeInfo.SyntheticDVD.ResourceSubType).ToList();
 
                 // Assert
                 Assert.IsTrue(File.Exists(isoName));
                 Assert.AreEqual(1, dvdDrives.Count);
-                Assert.IsTrue(dvd.IsISOAttached(vm, 0, 0));
+                Assert.IsTrue(sut.IsISOAttached(vm, 0, 0));
                 vm.DestroySystem();
                 File.Delete(isoName);
             }

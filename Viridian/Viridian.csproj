@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Job\Validator.cs" />
+    <Compile Include="Msvm\Storage\StorageAllocationSettingData.cs" />
     <Compile Include="Msvm\Threshold\VirtualSystemSnapshotSettingData.cs" />
     <Compile Include="Msvm\VirtualSystem\ComputerSystem.cs" />
     <Compile Include="Properties\ComputerSystem.Designer.cs">
@@ -84,7 +85,6 @@
     <Compile Include="Msvm\VirtualSystemManagement\VirtualSystemSnapshotService.cs" />
     <Compile Include="Msvm\Metrics\MetricService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Resources\Drives\DVD.cs" />
     <Compile Include="Msvm\ResourceManagement\ResourceAllocationSettingData.cs" />
     <Compile Include="Msvm\ResourceManagement\ResourcePoolConfigurationService.cs" />
     <Compile Include="Msvm\ResourceManagement\ResourcePoolSettingData.cs" />

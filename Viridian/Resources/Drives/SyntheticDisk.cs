@@ -12,7 +12,7 @@ namespace Viridian.Resources.Drives
         {
             using (var pool = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType))
             using (var rasd = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(pool))
-            using (var scsiController = vm?.VirtualSystemSettingData.GetScsiController(scsiIndex))
+            using (var scsiController = vm?.VirtualSystemSettingData.ControllersSCSI[scsiIndex].MsvmResourceAllocationSettingData)
             {
                 rasd["Parent"] = scsiController ?? throw new NullReferenceException($"Failure retrieving SCSI Controller class [{nameof(scsiController)}]!");
                 rasd["AddressOnParent"] = addressOnParent;
