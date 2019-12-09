@@ -23,7 +23,7 @@ namespace BackEndAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<VM>> Create([FromBody]CreateVM request)
         {
-            var vm = await mediator.Send(request);
+            var vm = await mediator.Send<VM>(request);
             return vm;
         }
 

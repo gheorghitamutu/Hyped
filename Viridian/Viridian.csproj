@@ -92,7 +92,6 @@
     <Compile Include="WindowsStorageManagement\MSFT\Disk.cs" />
     <Compile Include="Scope\Scope.cs" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />

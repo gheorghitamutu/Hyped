@@ -168,7 +168,7 @@ namespace Viridian.Msvm.VirtualSystem
 
         #region MsvmProperties
 
-        public string InstanceID => MsvmComputerSystem[nameof(InstanceID)].ToString();
+        public string InstanceID => MsvmComputerSystem[nameof(InstanceID)]?.ToString();
         public string Caption => MsvmComputerSystem[nameof(Caption)].ToString();
         public string Description => MsvmComputerSystem[nameof(Description)].ToString();
         public string ElementName 
