@@ -350,7 +350,7 @@ namespace Viridian.Msvm.VirtualSystem
         }
         public void ConnectVmToSwitch(string switchName, string adapterName)
         {
-            using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope.Virtualization.ScopeObject, switchName))
+            using (var ves = NetSwitch.FindVirtualEthernetSwitch(switchName))
             using (var epasd = NetSwitch.GetDefaultEthernetPortAllocationSettingData())
             {
                 epasd["Parent"] = EthernetPorts.Where((port) => port.ElementName == adapterName).First().MsvmSyntheticEthernetPortSettingData.Path.Path;

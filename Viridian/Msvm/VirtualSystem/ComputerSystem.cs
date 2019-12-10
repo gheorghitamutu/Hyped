@@ -274,7 +274,7 @@ namespace Viridian.Msvm.VirtualSystem
 
         public void DisconnectVmFromSwitch(string switchName)
         {
-            using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope.Virtualization.ScopeObject, switchName))
+            using (var ves = NetSwitch.FindVirtualEthernetSwitch(switchName))
                 NetSwitch.FindConnectionsToSwitch(this, ves).ForEach((connection) =>
                 {
                     connection["EnabledState"] = 3;
@@ -285,8 +285,8 @@ namespace Viridian.Msvm.VirtualSystem
 
         public void ModifyConnection(string currentSwitchName, string newSwitchName)
         {
-            using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope.Virtualization.ScopeObject, currentSwitchName))
-            using (var newVes = NetSwitch.FindVirtualEthernetSwitch(Scope.Virtualization.ScopeObject, newSwitchName))
+            using (var ves = NetSwitch.FindVirtualEthernetSwitch(currentSwitchName))
+            using (var newVes = NetSwitch.FindVirtualEthernetSwitch(newSwitchName))
                 NetSwitch.FindConnectionsToSwitch(this, ves).ForEach((connection) =>
                 {
                     connection["HostResource"] = new string[] { newVes.Path.Path };
