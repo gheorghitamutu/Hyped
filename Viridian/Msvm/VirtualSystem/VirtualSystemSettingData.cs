@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Management;
 using Viridian.Msvm.Metrics;
+using Viridian.Msvm.Networking;
 using Viridian.Msvm.ResourceManagement;
 using Viridian.Msvm.Threshold;
 using Viridian.Msvm.VirtualSystemManagement;
@@ -326,13 +328,32 @@ namespace Viridian.Msvm.VirtualSystem
         {
             return VirtualSystemManagementService.Instance.GetSummaryInformation(new[] { MsvmVirtualSystemSettingData }, (int[])Enum.GetValues(typeof(RequestedInformation)));
         }
+        public void AddSyntheticEthernetAdapter(string ElementName, bool StaticMacAddress = false)
+        {
+            var RASD = new SyntheticEthernetPortSettingData(ResourcePool.ResourceTypeInfo.SyntheticEthernetPort.ResourceSubType, ElementName, StaticMacAddress, this);
+            RASD.AddAsChild();
+        }
+        public List<SyntheticEthernetPortSettingData> EthernetPorts
+        {
+            get
+            {
+                return
+                    SyntheticEthernetPortSettingData.GetRelatedSyntheticEthernetPortSettingDataCollection(
+                            MsvmVirtualSystemSettingData,
+                            ResourcePool.ResourceTypeInfo.SyntheticEthernetPort.ResourceType,
+                            ResourcePool.ResourceTypeInfo.SyntheticEthernetPort.ResourceSubType)
+                        .Select((sepsd) => new SyntheticEthernetPortSettingData(sepsd, this))
+                        .ToList();
+            }
+
+            private set { }
+        }
         public void ConnectVmToSwitch(string switchName, string adapterName)
         {
             using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope.Virtualization.ScopeObject, switchName))
-            using (var syntheticAdapter = SyntheticEthernetAdapter.AddSyntheticAdapter(ComputerSystem, adapterName))
             using (var epasd = NetSwitch.GetDefaultEthernetPortAllocationSettingData())
             {
-                epasd["Parent"] = syntheticAdapter.Path.Path;
+                epasd["Parent"] = EthernetPorts.Where((port) => port.ElementName == adapterName).First().MsvmSyntheticEthernetPortSettingData.Path.Path;
                 epasd["HostResource"] = new string[] { ves.Path.Path };
 
                 VirtualSystemManagementService.Instance.AddResourceSettings(MsvmVirtualSystemSettingData, new string[] { epasd.GetText(TextFormat.WmiDtd20) });
@@ -347,8 +368,8 @@ namespace Viridian.Msvm.VirtualSystem
                     .ToList()
                     .ForEach((sepsd) =>
                         aclSettingDataList.AddRange(
-                            SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(
-                                SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope.Virtualization.ScopeObject))
+                            SyntheticEthernetPortSettingData.GetEthernetSwitchPortAclSettingData(
+                                SyntheticEthernetPortSettingData.GetEthernetPortAllocationSettingData(sepsd, Scope.Virtualization.ScopeObject))
                                     .Cast<ManagementObject>()
                                     .ToList()));
 
@@ -395,8 +416,8 @@ namespace Viridian.Msvm.VirtualSystem
                     .Cast<ManagementObject>()
                     .ToList()
                     .ForEach((sepsd) =>
-                        SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(
-                            SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope.Virtualization.ScopeObject))
+                        SyntheticEthernetPortSettingData.GetEthernetSwitchPortAclSettingData(
+                            SyntheticEthernetPortSettingData.GetEthernetPortAllocationSettingData(sepsd, Scope.Virtualization.ScopeObject))
                                 .ForEach((espasd) =>
                                     MetricService.GetAllBaseMetricDefinitions(espasd)
                                         .ForEach((baseMetricDef) =>
@@ -408,8 +429,8 @@ namespace Viridian.Msvm.VirtualSystem
                 .Cast<ManagementObject>()
                 .ToList()
                 .ForEach((sepsd) =>
-                    SyntheticEthernetAdapter.GetEthernetSwitchPortAclSettingData(
-                        SyntheticEthernetAdapter.GetEthernetPortAllocationSettingData(sepsd, Scope.Virtualization.ScopeObject))
+                    SyntheticEthernetPortSettingData.GetEthernetSwitchPortAclSettingData(
+                        SyntheticEthernetPortSettingData.GetEthernetPortAllocationSettingData(sepsd, Scope.Virtualization.ScopeObject))
                             .ForEach((espasd) =>
                                 MetricService.Instance.SetAllMetrics(espasd, operation)));
         }

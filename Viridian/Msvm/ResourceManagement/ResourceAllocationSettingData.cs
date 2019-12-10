@@ -78,29 +78,48 @@ namespace Viridian.Msvm.ResourceManagement
 
         #region Utils
 
-        public string[] AddChild(int AddressOnParent, string ResourceSubType)
+        public string[] AddChild(int AddressOnParent, string ResourceSubType) // Synthetic (First Level | RASD)
         {
             using (var pool = ResourcePool.GetPool(ResourceSubType))
             using (var RASD = GetDefaultResourceAllocationSettingDataForPool(pool))
             {
-                RASD[nameof(Parent)] = MsvmResourceAllocationSettingData;
                 RASD[nameof(AddressOnParent)] = AddressOnParent;
+                RASD[nameof(Parent)] = MsvmResourceAllocationSettingData;
 
                 return VirtualSystemManagementService.Instance.AddResourceSettings(VirtualSystemSettingData.MsvmVirtualSystemSettingData, new[] { RASD.GetText(TextFormat.WmiDtd20) });
             }
         }
 
-        public string[] AddChild(int Address, string ResourceSubType, string HostResource)
+        public string[] AddChild(int Address, string ResourceSubType, string HostResource) // Virtual CD/DVD Disk
         {
             using (var pool = ResourcePool.GetPool(ResourceSubType))
             using (var RASD = GetDefaultResourceAllocationSettingDataForPool(pool))
             {
-                RASD[nameof(Parent)] = MsvmResourceAllocationSettingData;
                 RASD[nameof(Address)] = Address;
+                RASD[nameof(Parent)] = MsvmResourceAllocationSettingData;
                 RASD[nameof(HostResource)] = new[] { HostResource };
 
                 return VirtualSystemManagementService.Instance.AddResourceSettings(VirtualSystemSettingData.MsvmVirtualSystemSettingData, new[] { RASD.GetText(TextFormat.WmiDtd20) });
             }
+        }
+
+        public string[] AddChild(StorageAllocationSettingData.AccessSASD Access, int Address, string ResourceSubType, string HostResource) // Virtual Hard Disk
+        {
+            using (var pool = ResourcePool.GetPool(ResourceSubType))
+            using (var RASD = GetDefaultResourceAllocationSettingDataForPool(pool))
+            {
+                RASD[nameof(Access)] = Access;
+                RASD[nameof(Address)] = Address;
+                RASD[nameof(Parent)] = MsvmResourceAllocationSettingData;
+                RASD[nameof(HostResource)] = new[] { HostResource };
+
+                return VirtualSystemManagementService.Instance.AddResourceSettings(VirtualSystemSettingData.MsvmVirtualSystemSettingData, new[] { RASD.GetText(TextFormat.WmiDtd20) });
+            }
+        }
+
+        public void RemoveSASDChild(string HostResource)
+        {
+            VirtualSystemManagementService.Instance.RemoveResourceSettings(new[] { SASDChildren.Where((child) => child.HostResource?[0] == HostResource).First().MsvmStorageAllocationSettingData });            
         }
 
         public List<ResourceAllocationSettingData> RASDChildren
@@ -154,19 +173,6 @@ namespace Viridian.Msvm.ResourceManagement
 
         public static ManagementObject GetIncrementalResourceAllocationSettingDataForPool(ManagementObject pool) => GetResourceAllocationSettingDataForPool(pool, 3, 3);
 
-        public static ManagementObject GetRelatedResourceAllocationSettingData(ManagementObject msvmObjectRelatedTo, string ResourceSubtype, int index = 0)
-        {
-            var Parent = msvmObjectRelatedTo?.Path.Path;
-
-            return
-                msvmObjectRelatedTo?.GetRelated(nameof(Msvm_ResourceAllocationSettingData))
-                    .Cast<ManagementObject>()
-                    .Where((c) =>
-                        c[nameof(ResourceSubtype)]?.ToString() == ResourceSubtype &&
-                        string.Equals(c[nameof(Parent)]?.ToString(), Parent, StringComparison.InvariantCultureIgnoreCase))
-                    .Skip(index)
-                    .First();
-        }
         public static List<ManagementObject> GetRelatedResourceAllocationSettingDataCollection(ManagementObject msvmObjectRelatedTo)
         {
             var Parent = msvmObjectRelatedTo?.Path.Path;

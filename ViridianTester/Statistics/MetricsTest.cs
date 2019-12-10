@@ -6,13 +6,14 @@ using System.IO;
 using System.Linq;
 using System.Management;
 using Viridian.Msvm.Metrics;
+using Viridian.Msvm.ResourceManagement;
 using Viridian.Msvm.Storage;
 using Viridian.Msvm.VirtualSystem;
 using Viridian.Msvm.VirtualSystemManagement;
-using Viridian.Resources.Drives;
 using Viridian.Resources.Network;
 using Viridian.Scopes;
 using Viridian.WindowsStorageManagement.MSFT;
+using static Viridian.Msvm.Storage.StorageAllocationSettingData;
 
 namespace ViridianTester.Statistics
 {
@@ -63,6 +64,7 @@ namespace ViridianTester.Statistics
             // Act
             var vm = new ComputerSystem(vmName);
             vm.RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Running);
+            vm.VirtualSystemSettingData.AddSyntheticEthernetAdapter("MyNetworkAdapter", false);
             vm.VirtualSystemSettingData.ConnectVmToSwitch("Default Switch", "MyNetworkAdapter");
             NetSwitch.AddCustomFeatureSettings(vm, NetSwitch.PortFeatureType.Acl);
             MetricService.Instance.ConfigureMetricsFlushInterval(new TimeSpan(1000));
@@ -101,11 +103,8 @@ namespace ViridianTester.Statistics
 
             // Act
             var vm = new ComputerSystem(vmName);
-
             vm.VirtualSystemSettingData.AddSCSIController();
-
-            var disk = new SyntheticDisk();
-            disk.AddToScsi(vm, 0, 0);
+            vm.VirtualSystemSettingData.ControllersSCSI[0].AddChild(0, ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType);
 
             // operations on the host
             using (var vhdsd = ImageManagementService.CreateVirtualHardDiskSettingData(ImageManagementService.VirtualHardDiskType.Dynamic, ImageManagementService.VirtualDiskFormat.VHDX, vhdxName, null, 1024 * 1024 * 1024))
@@ -126,11 +125,14 @@ namespace ViridianTester.Statistics
                 Viridian.Job.Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
             // end operations on the host
 
+            vm.VirtualSystemSettingData.ControllersSCSI[0].RASDChildren
+                .Where((child) => child.ResourceSubType == ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType).First()
+                .AddChild(AccessSASD.ReadWriteSupported, 0, ResourcePool.ResourceTypeInfo.VirtualHardDisk.ResourceSubType, vhdxName);
+
             Dictionary<ManagementObject, ManagementObject> mapped = null;
 
-            var vhd = new VHD();
-            var vhdxString = vhd.AddToSyntheticDiskDrive(vm, vhdxName, 0, 0, VHD.HardDiskAccess.ReadWrite); // expecting 1 element
-            using (var sut = new ManagementObject(new ManagementPath(vhdxString[0])))
+            using (var sut = vm.VirtualSystemSettingData.ControllersSCSI[0].RASDChildren
+                .Where((child) => child.ResourceSubType == ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType).First().SASDChildren.First().MsvmStorageAllocationSettingData)
             {
                 vm.RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Running);
 
@@ -153,9 +155,14 @@ namespace ViridianTester.Statistics
                 vm.RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Off);
             }
 
+            var diskDrives =
+                   vm.VirtualSystemSettingData.ControllersSCSI[0].RASDChildren
+                       .Where((child) => child.ResourceSubType == ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType)
+                       .ToList();
+
             // Assert
             Assert.IsTrue(File.Exists(vhdxName));
-            Assert.IsTrue(VHD.IsVHDAttached(vm, 0, 0));
+            Assert.IsTrue(diskDrives[0].SASDChildren.Where((child) => child.Caption == "Hard Disk Image").Any());
             Assert.AreEqual(mapped.Count, 3);
             vm.DestroySystem();
             File.Delete(vhdxName);
@@ -170,11 +177,8 @@ namespace ViridianTester.Statistics
 
             // Act
             var vm = new ComputerSystem(vmName);
-
             vm.VirtualSystemSettingData.AddSCSIController();
-
-            var disk = new SyntheticDisk();
-            disk.AddToScsi(vm, 0, 0);
+            vm.VirtualSystemSettingData.ControllersSCSI[0].AddChild(0, ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType);
 
             // operations on the host
             using (var vhdsd = ImageManagementService.CreateVirtualHardDiskSettingData(ImageManagementService.VirtualHardDiskType.Dynamic, ImageManagementService.VirtualDiskFormat.VHDX, vhdxName, null, 1024 * 1024 * 1024))
@@ -195,11 +199,14 @@ namespace ViridianTester.Statistics
                 Viridian.Job.Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
             // end operations on the host
 
+            vm.VirtualSystemSettingData.ControllersSCSI[0].RASDChildren
+                .Where((child) => child.ResourceSubType == ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType).First()
+                .AddChild(AccessSASD.ReadWriteSupported, 0, ResourcePool.ResourceTypeInfo.VirtualHardDisk.ResourceSubType, vhdxName);
+
             Dictionary<ManagementObject, ManagementObject> mapped = null;
 
-            var vhd = new VHD();
-            var vhdxString = vhd.AddToSyntheticDiskDrive(vm, vhdxName, 0, 0, VHD.HardDiskAccess.ReadWrite); // expecting 1 element
-            using (var sut = new ManagementObject(new ManagementPath(vhdxString[0])))
+            using (var sut = vm.VirtualSystemSettingData.ControllersSCSI[0].RASDChildren
+                .Where((child) => child.ResourceSubType == ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType).First().SASDChildren.First().MsvmStorageAllocationSettingData)
             {
                 vm.RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Running);
 
@@ -224,9 +231,14 @@ namespace ViridianTester.Statistics
                 vm.RequestStateChange(VirtualSystemManagementService.RequestedStateVSM.Off);
             }
 
+            var diskDrives =
+                   vm.VirtualSystemSettingData.ControllersSCSI[0].RASDChildren
+                       .Where((child) => child.ResourceSubType == ResourcePool.ResourceTypeInfo.SyntheticDiskDrive.ResourceSubType)
+                       .ToList();
+
             // Assert
             Assert.IsTrue(File.Exists(vhdxName));
-            Assert.IsTrue(VHD.IsVHDAttached(vm, 0, 0));
+            Assert.IsTrue(diskDrives[0].SASDChildren.Where((child) => child.Caption == "Hard Disk Image").Any());
             Assert.AreEqual(mapped.Count, 3);
             vm.DestroySystem();
             File.Delete(vhdxName);

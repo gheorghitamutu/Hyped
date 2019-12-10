@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Job\Validator.cs" />
+    <Compile Include="Msvm\Networking\SyntheticEthernetPortSettingData.cs" />
     <Compile Include="Msvm\Storage\StorageAllocationSettingData.cs" />
     <Compile Include="Msvm\Threshold\VirtualSystemSnapshotSettingData.cs" />
     <Compile Include="Msvm\VirtualSystem\ComputerSystem.cs" />
@@ -69,15 +70,12 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>VirtualSystemSettingData.settings</DependentUpon>
     </Compile>
-    <Compile Include="Resources\Drives\SyntheticDisk.cs" />
     <Compile Include="WindowsStorageManagement\MSFT\Partition.cs" />
     <Compile Include="WindowsStorageManagement\MSFT\Volume.cs" />
     <Compile Include="Msvm\Storage\MountedStorageImage.cs" />
     <Compile Include="Msvm\ResourceManagement\ResourcePool.cs" />
     <Compile Include="Msvm\VirtualSystem\VirtualSystemSettingData.cs" />
-    <Compile Include="Resources\Physical\VHD.cs" />
     <Compile Include="Resources\Network\NetSwitch.cs" />
-    <Compile Include="Resources\Network\SyntheticEthernetAdapter.cs" />
     <Compile Include="Msvm\BaseService.cs" />
     <Compile Include="Msvm\Storage\ImageManagementService.cs" />
     <Compile Include="Msvm\Networking\VirtualEthernetSwitchManagementService.cs" />

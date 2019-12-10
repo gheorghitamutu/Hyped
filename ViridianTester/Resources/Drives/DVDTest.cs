@@ -2,7 +2,6 @@
 using System.Linq;
 using Viridian.Msvm.ResourceManagement;
 using Viridian.Msvm.VirtualSystem;
-using Viridian.Resources.Drives;
 
 namespace ViridianTester.Resources.Drives
 {
