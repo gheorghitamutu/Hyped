@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Viridian.Msvm.VirtualSystem;
 
 namespace BackEndAPI.Business.UserHandlers
 {
@@ -41,6 +42,8 @@ namespace BackEndAPI.Business.UserHandlers
                     {
                         System.IO.Directory.Delete(this_vm_path, true);
                     }
+                    var to_delete_vm = new ComputerSystem(delete_vm.Name);
+                    to_delete_vm.DestroySystem();
                 }
                 context.VMs.Remove(delete_vm);//remove the virtual machine from DB
             }
