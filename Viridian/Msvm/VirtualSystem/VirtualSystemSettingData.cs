@@ -350,11 +350,12 @@ namespace Viridian.Msvm.VirtualSystem
         }
         public void ConnectVmToSwitch(string switchName, string adapterName)
         {
-            using (var ves = NetSwitch.FindVirtualEthernetSwitch(switchName))
+            var ves = new VirtualEthernetSwitch(switchName);
+
             using (var epasd = NetSwitch.GetDefaultEthernetPortAllocationSettingData())
             {
                 epasd["Parent"] = EthernetPorts.Where((port) => port.ElementName == adapterName).First().MsvmSyntheticEthernetPortSettingData.Path.Path;
-                epasd["HostResource"] = new string[] { ves.Path.Path };
+                epasd["HostResource"] = new string[] { ves.MsvmVirtualEthernetSwitch.Path.Path };
 
                 VirtualSystemManagementService.Instance.AddResourceSettings(MsvmVirtualSystemSettingData, new string[] { epasd.GetText(TextFormat.WmiDtd20) });
             }

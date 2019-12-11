@@ -9,7 +9,7 @@ namespace Viridian.Msvm.Networking
     {
         private static VirtualEthernetSwitchManagementService instance = null;
 
-        public enum RequestedStateVESM : System.Int32
+        public enum RequestedStateVESM : uint
         {
             Enabled = 2,
             Disabled = 3,
@@ -92,7 +92,7 @@ namespace Viridian.Msvm.Networking
             }
         }
 
-        public void DestroySystem(string AffectedSystem)
+        public void DestroySystem(ManagementObject AffectedSystem)
         {
             using (var ip = Msvm_VirtualEthernetSwitchManagementService.GetMethodParameters(nameof(DestroySystem)))
             {

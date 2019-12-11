@@ -9,7 +9,10 @@ namespace Viridian.Msvm.Networking
 {
     public sealed class VirtualEthernetSwitchSettingData
     {
-        private readonly ManagementObject Msvm_VirtualEthernetSwitchSettingData = null;
+        private ManagementObject Msvm_VirtualEthernetSwitchSettingData = null;
+        private VirtualEthernetSwitch VirtualEthernetSwitch { set; get; }
+        public string VSSDAssociation { private set; get; }
+        private Dictionary<string, object> Attributes { set; get; }
 
         public VirtualEthernetSwitchSettingData(Dictionary<string, object> Properties)
         {
@@ -23,7 +26,37 @@ namespace Viridian.Msvm.Networking
             }
         }
 
-        public ManagementObject MsvmVirtualEthernetSwitchSettingData => Msvm_VirtualEthernetSwitchSettingData;
+        public VirtualEthernetSwitchSettingData(VirtualEthernetSwitch VirtualEthernetSwitch = null, string VSSDAssociation = null, Dictionary<string, object> Attributes = null)
+        {
+            this.VirtualEthernetSwitch = VirtualEthernetSwitch;
+            this.VSSDAssociation = VSSDAssociation;
+            this.Attributes = Attributes;
+        }
+
+        public ManagementObject MsvmVirtualEthernetSwitchSettingData
+        {
+            get
+            {
+                if (VirtualEthernetSwitch == null && Msvm_VirtualEthernetSwitchSettingData == null)
+                    using (var serviceClass = new ManagementClass(Scope.Virtualization.ScopeObject, new ManagementPath(nameof(Msvm_VirtualEthernetSwitchSettingData)), null))
+                        Msvm_VirtualEthernetSwitchSettingData = serviceClass.GetInstances().Cast<ManagementObject>().First();
+                else if (Attributes == null)
+                    Msvm_VirtualEthernetSwitchSettingData = GetMsvmVirtualSystemSettingDataCollection(VSSDAssociation).First();
+                else
+                    Msvm_VirtualEthernetSwitchSettingData =
+                        GetMsvmVirtualSystemSettingDataCollection(VSSDAssociation)
+                            .Where((vssd) => Attributes.Where((pair) => vssd.Properties[pair.Key].Value.Equals(pair.Value)).ToList().Count == Attributes.Count)
+                            .First();
+
+                return Msvm_VirtualEthernetSwitchSettingData;
+            }
+
+            private set
+            {
+                Msvm_VirtualEthernetSwitchSettingData?.Dispose();
+                Msvm_VirtualEthernetSwitchSettingData = value;
+            }
+        }
 
         public enum BandwidthReservationModeVESSD : uint
         {
@@ -76,6 +109,14 @@ namespace Viridian.Msvm.Networking
                 .ForEach((p) => modifiedMsvmVirtualEthernetSwitchSettingData[p.Key] = p.Value);
 
             return modifiedMsvmVirtualEthernetSwitchSettingData;
+        }
+        public List<ManagementObject> GetMsvmVirtualSystemSettingDataCollection(string VSSDAssociation)
+        {
+            return
+                VirtualEthernetSwitch?
+                    .MsvmVirtualEthernetSwitch.GetRelated(nameof(Msvm_VirtualEthernetSwitchSettingData), VSSDAssociation, null, null, null, null, false, null)
+                    .Cast<ManagementObject>()
+                    .ToList();
         }
     }
 }

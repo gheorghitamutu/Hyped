@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Management;
 using Viridian.Job;
+using Viridian.Msvm.Networking;
 using Viridian.Msvm.VirtualSystemManagement;
 using Viridian.Resources.Network;
 using Viridian.Scopes;
@@ -272,27 +273,28 @@ namespace Viridian.Msvm.VirtualSystem
             Msvm_ComputerSystem = null;
         }
 
-        public void DisconnectVmFromSwitch(string switchName)
+        public void DisconnectFromSwitch(string ElementName)
         {
-            using (var ves = NetSwitch.FindVirtualEthernetSwitch(switchName))
-                NetSwitch.FindConnectionsToSwitch(this, ves).ForEach((connection) =>
-                {
-                    connection["EnabledState"] = 3;
+            var ves = new VirtualEthernetSwitch(ElementName);
+            NetSwitch.FindConnectionsToSwitch(this, ves.MsvmVirtualEthernetSwitch).ForEach((connection) =>
+            {
+                connection[nameof(EnabledState)] = EnabledStateVM.Disabled;
 
-                    VirtualSystemManagementService.Instance.ModifyResourceSettings(new string[] { connection.GetText(TextFormat.WmiDtd20) });
-                });
+                VirtualSystemManagementService.Instance.ModifyResourceSettings(new string[] { connection.GetText(TextFormat.WmiDtd20) });
+            });
         }
 
-        public void ModifyConnection(string currentSwitchName, string newSwitchName)
+        public void ReplaceSwitchConnection(string currentSwitchName, string newSwitchName)
         {
-            using (var ves = NetSwitch.FindVirtualEthernetSwitch(currentSwitchName))
-            using (var newVes = NetSwitch.FindVirtualEthernetSwitch(newSwitchName))
-                NetSwitch.FindConnectionsToSwitch(this, ves).ForEach((connection) =>
-                {
-                    connection["HostResource"] = new string[] { newVes.Path.Path };
+            var ves = new VirtualEthernetSwitch(currentSwitchName);
+            var newVes = new VirtualEthernetSwitch(newSwitchName);
 
-                    VirtualSystemManagementService.Instance.ModifyResourceSettings(new string[] { connection.GetText(TextFormat.WmiDtd20) });
-                });
+            NetSwitch.FindConnectionsToSwitch(this, ves.MsvmVirtualEthernetSwitch).ForEach((connection) =>
+            {
+                connection["HostResource"] = new string[] { newVes.MsvmVirtualEthernetSwitch.Path.Path };
+
+                VirtualSystemManagementService.Instance.ModifyResourceSettings(new string[] { connection.GetText(TextFormat.WmiDtd20) });
+            });
         }
 
         public List<ManagementObject> GetSyntheticAdapterCollection()
