@@ -75,7 +75,7 @@ namespace Viridian.Msvm.Networking
             }
         }
 
-        public string DefineSystem(string SystemSettings, string[] ResourceSettings, string ReferenceConfiguration)
+        public ManagementObject DefineSystem(string SystemSettings, string[] ResourceSettings, string ReferenceConfiguration)
         {
             using (var ip = Msvm_VirtualEthernetSwitchManagementService.GetMethodParameters(nameof(DefineSystem)))
             {
@@ -87,7 +87,7 @@ namespace Viridian.Msvm.Networking
                 {
                     Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
 
-                    return op["ResultingSystem"] as string;
+                    return new ManagementObject(new ManagementPath(op["ResultingSystem"] as string));
                 }
             }
         }

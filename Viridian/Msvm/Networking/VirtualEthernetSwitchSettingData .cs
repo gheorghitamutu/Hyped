@@ -100,7 +100,7 @@ namespace Viridian.Msvm.Networking
 
         #endregion
 
-        private ManagementObject ModifyProperties(Dictionary<string, object> Properties)
+        public ManagementObject ModifyProperties(Dictionary<string, object> Properties)
         {
             var modifiedMsvmVirtualEthernetSwitchSettingData = MsvmVirtualEthernetSwitchSettingData;
 

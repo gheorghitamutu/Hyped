@@ -49,13 +49,19 @@ namespace Viridian.Msvm.Networking
 
         private void Define(string[] ResourceSettings)
         {
-            var vessd = new VirtualEthernetSwitchSettingData(new Dictionary<string, object>()
+            if (MsvmVirtualEthernetSwitch == null)
             {
-                { nameof(ElementName), ElementName }
-
-            });
-
-            VirtualEthernetSwitchManagementService.Instance.DefineSystem(vessd.MsvmVirtualEthernetSwitchSettingData.GetText(TextFormat.WmiDtd20), ResourceSettings, null);
+                var virtualEthernetSwitch = QueryMsvmVirtualEthernetSwitch(nameof(ElementName), ElementName);
+                MsvmVirtualEthernetSwitch = virtualEthernetSwitch ??
+                        VirtualEthernetSwitchManagementService.Instance.DefineSystem(
+                            new VirtualEthernetSwitchSettingData().ModifyProperties(
+                                new Dictionary<string, object>()
+                                {
+                                    { nameof(ElementName), ElementName }
+                                }).GetText(TextFormat.WmiDtd20),
+                            ResourceSettings,
+                            null);
+            }
         }
 
         #region Enums
