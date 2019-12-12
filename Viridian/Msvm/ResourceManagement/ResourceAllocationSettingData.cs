@@ -86,7 +86,8 @@ namespace Viridian.Msvm.ResourceManagement
                 RASD[nameof(AddressOnParent)] = AddressOnParent;
                 RASD[nameof(Parent)] = MsvmResourceAllocationSettingData;
 
-                return VirtualSystemManagementService.Instance.AddResourceSettings(VirtualSystemSettingData.MsvmVirtualSystemSettingData, new[] { RASD.GetText(TextFormat.WmiDtd20) });
+                return null;// TODO: fix this!
+                //  VirtualSystemManagementService.Instance.AddResourceSettings(VirtualSystemSettingData.MsvmVirtualSystemSettingData, new[] { RASD.GetText(TextFormat.WmiDtd20) });
             }
         }
 
@@ -99,7 +100,8 @@ namespace Viridian.Msvm.ResourceManagement
                 RASD[nameof(Parent)] = MsvmResourceAllocationSettingData;
                 RASD[nameof(HostResource)] = new[] { HostResource };
 
-                return VirtualSystemManagementService.Instance.AddResourceSettings(VirtualSystemSettingData.MsvmVirtualSystemSettingData, new[] { RASD.GetText(TextFormat.WmiDtd20) });
+                return null;// TODO: fix this!
+                // VirtualSystemManagementService.Instance.AddResourceSettings(VirtualSystemSettingData.MsvmVirtualSystemSettingData, new[] { RASD.GetText(TextFormat.WmiDtd20) });
             }
         }
 
@@ -113,13 +115,15 @@ namespace Viridian.Msvm.ResourceManagement
                 RASD[nameof(Parent)] = MsvmResourceAllocationSettingData;
                 RASD[nameof(HostResource)] = new[] { HostResource };
 
-                return VirtualSystemManagementService.Instance.AddResourceSettings(VirtualSystemSettingData.MsvmVirtualSystemSettingData, new[] { RASD.GetText(TextFormat.WmiDtd20) });
+                return null;// TODO: fix this!
+                //  VirtualSystemManagementService.Instance.AddResourceSettings(VirtualSystemSettingData.MsvmVirtualSystemSettingData, new[] { RASD.GetText(TextFormat.WmiDtd20) });
             }
         }
 
         public void RemoveSASDChild(string HostResource)
         {
-            VirtualSystemManagementService.Instance.RemoveResourceSettings(new[] { SASDChildren.Where((child) => child.HostResource?[0] == HostResource).First().MsvmStorageAllocationSettingData });            
+            // TODO: fix this!
+            // VirtualSystemManagementService.Instance.RemoveResourceSettings(new[] { SASDChildren.Where((child) => child.HostResource?[0] == HostResource).First().MsvmStorageAllocationSettingData });            
         }
 
         public List<ResourceAllocationSettingData> RASDChildren

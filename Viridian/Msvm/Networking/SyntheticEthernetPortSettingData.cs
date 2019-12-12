@@ -94,7 +94,8 @@ namespace Viridian.Msvm.Networking
 
         public void AddAsChild()
         {
-            VirtualSystemManagementService.Instance.AddResourceSettings(VirtualSystemSettingData.MsvmVirtualSystemSettingData, new string[] { Msvm_SyntheticEthernetPortSettingData.GetText(TextFormat.WmiDtd20) });
+            // TODO: fix this!
+            // VirtualSystemManagementService.Instance.AddResourceSettings(VirtualSystemSettingData.MsvmVirtualSystemSettingData, new string[] { Msvm_SyntheticEthernetPortSettingData.GetText(TextFormat.WmiDtd20) });
         }
         public static List<ManagementObject> GetRelatedSyntheticEthernetPortSettingDataCollection(ManagementObject msvmObjectRelatedTo, string ResourceType, string ResourceSubType)
         {

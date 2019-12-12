@@ -52,15 +52,16 @@ namespace Viridian.Msvm.Networking
             if (MsvmVirtualEthernetSwitch == null)
             {
                 var virtualEthernetSwitch = QueryMsvmVirtualEthernetSwitch(nameof(ElementName), ElementName);
-                MsvmVirtualEthernetSwitch = virtualEthernetSwitch ??
-                        VirtualEthernetSwitchManagementService.Instance.DefineSystem(
-                            new VirtualEthernetSwitchSettingData().ModifyProperties(
-                                new Dictionary<string, object>()
-                                {
-                                    { nameof(ElementName), ElementName }
-                                }).GetText(TextFormat.WmiDtd20),
-                            ResourceSettings,
-                            null);
+                // TODO: fix this
+                //MsvmVirtualEthernetSwitch = virtualEthernetSwitch ??
+                //        VirtualEthernetSwitchManagementService.Instance.DefineSystem(
+                //            new VirtualEthernetSwitchSettingData().ModifyProperties(
+                //                new Dictionary<string, object>()
+                //                {
+                //                    { nameof(ElementName), ElementName }
+                //                }).GetText(TextFormat.WmiDtd20),
+                //            ResourceSettings,
+                //            null);
             }
         }
 
@@ -208,7 +209,7 @@ namespace Viridian.Msvm.Networking
 
         public static VirtualEthernetSwitch CreateInternalSwitch(string ElementName)
         {
-            using (var host = ComputerSystem.QueryMsvmComputerSystem(nameof(Name), Environment.MachineName))
+            using (var host = ComputerSystem.GetInstances($"Name='{Environment.MachineName}'").Cast<ManagementObject>().ToList().First())
             using (var depasd = NetSwitch.GetDefaultEthernetPortAllocationSettingData())
             {
                 depasd[nameof(ElementName)] = ElementName;
@@ -237,7 +238,7 @@ namespace Viridian.Msvm.Networking
         public static VirtualEthernetSwitch CreateExternalSwitch(string externalAdapterName, string ElementName)
         {
             using (var eep = NetSwitch.FindExternalAdapter(externalAdapterName))
-            using (var host = ComputerSystem.QueryMsvmComputerSystem(nameof(Name), Environment.MachineName))
+            using (var host = ComputerSystem.GetInstances($"Name='{Environment.MachineName}'").Cast<ManagementObject>().ToList().First())
             using (var depasdInternal = NetSwitch.GetDefaultEthernetPortAllocationSettingData())
             using (var depasdExternal = NetSwitch.GetDefaultEthernetPortAllocationSettingData())
             {
@@ -255,7 +256,8 @@ namespace Viridian.Msvm.Networking
         }
         public void DestroySystem()
         {
-            VirtualEthernetSwitchManagementService.Instance.DestroySystem(MsvmVirtualEthernetSwitch);
+            // TODO: fix this
+            //VirtualEthernetSwitchManagementService.Instance.DestroySystem(MsvmVirtualEthernetSwitch);
             MsvmVirtualEthernetSwitch.Dispose();
             MsvmVirtualEthernetSwitch = null;
         }

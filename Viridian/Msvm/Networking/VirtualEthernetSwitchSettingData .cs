@@ -83,11 +83,11 @@ namespace Viridian.Msvm.Networking
         public string SuspendDataRoot => Msvm_VirtualEthernetSwitchSettingData[nameof(SuspendDataRoot)] as string;
         public string SwapFileDataRoot => Msvm_VirtualEthernetSwitchSettingData[nameof(SwapFileDataRoot)] as string;
         public string LogDataRoot => Msvm_VirtualEthernetSwitchSettingData[nameof(LogDataRoot)] as string;
-        public AutomaticStartupActionVSSD AutomaticStartupAction => (AutomaticStartupActionVSSD)(ushort)Msvm_VirtualEthernetSwitchSettingData[nameof(AutomaticStartupAction)];
+       // public AutomaticStartupActionVSSD AutomaticStartupAction => (AutomaticStartupActionVSSD)(ushort)Msvm_VirtualEthernetSwitchSettingData[nameof(AutomaticStartupAction)];
         public DateTime AutomaticStartupActionDelay => ManagementDateTimeConverter.ToDateTime(Msvm_VirtualEthernetSwitchSettingData[nameof(AutomaticStartupActionDelay)] as string);
         public ushort AutomaticStartupActionSequenceNumber => (ushort)Msvm_VirtualEthernetSwitchSettingData[nameof(AutomaticStartupActionSequenceNumber)];
-        public AutomaticShutdownActionVSSD AutomaticShutdownAction => (AutomaticShutdownActionVSSD)(ushort)Msvm_VirtualEthernetSwitchSettingData[nameof(AutomaticShutdownAction)];
-        public AutomaticRecoveryActionVSSD AutomaticRecoveryAction => (AutomaticRecoveryActionVSSD)(ushort)Msvm_VirtualEthernetSwitchSettingData[nameof(AutomaticRecoveryAction)];
+        //public AutomaticShutdownActionVSSD AutomaticShutdownAction => (AutomaticShutdownActionVSSD)(ushort)Msvm_VirtualEthernetSwitchSettingData[nameof(AutomaticShutdownAction)];
+       // public AutomaticRecoveryActionVSSD AutomaticRecoveryAction => (AutomaticRecoveryActionVSSD)(ushort)Msvm_VirtualEthernetSwitchSettingData[nameof(AutomaticRecoveryAction)];
         public string RecoveryFile => Msvm_VirtualEthernetSwitchSettingData[nameof(RecoveryFile)] as string;
         public string[] VLANConnection => Msvm_VirtualEthernetSwitchSettingData[nameof(VLANConnection)] as string[];
         public string[] AssociatedResourcePool => Msvm_VirtualEthernetSwitchSettingData[nameof(AssociatedResourcePool)] as string[];

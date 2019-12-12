@@ -62,7 +62,9 @@
     <Compile Include="Msvm\Networking\VirtualEthernetSwitchSettingData .cs" />
     <Compile Include="Msvm\Storage\StorageAllocationSettingData.cs" />
     <Compile Include="Msvm\Threshold\VirtualSystemSnapshotSettingData.cs" />
-    <Compile Include="Msvm\VirtualSystem\ComputerSystem.cs" />
+    <Compile Include="Msvm\VirtualSystem\ComputerSystem.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Properties\ComputerSystem.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -82,12 +84,18 @@
     <Compile Include="WindowsStorageManagement\MSFT\Volume.cs" />
     <Compile Include="Msvm\Storage\MountedStorageImage.cs" />
     <Compile Include="Msvm\ResourceManagement\ResourcePool.cs" />
-    <Compile Include="Msvm\VirtualSystem\VirtualSystemSettingData.cs" />
+    <Compile Include="Msvm\VirtualSystem\VirtualSystemSettingData.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Resources\Network\NetSwitch.cs" />
     <Compile Include="Msvm\BaseService.cs" />
     <Compile Include="Msvm\Storage\ImageManagementService.cs" />
-    <Compile Include="Msvm\Networking\VirtualEthernetSwitchManagementService.cs" />
-    <Compile Include="Msvm\VirtualSystemManagement\VirtualSystemManagementService.cs" />
+    <Compile Include="Msvm\VirtualSystemManagement\VirtualSystemManagementService.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Msvm\Networking\VirtualEthernetSwitchManagementService.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Msvm\VirtualSystemManagement\VirtualSystemSnapshotService.cs" />
     <Compile Include="Msvm\Metrics\MetricService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -98,6 +106,7 @@
     <Compile Include="Scope\Scope.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".editorconfig" />
     <None Include="app.config" />
     <None Include="packages.config" />
     <None Include="Properties\ComputerSystem.settings">

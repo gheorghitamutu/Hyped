@@ -2200,7 +2200,7 @@ namespace Viridian.Msvm.Networking
                 Job = null;
                 if ((outParams.Properties["Job"] != null))
                 {
-                    Job = new ManagementPath(outParams.Properties["Job"].ToString());
+                    Job = new ManagementPath(outParams["Job"] as string);
                 }
                 return System.Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
             }
