@@ -51,6 +51,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Job\Validator.cs" />
+    <Compile Include="Msvm\Networking\ExternalEthernetPort.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Msvm\Networking\InternalEthernetPort.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Msvm\Networking\SyntheticEthernetPortSettingData.cs" />
     <Compile Include="Msvm\Networking\VirtualEthernetSwitch.cs" />
     <Compile Include="Msvm\Networking\VirtualEthernetSwitchSettingData .cs" />
