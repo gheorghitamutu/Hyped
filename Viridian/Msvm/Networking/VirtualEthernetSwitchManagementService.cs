@@ -77,6 +77,12 @@ namespace Viridian.Msvm.Networking
         public VirtualEthernetSwitchManagementService(ManagementObject theObject)
         {
             Initialize();
+
+            if (theObject == null)
+            {
+                throw new ArgumentNullException(nameof(theObject));
+            }
+
             if (CheckIfProperClass(theObject) == true)
             {
                 PrivateLateBoundObject = theObject;
@@ -227,11 +233,11 @@ namespace Viridian.Msvm.Networking
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ushort[] AvailableRequestedStates => (ushort[])curObj["AvailableRequestedStates"];
+        public ushort[] AvailableRequestedStates => (ushort[])curObj[nameof(AvailableRequestedStates)];
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string Caption => (string)curObj["Caption"];
+        public string Caption => (string)curObj[nameof(Caption)];
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -239,7 +245,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if (curObj["CommunicationStatus"] == null)
+                if (curObj[nameof(CommunicationStatus)] == null)
                 {
                     return true;
                 }
@@ -257,21 +263,21 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if (curObj["CommunicationStatus"] == null)
+                if (curObj[nameof(CommunicationStatus)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return (ushort)curObj["CommunicationStatus"];
+                return (ushort)curObj[nameof(CommunicationStatus)];
             }
         }
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string CreationClassName => (string)curObj["CreationClassName"];
+        public string CreationClassName => (string)curObj[nameof(CreationClassName)];
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string Description => (string)curObj["Description"];
+        public string Description => (string)curObj[nameof(Description)];
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -279,7 +285,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if (curObj["DetailedStatus"] == null)
+                if (curObj[nameof(DetailedStatus)] == null)
                 {
                     return true;
                 }
@@ -297,17 +303,17 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if (curObj["DetailedStatus"] == null)
+                if (curObj[nameof(DetailedStatus)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return (ushort)curObj["DetailedStatus"];
+                return (ushort)curObj[nameof(DetailedStatus)];
             }
         }
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string ElementName => (string)curObj["ElementName"];
+        public string ElementName => (string)curObj[nameof(ElementName)];
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -315,7 +321,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if (curObj["EnabledDefault"] == null)
+                if (curObj[nameof(EnabledDefault)] == null)
                 {
                     return true;
                 }
@@ -333,11 +339,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if (curObj["EnabledDefault"] == null)
+                if (curObj[nameof(EnabledDefault)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return (ushort)curObj["EnabledDefault"];
+                return (ushort)curObj[nameof(EnabledDefault)];
             }
         }
 
@@ -347,7 +353,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if (curObj["EnabledState"] == null)
+                if (curObj[nameof(EnabledState)] == null)
                 {
                     return true;
                 }
@@ -365,11 +371,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if (curObj["EnabledState"] == null)
+                if (curObj[nameof(EnabledState)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return (ushort)curObj["EnabledState"];
+                return (ushort)curObj[nameof(EnabledState)];
             }
         }
 
@@ -379,7 +385,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if (curObj["HealthState"] == null)
+                if (curObj[nameof(HealthState)] == null)
                 {
                     return true;
                 }
@@ -397,11 +403,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if (curObj["HealthState"] == null)
+                if (curObj[nameof(HealthState)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return (ushort)curObj["HealthState"];
+                return (ushort)curObj[nameof(HealthState)];
             }
         }
 
@@ -411,7 +417,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if (curObj["InstallDate"] == null)
+                if (curObj[nameof(InstallDate)] == null)
                 {
                     return true;
                 }
@@ -429,9 +435,9 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if (curObj["InstallDate"] != null)
+                if (curObj[nameof(InstallDate)] != null)
                 {
-                    return ToDateTime((string)curObj["InstallDate"]);
+                    return ToDateTime((string)curObj[nameof(InstallDate)]);
                 }
                 else
                 {
@@ -442,11 +448,11 @@ namespace Viridian.Msvm.Networking
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string InstanceID => (string)curObj["InstanceID"];
+        public string InstanceID => (string)curObj[nameof(InstanceID)];
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string Name => (string)curObj["Name"];
+        public string Name => (string)curObj[nameof(Name)];
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -454,7 +460,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if (curObj["OperatingStatus"] == null)
+                if (curObj[nameof(OperatingStatus)] == null)
                 {
                     return true;
                 }
@@ -472,29 +478,29 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if (curObj["OperatingStatus"] == null)
+                if (curObj[nameof(OperatingStatus)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return (ushort)curObj["OperatingStatus"];
+                return (ushort)curObj[nameof(OperatingStatus)];
             }
         }
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ushort[] OperationalStatus => (ushort[])curObj["OperationalStatus"];
+        public ushort[] OperationalStatus => (ushort[])curObj[nameof(OperationalStatus)];
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string OtherEnabledState => (string)curObj["OtherEnabledState"];
+        public string OtherEnabledState => (string)curObj[nameof(OtherEnabledState)];
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string PrimaryOwnerContact => (string)curObj["PrimaryOwnerContact"];
+        public string PrimaryOwnerContact => (string)curObj[nameof(PrimaryOwnerContact)];
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string PrimaryOwnerName => (string)curObj["PrimaryOwnerName"];
+        public string PrimaryOwnerName => (string)curObj[nameof(PrimaryOwnerName)];
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -502,7 +508,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if (curObj["PrimaryStatus"] == null)
+                if (curObj[nameof(PrimaryStatus)] == null)
                 {
                     return true;
                 }
@@ -520,11 +526,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if (curObj["PrimaryStatus"] == null)
+                if (curObj[nameof(PrimaryStatus)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return (ushort)curObj["PrimaryStatus"];
+                return (ushort)curObj[nameof(PrimaryStatus)];
             }
         }
 
@@ -534,7 +540,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if (curObj["RequestedState"] == null)
+                if (curObj[nameof(RequestedState)] == null)
                 {
                     return true;
                 }
@@ -552,11 +558,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if (curObj["RequestedState"] == null)
+                if (curObj[nameof(RequestedState)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return (ushort)curObj["RequestedState"];
+                return (ushort)curObj[nameof(RequestedState)];
             }
         }
 
@@ -566,7 +572,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if (curObj["Started"] == null)
+                if (curObj[nameof(Started)] == null)
                 {
                     return true;
                 }
@@ -584,33 +590,33 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if (curObj["Started"] == null)
+                if (curObj[nameof(Started)] == null)
                 {
                     return Convert.ToBoolean(0);
                 }
-                return (bool)curObj["Started"];
+                return (bool)curObj[nameof(Started)];
             }
         }
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string StartMode => (string)curObj["StartMode"];
+        public string StartMode => (string)curObj[nameof(StartMode)];
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string Status => (string)curObj["Status"];
+        public string Status => (string)curObj[nameof(Status)];
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string[] StatusDescriptions => (string[])curObj["StatusDescriptions"];
+        public string[] StatusDescriptions => (string[])curObj[nameof(StatusDescriptions)];
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string SystemCreationClassName => (string)curObj["SystemCreationClassName"];
+        public string SystemCreationClassName => (string)curObj[nameof(SystemCreationClassName)];
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string SystemName => (string)curObj["SystemName"];
+        public string SystemName => (string)curObj[nameof(SystemName)];
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -618,7 +624,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if (curObj["TimeOfLastStateChange"] == null)
+                if (curObj[nameof(TimeOfLastStateChange)] == null)
                 {
                     return true;
                 }
@@ -636,9 +642,9 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if (curObj["TimeOfLastStateChange"] != null)
+                if (curObj[nameof(TimeOfLastStateChange)] != null)
                 {
-                    return ToDateTime((string)curObj["TimeOfLastStateChange"]);
+                    return ToDateTime((string)curObj[nameof(TimeOfLastStateChange)]);
                 }
                 else
                 {
@@ -653,7 +659,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if (curObj["TransitioningToState"] == null)
+                if (curObj[nameof(TransitioningToState)] == null)
                 {
                     return true;
                 }
@@ -671,24 +677,26 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if (curObj["TransitioningToState"] == null)
+                if (curObj[nameof(TransitioningToState)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return (ushort)curObj["TransitioningToState"];
+                return (ushort)curObj[nameof(TransitioningToState)];
             }
         }
 
         private bool CheckIfProperClass(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions OptionsParam)
         {
-            if ((path != null)
-                        && (string.Compare(path.ClassName, ManagementClassName, true, CultureInfo.InvariantCulture) == 0))
+            if ((path != null) && (string.Compare(path.ClassName, ManagementClassName, true, CultureInfo.InvariantCulture) == 0))
             {
                 return true;
             }
             else
             {
-                return CheckIfProperClass(new ManagementObject(mgmtScope, path, OptionsParam));
+                using (ManagementObject theObj = new ManagementObject(mgmtScope, path, OptionsParam))
+                {
+                    return CheckIfProperClass(theObj);
+                }
             }
         }
 
@@ -705,7 +713,7 @@ namespace Viridian.Msvm.Networking
                 if (parentClasses != null)
                 {
                     int count;
-                    for (count = 0; count < parentClasses.Length; count = count + 1)
+                    for (count = 0; count < parentClasses.Length; count += 1)
                     {
                         if (string.Compare((string)parentClasses.GetValue(count), ManagementClassName, true, CultureInfo.InvariantCulture) == 0)
                         {
@@ -1013,7 +1021,7 @@ namespace Viridian.Msvm.Networking
             {
                 if (CheckIfProperClass(mgmtScope, path, getOptions) != true)
                 {
-                    throw new ArgumentException("Class name does not match.");
+                    throw new ArgumentException(Properties.VESMS.Default.ClassNameExceptionMessage);
                 }
             }
             PrivateLateBoundObject = new ManagementObject(mgmtScope, path, getOptions);
@@ -1073,18 +1081,22 @@ namespace Viridian.Msvm.Networking
                 if (statMgmtScope == null)
                 {
                     mgmtScope = new ManagementScope();
-                    mgmtScope.Path.NamespacePath = "root\\virtualization\\v2";
+                    mgmtScope.Path.NamespacePath = Properties.VESMS.Default.WMINamespace;
                 }
                 else
                 {
                     mgmtScope = statMgmtScope;
                 }
             }
-            ManagementObjectSearcher ObjectSearcher = new ManagementObjectSearcher(mgmtScope, new SelectQuery("Msvm_VirtualEthernetSwitchManagementService", condition, selectedProperties));
-            EnumerationOptions enumOptions = new EnumerationOptions();
-            enumOptions.EnsureLocatable = true;
-            ObjectSearcher.Options = enumOptions;
-            return new VirtualEthernetSwitchManagementServiceCollection(ObjectSearcher.Get());
+            using (ManagementObjectSearcher ObjectSearcher = new ManagementObjectSearcher(mgmtScope, new SelectQuery("Msvm_VirtualEthernetSwitchManagementService", condition, selectedProperties)))
+            {
+                EnumerationOptions enumOptions = new EnumerationOptions
+                {
+                    EnsureLocatable = true
+                };
+                ObjectSearcher.Options = enumOptions;
+                return new VirtualEthernetSwitchManagementServiceCollection(ObjectSearcher.Get());
+            }
         }
 
         [Browsable(true)]
@@ -1389,7 +1401,7 @@ namespace Viridian.Msvm.Networking
             if (isEmbedded == false)
             {
                 ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RequestStateChange");
-                inParams["RequestedState"] = RequestedState;
+                inParams[nameof(RequestedState)] = RequestedState;
                 inParams["TimeoutPeriod"] = ToDmtfDateTime(TimeoutPeriod);
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RequestStateChange", inParams, null);
                 Job = null;

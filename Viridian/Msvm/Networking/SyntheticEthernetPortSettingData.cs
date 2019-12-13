@@ -114,7 +114,7 @@ namespace Viridian.Msvm.Networking
                 return mos
                     .Get()
                     .Cast<ManagementObject>()
-                    .Where((c) => string.Equals((string)c?["Parent"], Parent.Path.Path, StringComparison.OrdinalIgnoreCase))
+                    .Where((c) => string.Equals((string)c?[nameof(Parent)], Parent.Path.Path, StringComparison.OrdinalIgnoreCase))
                     .First();
         }
 

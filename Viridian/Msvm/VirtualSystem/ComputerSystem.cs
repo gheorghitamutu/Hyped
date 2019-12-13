@@ -1445,15 +1445,15 @@ namespace Viridian.Msvm.VirtualSystem
             string dmtf = dmtfDate;
             if (dmtf == null)
             {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(dmtf);
             }
             if (dmtf.Length == 0)
             {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(dmtf);
             }
             if (dmtf.Length != 25)
             {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(dmtf);
             }
 
             string tempString;
@@ -1503,7 +1503,7 @@ namespace Viridian.Msvm.VirtualSystem
                             || (second < 0)
                             || (ticks < 0))
                 {
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException(year.ToString());
                 }
             }
             catch (Exception e)

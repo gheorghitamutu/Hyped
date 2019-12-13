@@ -14,110 +14,71 @@ namespace Viridian.Msvm.VirtualSystemManagement
     // An Early Bound class generated for the WMI class.Msvm_VirtualSystemManagementService
     public class VirtualSystemManagementService : Component
     {
-
         // Private property to hold the WMI namespace in which the class resides.
-        private static string CreatedWmiNamespace = "root\\virtualization\\v2";
+        private static readonly string CreatedWmiNamespace = Properties.VESMS.Default.WMINamespace;
 
         // Private property to hold the name of WMI class which created this class.
-        private static string CreatedClassName = "Msvm_VirtualSystemManagementService";
-
-        // Private member variable to hold the ManagementScope which is used by the various methods.
-        private static ManagementScope statMgmtScope = null;
-
-        private ManagementSystemProperties PrivateSystemProperties;
+        private static readonly string CreatedClassName = Properties.VESMS.Default.ClassName;
 
         // Underlying lateBound WMI object.
         private ManagementObject PrivateLateBoundObject;
 
-        // Member variable to store the 'automatic commit' behavior for the class.
-        private bool AutoCommitProp;
-
         // Private variable to hold the embedded property representing the instance.
-        private ManagementBaseObject embeddedObj;
-
-        // The current WMI object used
-        private ManagementBaseObject curObj;
+        private readonly ManagementBaseObject embeddedObj;
 
         // Flag to indicate if the instance is an embedded object.
         private bool isEmbedded;
 
         // Below are different overloads of constructors to initialize an instance of the class with a WMI object.
-        public VirtualSystemManagementService()
-        {
-            InitializeObject(null, null, null);
-        }
+        public VirtualSystemManagementService() => InitializeObject(null, null, null);
 
-        public VirtualSystemManagementService(string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName)
-        {
-            InitializeObject(null, new ManagementPath(ConstructPath(keyCreationClassName, keyName, keySystemCreationClassName, keySystemName)), null);
-        }
+        public VirtualSystemManagementService(string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) => InitializeObject(null, new ManagementPath(ConstructPath(keyCreationClassName, keyName, keySystemCreationClassName, keySystemName)), null);
 
-        public VirtualSystemManagementService(ManagementScope mgmtScope, string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName)
-        {
-            InitializeObject(mgmtScope, new ManagementPath(ConstructPath(keyCreationClassName, keyName, keySystemCreationClassName, keySystemName)), null);
-        }
+        public VirtualSystemManagementService(ManagementScope mgmtScope, string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) => InitializeObject(mgmtScope, new ManagementPath(ConstructPath(keyCreationClassName, keyName, keySystemCreationClassName, keySystemName)), null);
 
-        public VirtualSystemManagementService(ManagementPath path, ObjectGetOptions getOptions)
-        {
-            InitializeObject(null, path, getOptions);
-        }
+        public VirtualSystemManagementService(ManagementPath path, ObjectGetOptions getOptions) => InitializeObject(null, path, getOptions);
 
-        public VirtualSystemManagementService(ManagementScope mgmtScope, ManagementPath path)
-        {
-            InitializeObject(mgmtScope, path, null);
-        }
+        public VirtualSystemManagementService(ManagementScope mgmtScope, ManagementPath path) => InitializeObject(mgmtScope, path, null);
 
-        public VirtualSystemManagementService(ManagementPath path)
-        {
-            InitializeObject(null, path, null);
-        }
+        public VirtualSystemManagementService(ManagementPath path) => InitializeObject(null, path, null);
 
-        public VirtualSystemManagementService(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions getOptions)
-        {
-            InitializeObject(mgmtScope, path, getOptions);
-        }
+        public VirtualSystemManagementService(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions getOptions) => InitializeObject(mgmtScope, path, getOptions);
 
         public VirtualSystemManagementService(ManagementObject theObject)
         {
             Initialize();
-            if ((CheckIfProperClass(theObject) == true))
+            if (theObject != null && CheckIfProperClass(theObject) == true)
             {
                 PrivateLateBoundObject = theObject;
-                PrivateSystemProperties = new ManagementSystemProperties(PrivateLateBoundObject);
-                curObj = PrivateLateBoundObject;
+                SystemProperties = new ManagementSystemProperties(PrivateLateBoundObject);
+                LateBoundObject = PrivateLateBoundObject;
             }
             else
             {
-                throw new ArgumentException("Class name does not match.");
+                throw new ArgumentException(Properties.VESMS.Default.ClassNameExceptionMessage);
             }
         }
 
         public VirtualSystemManagementService(ManagementBaseObject theObject)
         {
             Initialize();
-            if ((CheckIfProperClass(theObject) == true))
+            if (theObject != null && CheckIfProperClass(theObject) == true)
             {
                 embeddedObj = theObject;
-                PrivateSystemProperties = new ManagementSystemProperties(theObject);
-                curObj = embeddedObj;
+                SystemProperties = new ManagementSystemProperties(theObject);
+                LateBoundObject = embeddedObj;
                 isEmbedded = true;
             }
             else
             {
-                throw new ArgumentException("Class name does not match.");
+                throw new ArgumentException(Properties.VESMS.Default.ClassNameExceptionMessage);
             }
         }
 
         // Property returns the namespace of the WMI class.
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string OriginatingNamespace
-        {
-            get
-            {
-                return "root\\virtualization\\v2";
-            }
-        }
+        public static string OriginatingNamespace => Properties.VESMS.Default.WMINamespace;
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -126,13 +87,12 @@ namespace Viridian.Msvm.VirtualSystemManagement
             get
             {
                 string strRet = CreatedClassName;
-                if ((curObj != null))
+                if (LateBoundObject != null)
                 {
-                    if ((curObj.ClassPath != null))
+                    if (LateBoundObject.ClassPath != null)
                     {
-                        strRet = ((string)(curObj["__CLASS"]));
-                        if (((strRet == null)
-                                    || (strRet == string.Empty)))
+                        strRet = (string)LateBoundObject["__CLASS"];
+                        if (string.IsNullOrEmpty(strRet))
                         {
                             strRet = CreatedClassName;
                         }
@@ -145,24 +105,12 @@ namespace Viridian.Msvm.VirtualSystemManagement
         // Property pointing to an embedded object to get System properties of the WMI object.
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ManagementSystemProperties SystemProperties
-        {
-            get
-            {
-                return PrivateSystemProperties;
-            }
-        }
+        public ManagementSystemProperties SystemProperties { get; private set; }
 
         // Property returning the underlying lateBound object.
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ManagementBaseObject LateBoundObject
-        {
-            get
-            {
-                return curObj;
-            }
-        }
+        public ManagementBaseObject LateBoundObject { get; private set; }
 
         // ManagementScope of the object.
         [Browsable(true)]
@@ -171,7 +119,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((isEmbedded == false))
+                if (isEmbedded == false)
                 {
                     return PrivateLateBoundObject.Scope;
                 }
@@ -182,7 +130,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
             set
             {
-                if ((isEmbedded == false))
+                if (isEmbedded == false)
                 {
                     PrivateLateBoundObject.Scope = value;
                 }
@@ -192,17 +140,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
         // Property to show the commit behavior for the WMI object. If true, WMI object will be automatically saved after each property modification.(ie. Put() is called after modification of a property).
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool AutoCommit
-        {
-            get
-            {
-                return AutoCommitProp;
-            }
-            set
-            {
-                AutoCommitProp = value;
-            }
-        }
+        public bool AutoCommit { get; set; }
 
         // The ManagementPath of the underlying WMI object.
         [Browsable(true)]
@@ -210,7 +148,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((isEmbedded == false))
+                if (isEmbedded == false)
                 {
                     return PrivateLateBoundObject.Path;
                 }
@@ -221,11 +159,11 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
             set
             {
-                if ((isEmbedded == false))
+                if (isEmbedded == false)
                 {
-                    if ((CheckIfProperClass(null, value, null) != true))
+                    if (CheckIfProperClass(null, value, null) != true)
                     {
-                        throw new ArgumentException("Class name does not match.");
+                        throw new ArgumentException(Properties.VESMS.Default.ClassNameExceptionMessage);
                     }
                     PrivateLateBoundObject.Path = value;
                 }
@@ -235,37 +173,15 @@ namespace Viridian.Msvm.VirtualSystemManagement
         // Public static scope property which is used by the various methods.
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public static ManagementScope StaticScope
-        {
-            get
-            {
-                return statMgmtScope;
-            }
-            set
-            {
-                statMgmtScope = value;
-            }
-        }
+        public static ManagementScope StaticScope { get; set; } = null;
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ushort[] AvailableRequestedStates
-        {
-            get
-            {
-                return ((ushort[])(curObj["AvailableRequestedStates"]));
-            }
-        }
+        public ushort[] AvailableRequestedStates => (ushort[])LateBoundObject[nameof(AvailableRequestedStates)];
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string Caption
-        {
-            get
-            {
-                return ((string)(curObj["Caption"]));
-            }
-        }
+        public string Caption => (string)LateBoundObject[nameof(Caption)];
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -273,7 +189,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((curObj["CommunicationStatus"] == null))
+                if (LateBoundObject[nameof(CommunicationStatus)] == null)
                 {
                     return true;
                 }
@@ -291,33 +207,21 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((curObj["CommunicationStatus"] == null))
+                if (LateBoundObject[nameof(CommunicationStatus)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["CommunicationStatus"]));
+                return (ushort)LateBoundObject[nameof(CommunicationStatus)];
             }
         }
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string CreationClassName
-        {
-            get
-            {
-                return ((string)(curObj["CreationClassName"]));
-            }
-        }
+        public string CreationClassName => (string)LateBoundObject[nameof(CreationClassName)];
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string Description
-        {
-            get
-            {
-                return ((string)(curObj["Description"]));
-            }
-        }
+        public string Description => (string)LateBoundObject[nameof(Description)];
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -325,7 +229,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((curObj["DetailedStatus"] == null))
+                if (LateBoundObject[nameof(DetailedStatus)] == null)
                 {
                     return true;
                 }
@@ -343,23 +247,17 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((curObj["DetailedStatus"] == null))
+                if (LateBoundObject[nameof(DetailedStatus)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["DetailedStatus"]));
+                return (ushort)LateBoundObject[nameof(DetailedStatus)];
             }
         }
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string ElementName
-        {
-            get
-            {
-                return ((string)(curObj["ElementName"]));
-            }
-        }
+        public string ElementName => (string)LateBoundObject[nameof(ElementName)];
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -367,7 +265,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((curObj["EnabledDefault"] == null))
+                if (LateBoundObject[nameof(EnabledDefault)] == null)
                 {
                     return true;
                 }
@@ -385,11 +283,11 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((curObj["EnabledDefault"] == null))
+                if (LateBoundObject[nameof(EnabledDefault)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["EnabledDefault"]));
+                return (ushort)LateBoundObject[nameof(EnabledDefault)];
             }
         }
 
@@ -399,7 +297,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((curObj["EnabledState"] == null))
+                if (LateBoundObject[nameof(EnabledState)] == null)
                 {
                     return true;
                 }
@@ -417,11 +315,11 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((curObj["EnabledState"] == null))
+                if (LateBoundObject[nameof(EnabledState)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["EnabledState"]));
+                return (ushort)LateBoundObject[nameof(EnabledState)];
             }
         }
 
@@ -431,7 +329,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((curObj["HealthState"] == null))
+                if (LateBoundObject[nameof(HealthState)] == null)
                 {
                     return true;
                 }
@@ -449,11 +347,11 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((curObj["HealthState"] == null))
+                if (LateBoundObject[nameof(HealthState)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["HealthState"]));
+                return (ushort)LateBoundObject[nameof(HealthState)];
             }
         }
 
@@ -463,7 +361,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((curObj["InstallDate"] == null))
+                if (LateBoundObject[nameof(InstallDate)] == null)
                 {
                     return true;
                 }
@@ -481,9 +379,9 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((curObj["InstallDate"] != null))
+                if (LateBoundObject[nameof(InstallDate)] != null)
                 {
-                    return ToDateTime(((string)(curObj["InstallDate"])));
+                    return ToDateTime((string)LateBoundObject[nameof(InstallDate)]);
                 }
                 else
                 {
@@ -494,23 +392,11 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string InstanceID
-        {
-            get
-            {
-                return ((string)(curObj["InstanceID"]));
-            }
-        }
+        public string InstanceID => (string)LateBoundObject[nameof(InstanceID)];
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string Name
-        {
-            get
-            {
-                return ((string)(curObj["Name"]));
-            }
-        }
+        public string Name => (string)LateBoundObject[nameof(Name)];
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -518,7 +404,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((curObj["OperatingStatus"] == null))
+                if (LateBoundObject[nameof(OperatingStatus)] == null)
                 {
                     return true;
                 }
@@ -536,53 +422,29 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((curObj["OperatingStatus"] == null))
+                if (LateBoundObject[nameof(OperatingStatus)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["OperatingStatus"]));
+                return (ushort)LateBoundObject[nameof(OperatingStatus)];
             }
         }
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ushort[] OperationalStatus
-        {
-            get
-            {
-                return ((ushort[])(curObj["OperationalStatus"]));
-            }
-        }
+        public ushort[] OperationalStatus => (ushort[])LateBoundObject[nameof(OperationalStatus)];
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string OtherEnabledState
-        {
-            get
-            {
-                return ((string)(curObj["OtherEnabledState"]));
-            }
-        }
+        public string OtherEnabledState => (string)LateBoundObject[nameof(OtherEnabledState)];
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string PrimaryOwnerContact
-        {
-            get
-            {
-                return ((string)(curObj["PrimaryOwnerContact"]));
-            }
-        }
+        public string PrimaryOwnerContact => (string)LateBoundObject[nameof(PrimaryOwnerContact)];
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string PrimaryOwnerName
-        {
-            get
-            {
-                return ((string)(curObj["PrimaryOwnerName"]));
-            }
-        }
+        public string PrimaryOwnerName => (string)LateBoundObject[nameof(PrimaryOwnerName)];
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -590,7 +452,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((curObj["PrimaryStatus"] == null))
+                if (LateBoundObject[nameof(PrimaryStatus)] == null)
                 {
                     return true;
                 }
@@ -608,11 +470,11 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((curObj["PrimaryStatus"] == null))
+                if (LateBoundObject[nameof(PrimaryStatus)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["PrimaryStatus"]));
+                return (ushort)LateBoundObject[nameof(PrimaryStatus)];
             }
         }
 
@@ -622,7 +484,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((curObj["RequestedState"] == null))
+                if (LateBoundObject[nameof(RequestedState)] == null)
                 {
                     return true;
                 }
@@ -640,11 +502,11 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((curObj["RequestedState"] == null))
+                if (LateBoundObject[nameof(RequestedState)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["RequestedState"]));
+                return (ushort)LateBoundObject[nameof(RequestedState)];
             }
         }
 
@@ -654,7 +516,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((curObj["Started"] == null))
+                if (LateBoundObject[nameof(Started)] == null)
                 {
                     return true;
                 }
@@ -672,63 +534,33 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((curObj["Started"] == null))
+                if (LateBoundObject[nameof(Started)] == null)
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj["Started"]));
+                return (bool)LateBoundObject[nameof(Started)];
             }
         }
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string StartMode
-        {
-            get
-            {
-                return ((string)(curObj["StartMode"]));
-            }
-        }
+        public string StartMode => (string)LateBoundObject[nameof(StartMode)];
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string Status
-        {
-            get
-            {
-                return ((string)(curObj["Status"]));
-            }
-        }
+        public string Status => (string)LateBoundObject[nameof(Status)];
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string[] StatusDescriptions
-        {
-            get
-            {
-                return ((string[])(curObj["StatusDescriptions"]));
-            }
-        }
+        public string[] StatusDescriptions => (string[])LateBoundObject[nameof(StatusDescriptions)];
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string SystemCreationClassName
-        {
-            get
-            {
-                return ((string)(curObj["SystemCreationClassName"]));
-            }
-        }
+        public string SystemCreationClassName => (string)LateBoundObject[nameof(SystemCreationClassName)];
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string SystemName
-        {
-            get
-            {
-                return ((string)(curObj["SystemName"]));
-            }
-        }
+        public string SystemName => (string)LateBoundObject[nameof(SystemName)];
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -736,7 +568,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((curObj["TimeOfLastStateChange"] == null))
+                if (LateBoundObject[nameof(TimeOfLastStateChange)] == null)
                 {
                     return true;
                 }
@@ -754,9 +586,9 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((curObj["TimeOfLastStateChange"] != null))
+                if (LateBoundObject[nameof(TimeOfLastStateChange)] != null)
                 {
-                    return ToDateTime(((string)(curObj["TimeOfLastStateChange"])));
+                    return ToDateTime((string)LateBoundObject[nameof(TimeOfLastStateChange)]);
                 }
                 else
                 {
@@ -771,7 +603,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((curObj["TransitioningToState"] == null))
+                if (LateBoundObject[nameof(TransitioningToState)] == null)
                 {
                     return true;
                 }
@@ -789,43 +621,45 @@ namespace Viridian.Msvm.VirtualSystemManagement
         {
             get
             {
-                if ((curObj["TransitioningToState"] == null))
+                if (LateBoundObject[nameof(TransitioningToState)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["TransitioningToState"]));
+                return (ushort)LateBoundObject[nameof(TransitioningToState)];
             }
         }
 
         private bool CheckIfProperClass(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions OptionsParam)
         {
-            if (((path != null)
-                        && (string.Compare(path.ClassName, ManagementClassName, true, CultureInfo.InvariantCulture) == 0)))
+            if ((path != null) && (string.Compare(path.ClassName, ManagementClassName, true, CultureInfo.InvariantCulture) == 0))
             {
                 return true;
             }
             else
             {
-                return CheckIfProperClass(new ManagementObject(mgmtScope, path, OptionsParam));
+                using (ManagementObject theObj = new ManagementObject(mgmtScope, path, OptionsParam))
+                {
+                    return CheckIfProperClass(theObj);
+                }
             }
         }
 
         private bool CheckIfProperClass(ManagementBaseObject theObj)
         {
-            if (((theObj != null)
-                        && (string.Compare(((string)(theObj["__CLASS"])), ManagementClassName, true, CultureInfo.InvariantCulture) == 0)))
+            if ((theObj != null)
+                        && (string.Compare((string)theObj["__CLASS"], ManagementClassName, true, CultureInfo.InvariantCulture) == 0))
             {
                 return true;
             }
             else
             {
-                Array parentClasses = ((Array)(theObj["__DERIVATION"]));
-                if ((parentClasses != null))
+                Array parentClasses = (Array)theObj["__DERIVATION"];
+                if (parentClasses != null)
                 {
-                    int count = 0;
-                    for (count = 0; (count < parentClasses.Length); count = (count + 1))
+                    int count;
+                    for (count = 0; count < parentClasses.Length; count += 1)
                     {
-                        if ((string.Compare(((string)(parentClasses.GetValue(count))), ManagementClassName, true, CultureInfo.InvariantCulture) == 0))
+                        if (string.Compare((string)parentClasses.GetValue(count), ManagementClassName, true, CultureInfo.InvariantCulture) == 0)
                         {
                             return true;
                         }
@@ -837,7 +671,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         private bool ShouldSerializeCommunicationStatus()
         {
-            if ((IsCommunicationStatusNull == false))
+            if (IsCommunicationStatusNull == false)
             {
                 return true;
             }
@@ -846,7 +680,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         private bool ShouldSerializeDetailedStatus()
         {
-            if ((IsDetailedStatusNull == false))
+            if (IsDetailedStatusNull == false)
             {
                 return true;
             }
@@ -855,7 +689,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         private bool ShouldSerializeEnabledDefault()
         {
-            if ((IsEnabledDefaultNull == false))
+            if (IsEnabledDefaultNull == false)
             {
                 return true;
             }
@@ -864,7 +698,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         private bool ShouldSerializeEnabledState()
         {
-            if ((IsEnabledStateNull == false))
+            if (IsEnabledStateNull == false)
             {
                 return true;
             }
@@ -873,7 +707,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         private bool ShouldSerializeHealthState()
         {
-            if ((IsHealthStateNull == false))
+            if (IsHealthStateNull == false)
             {
                 return true;
             }
@@ -892,83 +726,82 @@ namespace Viridian.Msvm.VirtualSystemManagement
             int second = initializer.Second;
             long ticks = 0;
             string dmtf = dmtfDate;
-            DateTime datetime = DateTime.MinValue;
-            string tempString = string.Empty;
-            if ((dmtf == null))
+            if (dmtf == null)
             {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(dmtf);
             }
-            if ((dmtf.Length == 0))
+            if (dmtf.Length == 0)
             {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(dmtf);
             }
-            if ((dmtf.Length != 25))
+            if (dmtf.Length != 25)
             {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(dmtf);
             }
+
+            string tempString;
             try
             {
                 tempString = dmtf.Substring(0, 4);
-                if (("****" != tempString))
+                if ("****" != tempString)
                 {
                     year = int.Parse(tempString);
                 }
                 tempString = dmtf.Substring(4, 2);
-                if (("**" != tempString))
+                if ("**" != tempString)
                 {
                     month = int.Parse(tempString);
                 }
                 tempString = dmtf.Substring(6, 2);
-                if (("**" != tempString))
+                if ("**" != tempString)
                 {
                     day = int.Parse(tempString);
                 }
                 tempString = dmtf.Substring(8, 2);
-                if (("**" != tempString))
+                if ("**" != tempString)
                 {
                     hour = int.Parse(tempString);
                 }
                 tempString = dmtf.Substring(10, 2);
-                if (("**" != tempString))
+                if ("**" != tempString)
                 {
                     minute = int.Parse(tempString);
                 }
                 tempString = dmtf.Substring(12, 2);
-                if (("**" != tempString))
+                if ("**" != tempString)
                 {
                     second = int.Parse(tempString);
                 }
                 tempString = dmtf.Substring(15, 6);
-                if (("******" != tempString))
+                if ("******" != tempString)
                 {
-                    ticks = (long.Parse(tempString) * (TimeSpan.TicksPerMillisecond / 1000));
+                    ticks = long.Parse(tempString) * (TimeSpan.TicksPerMillisecond / 1000);
                 }
-                if (((((((((year < 0)
-                            || (month < 0))
-                            || (day < 0))
-                            || (hour < 0))
-                            || (minute < 0))
-                            || (minute < 0))
-                            || (second < 0))
-                            || (ticks < 0)))
+                if ((year < 0)
+                            || (month < 0)
+                            || (day < 0)
+                            || (hour < 0)
+                            || (minute < 0)
+                            || (minute < 0)
+                            || (second < 0)
+                            || (ticks < 0))
                 {
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException(year.ToString());
                 }
             }
             catch (Exception e)
             {
                 throw new ArgumentOutOfRangeException(null, e.Message);
             }
-            datetime = new DateTime(year, month, day, hour, minute, second, 0);
+            DateTime datetime = new DateTime(year, month, day, hour, minute, second, 0);
             datetime = datetime.AddTicks(ticks);
             TimeSpan tickOffset = TimeZone.CurrentTimeZone.GetUtcOffset(datetime);
-            int UTCOffset = 0;
-            int OffsetToBeAdjusted = 0;
-            long OffsetMins = (tickOffset.Ticks / TimeSpan.TicksPerMinute);
+            long OffsetMins = tickOffset.Ticks / TimeSpan.TicksPerMinute;
             tempString = dmtf.Substring(22, 3);
-            if ((tempString != "******"))
+            if (tempString != "******")
             {
                 tempString = dmtf.Substring(21, 4);
+                int UTCOffset;
                 try
                 {
                     UTCOffset = int.Parse(tempString);
@@ -977,7 +810,8 @@ namespace Viridian.Msvm.VirtualSystemManagement
                 {
                     throw new ArgumentOutOfRangeException(null, e.Message);
                 }
-                OffsetToBeAdjusted = ((int)((OffsetMins - UTCOffset)));
+
+                int OffsetToBeAdjusted = (int)(OffsetMins - UTCOffset);
                 datetime = datetime.AddMinutes(OffsetToBeAdjusted);
             }
             return datetime;
@@ -986,24 +820,24 @@ namespace Viridian.Msvm.VirtualSystemManagement
         // Converts a given System.DateTime object to DMTF datetime format.
         static string ToDmtfDateTime(DateTime date)
         {
-            string utcString = string.Empty;
             TimeSpan tickOffset = TimeZone.CurrentTimeZone.GetUtcOffset(date);
-            long OffsetMins = (tickOffset.Ticks / TimeSpan.TicksPerMinute);
-            if ((Math.Abs(OffsetMins) > 999))
+            long OffsetMins = tickOffset.Ticks / TimeSpan.TicksPerMinute;
+            string utcString;
+            if (Math.Abs(OffsetMins) > 999)
             {
                 date = date.ToUniversalTime();
                 utcString = "+000";
             }
             else
             {
-                if ((tickOffset.Ticks >= 0))
+                if (tickOffset.Ticks >= 0)
                 {
                     utcString = string.Concat("+", (tickOffset.Ticks / TimeSpan.TicksPerMinute).ToString().PadLeft(3, '0'));
                 }
                 else
                 {
                     string strTemp = OffsetMins.ToString();
-                    utcString = string.Concat("-", strTemp.Substring(1, (strTemp.Length - 1)).PadLeft(3, '0'));
+                    utcString = string.Concat("-", strTemp.Substring(1, strTemp.Length - 1).PadLeft(3, '0'));
                 }
             }
             string dmtfDateTime = date.Year.ToString().PadLeft(4, '0');
@@ -1014,11 +848,11 @@ namespace Viridian.Msvm.VirtualSystemManagement
             dmtfDateTime = string.Concat(dmtfDateTime, date.Second.ToString().PadLeft(2, '0'));
             dmtfDateTime = string.Concat(dmtfDateTime, ".");
             DateTime dtTemp = new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, 0);
-            long microsec = (((date.Ticks - dtTemp.Ticks)
-                        * 1000)
-                        / TimeSpan.TicksPerMillisecond);
+            long microsec = (date.Ticks - dtTemp.Ticks)
+                        * 1000
+                        / TimeSpan.TicksPerMillisecond;
             string strMicrosec = microsec.ToString();
-            if ((strMicrosec.Length > 6))
+            if (strMicrosec.Length > 6)
             {
                 strMicrosec = strMicrosec.Substring(0, 6);
             }
@@ -1029,7 +863,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         private bool ShouldSerializeInstallDate()
         {
-            if ((IsInstallDateNull == false))
+            if (IsInstallDateNull == false)
             {
                 return true;
             }
@@ -1038,7 +872,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         private bool ShouldSerializeOperatingStatus()
         {
-            if ((IsOperatingStatusNull == false))
+            if (IsOperatingStatusNull == false)
             {
                 return true;
             }
@@ -1047,7 +881,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         private bool ShouldSerializePrimaryStatus()
         {
-            if ((IsPrimaryStatusNull == false))
+            if (IsPrimaryStatusNull == false)
             {
                 return true;
             }
@@ -1056,7 +890,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         private bool ShouldSerializeRequestedState()
         {
-            if ((IsRequestedStateNull == false))
+            if (IsRequestedStateNull == false)
             {
                 return true;
             }
@@ -1065,7 +899,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         private bool ShouldSerializeStarted()
         {
-            if ((IsStartedNull == false))
+            if (IsStartedNull == false)
             {
                 return true;
             }
@@ -1074,7 +908,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         private bool ShouldSerializeTimeOfLastStateChange()
         {
-            if ((IsTimeOfLastStateChangeNull == false))
+            if (IsTimeOfLastStateChangeNull == false)
             {
                 return true;
             }
@@ -1083,7 +917,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         private bool ShouldSerializeTransitioningToState()
         {
-            if ((IsTransitioningToStateNull == false))
+            if (IsTransitioningToStateNull == false)
             {
                 return true;
             }
@@ -1093,7 +927,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
         [Browsable(true)]
         public void CommitObject()
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
                 PrivateLateBoundObject.Put();
             }
@@ -1102,7 +936,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
         [Browsable(true)]
         public void CommitObject(PutOptions putOptions)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
                 PrivateLateBoundObject.Put(putOptions);
             }
@@ -1110,13 +944,13 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         private void Initialize()
         {
-            AutoCommitProp = true;
+            AutoCommit = true;
             isEmbedded = false;
         }
 
         private static string ConstructPath(string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName)
         {
-            string strPath = "root\\virtualization\\v2:Msvm_VirtualSystemManagementService";
+            string strPath = $"{Properties.VESMS.Default.WMINamespace}:{Properties.VESMS.Default.ClassName}";
             strPath = string.Concat(strPath, string.Concat(".CreationClassName=", string.Concat("\"", string.Concat(keyCreationClassName, "\""))));
             strPath = string.Concat(strPath, string.Concat(",Name=", string.Concat("\"", string.Concat(keyName, "\""))));
             strPath = string.Concat(strPath, string.Concat(",SystemCreationClassName=", string.Concat("\"", string.Concat(keySystemCreationClassName, "\""))));
@@ -1127,16 +961,16 @@ namespace Viridian.Msvm.VirtualSystemManagement
         private void InitializeObject(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions getOptions)
         {
             Initialize();
-            if ((path != null))
+            if (path != null)
             {
-                if ((CheckIfProperClass(mgmtScope, path, getOptions) != true))
+                if (CheckIfProperClass(mgmtScope, path, getOptions) != true)
                 {
-                    throw new ArgumentException("Class name does not match.");
+                    throw new ArgumentException(Properties.VESMS.Default.ClassNameExceptionMessage);
                 }
             }
             PrivateLateBoundObject = new ManagementObject(mgmtScope, path, getOptions);
-            PrivateSystemProperties = new ManagementSystemProperties(PrivateLateBoundObject);
-            curObj = PrivateLateBoundObject;
+            SystemProperties = new ManagementSystemProperties(PrivateLateBoundObject);
+            LateBoundObject = PrivateLateBoundObject;
         }
 
         // Different overloads of GetInstances() help in enumerating instances of the WMI class.
@@ -1162,28 +996,34 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public static VirtualSystemManagementServiceCollection GetInstances(ManagementScope mgmtScope, EnumerationOptions enumOptions)
         {
-            if ((mgmtScope == null))
+            if (mgmtScope == null)
             {
-                if ((statMgmtScope == null))
+                if (StaticScope == null)
                 {
                     mgmtScope = new ManagementScope();
-                    mgmtScope.Path.NamespacePath = "root\\virtualization\\v2";
+                    mgmtScope.Path.NamespacePath = Properties.VESMS.Default.WMINamespace;
                 }
                 else
                 {
-                    mgmtScope = statMgmtScope;
+                    mgmtScope = StaticScope;
                 }
             }
-            ManagementPath pathObj = new ManagementPath();
-            pathObj.ClassName = "Msvm_VirtualSystemManagementService";
-            pathObj.NamespacePath = "root\\virtualization\\v2";
-            ManagementClass clsObject = new ManagementClass(mgmtScope, pathObj, null);
-            if ((enumOptions == null))
+            ManagementPath pathObj = new ManagementPath
             {
-                enumOptions = new EnumerationOptions();
-                enumOptions.EnsureLocatable = true;
+                ClassName = Properties.VESMS.Default.ClassName,
+                NamespacePath = Properties.VESMS.Default.WMINamespace
+            };
+            using (ManagementClass clsObject = new ManagementClass(mgmtScope, pathObj, null))
+            {
+                if (enumOptions == null)
+                {
+                    enumOptions = new EnumerationOptions
+                    {
+                        EnsureLocatable = true
+                    };
+                }
+                return new VirtualSystemManagementServiceCollection(clsObject.GetInstances(enumOptions));
             }
-            return new VirtualSystemManagementServiceCollection(clsObject.GetInstances(enumOptions));
         }
 
         public static VirtualSystemManagementServiceCollection GetInstances(ManagementScope mgmtScope, string condition)
@@ -1198,42 +1038,48 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public static VirtualSystemManagementServiceCollection GetInstances(ManagementScope mgmtScope, string condition, string[] selectedProperties)
         {
-            if ((mgmtScope == null))
+            if (mgmtScope == null)
             {
-                if ((statMgmtScope == null))
+                if (StaticScope == null)
                 {
                     mgmtScope = new ManagementScope();
-                    mgmtScope.Path.NamespacePath = "root\\virtualization\\v2";
+                    mgmtScope.Path.NamespacePath = Properties.VESMS.Default.WMINamespace;
                 }
                 else
                 {
-                    mgmtScope = statMgmtScope;
+                    mgmtScope = StaticScope;
                 }
             }
-            ManagementObjectSearcher ObjectSearcher = new ManagementObjectSearcher(mgmtScope, new SelectQuery("Msvm_VirtualSystemManagementService", condition, selectedProperties));
-            EnumerationOptions enumOptions = new EnumerationOptions();
-            enumOptions.EnsureLocatable = true;
-            ObjectSearcher.Options = enumOptions;
-            return new VirtualSystemManagementServiceCollection(ObjectSearcher.Get());
+            using (ManagementObjectSearcher ObjectSearcher = new ManagementObjectSearcher(mgmtScope, new SelectQuery(Properties.VESMS.Default.ClassName, condition, selectedProperties)))
+            {
+                EnumerationOptions enumOptions = new EnumerationOptions
+                {
+                    EnsureLocatable = true
+                };
+                ObjectSearcher.Options = enumOptions;
+                return new VirtualSystemManagementServiceCollection(ObjectSearcher.Get());
+            }
         }
 
         [Browsable(true)]
         public static VirtualSystemManagementService CreateInstance()
         {
-            ManagementScope mgmtScope = null;
-            if ((statMgmtScope == null))
+            ManagementScope mgmtScope;
+            if (StaticScope == null)
             {
                 mgmtScope = new ManagementScope();
                 mgmtScope.Path.NamespacePath = CreatedWmiNamespace;
             }
             else
             {
-                mgmtScope = statMgmtScope;
+                mgmtScope = StaticScope;
             }
 
             ManagementPath mgmtPath = new ManagementPath(CreatedClassName);
-            ManagementClass tmpMgmtClass = new ManagementClass(mgmtScope, mgmtPath, null);
-            return new VirtualSystemManagementService(tmpMgmtClass.CreateInstance());
+            using (ManagementClass tmpMgmtClass = new ManagementClass(mgmtScope, mgmtPath, null))
+            {
+                return new VirtualSystemManagementService(tmpMgmtClass.CreateInstance());
+            }
         }
 
         [Browsable(true)]
@@ -1244,26 +1090,25 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint AddBootSourceSettings(ManagementPath AffectedConfiguration, string[] BootSourceSettings, out ManagementPath Job, out ManagementPath[] ResultingBootSourceSettings)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("AddBootSourceSettings");
-                inParams["AffectedConfiguration"] = AffectedConfiguration.Path;
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("AddBootSourceSettings");
+                inParams["AffectedConfiguration"] = AffectedConfiguration?.Path;
                 inParams["BootSourceSettings"] = BootSourceSettings;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("AddBootSourceSettings", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
                 ResultingBootSourceSettings = null;
-                if ((outParams.Properties["ResultingBootSourceSettings"] != null))
+                if (outParams.Properties["ResultingBootSourceSettings"] != null)
                 {
-                    int len = ((Array)(outParams.Properties["ResultingBootSourceSettings"].Value)).Length;
+                    int len = ((Array)outParams.Properties["ResultingBootSourceSettings"].Value).Length;
                     ManagementPath[] arrToRet = new ManagementPath[len];
-                    for (int iCounter = 0; (iCounter < len); iCounter = (iCounter + 1))
+                    for (int iCounter = 0; iCounter < len; iCounter += 1)
                     {
-                        arrToRet[iCounter] = new ManagementPath(((Array)(outParams.Properties["ResultingBootSourceSettings"].Value)).GetValue(iCounter).ToString());
+                        arrToRet[iCounter] = new ManagementPath(((Array)outParams.Properties["ResultingBootSourceSettings"].Value).GetValue(iCounter).ToString());
                     }
                     ResultingBootSourceSettings = arrToRet;
                 }
@@ -1279,26 +1124,25 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint AddFeatureSettings(ManagementPath AffectedConfiguration, string[] FeatureSettings, out ManagementPath Job, out ManagementPath[] ResultingFeatureSettings)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("AddFeatureSettings");
-                inParams["AffectedConfiguration"] = AffectedConfiguration.Path;
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("AddFeatureSettings");
+                inParams["AffectedConfiguration"] = AffectedConfiguration?.Path;
                 inParams["FeatureSettings"] = FeatureSettings;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("AddFeatureSettings", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
                 ResultingFeatureSettings = null;
-                if ((outParams.Properties["ResultingFeatureSettings"] != null))
+                if (outParams.Properties["ResultingFeatureSettings"] != null)
                 {
-                    int len = ((Array)(outParams.Properties["ResultingFeatureSettings"].Value)).Length;
+                    int len = ((Array)outParams.Properties["ResultingFeatureSettings"].Value).Length;
                     ManagementPath[] arrToRet = new ManagementPath[len];
-                    for (int iCounter = 0; (iCounter < len); iCounter = (iCounter + 1))
+                    for (int iCounter = 0; iCounter < len; iCounter += 1)
                     {
-                        arrToRet[iCounter] = new ManagementPath(((Array)(outParams.Properties["ResultingFeatureSettings"].Value)).GetValue(iCounter).ToString());
+                        arrToRet[iCounter] = new ManagementPath(((Array)outParams.Properties["ResultingFeatureSettings"].Value).GetValue(iCounter).ToString());
                     }
                     ResultingFeatureSettings = arrToRet;
                 }
@@ -1314,10 +1158,9 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint AddFibreChannelChap(string[] FcPortSettings, byte SecretEncoding, byte[] SharedSecret)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("AddFibreChannelChap");
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("AddFibreChannelChap");
                 inParams["FcPortSettings"] = FcPortSettings;
                 inParams["SecretEncoding"] = SecretEncoding;
                 inParams["SharedSecret"] = SharedSecret;
@@ -1332,26 +1175,25 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint AddGuestServiceSettings(ManagementPath AffectedConfiguration, string[] GuestServiceSettings, out ManagementPath Job, out ManagementPath[] ResultingGuestServiceSettings)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("AddGuestServiceSettings");
-                inParams["AffectedConfiguration"] = AffectedConfiguration.Path;
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("AddGuestServiceSettings");
+                inParams["AffectedConfiguration"] = AffectedConfiguration?.Path;
                 inParams["GuestServiceSettings"] = GuestServiceSettings;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("AddGuestServiceSettings", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
                 ResultingGuestServiceSettings = null;
-                if ((outParams.Properties["ResultingGuestServiceSettings"] != null))
+                if (outParams.Properties["ResultingGuestServiceSettings"] != null)
                 {
-                    int len = ((Array)(outParams.Properties["ResultingGuestServiceSettings"].Value)).Length;
+                    int len = ((Array)outParams.Properties["ResultingGuestServiceSettings"].Value).Length;
                     ManagementPath[] arrToRet = new ManagementPath[len];
-                    for (int iCounter = 0; (iCounter < len); iCounter = (iCounter + 1))
+                    for (int iCounter = 0; iCounter < len; iCounter += 1)
                     {
-                        arrToRet[iCounter] = new ManagementPath(((Array)(outParams.Properties["ResultingGuestServiceSettings"].Value)).GetValue(iCounter).ToString());
+                        arrToRet[iCounter] = new ManagementPath(((Array)outParams.Properties["ResultingGuestServiceSettings"].Value).GetValue(iCounter).ToString());
                     }
                     ResultingGuestServiceSettings = arrToRet;
                 }
@@ -1367,15 +1209,14 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint AddKvpItems(string[] DataItems, ManagementPath TargetSystem, out ManagementPath Job)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("AddKvpItems");
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("AddKvpItems");
                 inParams["DataItems"] = DataItems;
-                inParams["TargetSystem"] = TargetSystem.Path;
+                inParams["TargetSystem"] = TargetSystem?.Path;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("AddKvpItems", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
@@ -1390,26 +1231,25 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint AddResourceSettings(ManagementPath AffectedConfiguration, string[] ResourceSettings, out ManagementPath Job, out ManagementPath[] ResultingResourceSettings)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("AddResourceSettings");
-                inParams["AffectedConfiguration"] = AffectedConfiguration.Path;
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("AddResourceSettings");
+                inParams["AffectedConfiguration"] = AffectedConfiguration?.Path;
                 inParams["ResourceSettings"] = ResourceSettings;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("AddResourceSettings", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
                 ResultingResourceSettings = null;
-                if ((outParams.Properties["ResultingResourceSettings"] != null))
+                if (outParams.Properties["ResultingResourceSettings"] != null)
                 {
-                    int len = ((Array)(outParams.Properties["ResultingResourceSettings"].Value)).Length;
+                    int len = ((Array)outParams.Properties["ResultingResourceSettings"].Value).Length;
                     ManagementPath[] arrToRet = new ManagementPath[len];
-                    for (int iCounter = 0; (iCounter < len); iCounter = (iCounter + 1))
+                    for (int iCounter = 0; iCounter < len; iCounter += 1)
                     {
-                        arrToRet[iCounter] = new ManagementPath(((Array)(outParams.Properties["ResultingResourceSettings"].Value)).GetValue(iCounter).ToString());
+                        arrToRet[iCounter] = new ManagementPath(((Array)outParams.Properties["ResultingResourceSettings"].Value).GetValue(iCounter).ToString());
                     }
                     ResultingResourceSettings = arrToRet;
                 }
@@ -1425,26 +1265,25 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint AddSystemComponentSettings(ManagementPath AffectedConfiguration, string[] ComponentSettings, out ManagementPath Job, out ManagementPath[] ResultingComponentSettings)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("AddSystemComponentSettings");
-                inParams["AffectedConfiguration"] = AffectedConfiguration.Path;
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("AddSystemComponentSettings");
+                inParams["AffectedConfiguration"] = AffectedConfiguration?.Path;
                 inParams["ComponentSettings"] = ComponentSettings;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("AddSystemComponentSettings", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
                 ResultingComponentSettings = null;
-                if ((outParams.Properties["ResultingComponentSettings"] != null))
+                if (outParams.Properties["ResultingComponentSettings"] != null)
                 {
-                    int len = ((Array)(outParams.Properties["ResultingComponentSettings"].Value)).Length;
+                    int len = ((Array)outParams.Properties["ResultingComponentSettings"].Value).Length;
                     ManagementPath[] arrToRet = new ManagementPath[len];
-                    for (int iCounter = 0; (iCounter < len); iCounter = (iCounter + 1))
+                    for (int iCounter = 0; iCounter < len; iCounter += 1)
                     {
-                        arrToRet[iCounter] = new ManagementPath(((Array)(outParams.Properties["ResultingComponentSettings"].Value)).GetValue(iCounter).ToString());
+                        arrToRet[iCounter] = new ManagementPath(((Array)outParams.Properties["ResultingComponentSettings"].Value).GetValue(iCounter).ToString());
                     }
                     ResultingComponentSettings = arrToRet;
                 }
@@ -1460,21 +1299,20 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint DefinePlannedSystem(ManagementPath ReferenceConfiguration, string[] ResourceSettings, string SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("DefinePlannedSystem");
-                inParams["ReferenceConfiguration"] = ReferenceConfiguration.Path;
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("DefinePlannedSystem");
+                inParams["ReferenceConfiguration"] = ReferenceConfiguration?.Path;
                 inParams["ResourceSettings"] = ResourceSettings;
                 inParams["SystemSettings"] = SystemSettings;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("DefinePlannedSystem", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
                 ResultingSystem = null;
-                if ((outParams.Properties["ResultingSystem"] != null))
+                if (outParams.Properties["ResultingSystem"] != null)
                 {
                     ResultingSystem = new ManagementPath(outParams["ResultingSystem"] as string);
                 }
@@ -1490,21 +1328,20 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint DefineSystem(ManagementPath ReferenceConfiguration, string[] ResourceSettings, string SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("DefineSystem");
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("DefineSystem");
                 inParams["ReferenceConfiguration"] = ReferenceConfiguration?.Path;
                 inParams["ResourceSettings"] = ResourceSettings;
                 inParams["SystemSettings"] = SystemSettings;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("DefineSystem", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
                 ResultingSystem = null;
-                if ((outParams.Properties["ResultingSystem"] != null))
+                if (outParams.Properties["ResultingSystem"] != null)
                 {
                     ResultingSystem = new ManagementPath(outParams["ResultingSystem"] as string);
                 }
@@ -1520,14 +1357,13 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint DestroySystem(ManagementPath AffectedSystem, out ManagementPath Job)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("DestroySystem");
-                inParams["AffectedSystem"] = AffectedSystem.Path;
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("DestroySystem");
+                inParams["AffectedSystem"] = AffectedSystem?.Path;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("DestroySystem", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
@@ -1542,16 +1378,15 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint DiagnoseNetworkConnection(string DiagnosticSettings, ManagementPath TargetNetworkAdapter, out string DiagnosticInformation, out ManagementPath Job)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("DiagnoseNetworkConnection");
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("DiagnoseNetworkConnection");
                 inParams["DiagnosticSettings"] = DiagnosticSettings;
-                inParams["TargetNetworkAdapter"] = TargetNetworkAdapter.Path;
+                inParams["TargetNetworkAdapter"] = TargetNetworkAdapter?.Path;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("DiagnoseNetworkConnection", inParams, null);
                 DiagnosticInformation = Convert.ToString(outParams.Properties["DiagnosticInformation"].Value);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
@@ -1567,16 +1402,15 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint ExportSystemDefinition(ManagementPath ComputerSystem, string ExportDirectory, string ExportSettingData, out ManagementPath Job)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("ExportSystemDefinition");
-                inParams["ComputerSystem"] = ComputerSystem.Path;
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ExportSystemDefinition");
+                inParams["ComputerSystem"] = ComputerSystem?.Path;
                 inParams["ExportDirectory"] = ExportDirectory;
                 inParams["ExportSettingData"] = ExportSettingData;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ExportSystemDefinition", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
@@ -1591,10 +1425,9 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint FormatError(string[] Errors, out string ErrorMessage)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("FormatError");
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("FormatError");
                 inParams["Errors"] = Errors;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("FormatError", inParams, null);
                 ErrorMessage = Convert.ToString(outParams.Properties["ErrorMessage"].Value);
@@ -1609,13 +1442,12 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint GenerateWwpn(uint NumberOfWwpns, out string[] GeneratedWwpn)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("GenerateWwpn");
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("GenerateWwpn");
                 inParams["NumberOfWwpns"] = NumberOfWwpns;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("GenerateWwpn", inParams, null);
-                GeneratedWwpn = ((string[])(outParams.Properties["GeneratedWwpn"].Value));
+                GeneratedWwpn = (string[])outParams.Properties["GeneratedWwpn"].Value;
                 return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
             }
             else
@@ -1627,7 +1459,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint GetCurrentWwpnFromGenerator(out string CurrentWwpn)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
                 ManagementBaseObject inParams = null;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("GetCurrentWwpnFromGenerator", inParams, null);
@@ -1643,13 +1475,12 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint GetDefinitionFileSummaryInformation(string[] DefinitionFiles, out ManagementBaseObject[] SummaryInformation)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("GetDefinitionFileSummaryInformation");
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("GetDefinitionFileSummaryInformation");
                 inParams["DefinitionFiles"] = DefinitionFiles;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("GetDefinitionFileSummaryInformation", inParams, null);
-                SummaryInformation = ((ManagementBaseObject[])(outParams.Properties["SummaryInformation"].Value));
+                SummaryInformation = (ManagementBaseObject[])outParams.Properties["SummaryInformation"].Value;
                 return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
             }
             else
@@ -1661,14 +1492,17 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint GetSizeOfSystemFiles(ManagementPath Vssd, out ulong Size)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("GetSizeOfSystemFiles");
-                inParams["Vssd"] = Vssd.Path;
-                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("GetSizeOfSystemFiles", inParams, null);
-                Size = Convert.ToUInt64(outParams.Properties["Size"].Value);
-                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+                using (ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("GetSizeOfSystemFiles"))
+                {
+                    inParams["Vssd"] = Vssd?.Path;
+                    using (ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("GetSizeOfSystemFiles", inParams, null))
+                    {
+                        Size = Convert.ToUInt64(outParams.Properties["Size"].Value);
+                        return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+                    }
+                }
             }
             else
             {
@@ -1679,28 +1513,31 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint GetSummaryInformation(uint[] RequestedInformation, ManagementPath[] SettingData, out ManagementBaseObject[] SummaryInformation)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("GetSummaryInformation");
-                inParams["RequestedInformation"] = RequestedInformation;
-                if ((SettingData != null))
+                using (ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("GetSummaryInformation"))
                 {
-                    int len = SettingData.Length;
-                    string[] arrProp = new string[len];
-                    for (int iCounter = 0; (iCounter < len); iCounter = (iCounter + 1))
+                    inParams["RequestedInformation"] = RequestedInformation;
+                    if (SettingData != null)
                     {
-                        arrProp[iCounter] = ((ManagementPath)(SettingData.GetValue(iCounter))).Path;
+                        int len = SettingData.Length;
+                        string[] arrProp = new string[len];
+                        for (int iCounter = 0; iCounter < len; iCounter = iCounter + 1)
+                        {
+                            arrProp[iCounter] = ((ManagementPath)SettingData.GetValue(iCounter)).Path;
+                        }
+                        inParams["SettingData"] = arrProp;
                     }
-                    inParams["SettingData"] = arrProp;
+                    else
+                    {
+                        inParams["SettingData"] = null;
+                    }
+                    using (ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("GetSummaryInformation", inParams, null))
+                    {
+                        SummaryInformation = (ManagementBaseObject[])outParams.Properties["SummaryInformation"].Value;
+                        return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+                    }
                 }
-                else
-                {
-                    inParams["SettingData"] = null;
-                }
-                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("GetSummaryInformation", inParams, null);
-                SummaryInformation = ((ManagementBaseObject[])(outParams.Properties["SummaryInformation"].Value));
-                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
             }
             else
             {
@@ -1711,15 +1548,14 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint GetVirtualSystemThumbnailImage(ushort HeightPixels, ManagementPath TargetSystem, ushort WidthPixels, out byte[] ImageData)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("GetVirtualSystemThumbnailImage");
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("GetVirtualSystemThumbnailImage");
                 inParams["HeightPixels"] = HeightPixels;
-                inParams["TargetSystem"] = TargetSystem.Path;
+                inParams["TargetSystem"] = TargetSystem?.Path;
                 inParams["WidthPixels"] = WidthPixels;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("GetVirtualSystemThumbnailImage", inParams, null);
-                ImageData = ((byte[])(outParams.Properties["ImageData"].Value));
+                ImageData = (byte[])outParams.Properties["ImageData"].Value;
                 return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
             }
             else
@@ -1731,26 +1567,25 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint ImportSnapshotDefinitions(ManagementPath PlannedSystem, string SnapshotFolder, out ManagementPath[] ImportedSnapshots, out ManagementPath Job)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("ImportSnapshotDefinitions");
-                inParams["PlannedSystem"] = PlannedSystem.Path;
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ImportSnapshotDefinitions");
+                inParams["PlannedSystem"] = PlannedSystem?.Path;
                 inParams["SnapshotFolder"] = SnapshotFolder;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ImportSnapshotDefinitions", inParams, null);
                 ImportedSnapshots = null;
-                if ((outParams.Properties["ImportedSnapshots"] != null))
+                if (outParams.Properties["ImportedSnapshots"] != null)
                 {
-                    int len = ((Array)(outParams.Properties["ImportedSnapshots"].Value)).Length;
+                    int len = ((Array)outParams.Properties["ImportedSnapshots"].Value).Length;
                     ManagementPath[] arrToRet = new ManagementPath[len];
-                    for (int iCounter = 0; (iCounter < len); iCounter = (iCounter + 1))
+                    for (int iCounter = 0; iCounter < len; iCounter = iCounter + 1)
                     {
-                        arrToRet[iCounter] = new ManagementPath(((Array)(outParams.Properties["ImportedSnapshots"].Value)).GetValue(iCounter).ToString());
+                        arrToRet[iCounter] = new ManagementPath(((Array)outParams.Properties["ImportedSnapshots"].Value).GetValue(iCounter).ToString());
                     }
                     ImportedSnapshots = arrToRet;
                 }
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
@@ -1766,21 +1601,20 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint ImportSystemDefinition(bool GenerateNewSystemIdentifier, string SnapshotFolder, string SystemDefinitionFile, out ManagementPath ImportedSystem, out ManagementPath Job)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("ImportSystemDefinition");
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ImportSystemDefinition");
                 inParams["GenerateNewSystemIdentifier"] = GenerateNewSystemIdentifier;
                 inParams["SnapshotFolder"] = SnapshotFolder;
                 inParams["SystemDefinitionFile"] = SystemDefinitionFile;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ImportSystemDefinition", inParams, null);
                 ImportedSystem = null;
-                if ((outParams.Properties["ImportedSystem"] != null))
+                if (outParams.Properties["ImportedSystem"] != null)
                 {
                     ImportedSystem = new ManagementPath(outParams.Properties["ImportedSystem"].ToString());
                 }
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
@@ -1796,14 +1630,13 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint ModifyDiskMergeSettings(string SettingData, out ManagementPath Job)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("ModifyDiskMergeSettings");
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ModifyDiskMergeSettings");
                 inParams["SettingData"] = SettingData;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ModifyDiskMergeSettings", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
@@ -1818,25 +1651,24 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint ModifyFeatureSettings(string[] FeatureSettings, out ManagementPath Job, out ManagementPath[] ResultingFeatureSettings)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("ModifyFeatureSettings");
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ModifyFeatureSettings");
                 inParams["FeatureSettings"] = FeatureSettings;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ModifyFeatureSettings", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
                 ResultingFeatureSettings = null;
-                if ((outParams.Properties["ResultingFeatureSettings"] != null))
+                if (outParams.Properties["ResultingFeatureSettings"] != null)
                 {
-                    int len = ((Array)(outParams.Properties["ResultingFeatureSettings"].Value)).Length;
+                    int len = ((Array)outParams.Properties["ResultingFeatureSettings"].Value).Length;
                     ManagementPath[] arrToRet = new ManagementPath[len];
-                    for (int iCounter = 0; (iCounter < len); iCounter = (iCounter + 1))
+                    for (int iCounter = 0; iCounter < len; iCounter = iCounter + 1)
                     {
-                        arrToRet[iCounter] = new ManagementPath(((Array)(outParams.Properties["ResultingFeatureSettings"].Value)).GetValue(iCounter).ToString());
+                        arrToRet[iCounter] = new ManagementPath(((Array)outParams.Properties["ResultingFeatureSettings"].Value).GetValue(iCounter).ToString());
                     }
                     ResultingFeatureSettings = arrToRet;
                 }
@@ -1852,25 +1684,24 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint ModifyGuestServiceSettings(string[] GuestServiceSettings, out ManagementPath Job, out ManagementPath[] ResultingGuestServiceSettings)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("ModifyGuestServiceSettings");
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ModifyGuestServiceSettings");
                 inParams["GuestServiceSettings"] = GuestServiceSettings;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ModifyGuestServiceSettings", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
                 ResultingGuestServiceSettings = null;
-                if ((outParams.Properties["ResultingGuestServiceSettings"] != null))
+                if (outParams.Properties["ResultingGuestServiceSettings"] != null)
                 {
-                    int len = ((Array)(outParams.Properties["ResultingGuestServiceSettings"].Value)).Length;
+                    int len = ((Array)outParams.Properties["ResultingGuestServiceSettings"].Value).Length;
                     ManagementPath[] arrToRet = new ManagementPath[len];
-                    for (int iCounter = 0; (iCounter < len); iCounter = (iCounter + 1))
+                    for (int iCounter = 0; iCounter < len; iCounter += 1)
                     {
-                        arrToRet[iCounter] = new ManagementPath(((Array)(outParams.Properties["ResultingGuestServiceSettings"].Value)).GetValue(iCounter).ToString());
+                        arrToRet[iCounter] = new ManagementPath(((Array)outParams.Properties["ResultingGuestServiceSettings"].Value).GetValue(iCounter).ToString());
                     }
                     ResultingGuestServiceSettings = arrToRet;
                 }
@@ -1886,15 +1717,14 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint ModifyKvpItems(string[] DataItems, ManagementPath TargetSystem, out ManagementPath Job)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("ModifyKvpItems");
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ModifyKvpItems");
                 inParams["DataItems"] = DataItems;
-                inParams["TargetSystem"] = TargetSystem.Path;
+                inParams["TargetSystem"] = TargetSystem?.Path;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ModifyKvpItems", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
@@ -1909,25 +1739,24 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint ModifyResourceSettings(string[] ResourceSettings, out ManagementPath Job, out ManagementPath[] ResultingResourceSettings)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("ModifyResourceSettings");
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ModifyResourceSettings");
                 inParams["ResourceSettings"] = ResourceSettings;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ModifyResourceSettings", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
                 ResultingResourceSettings = null;
-                if ((outParams.Properties["ResultingResourceSettings"] != null))
+                if (outParams.Properties["ResultingResourceSettings"] != null)
                 {
-                    int len = ((Array)(outParams.Properties["ResultingResourceSettings"].Value)).Length;
+                    int len = ((Array)outParams.Properties["ResultingResourceSettings"].Value).Length;
                     ManagementPath[] arrToRet = new ManagementPath[len];
-                    for (int iCounter = 0; (iCounter < len); iCounter = (iCounter + 1))
+                    for (int iCounter = 0; iCounter < len; iCounter += 1)
                     {
-                        arrToRet[iCounter] = new ManagementPath(((Array)(outParams.Properties["ResultingResourceSettings"].Value)).GetValue(iCounter).ToString());
+                        arrToRet[iCounter] = new ManagementPath(((Array)outParams.Properties["ResultingResourceSettings"].Value).GetValue(iCounter).ToString());
                     }
                     ResultingResourceSettings = arrToRet;
                 }
@@ -1943,14 +1772,13 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint ModifyServiceSettings(string SettingData, out ManagementPath Job)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("ModifyServiceSettings");
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ModifyServiceSettings");
                 inParams["SettingData"] = SettingData;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ModifyServiceSettings", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
@@ -1965,25 +1793,24 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint ModifySystemComponentSettings(string[] ComponentSettings, out ManagementPath Job, out ManagementPath[] ResultingComponentSettings)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("ModifySystemComponentSettings");
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ModifySystemComponentSettings");
                 inParams["ComponentSettings"] = ComponentSettings;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ModifySystemComponentSettings", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
                 ResultingComponentSettings = null;
-                if ((outParams.Properties["ResultingComponentSettings"] != null))
+                if (outParams.Properties["ResultingComponentSettings"] != null)
                 {
-                    int len = ((Array)(outParams.Properties["ResultingComponentSettings"].Value)).Length;
+                    int len = ((Array)outParams.Properties["ResultingComponentSettings"].Value).Length;
                     ManagementPath[] arrToRet = new ManagementPath[len];
-                    for (int iCounter = 0; (iCounter < len); iCounter = (iCounter + 1))
+                    for (int iCounter = 0; iCounter < len; iCounter = iCounter + 1)
                     {
-                        arrToRet[iCounter] = new ManagementPath(((Array)(outParams.Properties["ResultingComponentSettings"].Value)).GetValue(iCounter).ToString());
+                        arrToRet[iCounter] = new ManagementPath(((Array)outParams.Properties["ResultingComponentSettings"].Value).GetValue(iCounter).ToString());
                     }
                     ResultingComponentSettings = arrToRet;
                 }
@@ -1999,14 +1826,13 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint ModifySystemSettings(string SystemSettings, out ManagementPath Job)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("ModifySystemSettings");
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ModifySystemSettings");
                 inParams["SystemSettings"] = SystemSettings;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ModifySystemSettings", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
@@ -2021,19 +1847,18 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint RealizePlannedSystem(ManagementPath PlannedSystem, out ManagementPath Job, out ManagementPath ResultingSystem)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("RealizePlannedSystem");
-                inParams["PlannedSystem"] = PlannedSystem.Path;
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RealizePlannedSystem");
+                inParams["PlannedSystem"] = PlannedSystem?.Path;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RealizePlannedSystem", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
                 ResultingSystem = null;
-                if ((outParams.Properties["ResultingSystem"] != null))
+                if (outParams.Properties["ResultingSystem"] != null)
                 {
                     ResultingSystem = new ManagementPath(outParams["ResultingSystem"] as string);
                 }
@@ -2049,17 +1874,16 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint RemoveBootSourceSettings(ManagementPath[] BootSourceSettings, out ManagementPath Job)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("RemoveBootSourceSettings");
-                if ((BootSourceSettings != null))
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RemoveBootSourceSettings");
+                if (BootSourceSettings != null)
                 {
                     int len = BootSourceSettings.Length;
                     string[] arrProp = new string[len];
-                    for (int iCounter = 0; (iCounter < len); iCounter = (iCounter + 1))
+                    for (int iCounter = 0; iCounter < len; iCounter = iCounter + 1)
                     {
-                        arrProp[iCounter] = ((ManagementPath)(BootSourceSettings.GetValue(iCounter))).Path;
+                        arrProp[iCounter] = ((ManagementPath)BootSourceSettings.GetValue(iCounter)).Path;
                     }
                     inParams["BootSourceSettings"] = arrProp;
                 }
@@ -2069,7 +1893,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
                 }
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RemoveBootSourceSettings", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
@@ -2084,17 +1908,16 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint RemoveFeatureSettings(ManagementPath[] FeatureSettings, out ManagementPath Job)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("RemoveFeatureSettings");
-                if ((FeatureSettings != null))
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RemoveFeatureSettings");
+                if (FeatureSettings != null)
                 {
                     int len = FeatureSettings.Length;
                     string[] arrProp = new string[len];
-                    for (int iCounter = 0; (iCounter < len); iCounter = (iCounter + 1))
+                    for (int iCounter = 0; iCounter < len; iCounter = iCounter + 1)
                     {
-                        arrProp[iCounter] = ((ManagementPath)(FeatureSettings.GetValue(iCounter))).Path;
+                        arrProp[iCounter] = ((ManagementPath)FeatureSettings.GetValue(iCounter)).Path;
                     }
                     inParams["FeatureSettings"] = arrProp;
                 }
@@ -2104,7 +1927,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
                 }
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RemoveFeatureSettings", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
@@ -2119,10 +1942,9 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint RemoveFibreChannelChap(string[] FcPortSettings)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("RemoveFibreChannelChap");
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RemoveFibreChannelChap");
                 inParams["FcPortSettings"] = FcPortSettings;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RemoveFibreChannelChap", inParams, null);
                 return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
@@ -2135,17 +1957,16 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint RemoveGuestServiceSettings(ManagementPath[] GuestServiceSettings, out ManagementPath Job)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("RemoveGuestServiceSettings");
-                if ((GuestServiceSettings != null))
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RemoveGuestServiceSettings");
+                if (GuestServiceSettings != null)
                 {
                     int len = GuestServiceSettings.Length;
                     string[] arrProp = new string[len];
-                    for (int iCounter = 0; (iCounter < len); iCounter = (iCounter + 1))
+                    for (int iCounter = 0; iCounter < len; iCounter = iCounter + 1)
                     {
-                        arrProp[iCounter] = ((ManagementPath)(GuestServiceSettings.GetValue(iCounter))).Path;
+                        arrProp[iCounter] = ((ManagementPath)GuestServiceSettings.GetValue(iCounter)).Path;
                     }
                     inParams["GuestServiceSettings"] = arrProp;
                 }
@@ -2155,7 +1976,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
                 }
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RemoveGuestServiceSettings", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
@@ -2170,15 +1991,14 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint RemoveKvpItems(string[] DataItems, ManagementPath TargetSystem, out ManagementPath Job)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("RemoveKvpItems");
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RemoveKvpItems");
                 inParams["DataItems"] = DataItems;
-                inParams["TargetSystem"] = TargetSystem.Path;
+                inParams["TargetSystem"] = TargetSystem?.Path;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RemoveKvpItems", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
@@ -2193,17 +2013,16 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint RemoveResourceSettings(ManagementPath[] ResourceSettings, out ManagementPath Job)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("RemoveResourceSettings");
-                if ((ResourceSettings != null))
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RemoveResourceSettings");
+                if (ResourceSettings != null)
                 {
                     int len = ResourceSettings.Length;
                     string[] arrProp = new string[len];
-                    for (int iCounter = 0; (iCounter < len); iCounter = (iCounter + 1))
+                    for (int iCounter = 0; iCounter < len; iCounter += 1)
                     {
-                        arrProp[iCounter] = ((ManagementPath)(ResourceSettings.GetValue(iCounter))).Path;
+                        arrProp[iCounter] = ((ManagementPath)ResourceSettings.GetValue(iCounter)).Path;
                     }
                     inParams["ResourceSettings"] = arrProp;
                 }
@@ -2213,7 +2032,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
                 }
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RemoveResourceSettings", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
@@ -2228,17 +2047,16 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint RemoveSystemComponentSettings(ManagementPath[] ComponentSettings, out ManagementPath Job)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("RemoveSystemComponentSettings");
-                if ((ComponentSettings != null))
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RemoveSystemComponentSettings");
+                if (ComponentSettings != null)
                 {
                     int len = ComponentSettings.Length;
                     string[] arrProp = new string[len];
-                    for (int iCounter = 0; (iCounter < len); iCounter = (iCounter + 1))
+                    for (int iCounter = 0; iCounter < len; iCounter += 1)
                     {
-                        arrProp[iCounter] = ((ManagementPath)(ComponentSettings.GetValue(iCounter))).Path;
+                        arrProp[iCounter] = ((ManagementPath)ComponentSettings.GetValue(iCounter)).Path;
                     }
                     inParams["ComponentSettings"] = arrProp;
                 }
@@ -2248,7 +2066,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
                 }
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RemoveSystemComponentSettings", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
@@ -2263,15 +2081,14 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint RequestStateChange(ushort RequestedState, DateTime TimeoutPeriod, out ManagementPath Job)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("RequestStateChange");
-                inParams["RequestedState"] = RequestedState;
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RequestStateChange");
+                inParams[nameof(RequestedState)] = RequestedState;
                 inParams["TimeoutPeriod"] = ToDmtfDateTime(TimeoutPeriod);
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RequestStateChange", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
@@ -2286,15 +2103,14 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint SetGuestNetworkAdapterConfiguration(ManagementPath ComputerSystem, string[] NetworkConfiguration, out ManagementPath Job)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("SetGuestNetworkAdapterConfiguration");
-                inParams["ComputerSystem"] = ComputerSystem.Path;
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("SetGuestNetworkAdapterConfiguration");
+                inParams["ComputerSystem"] = ComputerSystem?.Path;
                 inParams["NetworkConfiguration"] = NetworkConfiguration;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("SetGuestNetworkAdapterConfiguration", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
@@ -2309,15 +2125,14 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint SetInitialMachineConfigurationData(byte[] ImcData, ManagementPath TargetSystem, out ManagementPath Job)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("SetInitialMachineConfigurationData");
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("SetInitialMachineConfigurationData");
                 inParams["ImcData"] = ImcData;
-                inParams["TargetSystem"] = TargetSystem.Path;
+                inParams["TargetSystem"] = TargetSystem?.Path;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("SetInitialMachineConfigurationData", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
@@ -2332,7 +2147,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint StartService()
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
                 ManagementBaseObject inParams = null;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("StartService", inParams, null);
@@ -2346,7 +2161,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint StopService()
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
                 ManagementBaseObject inParams = null;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("StopService", inParams, null);
@@ -2360,20 +2175,19 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint TestNetworkConnection(uint IsolationId, bool IsSender, string ReceiverIP, string ReceiverMac, string SenderIP, uint SequenceNumber, ManagementPath TargetNetworkAdapter, out ManagementPath Job, out uint RoundTripTime)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("TestNetworkConnection");
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("TestNetworkConnection");
                 inParams["IsolationId"] = IsolationId;
                 inParams["IsSender"] = IsSender;
                 inParams["ReceiverIP"] = ReceiverIP;
                 inParams["ReceiverMac"] = ReceiverMac;
                 inParams["SenderIP"] = SenderIP;
                 inParams["SequenceNumber"] = SequenceNumber;
-                inParams["TargetNetworkAdapter"] = TargetNetworkAdapter.Path;
+                inParams["TargetNetworkAdapter"] = TargetNetworkAdapter?.Path;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("TestNetworkConnection", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
@@ -2390,15 +2204,14 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint UpgradeSystemVersion(ManagementPath ComputerSystem, string UpgradeSettingData, out ManagementPath Job)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("UpgradeSystemVersion");
-                inParams["ComputerSystem"] = ComputerSystem.Path;
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("UpgradeSystemVersion");
+                inParams["ComputerSystem"] = ComputerSystem?.Path;
                 inParams["UpgradeSettingData"] = UpgradeSettingData;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("UpgradeSystemVersion", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
@@ -2413,14 +2226,13 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
         public uint ValidatePlannedSystem(ManagementPath PlannedSystem, out ManagementPath Job)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("ValidatePlannedSystem");
-                inParams["PlannedSystem"] = PlannedSystem.Path;
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ValidatePlannedSystem");
+                inParams["PlannedSystem"] = PlannedSystem?.Path;
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ValidatePlannedSystem", inParams, null);
                 Job = null;
-                if ((outParams.Properties["Job"] != null))
+                if (outParams.Properties["Job"] != null)
                 {
                     Job = new ManagementPath(outParams["Job"] as string);
                 }
@@ -2436,90 +2248,54 @@ namespace Viridian.Msvm.VirtualSystemManagement
         // Enumerator implementation for enumerating instances of the class.
         public class VirtualSystemManagementServiceCollection : object, ICollection
         {
+            private readonly ManagementObjectCollection privColObj;
 
-            private ManagementObjectCollection privColObj;
+            public VirtualSystemManagementServiceCollection(ManagementObjectCollection objCollection) => privColObj = objCollection;
 
-            public VirtualSystemManagementServiceCollection(ManagementObjectCollection objCollection)
-            {
-                privColObj = objCollection;
-            }
+            public virtual int Count => privColObj.Count;
 
-            public virtual int Count
-            {
-                get
-                {
-                    return privColObj.Count;
-                }
-            }
+            public virtual bool IsSynchronized => privColObj.IsSynchronized;
 
-            public virtual bool IsSynchronized
-            {
-                get
-                {
-                    return privColObj.IsSynchronized;
-                }
-            }
-
-            public virtual object SyncRoot
-            {
-                get
-                {
-                    return this;
-                }
-            }
+            public virtual object SyncRoot => this;
 
             public virtual void CopyTo(Array array, int index)
             {
                 privColObj.CopyTo(array, index);
                 int nCtr;
-                for (nCtr = 0; (nCtr < array.Length); nCtr = (nCtr + 1))
+                for (nCtr = 0; nCtr < array?.Length; nCtr += 1)
                 {
-                    array.SetValue(new VirtualSystemManagementService(((ManagementObject)(array.GetValue(nCtr)))), nCtr);
+                    using (ManagementObject theObj = (ManagementObject)array.GetValue(nCtr))
+                    {
+                        using (var vsmsObj = new VirtualSystemManagementService(theObj))
+                        {
+                            array.SetValue(vsmsObj, nCtr);
+                        }
+                    }
                 }
             }
 
-            public virtual IEnumerator GetEnumerator()
-            {
-                return new VirtualSystemManagementServiceEnumerator(privColObj.GetEnumerator());
-            }
+            public virtual IEnumerator GetEnumerator() => new VirtualSystemManagementServiceEnumerator(privColObj.GetEnumerator());
 
             public class VirtualSystemManagementServiceEnumerator : object, IEnumerator
             {
+                private readonly ManagementObjectCollection.ManagementObjectEnumerator privObjEnum;
 
-                private ManagementObjectCollection.ManagementObjectEnumerator privObjEnum;
+                public VirtualSystemManagementServiceEnumerator(ManagementObjectCollection.ManagementObjectEnumerator objEnum) => privObjEnum = objEnum;
 
-                public VirtualSystemManagementServiceEnumerator(ManagementObjectCollection.ManagementObjectEnumerator objEnum)
-                {
-                    privObjEnum = objEnum;
-                }
+                public virtual object Current => new VirtualSystemManagementService((ManagementObject)privObjEnum.Current);
 
-                public virtual object Current
-                {
-                    get
-                    {
-                        return new VirtualSystemManagementService(((ManagementObject)(privObjEnum.Current)));
-                    }
-                }
+                public virtual bool MoveNext() => privObjEnum.MoveNext();
 
-                public virtual bool MoveNext()
-                {
-                    return privObjEnum.MoveNext();
-                }
-
-                public virtual void Reset()
-                {
-                    privObjEnum.Reset();
-                }
+                public virtual void Reset() => privObjEnum.Reset();
             }
         }
 
         // TypeConverter to handle null values for ValueType properties
         public class WMIValueTypeConverter : TypeConverter
         {
+            private readonly TypeConverter baseConverter;
 
-            private TypeConverter baseConverter;
-
-            private Type baseType;
+            private readonly Type baseType;
 
             public WMIValueTypeConverter(Type inBaseType)
             {
@@ -2527,85 +2303,55 @@ namespace Viridian.Msvm.VirtualSystemManagement
                 baseType = inBaseType;
             }
 
-            public override bool CanConvertFrom(ITypeDescriptorContext context, Type srcType)
-            {
-                return baseConverter.CanConvertFrom(context, srcType);
-            }
+            public override bool CanConvertFrom(ITypeDescriptorContext context, Type srcType) => baseConverter.CanConvertFrom(context, srcType);
 
-            public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
-            {
-                return baseConverter.CanConvertTo(context, destinationType);
-            }
+            public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) => baseConverter.CanConvertTo(context, destinationType);
 
-            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-            {
-                return baseConverter.ConvertFrom(context, culture, value);
-            }
+            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) => baseConverter.ConvertFrom(context, culture, value);
 
-            public override object CreateInstance(ITypeDescriptorContext context, IDictionary dictionary)
-            {
-                return baseConverter.CreateInstance(context, dictionary);
-            }
+            public override object CreateInstance(ITypeDescriptorContext context, IDictionary dictionary) => baseConverter.CreateInstance(context, dictionary);
 
-            public override bool GetCreateInstanceSupported(ITypeDescriptorContext context)
-            {
-                return baseConverter.GetCreateInstanceSupported(context);
-            }
+            public override bool GetCreateInstanceSupported(ITypeDescriptorContext context) => baseConverter.GetCreateInstanceSupported(context);
 
-            public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context, object value, Attribute[] attributeVar)
-            {
-                return baseConverter.GetProperties(context, value, attributeVar);
-            }
+            public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context, object value, Attribute[] attributeVar) => baseConverter.GetProperties(context, value, attributeVar);
 
-            public override bool GetPropertiesSupported(ITypeDescriptorContext context)
-            {
-                return baseConverter.GetPropertiesSupported(context);
-            }
+            public override bool GetPropertiesSupported(ITypeDescriptorContext context) => baseConverter.GetPropertiesSupported(context);
 
-            public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
-            {
-                return baseConverter.GetStandardValues(context);
-            }
+            public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context) => baseConverter.GetStandardValues(context);
 
-            public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
-            {
-                return baseConverter.GetStandardValuesExclusive(context);
-            }
+            public override bool GetStandardValuesExclusive(ITypeDescriptorContext context) => baseConverter.GetStandardValuesExclusive(context);
 
-            public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
-            {
-                return baseConverter.GetStandardValuesSupported(context);
-            }
+            public override bool GetStandardValuesSupported(ITypeDescriptorContext context) => baseConverter.GetStandardValuesSupported(context);
 
             public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
             {
-                if ((baseType.BaseType == typeof(Enum)))
+                if (baseType.BaseType == typeof(Enum))
                 {
-                    if ((value.GetType() == destinationType))
+                    if (value?.GetType() == destinationType)
                     {
                         return value;
                     }
-                    if ((((value == null)
-                                && (context != null))
-                                && (context.PropertyDescriptor.ShouldSerializeValue(context.Instance) == false)))
+                    if ((value == null)
+                                && (context != null)
+                                && (context.PropertyDescriptor.ShouldSerializeValue(context.Instance) == false))
                     {
                         return "NULL_ENUM_VALUE";
                     }
                     return baseConverter.ConvertTo(context, culture, value, destinationType);
                 }
-                if (((baseType == typeof(bool))
-                            && (baseType.BaseType == typeof(ValueType))))
+                if ((baseType == typeof(bool))
+                            && (baseType.BaseType == typeof(ValueType)))
                 {
-                    if ((((value == null)
-                                && (context != null))
-                                && (context.PropertyDescriptor.ShouldSerializeValue(context.Instance) == false)))
+                    if ((value == null)
+                                && (context != null)
+                                && (context.PropertyDescriptor.ShouldSerializeValue(context.Instance) == false))
                     {
                         return "";
                     }
                     return baseConverter.ConvertTo(context, culture, value, destinationType);
                 }
-                if (((context != null)
-                            && (context.PropertyDescriptor.ShouldSerializeValue(context.Instance) == false)))
+                if ((context != null)
+                            && (context.PropertyDescriptor.ShouldSerializeValue(context.Instance) == false))
                 {
                     return "";
                 }
@@ -2617,103 +2363,39 @@ namespace Viridian.Msvm.VirtualSystemManagement
         [TypeConverter(typeof(ExpandableObjectConverter))]
         public class ManagementSystemProperties
         {
+            private readonly ManagementBaseObject PrivateLateBoundObject;
 
-            private ManagementBaseObject PrivateLateBoundObject;
-
-            public ManagementSystemProperties(ManagementBaseObject ManagedObject)
-            {
-                PrivateLateBoundObject = ManagedObject;
-            }
+            public ManagementSystemProperties(ManagementBaseObject ManagedObject) => PrivateLateBoundObject = ManagedObject;
 
             [Browsable(true)]
-            public int GENUS
-            {
-                get
-                {
-                    return ((int)(PrivateLateBoundObject["__GENUS"]));
-                }
-            }
+            public int GENUS => (int)PrivateLateBoundObject[$"__{nameof(GENUS)}"];
 
             [Browsable(true)]
-            public string CLASS
-            {
-                get
-                {
-                    return ((string)(PrivateLateBoundObject["__CLASS"]));
-                }
-            }
+            public string CLASS => (string)PrivateLateBoundObject[$"__{nameof(CLASS)}"];
 
             [Browsable(true)]
-            public string SUPERCLASS
-            {
-                get
-                {
-                    return ((string)(PrivateLateBoundObject["__SUPERCLASS"]));
-                }
-            }
+            public string SUPERCLASS => (string)PrivateLateBoundObject[$"__{nameof(SUPERCLASS)}"];
 
             [Browsable(true)]
-            public string DYNASTY
-            {
-                get
-                {
-                    return ((string)(PrivateLateBoundObject["__DYNASTY"]));
-                }
-            }
+            public string DYNASTY => (string)PrivateLateBoundObject[$"__{nameof(DYNASTY)}"];
 
             [Browsable(true)]
-            public string RELPATH
-            {
-                get
-                {
-                    return ((string)(PrivateLateBoundObject["__RELPATH"]));
-                }
-            }
+            public string RELPATH => (string)PrivateLateBoundObject[$"__{nameof(RELPATH)}"];
 
             [Browsable(true)]
-            public int PROPERTY_COUNT
-            {
-                get
-                {
-                    return ((int)(PrivateLateBoundObject["__PROPERTY_COUNT"]));
-                }
-            }
+            public int PROPERTY_COUNT => (int)PrivateLateBoundObject[$"__{nameof(PROPERTY_COUNT)}"];
 
             [Browsable(true)]
-            public string[] DERIVATION
-            {
-                get
-                {
-                    return ((string[])(PrivateLateBoundObject["__DERIVATION"]));
-                }
-            }
+            public string[] DERIVATION => (string[])PrivateLateBoundObject[$"__{nameof(DERIVATION)}"];
 
             [Browsable(true)]
-            public string SERVER
-            {
-                get
-                {
-                    return ((string)(PrivateLateBoundObject["__SERVER"]));
-                }
-            }
+            public string SERVER => (string)PrivateLateBoundObject[$"__{nameof(SERVER)}"];
 
             [Browsable(true)]
-            public string NAMESPACE
-            {
-                get
-                {
-                    return ((string)(PrivateLateBoundObject["__NAMESPACE"]));
-                }
-            }
+            public string NAMESPACE => (string)PrivateLateBoundObject[$"__{nameof(NAMESPACE)}"];
 
             [Browsable(true)]
-            public string PATH
-            {
-                get
-                {
-                    return ((string)(PrivateLateBoundObject["__PATH"]));
-                }
-            }
+            public string PATH => (string)PrivateLateBoundObject[$"__{nameof(PATH)}"];
         }
     }
 }

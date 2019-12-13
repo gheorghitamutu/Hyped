@@ -253,7 +253,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["ActiveMaximumTransmissionUnit"] == null))
+                if ((curObj[nameof(ActiveMaximumTransmissionUnit)] == null))
                 {
                     return true;
                 }
@@ -271,11 +271,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["ActiveMaximumTransmissionUnit"] == null))
+                if ((curObj[nameof(ActiveMaximumTransmissionUnit)] == null))
                 {
                     return System.Convert.ToUInt64(0);
                 }
-                return ((ulong)(curObj["ActiveMaximumTransmissionUnit"]));
+                return ((ulong)(curObj[nameof(ActiveMaximumTransmissionUnit)]));
             }
         }
 
@@ -285,7 +285,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((ushort[])(curObj["AdditionalAvailability"]));
+                return ((ushort[])(curObj[nameof(AdditionalAvailability)]));
             }
         }
 
@@ -295,7 +295,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["AutoSense"] == null))
+                if ((curObj[nameof(AutoSense)] == null))
                 {
                     return true;
                 }
@@ -313,11 +313,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["AutoSense"] == null))
+                if ((curObj[nameof(AutoSense)] == null))
                 {
                     return System.Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj["AutoSense"]));
+                return ((bool)(curObj[nameof(AutoSense)]));
             }
         }
 
@@ -327,7 +327,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["Availability"] == null))
+                if ((curObj[nameof(Availability)] == null))
                 {
                     return true;
                 }
@@ -345,11 +345,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["Availability"] == null))
+                if ((curObj[nameof(Availability)] == null))
                 {
                     return System.Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["Availability"]));
+                return ((ushort)(curObj[nameof(Availability)]));
             }
         }
 
@@ -359,7 +359,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((ushort[])(curObj["AvailableRequestedStates"]));
+                return ((ushort[])(curObj[nameof(AvailableRequestedStates)]));
             }
         }
 
@@ -369,7 +369,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((ushort[])(curObj["Capabilities"]));
+                return ((ushort[])(curObj[nameof(Capabilities)]));
             }
         }
 
@@ -379,7 +379,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((string[])(curObj["CapabilityDescriptions"]));
+                return ((string[])(curObj[nameof(CapabilityDescriptions)]));
             }
         }
 
@@ -389,7 +389,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((string)(curObj["Caption"]));
+                return ((string)(curObj[nameof(Caption)]));
             }
         }
 
@@ -399,7 +399,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["CommunicationStatus"] == null))
+                if ((curObj[nameof(CommunicationStatus)] == null))
                 {
                     return true;
                 }
@@ -417,11 +417,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["CommunicationStatus"] == null))
+                if ((curObj[nameof(CommunicationStatus)] == null))
                 {
                     return System.Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["CommunicationStatus"]));
+                return ((ushort)(curObj[nameof(CommunicationStatus)]));
             }
         }
 
@@ -431,7 +431,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((string)(curObj["CreationClassName"]));
+                return ((string)(curObj[nameof(CreationClassName)]));
             }
         }
 
@@ -441,7 +441,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((string)(curObj["Description"]));
+                return ((string)(curObj[nameof(Description)]));
             }
         }
 
@@ -451,7 +451,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["DetailedStatus"] == null))
+                if ((curObj[nameof(DetailedStatus)] == null))
                 {
                     return true;
                 }
@@ -469,11 +469,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["DetailedStatus"] == null))
+                if ((curObj[nameof(DetailedStatus)] == null))
                 {
                     return System.Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["DetailedStatus"]));
+                return ((ushort)(curObj[nameof(DetailedStatus)]));
             }
         }
 
@@ -483,7 +483,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((string)(curObj["DeviceID"]));
+                return ((string)(curObj[nameof(DeviceID)]));
             }
         }
 
@@ -493,7 +493,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((string)(curObj["ElementName"]));
+                return ((string)(curObj[nameof(ElementName)]));
             }
         }
 
@@ -503,7 +503,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((ushort[])(curObj["EnabledCapabilities"]));
+                return ((ushort[])(curObj[nameof(EnabledCapabilities)]));
             }
         }
 
@@ -513,7 +513,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["EnabledDefault"] == null))
+                if ((curObj[nameof(EnabledDefault)] == null))
                 {
                     return true;
                 }
@@ -531,11 +531,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["EnabledDefault"] == null))
+                if ((curObj[nameof(EnabledDefault)] == null))
                 {
                     return System.Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["EnabledDefault"]));
+                return ((ushort)(curObj[nameof(EnabledDefault)]));
             }
         }
 
@@ -545,7 +545,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["EnabledState"] == null))
+                if ((curObj[nameof(EnabledState)] == null))
                 {
                     return true;
                 }
@@ -563,11 +563,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["EnabledState"] == null))
+                if ((curObj[nameof(EnabledState)] == null))
                 {
                     return System.Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["EnabledState"]));
+                return ((ushort)(curObj[nameof(EnabledState)]));
             }
         }
 
@@ -577,7 +577,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["ErrorCleared"] == null))
+                if ((curObj[nameof(ErrorCleared)] == null))
                 {
                     return true;
                 }
@@ -595,11 +595,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["ErrorCleared"] == null))
+                if ((curObj[nameof(ErrorCleared)] == null))
                 {
                     return System.Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj["ErrorCleared"]));
+                return ((bool)(curObj[nameof(ErrorCleared)]));
             }
         }
 
@@ -609,7 +609,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((string)(curObj["ErrorDescription"]));
+                return ((string)(curObj[nameof(ErrorDescription)]));
             }
         }
 
@@ -619,7 +619,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["FullDuplex"] == null))
+                if ((curObj[nameof(FullDuplex)] == null))
                 {
                     return true;
                 }
@@ -637,11 +637,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["FullDuplex"] == null))
+                if ((curObj[nameof(FullDuplex)] == null))
                 {
                     return System.Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj["FullDuplex"]));
+                return ((bool)(curObj[nameof(FullDuplex)]));
             }
         }
 
@@ -651,7 +651,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["HealthState"] == null))
+                if ((curObj[nameof(HealthState)] == null))
                 {
                     return true;
                 }
@@ -669,11 +669,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["HealthState"] == null))
+                if ((curObj[nameof(HealthState)] == null))
                 {
                     return System.Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["HealthState"]));
+                return ((ushort)(curObj[nameof(HealthState)]));
             }
         }
 
@@ -683,7 +683,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((string[])(curObj["IdentifyingDescriptions"]));
+                return ((string[])(curObj[nameof(IdentifyingDescriptions)]));
             }
         }
 
@@ -693,7 +693,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["InstallDate"] == null))
+                if ((curObj[nameof(InstallDate)] == null))
                 {
                     return true;
                 }
@@ -711,9 +711,9 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["InstallDate"] != null))
+                if ((curObj[nameof(InstallDate)] != null))
                 {
-                    return ToDateTime(((string)(curObj["InstallDate"])));
+                    return ToDateTime(((string)(curObj[nameof(InstallDate)])));
                 }
                 else
                 {
@@ -728,7 +728,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((string)(curObj["InstanceID"]));
+                return ((string)(curObj[nameof(InstanceID)]));
             }
         }
 
@@ -738,7 +738,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["LastErrorCode"] == null))
+                if ((curObj[nameof(LastErrorCode)] == null))
                 {
                     return true;
                 }
@@ -756,11 +756,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["LastErrorCode"] == null))
+                if ((curObj[nameof(LastErrorCode)] == null))
                 {
                     return System.Convert.ToUInt32(0);
                 }
-                return ((uint)(curObj["LastErrorCode"]));
+                return ((uint)(curObj[nameof(LastErrorCode)]));
             }
         }
 
@@ -770,7 +770,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["LinkTechnology"] == null))
+                if ((curObj[nameof(LinkTechnology)] == null))
                 {
                     return true;
                 }
@@ -788,11 +788,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["LinkTechnology"] == null))
+                if ((curObj[nameof(LinkTechnology)] == null))
                 {
                     return System.Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["LinkTechnology"]));
+                return ((ushort)(curObj[nameof(LinkTechnology)]));
             }
         }
 
@@ -802,7 +802,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["MaxDataSize"] == null))
+                if ((curObj[nameof(MaxDataSize)] == null))
                 {
                     return true;
                 }
@@ -820,11 +820,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["MaxDataSize"] == null))
+                if ((curObj[nameof(MaxDataSize)] == null))
                 {
                     return System.Convert.ToUInt32(0);
                 }
-                return ((uint)(curObj["MaxDataSize"]));
+                return ((uint)(curObj[nameof(MaxDataSize)]));
             }
         }
 
@@ -834,7 +834,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["MaxQuiesceTime"] == null))
+                if ((curObj[nameof(MaxQuiesceTime)] == null))
                 {
                     return true;
                 }
@@ -852,11 +852,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["MaxQuiesceTime"] == null))
+                if ((curObj[nameof(MaxQuiesceTime)] == null))
                 {
                     return System.Convert.ToUInt64(0);
                 }
-                return ((ulong)(curObj["MaxQuiesceTime"]));
+                return ((ulong)(curObj[nameof(MaxQuiesceTime)]));
             }
         }
 
@@ -866,7 +866,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["MaxSpeed"] == null))
+                if ((curObj[nameof(MaxSpeed)] == null))
                 {
                     return true;
                 }
@@ -884,11 +884,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["MaxSpeed"] == null))
+                if ((curObj[nameof(MaxSpeed)] == null))
                 {
                     return System.Convert.ToUInt64(0);
                 }
-                return ((ulong)(curObj["MaxSpeed"]));
+                return ((ulong)(curObj[nameof(MaxSpeed)]));
             }
         }
 
@@ -898,7 +898,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((string)(curObj["Name"]));
+                return ((string)(curObj[nameof(Name)]));
             }
         }
 
@@ -908,7 +908,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((string[])(curObj["NetworkAddresses"]));
+                return ((string[])(curObj[nameof(NetworkAddresses)]));
             }
         }
 
@@ -918,7 +918,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["OperatingStatus"] == null))
+                if ((curObj[nameof(OperatingStatus)] == null))
                 {
                     return true;
                 }
@@ -936,11 +936,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["OperatingStatus"] == null))
+                if ((curObj[nameof(OperatingStatus)] == null))
                 {
                     return System.Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["OperatingStatus"]));
+                return ((ushort)(curObj[nameof(OperatingStatus)]));
             }
         }
 
@@ -950,7 +950,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((ushort[])(curObj["OperationalStatus"]));
+                return ((ushort[])(curObj[nameof(OperationalStatus)]));
             }
         }
 
@@ -960,7 +960,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((string[])(curObj["OtherEnabledCapabilities"]));
+                return ((string[])(curObj[nameof(OtherEnabledCapabilities)]));
             }
         }
 
@@ -970,7 +970,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((string)(curObj["OtherEnabledState"]));
+                return ((string)(curObj[nameof(OtherEnabledState)]));
             }
         }
 
@@ -980,7 +980,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((string[])(curObj["OtherIdentifyingInfo"]));
+                return ((string[])(curObj[nameof(OtherIdentifyingInfo)]));
             }
         }
 
@@ -990,7 +990,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((string)(curObj["OtherLinkTechnology"]));
+                return ((string)(curObj[nameof(OtherLinkTechnology)]));
             }
         }
 
@@ -1000,7 +1000,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((string)(curObj["OtherNetworkPortType"]));
+                return ((string)(curObj[nameof(OtherNetworkPortType)]));
             }
         }
 
@@ -1010,7 +1010,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((string)(curObj["OtherPortType"]));
+                return ((string)(curObj[nameof(OtherPortType)]));
             }
         }
 
@@ -1020,7 +1020,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((string)(curObj["PermanentAddress"]));
+                return ((string)(curObj[nameof(PermanentAddress)]));
             }
         }
 
@@ -1030,7 +1030,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["PortNumber"] == null))
+                if ((curObj[nameof(PortNumber)] == null))
                 {
                     return true;
                 }
@@ -1048,11 +1048,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["PortNumber"] == null))
+                if ((curObj[nameof(PortNumber)] == null))
                 {
                     return System.Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["PortNumber"]));
+                return ((ushort)(curObj[nameof(PortNumber)]));
             }
         }
 
@@ -1062,7 +1062,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["PortType"] == null))
+                if ((curObj[nameof(PortType)] == null))
                 {
                     return true;
                 }
@@ -1080,11 +1080,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["PortType"] == null))
+                if ((curObj[nameof(PortType)] == null))
                 {
                     return System.Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["PortType"]));
+                return ((ushort)(curObj[nameof(PortType)]));
             }
         }
 
@@ -1094,7 +1094,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((ushort[])(curObj["PowerManagementCapabilities"]));
+                return ((ushort[])(curObj[nameof(PowerManagementCapabilities)]));
             }
         }
 
@@ -1104,7 +1104,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["PowerManagementSupported"] == null))
+                if ((curObj[nameof(PowerManagementSupported)] == null))
                 {
                     return true;
                 }
@@ -1122,11 +1122,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["PowerManagementSupported"] == null))
+                if ((curObj[nameof(PowerManagementSupported)] == null))
                 {
                     return System.Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj["PowerManagementSupported"]));
+                return ((bool)(curObj[nameof(PowerManagementSupported)]));
             }
         }
 
@@ -1136,7 +1136,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["PowerOnHours"] == null))
+                if ((curObj[nameof(PowerOnHours)] == null))
                 {
                     return true;
                 }
@@ -1154,11 +1154,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["PowerOnHours"] == null))
+                if ((curObj[nameof(PowerOnHours)] == null))
                 {
                     return System.Convert.ToUInt64(0);
                 }
-                return ((ulong)(curObj["PowerOnHours"]));
+                return ((ulong)(curObj[nameof(PowerOnHours)]));
             }
         }
 
@@ -1168,7 +1168,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["PrimaryStatus"] == null))
+                if ((curObj[nameof(PrimaryStatus)] == null))
                 {
                     return true;
                 }
@@ -1186,11 +1186,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["PrimaryStatus"] == null))
+                if ((curObj[nameof(PrimaryStatus)] == null))
                 {
                     return System.Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["PrimaryStatus"]));
+                return ((ushort)(curObj[nameof(PrimaryStatus)]));
             }
         }
 
@@ -1200,7 +1200,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["RequestedSpeed"] == null))
+                if ((curObj[nameof(RequestedSpeed)] == null))
                 {
                     return true;
                 }
@@ -1218,11 +1218,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["RequestedSpeed"] == null))
+                if ((curObj[nameof(RequestedSpeed)] == null))
                 {
                     return System.Convert.ToUInt64(0);
                 }
-                return ((ulong)(curObj["RequestedSpeed"]));
+                return ((ulong)(curObj[nameof(RequestedSpeed)]));
             }
         }
 
@@ -1232,7 +1232,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["RequestedState"] == null))
+                if ((curObj[nameof(RequestedState)] == null))
                 {
                     return true;
                 }
@@ -1250,11 +1250,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["RequestedState"] == null))
+                if ((curObj[nameof(RequestedState)] == null))
                 {
                     return System.Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["RequestedState"]));
+                return ((ushort)(curObj[nameof(RequestedState)]));
             }
         }
 
@@ -1264,7 +1264,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["Speed"] == null))
+                if ((curObj[nameof(Speed)] == null))
                 {
                     return true;
                 }
@@ -1282,11 +1282,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["Speed"] == null))
+                if ((curObj[nameof(Speed)] == null))
                 {
                     return System.Convert.ToUInt64(0);
                 }
-                return ((ulong)(curObj["Speed"]));
+                return ((ulong)(curObj[nameof(Speed)]));
             }
         }
 
@@ -1296,7 +1296,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((string)(curObj["Status"]));
+                return ((string)(curObj[nameof(Status)]));
             }
         }
 
@@ -1306,7 +1306,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((string[])(curObj["StatusDescriptions"]));
+                return ((string[])(curObj[nameof(StatusDescriptions)]));
             }
         }
 
@@ -1316,7 +1316,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["StatusInfo"] == null))
+                if ((curObj[nameof(StatusInfo)] == null))
                 {
                     return true;
                 }
@@ -1334,11 +1334,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["StatusInfo"] == null))
+                if ((curObj[nameof(StatusInfo)] == null))
                 {
                     return System.Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["StatusInfo"]));
+                return ((ushort)(curObj[nameof(StatusInfo)]));
             }
         }
 
@@ -1348,7 +1348,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["SupportedMaximumTransmissionUnit"] == null))
+                if ((curObj[nameof(SupportedMaximumTransmissionUnit)] == null))
                 {
                     return true;
                 }
@@ -1366,11 +1366,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["SupportedMaximumTransmissionUnit"] == null))
+                if ((curObj[nameof(SupportedMaximumTransmissionUnit)] == null))
                 {
                     return System.Convert.ToUInt64(0);
                 }
-                return ((ulong)(curObj["SupportedMaximumTransmissionUnit"]));
+                return ((ulong)(curObj[nameof(SupportedMaximumTransmissionUnit)]));
             }
         }
 
@@ -1380,7 +1380,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((string)(curObj["SystemCreationClassName"]));
+                return ((string)(curObj[nameof(SystemCreationClassName)]));
             }
         }
 
@@ -1390,7 +1390,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                return ((string)(curObj["SystemName"]));
+                return ((string)(curObj[nameof(SystemName)]));
             }
         }
 
@@ -1400,7 +1400,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["TimeOfLastStateChange"] == null))
+                if ((curObj[nameof(TimeOfLastStateChange)] == null))
                 {
                     return true;
                 }
@@ -1418,9 +1418,9 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["TimeOfLastStateChange"] != null))
+                if ((curObj[nameof(TimeOfLastStateChange)] != null))
                 {
-                    return ToDateTime(((string)(curObj["TimeOfLastStateChange"])));
+                    return ToDateTime(((string)(curObj[nameof(TimeOfLastStateChange)])));
                 }
                 else
                 {
@@ -1435,7 +1435,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["TotalPowerOnHours"] == null))
+                if ((curObj[nameof(TotalPowerOnHours)] == null))
                 {
                     return true;
                 }
@@ -1453,11 +1453,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["TotalPowerOnHours"] == null))
+                if ((curObj[nameof(TotalPowerOnHours)] == null))
                 {
                     return System.Convert.ToUInt64(0);
                 }
-                return ((ulong)(curObj["TotalPowerOnHours"]));
+                return ((ulong)(curObj[nameof(TotalPowerOnHours)]));
             }
         }
 
@@ -1467,7 +1467,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["TransitioningToState"] == null))
+                if ((curObj[nameof(TransitioningToState)] == null))
                 {
                     return true;
                 }
@@ -1485,11 +1485,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["TransitioningToState"] == null))
+                if ((curObj[nameof(TransitioningToState)] == null))
                 {
                     return System.Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["TransitioningToState"]));
+                return ((ushort)(curObj[nameof(TransitioningToState)]));
             }
         }
 
@@ -1499,7 +1499,7 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["UsageRestriction"] == null))
+                if ((curObj[nameof(UsageRestriction)] == null))
                 {
                     return true;
                 }
@@ -1517,11 +1517,11 @@ namespace Viridian.Msvm.Networking
         {
             get
             {
-                if ((curObj["UsageRestriction"] == null))
+                if ((curObj[nameof(UsageRestriction)] == null))
                 {
                     return System.Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["UsageRestriction"]));
+                return ((ushort)(curObj[nameof(UsageRestriction)]));
             }
         }
 
@@ -2194,7 +2194,7 @@ namespace Viridian.Msvm.Networking
             {
                 ManagementBaseObject inParams = null;
                 inParams = PrivateLateBoundObject.GetMethodParameters("RequestStateChange");
-                inParams["RequestedState"] = ((ushort)(RequestedState));
+                inParams[nameof(RequestedState)] = ((ushort)(RequestedState));
                 inParams["TimeoutPeriod"] = ToDmtfDateTime(((DateTime)(TimeoutPeriod)));
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RequestStateChange", inParams, null);
                 Job = null;

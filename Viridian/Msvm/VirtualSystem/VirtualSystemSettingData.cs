@@ -256,11 +256,11 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                return ((string)(curObj["AdditionalRecoveryInformation"]));
+                return ((string)(curObj[nameof(AdditionalRecoveryInformation)]));
             }
             set
             {
-                curObj["AdditionalRecoveryInformation"] = value;
+                curObj[nameof(AdditionalRecoveryInformation)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -275,7 +275,7 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["AllowFullSCSICommandSet"] == null))
+                if ((curObj[nameof(AllowFullSCSICommandSet)] == null))
                 {
                     return true;
                 }
@@ -296,15 +296,15 @@ Windows Server 2008:  The AllowFullSCSICommandSet property is not supported.")]
         {
             get
             {
-                if ((curObj["AllowFullSCSICommandSet"] == null))
+                if ((curObj[nameof(AllowFullSCSICommandSet)] == null))
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj["AllowFullSCSICommandSet"]));
+                return ((bool)(curObj[nameof(AllowFullSCSICommandSet)]));
             }
             set
             {
-                curObj["AllowFullSCSICommandSet"] = value;
+                curObj[nameof(AllowFullSCSICommandSet)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -319,7 +319,7 @@ Windows Server 2008:  The AllowFullSCSICommandSet property is not supported.")]
         {
             get
             {
-                if ((curObj["AllowReducedFcRedundancy"] == null))
+                if ((curObj[nameof(AllowReducedFcRedundancy)] == null))
                 {
                     return true;
                 }
@@ -340,15 +340,15 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
         {
             get
             {
-                if ((curObj["AllowReducedFcRedundancy"] == null))
+                if ((curObj[nameof(AllowReducedFcRedundancy)] == null))
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj["AllowReducedFcRedundancy"]));
+                return ((bool)(curObj[nameof(AllowReducedFcRedundancy)]));
             }
             set
             {
-                curObj["AllowReducedFcRedundancy"] = value;
+                curObj[nameof(AllowReducedFcRedundancy)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -364,7 +364,7 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
         {
             get
             {
-                return ((string)(curObj["Architecture"]));
+                return ((string)(curObj[nameof(Architecture)]));
             }
         }
 
@@ -374,7 +374,7 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
         {
             get
             {
-                if ((curObj["AutomaticCriticalErrorAction"] == null))
+                if ((curObj[nameof(AutomaticCriticalErrorAction)] == null))
                 {
                     return true;
                 }
@@ -393,21 +393,21 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
         {
             get
             {
-                if ((curObj["AutomaticCriticalErrorAction"] == null))
+                if ((curObj[nameof(AutomaticCriticalErrorAction)] == null))
                 {
                     return ((AutomaticCriticalErrorActionValues)(Convert.ToInt32(2)));
                 }
-                return ((AutomaticCriticalErrorActionValues)(Convert.ToInt32(curObj["AutomaticCriticalErrorAction"])));
+                return ((AutomaticCriticalErrorActionValues)(Convert.ToInt32(curObj[nameof(AutomaticCriticalErrorAction)])));
             }
             set
             {
                 if ((AutomaticCriticalErrorActionValues.NULL_ENUM_VALUE == value))
                 {
-                    curObj["AutomaticCriticalErrorAction"] = null;
+                    curObj[nameof(AutomaticCriticalErrorAction)] = null;
                 }
                 else
                 {
-                    curObj["AutomaticCriticalErrorAction"] = value;
+                    curObj[nameof(AutomaticCriticalErrorAction)] = value;
                 }
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
@@ -423,7 +423,7 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
         {
             get
             {
-                if ((curObj["AutomaticCriticalErrorActionTimeout"] == null))
+                if ((curObj[nameof(AutomaticCriticalErrorActionTimeout)] == null))
                 {
                     return true;
                 }
@@ -442,9 +442,9 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
         {
             get
             {
-                if ((curObj["AutomaticCriticalErrorActionTimeout"] != null))
+                if ((curObj[nameof(AutomaticCriticalErrorActionTimeout)] != null))
                 {
-                    return ToTimeSpan(((string)(curObj["AutomaticCriticalErrorActionTimeout"])));
+                    return ToTimeSpan(((string)(curObj[nameof(AutomaticCriticalErrorActionTimeout)])));
                 }
                 else
                 {
@@ -453,7 +453,7 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
             }
             set
             {
-                curObj["AutomaticCriticalErrorActionTimeout"] = ToDmtfTimeInterval(value);
+                curObj[nameof(AutomaticCriticalErrorActionTimeout)] = ToDmtfTimeInterval(value);
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -468,7 +468,7 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
         {
             get
             {
-                if ((curObj["AutomaticRecoveryAction"] == null))
+                if ((curObj[nameof(AutomaticRecoveryAction)] == null))
                 {
                     return true;
                 }
@@ -486,11 +486,11 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
         {
             get
             {
-                if ((curObj["AutomaticRecoveryAction"] == null))
+                if ((curObj[nameof(AutomaticRecoveryAction)] == null))
                 {
                     return Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["AutomaticRecoveryAction"]));
+                return ((ushort)(curObj[nameof(AutomaticRecoveryAction)]));
             }
         }
 
@@ -500,7 +500,7 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
         {
             get
             {
-                if ((curObj["AutomaticShutdownAction"] == null))
+                if ((curObj[nameof(AutomaticShutdownAction)] == null))
                 {
                     return true;
                 }
@@ -518,11 +518,11 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
         {
             get
             {
-                if ((curObj["AutomaticShutdownAction"] == null))
+                if ((curObj[nameof(AutomaticShutdownAction)] == null))
                 {
                     return Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["AutomaticShutdownAction"]));
+                return ((ushort)(curObj[nameof(AutomaticShutdownAction)]));
             }
         }
 
@@ -532,7 +532,7 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
         {
             get
             {
-                if ((curObj["AutomaticSnapshotsEnabled"] == null))
+                if ((curObj[nameof(AutomaticSnapshotsEnabled)] == null))
                 {
                     return true;
                 }
@@ -551,15 +551,15 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
         {
             get
             {
-                if ((curObj["AutomaticSnapshotsEnabled"] == null))
+                if ((curObj[nameof(AutomaticSnapshotsEnabled)] == null))
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj["AutomaticSnapshotsEnabled"]));
+                return ((bool)(curObj[nameof(AutomaticSnapshotsEnabled)]));
             }
             set
             {
-                curObj["AutomaticSnapshotsEnabled"] = value;
+                curObj[nameof(AutomaticSnapshotsEnabled)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -574,7 +574,7 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
         {
             get
             {
-                if ((curObj["AutomaticStartupAction"] == null))
+                if ((curObj[nameof(AutomaticStartupAction)] == null))
                 {
                     return true;
                 }
@@ -592,11 +592,11 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
         {
             get
             {
-                if ((curObj["AutomaticStartupAction"] == null))
+                if ((curObj[nameof(AutomaticStartupAction)] == null))
                 {
                     return Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["AutomaticStartupAction"]));
+                return ((ushort)(curObj[nameof(AutomaticStartupAction)]));
             }
         }
 
@@ -606,7 +606,7 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
         {
             get
             {
-                if ((curObj["AutomaticStartupActionDelay"] == null))
+                if ((curObj[nameof(AutomaticStartupActionDelay)] == null))
                 {
                     return true;
                 }
@@ -624,9 +624,9 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
         {
             get
             {
-                if ((curObj["AutomaticStartupActionDelay"] != null))
+                if ((curObj[nameof(AutomaticStartupActionDelay)] != null))
                 {
-                    return ToDateTime(((string)(curObj["AutomaticStartupActionDelay"])));
+                    return ToDateTime(((string)(curObj[nameof(AutomaticStartupActionDelay)])));
                 }
                 else
                 {
@@ -641,7 +641,7 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
         {
             get
             {
-                if ((curObj["AutomaticStartupActionSequenceNumber"] == null))
+                if ((curObj[nameof(AutomaticStartupActionSequenceNumber)] == null))
                 {
                     return true;
                 }
@@ -659,11 +659,11 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
         {
             get
             {
-                if ((curObj["AutomaticStartupActionSequenceNumber"] == null))
+                if ((curObj[nameof(AutomaticStartupActionSequenceNumber)] == null))
                 {
                     return Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj["AutomaticStartupActionSequenceNumber"]));
+                return ((ushort)(curObj[nameof(AutomaticStartupActionSequenceNumber)]));
             }
         }
 
@@ -676,11 +676,11 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
         {
             get
             {
-                return ((string)(curObj["BaseBoardSerialNumber"]));
+                return ((string)(curObj[nameof(BaseBoardSerialNumber)]));
             }
             set
             {
-                curObj["BaseBoardSerialNumber"] = value;
+                curObj[nameof(BaseBoardSerialNumber)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -698,11 +698,11 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
         {
             get
             {
-                return ((string)(curObj["BIOSGUID"]));
+                return ((string)(curObj[nameof(BIOSGUID)]));
             }
             set
             {
-                curObj["BIOSGUID"] = value;
+                curObj[nameof(BIOSGUID)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -717,7 +717,7 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
         {
             get
             {
-                if ((curObj["BIOSNumLock"] == null))
+                if ((curObj[nameof(BIOSNumLock)] == null))
                 {
                     return true;
                 }
@@ -737,15 +737,15 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["BIOSNumLock"] == null))
+                if ((curObj[nameof(BIOSNumLock)] == null))
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj["BIOSNumLock"]));
+                return ((bool)(curObj[nameof(BIOSNumLock)]));
             }
             set
             {
-                curObj["BIOSNumLock"] = value;
+                curObj[nameof(BIOSNumLock)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -763,11 +763,11 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                return ((string)(curObj["BIOSSerialNumber"]));
+                return ((string)(curObj[nameof(BIOSSerialNumber)]));
             }
             set
             {
-                curObj["BIOSSerialNumber"] = value;
+                curObj[nameof(BIOSSerialNumber)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -791,11 +791,11 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                return ((ushort[])(curObj["BootOrder"]));
+                return ((ushort[])(curObj[nameof(BootOrder)]));
             }
             set
             {
-                curObj["BootOrder"] = value;
+                curObj[nameof(BootOrder)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -814,11 +814,11 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                return ((string[])(curObj["BootSourceOrder"]));
+                return ((string[])(curObj[nameof(BootSourceOrder)]));
             }
             set
             {
-                curObj["BootSourceOrder"] = value;
+                curObj[nameof(BootSourceOrder)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -833,7 +833,7 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                return ((string)(curObj["Caption"]));
+                return ((string)(curObj[nameof(Caption)]));
             }
         }
 
@@ -846,11 +846,11 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                return ((string)(curObj["ChassisAssetTag"]));
+                return ((string)(curObj[nameof(ChassisAssetTag)]));
             }
             set
             {
-                curObj["ChassisAssetTag"] = value;
+                curObj[nameof(ChassisAssetTag)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -868,11 +868,11 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                return ((string)(curObj["ChassisSerialNumber"]));
+                return ((string)(curObj[nameof(ChassisSerialNumber)]));
             }
             set
             {
-                curObj["ChassisSerialNumber"] = value;
+                curObj[nameof(ChassisSerialNumber)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -887,7 +887,7 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                return ((string)(curObj["ConfigurationDataRoot"]));
+                return ((string)(curObj[nameof(ConfigurationDataRoot)]));
             }
         }
 
@@ -897,7 +897,7 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                return ((string)(curObj["ConfigurationFile"]));
+                return ((string)(curObj[nameof(ConfigurationFile)]));
             }
         }
 
@@ -907,7 +907,7 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                return ((string)(curObj["ConfigurationID"]));
+                return ((string)(curObj[nameof(ConfigurationID)]));
             }
         }
 
@@ -917,7 +917,7 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["ConsoleMode"] == null))
+                if ((curObj[nameof(ConsoleMode)] == null))
                 {
                     return true;
                 }
@@ -936,21 +936,21 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["ConsoleMode"] == null))
+                if ((curObj[nameof(ConsoleMode)] == null))
                 {
                     return ((ConsoleModeValues)(Convert.ToInt32(4)));
                 }
-                return ((ConsoleModeValues)(Convert.ToInt32(curObj["ConsoleMode"])));
+                return ((ConsoleModeValues)(Convert.ToInt32(curObj[nameof(ConsoleMode)])));
             }
             set
             {
                 if ((ConsoleModeValues.NULL_ENUM_VALUE == value))
                 {
-                    curObj["ConsoleMode"] = null;
+                    curObj[nameof(ConsoleMode)] = null;
                 }
                 else
                 {
-                    curObj["ConsoleMode"] = value;
+                    curObj[nameof(ConsoleMode)] = value;
                 }
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
@@ -966,7 +966,7 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["CreationTime"] == null))
+                if ((curObj[nameof(CreationTime)] == null))
                 {
                     return true;
                 }
@@ -984,9 +984,9 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["CreationTime"] != null))
+                if ((curObj[nameof(CreationTime)] != null))
                 {
-                    return ToDateTime(((string)(curObj["CreationTime"])));
+                    return ToDateTime(((string)(curObj[nameof(CreationTime)])));
                 }
                 else
                 {
@@ -1001,7 +1001,7 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["DebugChannelId"] == null))
+                if ((curObj[nameof(DebugChannelId)] == null))
                 {
                     return true;
                 }
@@ -1021,15 +1021,15 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["DebugChannelId"] == null))
+                if ((curObj[nameof(DebugChannelId)] == null))
                 {
                     return Convert.ToUInt32(0);
                 }
-                return ((uint)(curObj["DebugChannelId"]));
+                return ((uint)(curObj[nameof(DebugChannelId)]));
             }
             set
             {
-                curObj["DebugChannelId"] = value;
+                curObj[nameof(DebugChannelId)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -1044,7 +1044,7 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["DebugPort"] == null))
+                if ((curObj[nameof(DebugPort)] == null))
                 {
                     return true;
                 }
@@ -1063,15 +1063,15 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["DebugPort"] == null))
+                if ((curObj[nameof(DebugPort)] == null))
                 {
                     return Convert.ToUInt32(0);
                 }
-                return ((uint)(curObj["DebugPort"]));
+                return ((uint)(curObj[nameof(DebugPort)]));
             }
             set
             {
-                curObj["DebugPort"] = value;
+                curObj[nameof(DebugPort)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -1086,7 +1086,7 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["DebugPortEnabled"] == null))
+                if ((curObj[nameof(DebugPortEnabled)] == null))
                 {
                     return true;
                 }
@@ -1105,21 +1105,21 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["DebugPortEnabled"] == null))
+                if ((curObj[nameof(DebugPortEnabled)] == null))
                 {
                     return ((DebugPortEnabledValues)(Convert.ToInt32(3)));
                 }
-                return ((DebugPortEnabledValues)(Convert.ToInt32(curObj["DebugPortEnabled"])));
+                return ((DebugPortEnabledValues)(Convert.ToInt32(curObj[nameof(DebugPortEnabled)])));
             }
             set
             {
                 if ((DebugPortEnabledValues.NULL_ENUM_VALUE == value))
                 {
-                    curObj["DebugPortEnabled"] = null;
+                    curObj[nameof(DebugPortEnabled)] = null;
                 }
                 else
                 {
-                    curObj["DebugPortEnabled"] = value;
+                    curObj[nameof(DebugPortEnabled)] = value;
                 }
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
@@ -1135,7 +1135,7 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                return ((string)(curObj["Description"]));
+                return ((string)(curObj[nameof(Description)]));
             }
         }
 
@@ -1145,7 +1145,7 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                return ((string)(curObj["ElementName"]));
+                return ((string)(curObj[nameof(ElementName)]));
             }
         }
 
@@ -1155,7 +1155,7 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["EnableHibernation"] == null))
+                if ((curObj[nameof(EnableHibernation)] == null))
                 {
                     return true;
                 }
@@ -1177,15 +1177,15 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["EnableHibernation"] == null))
+                if ((curObj[nameof(EnableHibernation)] == null))
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj["EnableHibernation"]));
+                return ((bool)(curObj[nameof(EnableHibernation)]));
             }
             set
             {
-                curObj["EnableHibernation"] = value;
+                curObj[nameof(EnableHibernation)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -1200,7 +1200,7 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["EnhancedSessionTransportType"] == null))
+                if ((curObj[nameof(EnhancedSessionTransportType)] == null))
                 {
                     return true;
                 }
@@ -1219,21 +1219,21 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["EnhancedSessionTransportType"] == null))
+                if ((curObj[nameof(EnhancedSessionTransportType)] == null))
                 {
                     return ((EnhancedSessionTransportTypeValues)(Convert.ToInt32(2)));
                 }
-                return ((EnhancedSessionTransportTypeValues)(Convert.ToInt32(curObj["EnhancedSessionTransportType"])));
+                return ((EnhancedSessionTransportTypeValues)(Convert.ToInt32(curObj[nameof(EnhancedSessionTransportType)])));
             }
             set
             {
                 if ((EnhancedSessionTransportTypeValues.NULL_ENUM_VALUE == value))
                 {
-                    curObj["EnhancedSessionTransportType"] = null;
+                    curObj[nameof(EnhancedSessionTransportType)] = null;
                 }
                 else
                 {
-                    curObj["EnhancedSessionTransportType"] = value;
+                    curObj[nameof(EnhancedSessionTransportType)] = value;
                 }
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
@@ -1249,7 +1249,7 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["GuestControlledCacheTypes"] == null))
+                if ((curObj[nameof(GuestControlledCacheTypes)] == null))
                 {
                     return true;
                 }
@@ -1268,15 +1268,15 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["GuestControlledCacheTypes"] == null))
+                if ((curObj[nameof(GuestControlledCacheTypes)] == null))
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj["GuestControlledCacheTypes"]));
+                return ((bool)(curObj[nameof(GuestControlledCacheTypes)]));
             }
             set
             {
-                curObj["GuestControlledCacheTypes"] = value;
+                curObj[nameof(GuestControlledCacheTypes)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -1293,7 +1293,7 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                return ((string)(curObj["GuestStateDataRoot"]));
+                return ((string)(curObj[nameof(GuestStateDataRoot)]));
             }
         }
 
@@ -1305,7 +1305,7 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                return ((string)(curObj["GuestStateFile"]));
+                return ((string)(curObj[nameof(GuestStateFile)]));
             }
         }
 
@@ -1315,7 +1315,7 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["HighMmioGapBase"] == null))
+                if ((curObj[nameof(HighMmioGapBase)] == null))
                 {
                     return true;
                 }
@@ -1334,15 +1334,15 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["HighMmioGapBase"] == null))
+                if ((curObj[nameof(HighMmioGapBase)] == null))
                 {
                     return Convert.ToUInt64(0);
                 }
-                return ((ulong)(curObj["HighMmioGapBase"]));
+                return ((ulong)(curObj[nameof(HighMmioGapBase)]));
             }
             set
             {
-                curObj["HighMmioGapBase"] = value;
+                curObj[nameof(HighMmioGapBase)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -1357,7 +1357,7 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["HighMmioGapSize"] == null))
+                if ((curObj[nameof(HighMmioGapSize)] == null))
                 {
                     return true;
                 }
@@ -1376,15 +1376,15 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["HighMmioGapSize"] == null))
+                if ((curObj[nameof(HighMmioGapSize)] == null))
                 {
                     return Convert.ToUInt64(0);
                 }
-                return ((ulong)(curObj["HighMmioGapSize"]));
+                return ((ulong)(curObj[nameof(HighMmioGapSize)]));
             }
             set
             {
-                curObj["HighMmioGapSize"] = value;
+                curObj[nameof(HighMmioGapSize)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -1399,7 +1399,7 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["IncrementalBackupEnabled"] == null))
+                if ((curObj[nameof(IncrementalBackupEnabled)] == null))
                 {
                     return true;
                 }
@@ -1419,15 +1419,15 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["IncrementalBackupEnabled"] == null))
+                if ((curObj[nameof(IncrementalBackupEnabled)] == null))
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj["IncrementalBackupEnabled"]));
+                return ((bool)(curObj[nameof(IncrementalBackupEnabled)]));
             }
             set
             {
-                curObj["IncrementalBackupEnabled"] = value;
+                curObj[nameof(IncrementalBackupEnabled)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -1442,7 +1442,7 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                return ((string)(curObj["InstanceID"]));
+                return ((string)(curObj[nameof(InstanceID)]));
             }
         }
 
@@ -1452,7 +1452,7 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["IsAutomaticSnapshot"] == null))
+                if ((curObj[nameof(IsAutomaticSnapshot)] == null))
                 {
                     return true;
                 }
@@ -1471,11 +1471,11 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["IsAutomaticSnapshot"] == null))
+                if ((curObj[nameof(IsAutomaticSnapshot)] == null))
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj["IsAutomaticSnapshot"]));
+                return ((bool)(curObj[nameof(IsAutomaticSnapshot)]));
             }
         }
 
@@ -1485,7 +1485,7 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
         {
             get
             {
-                if ((curObj["IsSaved"] == null))
+                if ((curObj[nameof(IsSaved)] == null))
                 {
                     return true;
                 }
@@ -1505,11 +1505,11 @@ This is a read-only property, it cannot be changed.")]
         {
             get
             {
-                if ((curObj["IsSaved"] == null))
+                if ((curObj[nameof(IsSaved)] == null))
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj["IsSaved"]));
+                return ((bool)(curObj[nameof(IsSaved)]));
             }
         }
 
@@ -1519,7 +1519,7 @@ This is a read-only property, it cannot be changed.")]
         {
             get
             {
-                if ((curObj["LockOnDisconnect"] == null))
+                if ((curObj[nameof(LockOnDisconnect)] == null))
                 {
                     return true;
                 }
@@ -1538,15 +1538,15 @@ This is a read-only property, it cannot be changed.")]
         {
             get
             {
-                if ((curObj["LockOnDisconnect"] == null))
+                if ((curObj[nameof(LockOnDisconnect)] == null))
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj["LockOnDisconnect"]));
+                return ((bool)(curObj[nameof(LockOnDisconnect)]));
             }
             set
             {
-                curObj["LockOnDisconnect"] = value;
+                curObj[nameof(LockOnDisconnect)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -1561,7 +1561,7 @@ This is a read-only property, it cannot be changed.")]
         {
             get
             {
-                return ((string)(curObj["LogDataRoot"]));
+                return ((string)(curObj[nameof(LogDataRoot)]));
             }
         }
 
@@ -1571,7 +1571,7 @@ This is a read-only property, it cannot be changed.")]
         {
             get
             {
-                if ((curObj["LowMmioGapSize"] == null))
+                if ((curObj[nameof(LowMmioGapSize)] == null))
                 {
                     return true;
                 }
@@ -1590,15 +1590,15 @@ This is a read-only property, it cannot be changed.")]
         {
             get
             {
-                if ((curObj["LowMmioGapSize"] == null))
+                if ((curObj[nameof(LowMmioGapSize)] == null))
                 {
                     return Convert.ToUInt64(0);
                 }
-                return ((ulong)(curObj["LowMmioGapSize"]));
+                return ((ulong)(curObj[nameof(LowMmioGapSize)]));
             }
             set
             {
-                curObj["LowMmioGapSize"] = value;
+                curObj[nameof(LowMmioGapSize)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -1613,7 +1613,7 @@ This is a read-only property, it cannot be changed.")]
         {
             get
             {
-                if ((curObj["NetworkBootPreferredProtocol"] == null))
+                if ((curObj[nameof(NetworkBootPreferredProtocol)] == null))
                 {
                     return true;
                 }
@@ -1632,21 +1632,21 @@ This is a read-only property, it cannot be changed.")]
         {
             get
             {
-                if ((curObj["NetworkBootPreferredProtocol"] == null))
+                if ((curObj[nameof(NetworkBootPreferredProtocol)] == null))
                 {
                     return ((NetworkBootPreferredProtocolValues)(Convert.ToInt32(0)));
                 }
-                return ((NetworkBootPreferredProtocolValues)(Convert.ToInt32(curObj["NetworkBootPreferredProtocol"])));
+                return ((NetworkBootPreferredProtocolValues)(Convert.ToInt32(curObj[nameof(NetworkBootPreferredProtocol)])));
             }
             set
             {
                 if ((NetworkBootPreferredProtocolValues.NULL_ENUM_VALUE == value))
                 {
-                    curObj["NetworkBootPreferredProtocol"] = null;
+                    curObj[nameof(NetworkBootPreferredProtocol)] = null;
                 }
                 else
                 {
-                    curObj["NetworkBootPreferredProtocol"] = value;
+                    curObj[nameof(NetworkBootPreferredProtocol)] = value;
                 }
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
@@ -1662,7 +1662,7 @@ This is a read-only property, it cannot be changed.")]
         {
             get
             {
-                return ((string[])(curObj["Notes"]));
+                return ((string[])(curObj[nameof(Notes)]));
             }
         }
 
@@ -1675,7 +1675,7 @@ This is a read-only property, it cannot be changed.")]
         {
             get
             {
-                return ((string)(curObj["Parent"]));
+                return ((string)(curObj[nameof(Parent)]));
             }
         }
 
@@ -1685,7 +1685,7 @@ This is a read-only property, it cannot be changed.")]
         {
             get
             {
-                if ((curObj["PauseAfterBootFailure"] == null))
+                if ((curObj[nameof(PauseAfterBootFailure)] == null))
                 {
                     return true;
                 }
@@ -1704,15 +1704,15 @@ This is a read-only property, it cannot be changed.")]
         {
             get
             {
-                if ((curObj["PauseAfterBootFailure"] == null))
+                if ((curObj[nameof(PauseAfterBootFailure)] == null))
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj["PauseAfterBootFailure"]));
+                return ((bool)(curObj[nameof(PauseAfterBootFailure)]));
             }
             set
             {
-                curObj["PauseAfterBootFailure"] = value;
+                curObj[nameof(PauseAfterBootFailure)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -1727,7 +1727,7 @@ This is a read-only property, it cannot be changed.")]
         {
             get
             {
-                return ((string)(curObj["RecoveryFile"]));
+                return ((string)(curObj[nameof(RecoveryFile)]));
             }
         }
 
@@ -1737,7 +1737,7 @@ This is a read-only property, it cannot be changed.")]
         {
             get
             {
-                if ((curObj["SecureBootEnabled"] == null))
+                if ((curObj[nameof(SecureBootEnabled)] == null))
                 {
                     return true;
                 }
@@ -1756,15 +1756,15 @@ This is a read-only property, it cannot be changed.")]
         {
             get
             {
-                if ((curObj["SecureBootEnabled"] == null))
+                if ((curObj[nameof(SecureBootEnabled)] == null))
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj["SecureBootEnabled"]));
+                return ((bool)(curObj[nameof(SecureBootEnabled)]));
             }
             set
             {
-                curObj["SecureBootEnabled"] = value;
+                curObj[nameof(SecureBootEnabled)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -1783,11 +1783,11 @@ This is a read-only property, it cannot be changed.")]
         {
             get
             {
-                return ((string)(curObj["SecureBootTemplateId"]));
+                return ((string)(curObj[nameof(SecureBootTemplateId)]));
             }
             set
             {
-                curObj["SecureBootTemplateId"] = value;
+                curObj[nameof(SecureBootTemplateId)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -1802,7 +1802,7 @@ This is a read-only property, it cannot be changed.")]
         {
             get
             {
-                return ((string)(curObj["SnapshotDataRoot"]));
+                return ((string)(curObj[nameof(SnapshotDataRoot)]));
             }
         }
 
@@ -1812,7 +1812,7 @@ This is a read-only property, it cannot be changed.")]
         {
             get
             {
-                return ((string)(curObj["SuspendDataRoot"]));
+                return ((string)(curObj[nameof(SuspendDataRoot)]));
             }
         }
 
@@ -1822,7 +1822,7 @@ This is a read-only property, it cannot be changed.")]
         {
             get
             {
-                return ((string)(curObj["SwapFileDataRoot"]));
+                return ((string)(curObj[nameof(SwapFileDataRoot)]));
             }
         }
 
@@ -1832,7 +1832,7 @@ This is a read-only property, it cannot be changed.")]
         {
             get
             {
-                if ((curObj["TurnOffOnGuestRestart"] == null))
+                if ((curObj[nameof(TurnOffOnGuestRestart)] == null))
                 {
                     return true;
                 }
@@ -1852,15 +1852,15 @@ This is a read-only property, it cannot be changed.")]
         {
             get
             {
-                if ((curObj["TurnOffOnGuestRestart"] == null))
+                if ((curObj[nameof(TurnOffOnGuestRestart)] == null))
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj["TurnOffOnGuestRestart"]));
+                return ((bool)(curObj[nameof(TurnOffOnGuestRestart)]));
             }
             set
             {
-                curObj["TurnOffOnGuestRestart"] = value;
+                curObj[nameof(TurnOffOnGuestRestart)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -1875,7 +1875,7 @@ This is a read-only property, it cannot be changed.")]
         {
             get
             {
-                if ((curObj["UserSnapshotType"] == null))
+                if ((curObj[nameof(UserSnapshotType)] == null))
                 {
                     return true;
                 }
@@ -1899,21 +1899,21 @@ Test: Snapshot that contains memory and device information for test and developm
         {
             get
             {
-                if ((curObj["UserSnapshotType"] == null))
+                if ((curObj[nameof(UserSnapshotType)] == null))
                 {
                     return ((UserSnapshotTypeValues)(Convert.ToInt32(0)));
                 }
-                return ((UserSnapshotTypeValues)(Convert.ToInt32(curObj["UserSnapshotType"])));
+                return ((UserSnapshotTypeValues)(Convert.ToInt32(curObj[nameof(UserSnapshotType)])));
             }
             set
             {
                 if ((UserSnapshotTypeValues.NULL_ENUM_VALUE == value))
                 {
-                    curObj["UserSnapshotType"] = null;
+                    curObj[nameof(UserSnapshotType)] = null;
                 }
                 else
                 {
-                    curObj["UserSnapshotType"] = value;
+                    curObj[nameof(UserSnapshotType)] = value;
                 }
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
@@ -1931,7 +1931,7 @@ Test: Snapshot that contains memory and device information for test and developm
         {
             get
             {
-                return ((string)(curObj["Version"]));
+                return ((string)(curObj[nameof(Version)]));
             }
         }
 
@@ -1941,7 +1941,7 @@ Test: Snapshot that contains memory and device information for test and developm
         {
             get
             {
-                if ((curObj["VirtualNumaEnabled"] == null))
+                if ((curObj[nameof(VirtualNumaEnabled)] == null))
                 {
                     return true;
                 }
@@ -1961,15 +1961,15 @@ Test: Snapshot that contains memory and device information for test and developm
         {
             get
             {
-                if ((curObj["VirtualNumaEnabled"] == null))
+                if ((curObj[nameof(VirtualNumaEnabled)] == null))
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj["VirtualNumaEnabled"]));
+                return ((bool)(curObj[nameof(VirtualNumaEnabled)]));
             }
             set
             {
-                curObj["VirtualNumaEnabled"] = value;
+                curObj[nameof(VirtualNumaEnabled)] = value;
                 if (((isEmbedded == false)
                             && (AutoCommitProp == true)))
                 {
@@ -1985,7 +1985,7 @@ Test: Snapshot that contains memory and device information for test and developm
         {
             get
             {
-                return ((string)(curObj["VirtualSystemIdentifier"]));
+                return ((string)(curObj[nameof(VirtualSystemIdentifier)]));
             }
         }
 
@@ -1996,7 +1996,7 @@ Test: Snapshot that contains memory and device information for test and developm
         {
             get
             {
-                return ((string)(curObj["VirtualSystemSubType"]));
+                return ((string)(curObj[nameof(VirtualSystemSubType)]));
             }
         }
 
@@ -2006,7 +2006,7 @@ Test: Snapshot that contains memory and device information for test and developm
         {
             get
             {
-                return ((string)(curObj["VirtualSystemType"]));
+                return ((string)(curObj[nameof(VirtualSystemType)]));
             }
         }
 
@@ -2050,7 +2050,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetAdditionalRecoveryInformation()
         {
-            curObj["AdditionalRecoveryInformation"] = null;
+            curObj[nameof(AdditionalRecoveryInformation)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2069,7 +2069,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetAllowFullSCSICommandSet()
         {
-            curObj["AllowFullSCSICommandSet"] = null;
+            curObj[nameof(AllowFullSCSICommandSet)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2088,7 +2088,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetAllowReducedFcRedundancy()
         {
-            curObj["AllowReducedFcRedundancy"] = null;
+            curObj[nameof(AllowReducedFcRedundancy)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2107,7 +2107,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetAutomaticCriticalErrorAction()
         {
-            curObj["AutomaticCriticalErrorAction"] = null;
+            curObj[nameof(AutomaticCriticalErrorAction)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2206,7 +2206,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetAutomaticCriticalErrorActionTimeout()
         {
-            curObj["AutomaticCriticalErrorActionTimeout"] = null;
+            curObj[nameof(AutomaticCriticalErrorActionTimeout)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2243,7 +2243,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetAutomaticSnapshotsEnabled()
         {
-            curObj["AutomaticSnapshotsEnabled"] = null;
+            curObj[nameof(AutomaticSnapshotsEnabled)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2427,7 +2427,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetBaseBoardSerialNumber()
         {
-            curObj["BaseBoardSerialNumber"] = null;
+            curObj[nameof(BaseBoardSerialNumber)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2437,7 +2437,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetBIOSGUID()
         {
-            curObj["BIOSGUID"] = null;
+            curObj[nameof(BIOSGUID)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2456,7 +2456,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetBIOSNumLock()
         {
-            curObj["BIOSNumLock"] = null;
+            curObj[nameof(BIOSNumLock)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2466,7 +2466,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetBIOSSerialNumber()
         {
-            curObj["BIOSSerialNumber"] = null;
+            curObj[nameof(BIOSSerialNumber)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2476,7 +2476,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetBootOrder()
         {
-            curObj["BootOrder"] = null;
+            curObj[nameof(BootOrder)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2486,7 +2486,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetBootSourceOrder()
         {
-            curObj["BootSourceOrder"] = null;
+            curObj[nameof(BootSourceOrder)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2496,7 +2496,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetChassisAssetTag()
         {
-            curObj["ChassisAssetTag"] = null;
+            curObj[nameof(ChassisAssetTag)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2506,7 +2506,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetChassisSerialNumber()
         {
-            curObj["ChassisSerialNumber"] = null;
+            curObj[nameof(ChassisSerialNumber)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2525,7 +2525,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetConsoleMode()
         {
-            curObj["ConsoleMode"] = null;
+            curObj[nameof(ConsoleMode)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2553,7 +2553,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetDebugChannelId()
         {
-            curObj["DebugChannelId"] = null;
+            curObj[nameof(DebugChannelId)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2572,7 +2572,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetDebugPort()
         {
-            curObj["DebugPort"] = null;
+            curObj[nameof(DebugPort)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2591,7 +2591,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetDebugPortEnabled()
         {
-            curObj["DebugPortEnabled"] = null;
+            curObj[nameof(DebugPortEnabled)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2610,7 +2610,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetEnableHibernation()
         {
-            curObj["EnableHibernation"] = null;
+            curObj[nameof(EnableHibernation)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2629,7 +2629,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetEnhancedSessionTransportType()
         {
-            curObj["EnhancedSessionTransportType"] = null;
+            curObj[nameof(EnhancedSessionTransportType)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2648,7 +2648,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetGuestControlledCacheTypes()
         {
-            curObj["GuestControlledCacheTypes"] = null;
+            curObj[nameof(GuestControlledCacheTypes)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2667,7 +2667,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetHighMmioGapBase()
         {
-            curObj["HighMmioGapBase"] = null;
+            curObj[nameof(HighMmioGapBase)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2686,7 +2686,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetHighMmioGapSize()
         {
-            curObj["HighMmioGapSize"] = null;
+            curObj[nameof(HighMmioGapSize)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2705,7 +2705,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetIncrementalBackupEnabled()
         {
-            curObj["IncrementalBackupEnabled"] = null;
+            curObj[nameof(IncrementalBackupEnabled)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2742,7 +2742,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetLockOnDisconnect()
         {
-            curObj["LockOnDisconnect"] = null;
+            curObj[nameof(LockOnDisconnect)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2761,7 +2761,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetLowMmioGapSize()
         {
-            curObj["LowMmioGapSize"] = null;
+            curObj[nameof(LowMmioGapSize)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2780,7 +2780,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetNetworkBootPreferredProtocol()
         {
-            curObj["NetworkBootPreferredProtocol"] = null;
+            curObj[nameof(NetworkBootPreferredProtocol)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2799,7 +2799,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetPauseAfterBootFailure()
         {
-            curObj["PauseAfterBootFailure"] = null;
+            curObj[nameof(PauseAfterBootFailure)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2818,7 +2818,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetSecureBootEnabled()
         {
-            curObj["SecureBootEnabled"] = null;
+            curObj[nameof(SecureBootEnabled)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2828,7 +2828,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetSecureBootTemplateId()
         {
-            curObj["SecureBootTemplateId"] = null;
+            curObj[nameof(SecureBootTemplateId)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2847,7 +2847,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetTurnOffOnGuestRestart()
         {
-            curObj["TurnOffOnGuestRestart"] = null;
+            curObj[nameof(TurnOffOnGuestRestart)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2866,7 +2866,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetUserSnapshotType()
         {
-            curObj["UserSnapshotType"] = null;
+            curObj[nameof(UserSnapshotType)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
@@ -2885,7 +2885,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetVirtualNumaEnabled()
         {
-            curObj["VirtualNumaEnabled"] = null;
+            curObj[nameof(VirtualNumaEnabled)] = null;
             if (((isEmbedded == false)
                         && (AutoCommitProp == true)))
             {
