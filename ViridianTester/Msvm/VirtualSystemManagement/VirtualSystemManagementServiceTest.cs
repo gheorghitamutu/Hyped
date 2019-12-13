@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Management;
 using System.Threading;
@@ -41,10 +42,8 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                 ManagementPath ReferenceConfiguration = null;
                 string[] ResourceSettings = null;
                 string SystemSettings = virtualSystemSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20);
-                ManagementPath Job;
-                ManagementPath ResultingSystem;
 
-                var ReturnValue = sut.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out Job, out ResultingSystem);
+                var ReturnValue = sut.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem);
 
                 using (ManagementObject JobObject = new ManagementObject(Job))
                 {
@@ -69,10 +68,8 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                 ManagementPath ReferenceConfiguration = null;
                 string[] ResourceSettings = null;
                 string SystemSettings = virtualSystemSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20);
-                ManagementPath Job;
-                ManagementPath ResultingSystem;
 
-                var ReturnValue = sut.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out Job, out ResultingSystem);
+                var ReturnValue = sut.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem);
 
                 using (var computerSystem = new ComputerSystem(ResultingSystem))
                 {
@@ -114,7 +111,7 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
 
                 using (ManagementObject JobObject = new ManagementObject(Job))
                 {
-                    while (Validator.IsJobEnded(JobObject?["JobState"]) == false) // maybe events cand be used here? -> https://wutils.com/wmi/root/virtualization/v2/msvm_computersystem
+                    while (Validator.IsJobEnded(JobObject?["JobState"]) == false) // TODO: maybe events cand be used here? -> https://wutils.com/wmi/root/virtualization/v2/msvm_computersystem
                     {
                         Thread.Sleep(TimeSpan.FromSeconds(1));
                         JobObject.Get();
@@ -168,6 +165,53 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                 }
 
                 ReturnValue = computerSystem.RequestStateChange(3, null, out Job);
+                sut.DestroySystem(ResultingSystem, out Job);
+            }
+        }
+
+        [TestMethod]
+        public void GetSummaryInformation_ExpectingMemoryAvailable1024()
+        {
+            using (var sut = VirtualSystemManagementService.GetInstances().Cast<VirtualSystemManagementService>().ToList().First())
+            {
+                var virtualSystemSettingData = VirtualSystemSettingData.CreateInstance();
+
+                virtualSystemSettingData.LateBoundObject["ElementName"] = nameof(GetSummaryInformation_ExpectingMemoryAvailable1024);
+                virtualSystemSettingData.LateBoundObject["ConfigurationDataRoot"] = @"ConfigurationDataRoot";
+                virtualSystemSettingData.LateBoundObject["VirtualSystemSubtype"] = "Microsoft:Hyper-V:SubType:2";
+
+                ManagementPath ReferenceConfiguration = null;
+                string[] ResourceSettings = null;
+                string SystemSettings = virtualSystemSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20);
+
+                var ReturnValue = sut.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem);
+
+                var cs = new ComputerSystem(ResultingSystem);
+
+                var sdsCollection = 
+                    SettingsDefineState.GetInstances()
+                        .Cast<SettingsDefineState>()
+                        .Where((sds) => string.Compare(sds.ManagedElement.Path, cs.Path.Path, true, CultureInfo.InvariantCulture) == 0)
+                        .Select((sds) => new VirtualSystemSettingData(sds.SettingData))
+                        .ToList();
+
+                using (ManagementObject JobObject = new ManagementObject(Job))
+                {
+                    uint[] RequestedInformation = (uint[])Enum.GetValues(typeof(SummaryInformation.RequestedInformation));
+                    ManagementPath[] SettingData = new ManagementPath[] { sdsCollection.First().Path };
+
+                    ReturnValue = sut.GetSummaryInformation(RequestedInformation, SettingData, out ManagementBaseObject[] SummaryInformation);
+
+                    SummaryInformation si = new SummaryInformation(SummaryInformation.First());
+
+                    Assert.IsNotNull(ResultingSystem);
+                    Assert.AreEqual(0U, ReturnValue);
+                    Assert.AreEqual(1, sdsCollection.Count);
+                    Assert.AreEqual(1, SummaryInformation.Length);
+                    Assert.IsNotNull(SummaryInformation);
+                    Assert.AreEqual(0U, si.MemoryUsage);
+                }
+
                 sut.DestroySystem(ResultingSystem, out Job);
             }
         }

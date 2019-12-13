@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="WMINamespace" Type="System.String" Scope="User">
-      <Value Profile="(Default)">root\\virtualization\\v2</Value>
+      <Value Profile="(Default)">root\virtualization\v2</Value>
     </Setting>
     <Setting Name="ClassName" Type="System.String" Scope="User">
       <Value Profile="(Default)">Msvm_VirtualSystemManagementService</Value>

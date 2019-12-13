@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Msvm\Networking\VirtualEthernetSwitchManagementServiceTest.cs" />
+    <Compile Include="Msvm\VirtualSystemManagement\VirtualSystemSnapshotServiceTest.cs" />
     <Compile Include="Msvm\VirtualSystemManagement\VirtualSystemManagementServiceTest.cs" />
     <Compile Include="Msvm\VirtualSystem\ComputerSystemTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

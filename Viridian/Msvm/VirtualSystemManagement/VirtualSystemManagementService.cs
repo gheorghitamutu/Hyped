@@ -2369,31 +2369,22 @@ namespace Viridian.Msvm.VirtualSystemManagement
 
             [Browsable(true)]
             public int GENUS => (int)PrivateLateBoundObject[$"__{nameof(GENUS)}"];
-
             [Browsable(true)]
             public string CLASS => (string)PrivateLateBoundObject[$"__{nameof(CLASS)}"];
-
             [Browsable(true)]
             public string SUPERCLASS => (string)PrivateLateBoundObject[$"__{nameof(SUPERCLASS)}"];
-
             [Browsable(true)]
             public string DYNASTY => (string)PrivateLateBoundObject[$"__{nameof(DYNASTY)}"];
-
             [Browsable(true)]
             public string RELPATH => (string)PrivateLateBoundObject[$"__{nameof(RELPATH)}"];
-
             [Browsable(true)]
             public int PROPERTY_COUNT => (int)PrivateLateBoundObject[$"__{nameof(PROPERTY_COUNT)}"];
-
             [Browsable(true)]
             public string[] DERIVATION => (string[])PrivateLateBoundObject[$"__{nameof(DERIVATION)}"];
-
             [Browsable(true)]
             public string SERVER => (string)PrivateLateBoundObject[$"__{nameof(SERVER)}"];
-
             [Browsable(true)]
             public string NAMESPACE => (string)PrivateLateBoundObject[$"__{nameof(NAMESPACE)}"];
-
             [Browsable(true)]
             public string PATH => (string)PrivateLateBoundObject[$"__{nameof(PATH)}"];
         }

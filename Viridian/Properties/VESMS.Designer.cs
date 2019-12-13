@@ -25,7 +25,7 @@ namespace Viridian.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("root\\\\virtualization\\\\v2")]
+        [global::System.Configuration.DefaultSettingValueAttribute("root\\virtualization\\v2")]
         public string WMINamespace {
             get {
                 return ((string)(this["WMINamespace"]));
