@@ -124,7 +124,17 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                     Assert.AreEqual(2U, computerSystem.EnabledState);
                 }
 
-                ReturnValue = computerSystem.RequestStateChange(3, null, out Job);
+                ReturnValue = computerSystem.RequestStateChange(3, null, out Job); 
+
+                using (ManagementObject JobObject = new ManagementObject(Job))
+                {
+                    while (Validator.IsJobEnded(JobObject?["JobState"]) == false) // TODO: maybe events cand be used here? -> https://wutils.com/wmi/root/virtualization/v2/msvm_computersystem
+                    {
+                        Thread.Sleep(TimeSpan.FromSeconds(1));
+                        JobObject.Get();
+                    }
+                }
+                    
                 sut.DestroySystem(ResultingSystem, out Job);
             }
         }
@@ -165,6 +175,16 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                 }
 
                 ReturnValue = computerSystem.RequestStateChange(3, null, out Job);
+
+                using (ManagementObject JobObject = new ManagementObject(Job))
+                {
+                    while (Validator.IsJobEnded(JobObject?["JobState"]) == false) // maybe events cand be used here?
+                    {
+                        Thread.Sleep(TimeSpan.FromSeconds(1));
+                        JobObject.Get();
+                    }
+                }
+
                 sut.DestroySystem(ResultingSystem, out Job);
             }
         }

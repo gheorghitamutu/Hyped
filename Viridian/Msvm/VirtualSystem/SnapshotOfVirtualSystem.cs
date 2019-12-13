@@ -1,7 +1,5 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Management;
-using System.Collections;
 using System.Globalization;
 
 namespace Viridian.Msvm.VirtualSystem
@@ -11,7 +9,7 @@ namespace Viridian.Msvm.VirtualSystem
     // Functions Reset<PropertyName> are added for Nullable Read/Write properties. These functions are used by VS designer in property browser to set a property to NULL.
     // Every property added to the class for WMI property has attributes set to define its behavior in Visual Studio designer and also to define a TypeConverter to be used.
     // An Early Bound class generated for the WMI class.Msvm_SnapshotOfVirtualSystem
-    public class SnapshotOfVirtualSystem : Component
+    public class SnapshotOfVirtualSystem : IDisposable
     {
 
         // Private property to hold the WMI namespace in which the class resides.
@@ -30,45 +28,24 @@ namespace Viridian.Msvm.VirtualSystem
         private bool isEmbedded;
 
         // Below are different overloads of constructors to initialize an instance of the class with a WMI object.
-        public SnapshotOfVirtualSystem()
-        {
-            InitializeObject(null, null, null);
-        }
+        public SnapshotOfVirtualSystem() => InitializeObject(null, null, null);
 
-        public SnapshotOfVirtualSystem(ManagementPath keyAntecedent, ManagementPath keyDependent)
-        {
-            InitializeObject(null, new ManagementPath(ConstructPath(keyAntecedent, keyDependent)), null);
-        }
+        public SnapshotOfVirtualSystem(ManagementPath keyAntecedent, ManagementPath keyDependent) => InitializeObject(null, new ManagementPath(ConstructPath(keyAntecedent, keyDependent)), null);
 
-        public SnapshotOfVirtualSystem(ManagementScope mgmtScope, ManagementPath keyAntecedent, ManagementPath keyDependent)
-        {
-            InitializeObject(mgmtScope, new ManagementPath(ConstructPath(keyAntecedent, keyDependent)), null);
-        }
+        public SnapshotOfVirtualSystem(ManagementScope mgmtScope, ManagementPath keyAntecedent, ManagementPath keyDependent) => InitializeObject(mgmtScope, new ManagementPath(ConstructPath(keyAntecedent, keyDependent)), null);
 
-        public SnapshotOfVirtualSystem(ManagementPath path, ObjectGetOptions getOptions)
-        {
-            InitializeObject(null, path, getOptions);
-        }
+        public SnapshotOfVirtualSystem(ManagementPath path, ObjectGetOptions getOptions) => InitializeObject(null, path, getOptions);
 
-        public SnapshotOfVirtualSystem(ManagementScope mgmtScope, ManagementPath path)
-        {
-            InitializeObject(mgmtScope, path, null);
-        }
+        public SnapshotOfVirtualSystem(ManagementScope mgmtScope, ManagementPath path) => InitializeObject(mgmtScope, path, null);
 
-        public SnapshotOfVirtualSystem(ManagementPath path)
-        {
-            InitializeObject(null, path, null);
-        }
+        public SnapshotOfVirtualSystem(ManagementPath path) => InitializeObject(null, path, null);
 
-        public SnapshotOfVirtualSystem(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions getOptions)
-        {
-            InitializeObject(mgmtScope, path, getOptions);
-        }
+        public SnapshotOfVirtualSystem(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions getOptions) => InitializeObject(mgmtScope, path, getOptions);
 
         public SnapshotOfVirtualSystem(ManagementObject theObject)
         {
             Initialize();
-            if (CheckIfProperClass(theObject) == true)
+            if (theObject != null && CheckIfProperClass(theObject) == true)
             {
                 PrivateLateBoundObject = theObject;
                 SystemProperties = new ManagementSystemProperties(PrivateLateBoundObject);
@@ -83,7 +60,7 @@ namespace Viridian.Msvm.VirtualSystem
         public SnapshotOfVirtualSystem(ManagementBaseObject theObject)
         {
             Initialize();
-            if (CheckIfProperClass(theObject) == true)
+            if (theObject != null && CheckIfProperClass(theObject) == true)
             {
                 embeddedObj = theObject;
                 SystemProperties = new ManagementSystemProperties(theObject);
@@ -97,12 +74,8 @@ namespace Viridian.Msvm.VirtualSystem
         }
 
         // Property returns the namespace of the WMI class.
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string OriginatingNamespace => "root\\virtualization\\v2";
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string ManagementClassName
         {
             get
@@ -124,18 +97,12 @@ namespace Viridian.Msvm.VirtualSystem
         }
 
         // Property pointing to an embedded object to get System properties of the WMI object.
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ManagementSystemProperties SystemProperties { get; private set; }
 
         // Property returning the underlying lateBound object.
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ManagementBaseObject LateBoundObject { get; private set; }
 
         // ManagementScope of the object.
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ManagementScope Scope
         {
             get
@@ -159,12 +126,9 @@ namespace Viridian.Msvm.VirtualSystem
         }
 
         // Property to show the commit behavior for the WMI object. If true, WMI object will be automatically saved after each property modification.(ie. Put() is called after modification of a property).
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool AutoCommit { get; set; }
 
         // The ManagementPath of the underlying WMI object.
-        [Browsable(true)]
         public ManagementPath Path
         {
             get
@@ -192,12 +156,8 @@ namespace Viridian.Msvm.VirtualSystem
         }
 
         // Public static scope property which is used by the various methods.
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public static ManagementScope StaticScope { get; set; } = null;
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ManagementPath Antecedent
         {
             get
@@ -210,8 +170,6 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ManagementPath Dependent
         {
             get
@@ -265,7 +223,6 @@ namespace Viridian.Msvm.VirtualSystem
             return false;
         }
 
-        [Browsable(true)]
         public void CommitObject()
         {
             if (isEmbedded == false)
@@ -274,7 +231,6 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
         public void CommitObject(PutOptions putOptions)
         {
             if (isEmbedded == false)
@@ -313,15 +269,15 @@ namespace Viridian.Msvm.VirtualSystem
         }
 
         // Different overloads of GetInstances() help in enumerating instances of the WMI class.
-        public static SnapshotOfVirtualSystemCollection GetInstances() => GetInstances(null, null, null);
+        public static MsvmCollection<SnapshotOfVirtualSystem> GetInstances() => GetInstances(null, null, null);
 
-        public static SnapshotOfVirtualSystemCollection GetInstances(string condition) => GetInstances(null, condition, null);
+        public static MsvmCollection<SnapshotOfVirtualSystem> GetInstances(string condition) => GetInstances(null, condition, null);
 
-        public static SnapshotOfVirtualSystemCollection GetInstances(string[] selectedProperties) => GetInstances(null, null, selectedProperties);
+        public static MsvmCollection<SnapshotOfVirtualSystem> GetInstances(string[] selectedProperties) => GetInstances(null, null, selectedProperties);
 
-        public static SnapshotOfVirtualSystemCollection GetInstances(string condition, string[] selectedProperties) => GetInstances(null, condition, selectedProperties);
+        public static MsvmCollection<SnapshotOfVirtualSystem> GetInstances(string condition, string[] selectedProperties) => GetInstances(null, condition, selectedProperties);
 
-        public static SnapshotOfVirtualSystemCollection GetInstances(ManagementScope mgmtScope, EnumerationOptions enumOptions)
+        public static MsvmCollection<SnapshotOfVirtualSystem> GetInstances(ManagementScope mgmtScope, EnumerationOptions enumOptions)
         {
             if (mgmtScope == null)
             {
@@ -349,15 +305,15 @@ namespace Viridian.Msvm.VirtualSystem
                         EnsureLocatable = true
                     };
                 }
-                return new SnapshotOfVirtualSystemCollection(clsObject.GetInstances(enumOptions));
+                return new MsvmCollection<SnapshotOfVirtualSystem>(clsObject.GetInstances(enumOptions));
             }
         }
 
-        public static SnapshotOfVirtualSystemCollection GetInstances(ManagementScope mgmtScope, string condition) => GetInstances(mgmtScope, condition, null);
+        public static MsvmCollection<SnapshotOfVirtualSystem> GetInstances(ManagementScope mgmtScope, string condition) => GetInstances(mgmtScope, condition, null);
 
-        public static SnapshotOfVirtualSystemCollection GetInstances(ManagementScope mgmtScope, string[] selectedProperties) => GetInstances(mgmtScope, null, selectedProperties);
+        public static MsvmCollection<SnapshotOfVirtualSystem> GetInstances(ManagementScope mgmtScope, string[] selectedProperties) => GetInstances(mgmtScope, null, selectedProperties);
 
-        public static SnapshotOfVirtualSystemCollection GetInstances(ManagementScope mgmtScope, string condition, string[] selectedProperties)
+        public static MsvmCollection<SnapshotOfVirtualSystem> GetInstances(ManagementScope mgmtScope, string condition, string[] selectedProperties)
         {
             if (mgmtScope == null)
             {
@@ -378,11 +334,10 @@ namespace Viridian.Msvm.VirtualSystem
                     EnsureLocatable = true
                 };
                 ObjectSearcher.Options = enumOptions;
-                return new SnapshotOfVirtualSystemCollection(ObjectSearcher.Get());
+                return new MsvmCollection<SnapshotOfVirtualSystem>(ObjectSearcher.Get());
             }
         }
 
-        [Browsable(true)]
         public static SnapshotOfVirtualSystem CreateInstance()
         {
             ManagementScope mgmtScope;
@@ -402,157 +357,25 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
         public void Delete() => PrivateLateBoundObject.Delete();
 
-        // Enumerator implementation for enumerating instances of the class.
-        public class SnapshotOfVirtualSystemCollection : object, ICollection
+        public void Dispose()
         {
-            private readonly ManagementObjectCollection privColObj;
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-            public SnapshotOfVirtualSystemCollection(ManagementObjectCollection objCollection) => privColObj = objCollection;
-
-            public virtual int Count => privColObj.Count;
-
-            public virtual bool IsSynchronized => privColObj.IsSynchronized;
-
-            public virtual object SyncRoot => this;
-
-            public virtual void CopyTo(Array array, int index)
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
             {
-                privColObj.CopyTo(array, index);
-                int nCtr;
-                for (nCtr = 0; nCtr < array?.Length; nCtr += 1)
-                {
-                    using (SnapshotOfVirtualSystem value = new SnapshotOfVirtualSystem((ManagementObject)array.GetValue(nCtr)))
-                    {
-                        array.SetValue(value, nCtr);
-                    }
-                }
-            }
-
-            public virtual IEnumerator GetEnumerator() => new SnapshotOfVirtualSystemEnumerator(privColObj.GetEnumerator());
-
-            public class SnapshotOfVirtualSystemEnumerator : object, IEnumerator
-            {
-                private readonly ManagementObjectCollection.ManagementObjectEnumerator privObjEnum;
-
-                public SnapshotOfVirtualSystemEnumerator(ManagementObjectCollection.ManagementObjectEnumerator objEnum) => privObjEnum = objEnum;
-
-                public virtual object Current => new SnapshotOfVirtualSystem((ManagementObject)privObjEnum.Current);
-
-                public virtual bool MoveNext() => privObjEnum.MoveNext();
-
-                public virtual void Reset() => privObjEnum.Reset();
+                PrivateLateBoundObject.Dispose();
             }
         }
 
-        // TypeConverter to handle null values for ValueType properties
-        public class WMIValueTypeConverter : TypeConverter
+        ~SnapshotOfVirtualSystem()
         {
-            private readonly TypeConverter baseConverter;
-
-            private readonly Type baseType;
-
-            public WMIValueTypeConverter(Type inBaseType)
-            {
-                baseConverter = TypeDescriptor.GetConverter(inBaseType);
-                baseType = inBaseType;
-            }
-
-            public override bool CanConvertFrom(ITypeDescriptorContext context, Type srcType) => baseConverter.CanConvertFrom(context, srcType);
-
-            public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) => baseConverter.CanConvertTo(context, destinationType);
-
-            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) => baseConverter.ConvertFrom(context, culture, value);
-
-            public override object CreateInstance(ITypeDescriptorContext context, IDictionary dictionary) => baseConverter.CreateInstance(context, dictionary);
-
-            public override bool GetCreateInstanceSupported(ITypeDescriptorContext context) => baseConverter.GetCreateInstanceSupported(context);
-
-            public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context, object value, Attribute[] attributeVar) => baseConverter.GetProperties(context, value, attributeVar);
-
-            public override bool GetPropertiesSupported(ITypeDescriptorContext context) => baseConverter.GetPropertiesSupported(context);
-
-            public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context) => baseConverter.GetStandardValues(context);
-
-            public override bool GetStandardValuesExclusive(ITypeDescriptorContext context) => baseConverter.GetStandardValuesExclusive(context);
-
-            public override bool GetStandardValuesSupported(ITypeDescriptorContext context) => baseConverter.GetStandardValuesSupported(context);
-
-            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
-            {
-                if (baseType.BaseType == typeof(Enum))
-                {
-                    if (value?.GetType() == destinationType)
-                    {
-                        return value;
-                    }
-                    if ((value == null)
-                                && (context != null)
-                                && (context.PropertyDescriptor.ShouldSerializeValue(context.Instance) == false))
-                    {
-                        return "NULL_ENUM_VALUE";
-                    }
-                    return baseConverter.ConvertTo(context, culture, value, destinationType);
-                }
-                if ((baseType == typeof(bool))
-                            && (baseType.BaseType == typeof(ValueType)))
-                {
-                    if ((value == null)
-                                && (context != null)
-                                && (context.PropertyDescriptor.ShouldSerializeValue(context.Instance) == false))
-                    {
-                        return "";
-                    }
-                    return baseConverter.ConvertTo(context, culture, value, destinationType);
-                }
-                if ((context != null)
-                            && (context.PropertyDescriptor.ShouldSerializeValue(context.Instance) == false))
-                {
-                    return "";
-                }
-                return baseConverter.ConvertTo(context, culture, value, destinationType);
-            }
-        }
-
-        // Embedded class to represent WMI system Properties.
-        [TypeConverter(typeof(ExpandableObjectConverter))]
-        public class ManagementSystemProperties
-        {
-            private readonly ManagementBaseObject PrivateLateBoundObject;
-
-            public ManagementSystemProperties(ManagementBaseObject ManagedObject) => PrivateLateBoundObject = ManagedObject;
-
-            [Browsable(true)]
-            public int GENUS => (int)PrivateLateBoundObject["__GENUS"];
-
-            [Browsable(true)]
-            public string CLASS => (string)PrivateLateBoundObject["__CLASS"];
-
-            [Browsable(true)]
-            public string SUPERCLASS => (string)PrivateLateBoundObject["__SUPERCLASS"];
-
-            [Browsable(true)]
-            public string DYNASTY => (string)PrivateLateBoundObject["__DYNASTY"];
-
-            [Browsable(true)]
-            public string RELPATH => (string)PrivateLateBoundObject["__RELPATH"];
-
-            [Browsable(true)]
-            public int PROPERTY_COUNT => (int)PrivateLateBoundObject["__PROPERTY_COUNT"];
-
-            [Browsable(true)]
-            public string[] DERIVATION => (string[])PrivateLateBoundObject["__DERIVATION"];
-
-            [Browsable(true)]
-            public string SERVER => (string)PrivateLateBoundObject["__SERVER"];
-
-            [Browsable(true)]
-            public string NAMESPACE => (string)PrivateLateBoundObject["__NAMESPACE"];
-
-            [Browsable(true)]
-            public string PATH => (string)PrivateLateBoundObject["__PATH"];
+            Dispose(false);
         }
     }
 }

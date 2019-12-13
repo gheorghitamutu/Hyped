@@ -1,7 +1,5 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Management;
-using System.Collections;
 using System.Globalization;
 
 namespace Viridian.Msvm.VirtualSystem
@@ -13,79 +11,46 @@ namespace Viridian.Msvm.VirtualSystem
     // Time interval functions  ToTimeSpan and ToDmtfTimeInterval are added to the class to convert DMTF Time Interval to  System.TimeSpan and vice-versa.
     // Datetime conversion functions ToDateTime and ToDmtfDateTime are added to the class to convert DMTF datetime to System.DateTime and vice-versa.
     // An Early Bound class generated for the WMI class.Msvm_VirtualSystemSettingData
-    public class VirtualSystemSettingData : Component
+    public class VirtualSystemSettingData : IDisposable
     {
-
         // Private property to hold the WMI namespace in which the class resides.
         private static string CreatedWmiNamespace = "root\\virtualization\\v2";
 
         // Private property to hold the name of WMI class which created this class.
         private static string CreatedClassName = "Msvm_VirtualSystemSettingData";
 
-        // Private member variable to hold the ManagementScope which is used by the various methods.
-        private static ManagementScope statMgmtScope = null;
-
-        private ManagementSystemProperties PrivateSystemProperties;
-
         // Underlying lateBound WMI object.
         private ManagementObject PrivateLateBoundObject;
 
-        // Member variable to store the 'automatic commit' behavior for the class.
-        private bool AutoCommitProp;
-
         // Private variable to hold the embedded property representing the instance.
-        private ManagementBaseObject embeddedObj;
-
-        // The current WMI object used
-        private ManagementBaseObject curObj;
+        private readonly ManagementBaseObject embeddedObj;
 
         // Flag to indicate if the instance is an embedded object.
         private bool isEmbedded;
 
         // Below are different overloads of constructors to initialize an instance of the class with a WMI object.
-        public VirtualSystemSettingData()
-        {
-            InitializeObject(null, null, null);
-        }
+        public VirtualSystemSettingData() => InitializeObject(null, null, null);
 
-        public VirtualSystemSettingData(string keyInstanceID)
-        {
-            InitializeObject(null, new ManagementPath(ConstructPath(keyInstanceID)), null);
-        }
+        public VirtualSystemSettingData(string keyInstanceID) => InitializeObject(null, new ManagementPath(ConstructPath(keyInstanceID)), null);
 
-        public VirtualSystemSettingData(ManagementScope mgmtScope, string keyInstanceID)
-        {
-            InitializeObject(mgmtScope, new ManagementPath(ConstructPath(keyInstanceID)), null);
-        }
+        public VirtualSystemSettingData(ManagementScope mgmtScope, string keyInstanceID) => InitializeObject(mgmtScope, new ManagementPath(ConstructPath(keyInstanceID)), null);
 
-        public VirtualSystemSettingData(ManagementPath path, ObjectGetOptions getOptions)
-        {
-            InitializeObject(null, path, getOptions);
-        }
+        public VirtualSystemSettingData(ManagementPath path, ObjectGetOptions getOptions) => InitializeObject(null, path, getOptions);
 
-        public VirtualSystemSettingData(ManagementScope mgmtScope, ManagementPath path)
-        {
-            InitializeObject(mgmtScope, path, null);
-        }
+        public VirtualSystemSettingData(ManagementScope mgmtScope, ManagementPath path) => InitializeObject(mgmtScope, path, null);
 
-        public VirtualSystemSettingData(ManagementPath path)
-        {
-            InitializeObject(null, path, null);
-        }
+        public VirtualSystemSettingData(ManagementPath path) => InitializeObject(null, path, null);
 
-        public VirtualSystemSettingData(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions getOptions)
-        {
-            InitializeObject(mgmtScope, path, getOptions);
-        }
+        public VirtualSystemSettingData(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions getOptions) => InitializeObject(mgmtScope, path, getOptions);
 
         public VirtualSystemSettingData(ManagementObject theObject)
         {
             Initialize();
-            if ((CheckIfProperClass(theObject) == true))
+            if (theObject != null && CheckIfProperClass(theObject) == true)
             {
                 PrivateLateBoundObject = theObject;
-                PrivateSystemProperties = new ManagementSystemProperties(PrivateLateBoundObject);
-                curObj = PrivateLateBoundObject;
+                SystemProperties = new ManagementSystemProperties(PrivateLateBoundObject);
+                LateBoundObject = PrivateLateBoundObject;
             }
             else
             {
@@ -96,11 +61,11 @@ namespace Viridian.Msvm.VirtualSystem
         public VirtualSystemSettingData(ManagementBaseObject theObject)
         {
             Initialize();
-            if ((CheckIfProperClass(theObject) == true))
+            if (theObject != null && CheckIfProperClass(theObject) == true)
             {
                 embeddedObj = theObject;
-                PrivateSystemProperties = new ManagementSystemProperties(theObject);
-                curObj = embeddedObj;
+                SystemProperties = new ManagementSystemProperties(theObject);
+                LateBoundObject = embeddedObj;
                 isEmbedded = true;
             }
             else
@@ -110,30 +75,19 @@ namespace Viridian.Msvm.VirtualSystem
         }
 
         // Property returns the namespace of the WMI class.
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string OriginatingNamespace
-        {
-            get
-            {
-                return "root\\virtualization\\v2";
-            }
-        }
+        public string OriginatingNamespace => "root\\virtualization\\v2";
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string ManagementClassName
         {
             get
             {
                 string strRet = CreatedClassName;
-                if ((curObj != null))
+                if (LateBoundObject != null)
                 {
-                    if ((curObj.ClassPath != null))
+                    if (LateBoundObject.ClassPath != null)
                     {
-                        strRet = ((string)(curObj["__CLASS"]));
-                        if (((strRet == null)
-                                    || (strRet == string.Empty)))
+                        strRet = (string)LateBoundObject["__CLASS"];
+                        if (string.IsNullOrEmpty(strRet))
                         {
                             strRet = CreatedClassName;
                         }
@@ -144,35 +98,17 @@ namespace Viridian.Msvm.VirtualSystem
         }
 
         // Property pointing to an embedded object to get System properties of the WMI object.
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ManagementSystemProperties SystemProperties
-        {
-            get
-            {
-                return PrivateSystemProperties;
-            }
-        }
+        public ManagementSystemProperties SystemProperties { get; private set; }
 
         // Property returning the underlying lateBound object.
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ManagementBaseObject LateBoundObject
-        {
-            get
-            {
-                return curObj;
-            }
-        }
+        public ManagementBaseObject LateBoundObject { get; private set; }
 
         // ManagementScope of the object.
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ManagementScope Scope
         {
             get
             {
-                if ((isEmbedded == false))
+                if (isEmbedded == false)
                 {
                     return PrivateLateBoundObject.Scope;
                 }
@@ -183,7 +119,7 @@ namespace Viridian.Msvm.VirtualSystem
             }
             set
             {
-                if ((isEmbedded == false))
+                if (isEmbedded == false)
                 {
                     PrivateLateBoundObject.Scope = value;
                 }
@@ -191,27 +127,14 @@ namespace Viridian.Msvm.VirtualSystem
         }
 
         // Property to show the commit behavior for the WMI object. If true, WMI object will be automatically saved after each property modification.(ie. Put() is called after modification of a property).
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool AutoCommit
-        {
-            get
-            {
-                return AutoCommitProp;
-            }
-            set
-            {
-                AutoCommitProp = value;
-            }
-        }
+        public bool AutoCommit { get; set; }
 
         // The ManagementPath of the underlying WMI object.
-        [Browsable(true)]
         public ManagementPath Path
         {
             get
             {
-                if ((isEmbedded == false))
+                if (isEmbedded == false)
                 {
                     return PrivateLateBoundObject.Path;
                 }
@@ -222,9 +145,9 @@ namespace Viridian.Msvm.VirtualSystem
             }
             set
             {
-                if ((isEmbedded == false))
+                if (isEmbedded == false)
                 {
-                    if ((CheckIfProperClass(null, value, null) != true))
+                    if (CheckIfProperClass(null, value, null) != true)
                     {
                         throw new ArgumentException("Class name does not match.");
                     }
@@ -234,48 +157,36 @@ namespace Viridian.Msvm.VirtualSystem
         }
 
         // Public static scope property which is used by the various methods.
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public static ManagementScope StaticScope
-        {
-            get
-            {
-                return statMgmtScope;
-            }
-            set
-            {
-                statMgmtScope = value;
-            }
-        }
+        public static ManagementScope StaticScope { get; set; } = null;
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description(@"Any additional information provided to the recovery action. The meaning of this property is defined by the action in AutomaticRecoveryAction. If AutomaticRecoveryAction is 0 (""None"") or 1 (""Restart""), this value is NULL. If AutomaticRecoveryAction is 2 (""Revert to Snapshot""), this is the object path to a snapshot that should be applied on failure of the virtual machine worker process.
-This is a read-only property, but it can be changed using the ModifyVirtualSystem method of the Msvm_VirtualSystemManagementService class.")]
+        /*
+         * Any additional information provided to the recovery action. The meaning of this property is defined by the action in AutomaticRecoveryAction.
+         * If AutomaticRecoveryAction is 0 ("None") or 1 ("Restart"), this value is NULL.
+         * If AutomaticRecoveryAction is 2 (""Revert to Snapshot""), this is the object path to a snapshot that should be applied on failure of the virtual machine worker process
+         * This is a read-only property, but it can be changed using the ModifyVirtualSystem method of the Msvm_VirtualSystemManagementService class.
+         */
         public string AdditionalRecoveryInformation
         {
             get
             {
-                return ((string)(curObj[nameof(AdditionalRecoveryInformation)]));
+                return (string)LateBoundObject[nameof(AdditionalRecoveryInformation)];
             }
             set
             {
-                curObj[nameof(AdditionalRecoveryInformation)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(AdditionalRecoveryInformation)] = value;
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsAllowFullSCSICommandSetNull
         {
             get
             {
-                if ((curObj[nameof(AllowFullSCSICommandSet)] == null))
+                if (LateBoundObject[nameof(AllowFullSCSICommandSet)] == null)
                 {
                     return true;
                 }
@@ -286,40 +197,39 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description(@"Indicates whether SCSI commands from the guest operating system are passed to pass-through disks. If TRUE, SCSI commands emitted by the guest operating system to pass-through disks are not filtered.It is recommended that SCSI filtering remains enabled for production deployments.
-This is a read-only property, but it can be changed using the ModifyVirtualSystem method of the Msvm_VirtualSystemManagementService class.
-Windows Server 2008:  The AllowFullSCSICommandSet property is not supported.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * Indicates whether SCSI commands from the guest operating system are passed to pass-through disks.
+         * If TRUE, SCSI commands emitted by the guest operating system to pass-through disks are not filtered.
+         * It is recommended that SCSI filtering remains enabled for production deployments.
+         * This is a read-only property, but it can be changed using the ModifyVirtualSystem method of the Msvm_VirtualSystemManagementService class.
+         * Windows Server 2008:  The AllowFullSCSICommandSet property is not supported.
+         */
         public bool AllowFullSCSICommandSet
         {
             get
             {
-                if ((curObj[nameof(AllowFullSCSICommandSet)] == null))
+                if (LateBoundObject[nameof(AllowFullSCSICommandSet)] == null)
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj[nameof(AllowFullSCSICommandSet)]));
+                return (bool)LateBoundObject[nameof(AllowFullSCSICommandSet)];
             }
             set
             {
-                curObj[nameof(AllowFullSCSICommandSet)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(AllowFullSCSICommandSet)] = value;
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsAllowReducedFcRedundancyNull
         {
             get
             {
-                if ((curObj[nameof(AllowReducedFcRedundancy)] == null))
+                if (LateBoundObject[nameof(AllowReducedFcRedundancy)] == null)
                 {
                     return true;
                 }
@@ -330,51 +240,45 @@ Windows Server 2008:  The AllowFullSCSICommandSet property is not supported.")]
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description(@"Indicates whether live migration of a virtual machine that is configured with a virtual FC adapter is allowed to a destination machine, without doing any checks for the existence of paths to the storage devices on the destination 
-The default value of this property is FALSE. If set to TRUE, the VM can be live migrated to a target machine which may have no or reduced paths to the target FC devices. The guest operating system may lose connectivity to storage and may behave in an unpredictable manner. 
- This property should be cleared after a live migration")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * Indicates whether live migration of a virtual machine that is configured with a virtual FC adapter is allowed to a destination machine,
+         * without doing any checks for the existence of paths to the storage devices on the destination.
+         * The default value of this property is FALSE.
+         * If set to TRUE, the VM can be live migrated to a target machine which may have no or reduced paths to the target FC devices.
+         * The guest operating system may lose connectivity to storage and may behave in an unpredictable manner.
+         * This property should be cleared after a live migration.
+         */
         public bool AllowReducedFcRedundancy
         {
             get
             {
-                if ((curObj[nameof(AllowReducedFcRedundancy)] == null))
+                if (LateBoundObject[nameof(AllowReducedFcRedundancy)] == null)
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj[nameof(AllowReducedFcRedundancy)]));
+                return (bool)LateBoundObject[nameof(AllowReducedFcRedundancy)];
             }
             set
             {
-                curObj[nameof(AllowReducedFcRedundancy)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(AllowReducedFcRedundancy)] = value;
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("The architecture of this system.")]
-        public string Architecture
-        {
-            get
-            {
-                return ((string)(curObj[nameof(Architecture)]));
-            }
-        }
+        /*
+         * The architecture of this system.
+         */
+        public string Architecture => (string)LateBoundObject[nameof(Architecture)];
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsAutomaticCriticalErrorActionNull
         {
             get
             {
-                if ((curObj[nameof(AutomaticCriticalErrorAction)] == null))
+                if (LateBoundObject[nameof(AutomaticCriticalErrorAction)] == null)
                 {
                     return true;
                 }
@@ -385,45 +289,44 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description(@"Identifies the action to be taken on VM, when a critical error happens, like storage disconnect.The value of 1, causes the VM to be paused and automatically resumed when the critical error condition is resolved. This behavior can be overridden by setting the value to 0 upon which no specific action will be taken for critical error conditions. ")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * Identifies the action to be taken on VM, when a critical error happens, like storage disconnect.
+         * The value of 1, causes the VM to be paused and automatically resumed when the critical error condition is resolved.
+         * This behavior can be overridden by setting the value to 0 upon which no specific action will be taken for critical error conditions.
+         */
         public AutomaticCriticalErrorActionValues AutomaticCriticalErrorAction
         {
             get
             {
-                if ((curObj[nameof(AutomaticCriticalErrorAction)] == null))
+                if (LateBoundObject[nameof(AutomaticCriticalErrorAction)] == null)
                 {
-                    return ((AutomaticCriticalErrorActionValues)(Convert.ToInt32(2)));
+                    return (AutomaticCriticalErrorActionValues)Convert.ToInt32(2);
                 }
-                return ((AutomaticCriticalErrorActionValues)(Convert.ToInt32(curObj[nameof(AutomaticCriticalErrorAction)])));
+                return (AutomaticCriticalErrorActionValues)Convert.ToInt32(LateBoundObject[nameof(AutomaticCriticalErrorAction)]);
             }
             set
             {
-                if ((AutomaticCriticalErrorActionValues.NULL_ENUM_VALUE == value))
+                if (AutomaticCriticalErrorActionValues.NULL_ENUM_VALUE == value)
                 {
-                    curObj[nameof(AutomaticCriticalErrorAction)] = null;
+                    LateBoundObject[nameof(AutomaticCriticalErrorAction)] = null;
                 }
                 else
                 {
-                    curObj[nameof(AutomaticCriticalErrorAction)] = value;
+                    LateBoundObject[nameof(AutomaticCriticalErrorAction)] = value;
                 }
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsAutomaticCriticalErrorActionTimeoutNull
         {
             get
             {
-                if ((curObj[nameof(AutomaticCriticalErrorActionTimeout)] == null))
+                if (LateBoundObject[nameof(AutomaticCriticalErrorActionTimeout)] == null)
                 {
                     return true;
                 }
@@ -434,17 +337,19 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description(@"Identifies the maximum duration for which the AutomaticCriticalErrorAction will be performed to resolve the critical error. This is applicable only when the value of the AutomaticCriticalErrorAction property is not 0 (None). Once the timeout expires, the VM will be powered off.The value will be rounded up to the nearest minute. A value of 0 implies that the VM should be powered off immediately when it encounters a critical error condition. ")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * Identifies the maximum duration for which the AutomaticCriticalErrorAction will be performed to resolve the critical error. 
+         * This is applicable only when the value of the AutomaticCriticalErrorAction property is not 0 (None). 
+         * Once the timeout expires, the VM will be powered off.The value will be rounded up to the nearest minute. 
+         * A value of 0 implies that the VM should be powered off immediately when it encounters a critical error condition. 
+         */
         public TimeSpan AutomaticCriticalErrorActionTimeout
         {
             get
             {
-                if ((curObj[nameof(AutomaticCriticalErrorActionTimeout)] != null))
+                if (LateBoundObject[nameof(AutomaticCriticalErrorActionTimeout)] != null)
                 {
-                    return ToTimeSpan(((string)(curObj[nameof(AutomaticCriticalErrorActionTimeout)])));
+                    return ToTimeSpan((string)LateBoundObject[nameof(AutomaticCriticalErrorActionTimeout)]);
                 }
                 else
                 {
@@ -453,22 +358,20 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
             }
             set
             {
-                curObj[nameof(AutomaticCriticalErrorActionTimeout)] = ToDmtfTimeInterval(value);
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(AutomaticCriticalErrorActionTimeout)] = ToDmtfTimeInterval(value);
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsAutomaticRecoveryActionNull
         {
             get
             {
-                if ((curObj[nameof(AutomaticRecoveryAction)] == null))
+                if (LateBoundObject[nameof(AutomaticRecoveryAction)] == null)
                 {
                     return true;
                 }
@@ -479,28 +382,23 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public ushort AutomaticRecoveryAction
         {
             get
             {
-                if ((curObj[nameof(AutomaticRecoveryAction)] == null))
+                if (LateBoundObject[nameof(AutomaticRecoveryAction)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj[nameof(AutomaticRecoveryAction)]));
+                return (ushort)LateBoundObject[nameof(AutomaticRecoveryAction)];
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsAutomaticShutdownActionNull
         {
             get
             {
-                if ((curObj[nameof(AutomaticShutdownAction)] == null))
+                if (LateBoundObject[nameof(AutomaticShutdownAction)] == null)
                 {
                     return true;
                 }
@@ -511,28 +409,23 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public ushort AutomaticShutdownAction
         {
             get
             {
-                if ((curObj[nameof(AutomaticShutdownAction)] == null))
+                if (LateBoundObject[nameof(AutomaticShutdownAction)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj[nameof(AutomaticShutdownAction)]));
+                return (ushort)LateBoundObject[nameof(AutomaticShutdownAction)];
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsAutomaticSnapshotsEnabledNull
         {
             get
             {
-                if ((curObj[nameof(AutomaticSnapshotsEnabled)] == null))
+                if (LateBoundObject[nameof(AutomaticSnapshotsEnabled)] == null)
                 {
                     return true;
                 }
@@ -543,38 +436,34 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("Indicates whether this virtual machine should have automatic snapshots enabled.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * Indicates whether this virtual machine should have automatic snapshots enabled.
+         */
         public bool AutomaticSnapshotsEnabled
         {
             get
             {
-                if ((curObj[nameof(AutomaticSnapshotsEnabled)] == null))
+                if (LateBoundObject[nameof(AutomaticSnapshotsEnabled)] == null)
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj[nameof(AutomaticSnapshotsEnabled)]));
+                return (bool)LateBoundObject[nameof(AutomaticSnapshotsEnabled)];
             }
             set
             {
-                curObj[nameof(AutomaticSnapshotsEnabled)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(AutomaticSnapshotsEnabled)] = value;
+                if ((isEmbedded == false) && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsAutomaticStartupActionNull
         {
             get
             {
-                if ((curObj[nameof(AutomaticStartupAction)] == null))
+                if (LateBoundObject[nameof(AutomaticStartupAction)] == null)
                 {
                     return true;
                 }
@@ -585,28 +474,23 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public ushort AutomaticStartupAction
         {
             get
             {
-                if ((curObj[nameof(AutomaticStartupAction)] == null))
+                if (LateBoundObject[nameof(AutomaticStartupAction)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj[nameof(AutomaticStartupAction)]));
+                return (ushort)LateBoundObject[nameof(AutomaticStartupAction)];
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsAutomaticStartupActionDelayNull
         {
             get
             {
-                if ((curObj[nameof(AutomaticStartupActionDelay)] == null))
+                if (LateBoundObject[nameof(AutomaticStartupActionDelay)] == null)
                 {
                     return true;
                 }
@@ -617,16 +501,13 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public DateTime AutomaticStartupActionDelay
         {
             get
             {
-                if ((curObj[nameof(AutomaticStartupActionDelay)] != null))
+                if (LateBoundObject[nameof(AutomaticStartupActionDelay)] != null)
                 {
-                    return ToDateTime(((string)(curObj[nameof(AutomaticStartupActionDelay)])));
+                    return ToDateTime((string)LateBoundObject[nameof(AutomaticStartupActionDelay)]);
                 }
                 else
                 {
@@ -635,13 +516,11 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsAutomaticStartupActionSequenceNumberNull
         {
             get
             {
-                if ((curObj[nameof(AutomaticStartupActionSequenceNumber)] == null))
+                if (LateBoundObject[nameof(AutomaticStartupActionSequenceNumber)] == null)
                 {
                     return true;
                 }
@@ -652,72 +531,65 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public ushort AutomaticStartupActionSequenceNumber
         {
             get
             {
-                if ((curObj[nameof(AutomaticStartupActionSequenceNumber)] == null))
+                if (LateBoundObject[nameof(AutomaticStartupActionSequenceNumber)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return ((ushort)(curObj[nameof(AutomaticStartupActionSequenceNumber)]));
+                return (ushort)LateBoundObject[nameof(AutomaticStartupActionSequenceNumber)];
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("The serial number of the base board for the virtual computer system.\nThis is a re" +
-            "ad-only property, but it can be changed using the ModifyVirtualSystem method of " +
-            "the Msvm_VirtualSystemManagementService class.")]
+        /*
+         * The serial number of the base board for the virtual computer system.
+         * This is a read-only property, but it can be changed using the ModifyVirtualSystem method of the Msvm_VirtualSystemManagementService class.
+         */
         public string BaseBoardSerialNumber
         {
             get
             {
-                return ((string)(curObj[nameof(BaseBoardSerialNumber)]));
+                return (string)LateBoundObject[nameof(BaseBoardSerialNumber)];
             }
             set
             {
-                curObj[nameof(BaseBoardSerialNumber)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(BaseBoardSerialNumber)] = value;
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("The globally-unique identifier for the BIOS of the virtual computer system.\nThis " +
-            "is a read-only property, but it can be changed using the ModifyVirtualSystem met" +
-            "hod of the Msvm_VirtualSystemManagementService class.")]
+        /*
+         * The globally-unique identifier for the BIOS of the virtual computer system.
+         * This is a read-only property, but it can be changed using the ModifyVirtualSystem method of the Msvm_VirtualSystemManagementService class.
+         */
         public string BIOSGUID
         {
             get
             {
-                return ((string)(curObj[nameof(BIOSGUID)]));
+                return (string)LateBoundObject[nameof(BIOSGUID)];
             }
             set
             {
-                curObj[nameof(BIOSGUID)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(BIOSGUID)] = value;
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsBIOSNumLockNull
         {
             get
             {
-                if ((curObj[nameof(BIOSNumLock)] == null))
+                if (LateBoundObject[nameof(BIOSNumLock)] == null)
                 {
                     return true;
                 }
@@ -728,196 +600,164 @@ The default value of this property is FALSE. If set to TRUE, the VM can be live 
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description(@"This property is set to TRUE if the num lock key is set to on by the BIOS, FALSE if the num lock key is set to off by the BIOS.
-This is a read-only property, but it can be changed using the ModifyVirtualSystem method of the Msvm_VirtualSystemManagementService class.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * This property is set to TRUE if the num lock key is set to on by the BIOS, FALSE if the num lock key is set to off by the BIOS.
+         * This is a read-only property, but it can be changed using the ModifyVirtualSystem method of the Msvm_VirtualSystemManagementService class.
+         */
         public bool BIOSNumLock
         {
             get
             {
-                if ((curObj[nameof(BIOSNumLock)] == null))
+                if (LateBoundObject[nameof(BIOSNumLock)] == null)
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj[nameof(BIOSNumLock)]));
+                return (bool)LateBoundObject[nameof(BIOSNumLock)];
             }
             set
             {
-                curObj[nameof(BIOSNumLock)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(BIOSNumLock)] = value;
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("The serial number of the BIOS for the virtual computer system.\nThis is a read-onl" +
-            "y property, but it can be changed using the ModifyVirtualSystem method of the Ms" +
-            "vm_VirtualSystemManagementService class.")]
+        /*
+         * The serial number of the BIOS for the virtual computer system.
+         * This is a read-only property, but it can be changed using the ModifyVirtualSystem method of the Msvm_VirtualSystemManagementService class.
+         */
         public string BIOSSerialNumber
         {
             get
             {
-                return ((string)(curObj[nameof(BIOSSerialNumber)]));
+                return (string)LateBoundObject[nameof(BIOSSerialNumber)];
             }
             set
             {
-                curObj[nameof(BIOSSerialNumber)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(BIOSSerialNumber)] = value;
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description(@"The boot order set within the BIOS of the virtual computer system. This property is an array of values, max length 4, where each value indicates a device to boot from. The virtual computer system will first attempt to boot from the device indicated by the first value within the array. If that device does not contain a boot sector, the virtual computer system will attempt to boot from the next device specified by the BootOrder property and so on. If no device specified within the BootOrder contains a boot sector the virtual computer system will fail to boot. The default value for a virtual computer system is [0, 1, 2, 3, 4].
-Value definitions:
-0 (Floppy): The virtual computer system will attempt to boot from the floppy disk within the floppy drive.
-1 (CD-ROM): The virtual computer system will attempt to boot from the first CD or DVD disk found with a boot sector.
-2 (IDE Hard Drive): The virtual computer system will attempt to boot from the first hard drive found attached to an IDE controller with a boot sector.
-3 (PXE Boot): The virtual computer system will attempt to PXE boot from the network.
-4 (SCSI Hard Drive): The virtual computer system will attempt to boot from the first hard drive found attached to a SCSI controller with a boot sector.
-5-65535: Reserved
-This is a read-only property, but it can be changed using the ModifyVirtualSystem method of the Msvm_VirtualSystemManagementService class.")]
+        /*
+         * The boot order set within the BIOS of the virtual computer system. 
+         * This property is an array of values, max length 4, where each value indicates a device to boot from. 
+         * The virtual computer system will first attempt to boot from the device indicated by the first value within the array. 
+         * If that device does not contain a boot sector, the virtual computer system will attempt to boot from the next device specified by the BootOrder property and so on. 
+         * If no device specified within the BootOrder contains a boot sector the virtual computer system will fail to boot.
+         * The default value for a virtual computer system is [0, 1, 2, 3, 4].
+         * 
+         * Value definitions:
+         * 0 (Floppy): The virtual computer system will attempt to boot from the floppy disk within the floppy drive.
+         * 1 (CD-ROM): The virtual computer system will attempt to boot from the first CD or DVD disk found with a boot sector.
+         * 2 (IDE Hard Drive): The virtual computer system will attempt to boot from the first hard drive found attached to an IDE controller with a boot sector.
+         * 3 (PXE Boot): The virtual computer system will attempt to PXE boot from the network.
+         * 4 (SCSI Hard Drive): The virtual computer system will attempt to boot from the first hard drive found attached to a SCSI controller with a boot sector.
+         * 5-65535: Reserved
+         * 
+         * This is a read-only property, but it can be changed using the ModifyVirtualSystem method of the Msvm_VirtualSystemManagementService class.
+         */
         public ushort[] BootOrder
         {
             get
             {
-                return ((ushort[])(curObj[nameof(BootOrder)]));
+                return (ushort[])LateBoundObject[nameof(BootOrder)];
             }
             set
             {
-                curObj[nameof(BootOrder)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(BootOrder)] = value;
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("Contains references to the boot source entries of this virtual computer system. T" +
-            "his property is an array of strings, where each string is a full path to a Msvm_" +
-            "BootSourceSettingData instance indicating a device, file, or other boot source t" +
-            "o boot from.")]
+        /*
+         * Contains references to the boot source entries of this virtual computer system.
+         * This property is an array of strings, where each string is a full path to a Msvm_BootSourceSettingData instance
+         * indicating a device, file, or other boot source to boot from.
+         */
         public string[] BootSourceOrder
         {
             get
             {
-                return ((string[])(curObj[nameof(BootSourceOrder)]));
+                return (string[])LateBoundObject[nameof(BootSourceOrder)];
             }
             set
             {
-                curObj[nameof(BootSourceOrder)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(BootSourceOrder)] = value;
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string Caption
-        {
-            get
-            {
-                return ((string)(curObj[nameof(Caption)]));
-            }
-        }
+        public string Caption => (string)LateBoundObject[nameof(Caption)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("The asset tag of the chassis for the virtual computer system.\nThis is a read-only" +
-            " property, but it can be changed using the ModifyVirtualSystem method of the Msv" +
-            "m_VirtualSystemManagementService class.")]
+        /*
+         * The asset tag of the chassis for the virtual computer system.
+         * This is a read-only property, but it can be changed using the ModifyVirtualSystem method of the Msvm_VirtualSystemManagementService class.
+         */
         public string ChassisAssetTag
         {
             get
             {
-                return ((string)(curObj[nameof(ChassisAssetTag)]));
+                return (string)LateBoundObject[nameof(ChassisAssetTag)];
             }
             set
             {
-                curObj[nameof(ChassisAssetTag)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(ChassisAssetTag)] = value;
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("The serial number of the chassis for the virtual computer system.\nThis is a read-" +
-            "only property, but it can be changed using the ModifyVirtualSystem method of the" +
-            " Msvm_VirtualSystemManagementService class.")]
+        /*
+         * The serial number of the chassis for the virtual computer system.
+         * This is a read-only property, but it can be changed using the ModifyVirtualSystem method of the Msvm_VirtualSystemManagementService class.
+         */
         public string ChassisSerialNumber
         {
             get
             {
-                return ((string)(curObj[nameof(ChassisSerialNumber)]));
+                return (string)LateBoundObject[nameof(ChassisSerialNumber)];
             }
             set
             {
-                curObj[nameof(ChassisSerialNumber)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(ChassisSerialNumber)] = value;
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string ConfigurationDataRoot
-        {
-            get
-            {
-                return ((string)(curObj[nameof(ConfigurationDataRoot)]));
-            }
-        }
+        public string ConfigurationDataRoot => (string)LateBoundObject[nameof(ConfigurationDataRoot)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string ConfigurationFile
-        {
-            get
-            {
-                return ((string)(curObj[nameof(ConfigurationFile)]));
-            }
-        }
+        public string ConfigurationFile => (string)LateBoundObject[nameof(ConfigurationFile)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string ConfigurationID
-        {
-            get
-            {
-                return ((string)(curObj[nameof(ConfigurationID)]));
-            }
-        }
+        public string ConfigurationID => (string)LateBoundObject[nameof(ConfigurationID)];
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsConsoleModeNull
         {
             get
             {
-                if ((curObj[nameof(ConsoleMode)] == null))
+                if (LateBoundObject[nameof(ConsoleMode)] == null)
                 {
                     return true;
                 }
@@ -928,45 +768,42 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("Identifies the Console Mode for the VM")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * Identifies the Console Mode for the VM.
+         */
         public ConsoleModeValues ConsoleMode
         {
             get
             {
-                if ((curObj[nameof(ConsoleMode)] == null))
+                if (LateBoundObject[nameof(ConsoleMode)] == null)
                 {
-                    return ((ConsoleModeValues)(Convert.ToInt32(4)));
+                    return (ConsoleModeValues)Convert.ToInt32(4);
                 }
-                return ((ConsoleModeValues)(Convert.ToInt32(curObj[nameof(ConsoleMode)])));
+                return (ConsoleModeValues)Convert.ToInt32(LateBoundObject[nameof(ConsoleMode)]);
             }
             set
             {
-                if ((ConsoleModeValues.NULL_ENUM_VALUE == value))
+                if (ConsoleModeValues.NULL_ENUM_VALUE == value)
                 {
-                    curObj[nameof(ConsoleMode)] = null;
+                    LateBoundObject[nameof(ConsoleMode)] = null;
                 }
                 else
                 {
-                    curObj[nameof(ConsoleMode)] = value;
+                    LateBoundObject[nameof(ConsoleMode)] = value;
                 }
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsCreationTimeNull
         {
             get
             {
-                if ((curObj[nameof(CreationTime)] == null))
+                if (LateBoundObject[nameof(CreationTime)] == null)
                 {
                     return true;
                 }
@@ -977,16 +814,13 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public DateTime CreationTime
         {
             get
             {
-                if ((curObj[nameof(CreationTime)] != null))
+                if (LateBoundObject[nameof(CreationTime)] != null)
                 {
-                    return ToDateTime(((string)(curObj[nameof(CreationTime)])));
+                    return ToDateTime((string)LateBoundObject[nameof(CreationTime)]);
                 }
                 else
                 {
@@ -995,13 +829,11 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsDebugChannelIdNull
         {
             get
             {
-                if ((curObj[nameof(DebugChannelId)] == null))
+                if (LateBoundObject[nameof(DebugChannelId)] == null)
                 {
                     return true;
                 }
@@ -1012,39 +844,35 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("The channel identifier used to debug the virtual system using the VUD unified deb" +
-            "ugger.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * The channel identifier used to debug the virtual system using the VUD unified debugger.
+         */
         public uint DebugChannelId
         {
             get
             {
-                if ((curObj[nameof(DebugChannelId)] == null))
+                if (LateBoundObject[nameof(DebugChannelId)] == null)
                 {
                     return Convert.ToUInt32(0);
                 }
-                return ((uint)(curObj[nameof(DebugChannelId)]));
+                return (uint)LateBoundObject[nameof(DebugChannelId)];
             }
             set
             {
-                curObj[nameof(DebugChannelId)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(DebugChannelId)] = value;
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsDebugPortNull
         {
             get
             {
-                if ((curObj[nameof(DebugPort)] == null))
+                if (LateBoundObject[nameof(DebugPort)] == null)
                 {
                     return true;
                 }
@@ -1055,38 +883,35 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("The tcpip port used to debug the virtual system using synthetic debugging.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * The tcpip port used to debug the virtual system using synthetic debugging.
+         */
         public uint DebugPort
         {
             get
             {
-                if ((curObj[nameof(DebugPort)] == null))
+                if (LateBoundObject[nameof(DebugPort)] == null)
                 {
                     return Convert.ToUInt32(0);
                 }
-                return ((uint)(curObj[nameof(DebugPort)]));
+                return (uint)LateBoundObject[nameof(DebugPort)];
             }
             set
             {
-                curObj[nameof(DebugPort)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(DebugPort)] = value;
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsDebugPortEnabledNull
         {
             get
             {
-                if ((curObj[nameof(DebugPortEnabled)] == null))
+                if (LateBoundObject[nameof(DebugPortEnabled)] == null)
                 {
                     return true;
                 }
@@ -1097,65 +922,46 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("Whether the virtual system is using synthetic debugging.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * Whether the virtual system is using synthetic debugging.
+         */
         public DebugPortEnabledValues DebugPortEnabled
         {
             get
             {
-                if ((curObj[nameof(DebugPortEnabled)] == null))
+                if (LateBoundObject[nameof(DebugPortEnabled)] == null)
                 {
-                    return ((DebugPortEnabledValues)(Convert.ToInt32(3)));
+                    return (DebugPortEnabledValues)Convert.ToInt32(3);
                 }
-                return ((DebugPortEnabledValues)(Convert.ToInt32(curObj[nameof(DebugPortEnabled)])));
+                return (DebugPortEnabledValues)Convert.ToInt32(LateBoundObject[nameof(DebugPortEnabled)]);
             }
             set
             {
-                if ((DebugPortEnabledValues.NULL_ENUM_VALUE == value))
+                if (DebugPortEnabledValues.NULL_ENUM_VALUE == value)
                 {
-                    curObj[nameof(DebugPortEnabled)] = null;
+                    LateBoundObject[nameof(DebugPortEnabled)] = null;
                 }
                 else
                 {
-                    curObj[nameof(DebugPortEnabled)] = value;
+                    LateBoundObject[nameof(DebugPortEnabled)] = value;
                 }
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string Description
-        {
-            get
-            {
-                return ((string)(curObj[nameof(Description)]));
-            }
-        }
+        public string Description => (string)LateBoundObject[nameof(Description)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string ElementName
-        {
-            get
-            {
-                return ((string)(curObj[nameof(ElementName)]));
-            }
-        }
+        public string ElementName => (string)LateBoundObject[nameof(ElementName)];
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsEnableHibernationNull
         {
             get
             {
-                if ((curObj[nameof(EnableHibernation)] == null))
+                if (LateBoundObject[nameof(EnableHibernation)] == null)
                 {
                     return true;
                 }
@@ -1166,41 +972,36 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("This property is set to TRUE if hibernate (S4) is enabled by the BIOS, FALSE if h" +
-            "ibernate is disabled.\nThis is a read-only property, but it can be changed using " +
-            "the ModifyVirtualSystem method of the Msvm_VirtualSystemManagementService class." +
-            "")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * This property is set to TRUE if hibernate (S4) is enabled by the BIOS, FALSE if hibernate is disabled.
+         * This is a read-only property, but it can be changed using the ModifyVirtualSystem method of the Msvm_VirtualSystemManagementService class.
+         */
         public bool EnableHibernation
         {
             get
             {
-                if ((curObj[nameof(EnableHibernation)] == null))
+                if (LateBoundObject[nameof(EnableHibernation)] == null)
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj[nameof(EnableHibernation)]));
+                return (bool)LateBoundObject[nameof(EnableHibernation)];
             }
             set
             {
-                curObj[nameof(EnableHibernation)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(EnableHibernation)] = value;
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsEnhancedSessionTransportTypeNull
         {
             get
             {
-                if ((curObj[nameof(EnhancedSessionTransportType)] == null))
+                if (LateBoundObject[nameof(EnhancedSessionTransportType)] == null)
                 {
                     return true;
                 }
@@ -1211,45 +1012,42 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("Indicates the transport type to use when connecting to an enhanced session.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * Indicates the transport type to use when connecting to an enhanced session.
+         */
         public EnhancedSessionTransportTypeValues EnhancedSessionTransportType
         {
             get
             {
-                if ((curObj[nameof(EnhancedSessionTransportType)] == null))
+                if (LateBoundObject[nameof(EnhancedSessionTransportType)] == null)
                 {
-                    return ((EnhancedSessionTransportTypeValues)(Convert.ToInt32(2)));
+                    return (EnhancedSessionTransportTypeValues)Convert.ToInt32(2);
                 }
-                return ((EnhancedSessionTransportTypeValues)(Convert.ToInt32(curObj[nameof(EnhancedSessionTransportType)])));
+                return (EnhancedSessionTransportTypeValues)Convert.ToInt32(LateBoundObject[nameof(EnhancedSessionTransportType)]);
             }
             set
             {
-                if ((EnhancedSessionTransportTypeValues.NULL_ENUM_VALUE == value))
+                if (EnhancedSessionTransportTypeValues.NULL_ENUM_VALUE == value)
                 {
-                    curObj[nameof(EnhancedSessionTransportType)] = null;
+                    LateBoundObject[nameof(EnhancedSessionTransportType)] = null;
                 }
                 else
                 {
-                    curObj[nameof(EnhancedSessionTransportType)] = value;
+                    LateBoundObject[nameof(EnhancedSessionTransportType)] = value;
                 }
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsGuestControlledCacheTypesNull
         {
             get
             {
-                if ((curObj[nameof(GuestControlledCacheTypes)] == null))
+                if (LateBoundObject[nameof(GuestControlledCacheTypes)] == null)
                 {
                     return true;
                 }
@@ -1260,62 +1058,45 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("Indicates whether the guest can control cache types.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * Indicates whether the guest can control cache types.
+         */
         public bool GuestControlledCacheTypes
         {
             get
             {
-                if ((curObj[nameof(GuestControlledCacheTypes)] == null))
+                if (LateBoundObject[nameof(GuestControlledCacheTypes)] == null)
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj[nameof(GuestControlledCacheTypes)]));
+                return (bool)LateBoundObject[nameof(GuestControlledCacheTypes)];
             }
             set
             {
-                curObj[nameof(GuestControlledCacheTypes)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(GuestControlledCacheTypes)] = value;
+                if ((isEmbedded == false) && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("Filepath of a directory where information about the guest runtime state is stored" +
-            ".")]
-        public string GuestStateDataRoot
-        {
-            get
-            {
-                return ((string)(curObj[nameof(GuestStateDataRoot)]));
-            }
-        }
+        /*
+         * Filepath of a directory where information about the guest runtime state is stored
+         */
+        public string GuestStateDataRoot => (string)LateBoundObject[nameof(GuestStateDataRoot)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("Filepath of a file where information about the guest runtime state is stored. A r" +
-            "elative path appends to the value of the GuestStateDataRoot property.")]
-        public string GuestStateFile
-        {
-            get
-            {
-                return ((string)(curObj[nameof(GuestStateFile)]));
-            }
-        }
+        /*
+         * Filepath of a file where information about the guest runtime state is stored.
+         * A relative path appends to the value of the GuestStateDataRoot property.
+         */
+        public string GuestStateFile => (string)LateBoundObject[nameof(GuestStateFile)];
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsHighMmioGapBaseNull
         {
             get
             {
-                if ((curObj[nameof(HighMmioGapBase)] == null))
+                if (LateBoundObject[nameof(HighMmioGapBase)] == null)
                 {
                     return true;
                 }
@@ -1326,38 +1107,34 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("The base address of the High (above 4GB) Memory-Mapped IO Gap in MB\n")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * The base address of the High (above 4GB) Memory-Mapped IO Gap in MB.
+         */
         public ulong HighMmioGapBase
         {
             get
             {
-                if ((curObj[nameof(HighMmioGapBase)] == null))
+                if (LateBoundObject[nameof(HighMmioGapBase)] == null)
                 {
                     return Convert.ToUInt64(0);
                 }
-                return ((ulong)(curObj[nameof(HighMmioGapBase)]));
+                return (ulong)LateBoundObject[nameof(HighMmioGapBase)];
             }
             set
             {
-                curObj[nameof(HighMmioGapBase)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(HighMmioGapBase)] = value;
+                if ((isEmbedded == false) && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsHighMmioGapSizeNull
         {
             get
             {
-                if ((curObj[nameof(HighMmioGapSize)] == null))
+                if (LateBoundObject[nameof(HighMmioGapSize)] == null)
                 {
                     return true;
                 }
@@ -1368,38 +1145,34 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("The size of the High (above 4GB) Memory-Mapped IO Gap in MB\n")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * The size of the High (above 4GB) Memory-Mapped IO Gap in MB.
+         */
         public ulong HighMmioGapSize
         {
             get
             {
-                if ((curObj[nameof(HighMmioGapSize)] == null))
+                if (LateBoundObject[nameof(HighMmioGapSize)] == null)
                 {
                     return Convert.ToUInt64(0);
                 }
-                return ((ulong)(curObj[nameof(HighMmioGapSize)]));
+                return (ulong)LateBoundObject[nameof(HighMmioGapSize)];
             }
             set
             {
-                curObj[nameof(HighMmioGapSize)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(HighMmioGapSize)] = value;
+                if ((isEmbedded == false) && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsIncrementalBackupEnabledNull
         {
             get
             {
-                if ((curObj[nameof(IncrementalBackupEnabled)] == null))
+                if (LateBoundObject[nameof(IncrementalBackupEnabled)] == null)
                 {
                     return true;
                 }
@@ -1410,49 +1183,37 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("Indicates whether the Hyper-V VSS writer supports taking incremental backup of th" +
-            "is Virtual machine.\nThis is a read-write property.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * Indicates whether the Hyper-V VSS writer supports taking incremental backup of this Virtual machine.
+         * This is a read-write property.
+         */
         public bool IncrementalBackupEnabled
         {
             get
             {
-                if ((curObj[nameof(IncrementalBackupEnabled)] == null))
+                if (LateBoundObject[nameof(IncrementalBackupEnabled)] == null)
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj[nameof(IncrementalBackupEnabled)]));
+                return (bool)LateBoundObject[nameof(IncrementalBackupEnabled)];
             }
             set
             {
-                curObj[nameof(IncrementalBackupEnabled)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(IncrementalBackupEnabled)] = value;
+                if ((isEmbedded == false) && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string InstanceID
-        {
-            get
-            {
-                return ((string)(curObj[nameof(InstanceID)]));
-            }
-        }
+        public string InstanceID => (string)LateBoundObject[nameof(InstanceID)];
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsIsAutomaticSnapshotNull
         {
             get
             {
-                if ((curObj[nameof(IsAutomaticSnapshot)] == null))
+                if (LateBoundObject[nameof(IsAutomaticSnapshot)] == null)
                 {
                     return true;
                 }
@@ -1463,29 +1224,26 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("Indicates whether this is a snapshot created automatically for the user.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * Indicates whether this is a snapshot created automatically for the user.
+         */
         public bool IsAutomaticSnapshot
         {
             get
             {
-                if ((curObj[nameof(IsAutomaticSnapshot)] == null))
+                if (LateBoundObject[nameof(IsAutomaticSnapshot)] == null)
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj[nameof(IsAutomaticSnapshot)]));
+                return (bool)LateBoundObject[nameof(IsAutomaticSnapshot)];
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsIsSavedNull
         {
             get
             {
-                if ((curObj[nameof(IsSaved)] == null))
+                if (LateBoundObject[nameof(IsSaved)] == null)
                 {
                     return true;
                 }
@@ -1496,30 +1254,28 @@ This is a read-only property, but it can be changed using the ModifyVirtualSyste
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description(@"This property is set to TRUE if the configuration has a reference to a saved state file, FALSE if not. Note that this does not indicate the presence of such a file, only that the configuration specifies one.
-This is a read-only property, it cannot be changed.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * This property is set to TRUE if the configuration has a reference to a saved state file, FALSE if not.
+         * Note that this does not indicate the presence of such a file, only that the configuration specifies one.
+         * This is a read-only property, it cannot be changed.
+         */
         public bool IsSaved
         {
             get
             {
-                if ((curObj[nameof(IsSaved)] == null))
+                if (LateBoundObject[nameof(IsSaved)] == null)
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj[nameof(IsSaved)]));
+                return (bool)LateBoundObject[nameof(IsSaved)];
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsLockOnDisconnectNull
         {
             get
             {
-                if ((curObj[nameof(LockOnDisconnect)] == null))
+                if (LateBoundObject[nameof(LockOnDisconnect)] == null)
                 {
                     return true;
                 }
@@ -1530,48 +1286,37 @@ This is a read-only property, it cannot be changed.")]
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("Lock the console when disconnecting from vmconnect.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * Lock the console when disconnecting from vmconnect.
+         */
         public bool LockOnDisconnect
         {
             get
             {
-                if ((curObj[nameof(LockOnDisconnect)] == null))
+                if (LateBoundObject[nameof(LockOnDisconnect)] == null)
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj[nameof(LockOnDisconnect)]));
+                return (bool)LateBoundObject[nameof(LockOnDisconnect)];
             }
             set
             {
-                curObj[nameof(LockOnDisconnect)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(LockOnDisconnect)] = value;
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string LogDataRoot
-        {
-            get
-            {
-                return ((string)(curObj[nameof(LogDataRoot)]));
-            }
-        }
+        public string LogDataRoot => (string)LateBoundObject[nameof(LogDataRoot)];
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsLowMmioGapSizeNull
         {
             get
             {
-                if ((curObj[nameof(LowMmioGapSize)] == null))
+                if (LateBoundObject[nameof(LowMmioGapSize)] == null)
                 {
                     return true;
                 }
@@ -1582,38 +1327,35 @@ This is a read-only property, it cannot be changed.")]
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("The size of the Low (below 4GB) Memory-Mapped IO Gap in MB\n")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * The size of the Low (below 4GB) Memory-Mapped IO Gap in MB.
+         */
         public ulong LowMmioGapSize
         {
             get
             {
-                if ((curObj[nameof(LowMmioGapSize)] == null))
+                if (LateBoundObject[nameof(LowMmioGapSize)] == null)
                 {
                     return Convert.ToUInt64(0);
                 }
-                return ((ulong)(curObj[nameof(LowMmioGapSize)]));
+                return (ulong)LateBoundObject[nameof(LowMmioGapSize)];
             }
             set
             {
-                curObj[nameof(LowMmioGapSize)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(LowMmioGapSize)] = value;
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsNetworkBootPreferredProtocolNull
         {
             get
             {
-                if ((curObj[nameof(NetworkBootPreferredProtocol)] == null))
+                if (LateBoundObject[nameof(NetworkBootPreferredProtocol)] == null)
                 {
                     return true;
                 }
@@ -1624,68 +1366,50 @@ This is a read-only property, it cannot be changed.")]
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("Identifies the IP protocol used for network boot.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * Identifies the IP protocol used for network boot.
+         */
         public NetworkBootPreferredProtocolValues NetworkBootPreferredProtocol
         {
             get
             {
-                if ((curObj[nameof(NetworkBootPreferredProtocol)] == null))
+                if (LateBoundObject[nameof(NetworkBootPreferredProtocol)] == null)
                 {
-                    return ((NetworkBootPreferredProtocolValues)(Convert.ToInt32(0)));
+                    return (NetworkBootPreferredProtocolValues)Convert.ToInt32(0);
                 }
-                return ((NetworkBootPreferredProtocolValues)(Convert.ToInt32(curObj[nameof(NetworkBootPreferredProtocol)])));
+                return (NetworkBootPreferredProtocolValues)Convert.ToInt32(LateBoundObject[nameof(NetworkBootPreferredProtocol)]);
             }
             set
             {
-                if ((NetworkBootPreferredProtocolValues.NULL_ENUM_VALUE == value))
+                if (NetworkBootPreferredProtocolValues.NULL_ENUM_VALUE == value)
                 {
-                    curObj[nameof(NetworkBootPreferredProtocol)] = null;
+                    LateBoundObject[nameof(NetworkBootPreferredProtocol)] = null;
                 }
                 else
                 {
-                    curObj[nameof(NetworkBootPreferredProtocol)] = value;
+                    LateBoundObject[nameof(NetworkBootPreferredProtocol)] = value;
                 }
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string[] Notes
-        {
-            get
-            {
-                return ((string[])(curObj[nameof(Notes)]));
-            }
-        }
+        public string[] Notes => (string[])LateBoundObject[nameof(Notes)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("The object path for the snapshot Msvm_VirtualSystemSettingData from which this ob" +
-            "ject is based. This property will be NULL if this object is not based off a snap" +
-            "shot.")]
-        public string Parent
-        {
-            get
-            {
-                return ((string)(curObj[nameof(Parent)]));
-            }
-        }
+        /*
+         * The object path for the snapshot Msvm_VirtualSystemSettingData from which this object is based.
+         * This property will be NULL if this object is not based off a snapshot.
+         */
+        public string Parent => (string)LateBoundObject[nameof(Parent)];
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsPauseAfterBootFailureNull
         {
             get
             {
-                if ((curObj[nameof(PauseAfterBootFailure)] == null))
+                if (LateBoundObject[nameof(PauseAfterBootFailure)] == null)
                 {
                     return true;
                 }
@@ -1696,48 +1420,37 @@ This is a read-only property, it cannot be changed.")]
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("Pause after boot failure setting for the VM")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * Pause after boot failure setting for the VM.
+         */
         public bool PauseAfterBootFailure
         {
             get
             {
-                if ((curObj[nameof(PauseAfterBootFailure)] == null))
+                if (LateBoundObject[nameof(PauseAfterBootFailure)] == null)
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj[nameof(PauseAfterBootFailure)]));
+                return (bool)LateBoundObject[nameof(PauseAfterBootFailure)];
             }
             set
             {
-                curObj[nameof(PauseAfterBootFailure)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(PauseAfterBootFailure)] = value;
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string RecoveryFile
-        {
-            get
-            {
-                return ((string)(curObj[nameof(RecoveryFile)]));
-            }
-        }
+        public string RecoveryFile => (string)LateBoundObject[nameof(RecoveryFile)];
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsSecureBootEnabledNull
         {
             get
             {
-                if ((curObj[nameof(SecureBootEnabled)] == null))
+                if (LateBoundObject[nameof(SecureBootEnabled)] == null)
                 {
                     return true;
                 }
@@ -1748,91 +1461,62 @@ This is a read-only property, it cannot be changed.")]
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("Secure boot enabled setting for the VM")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * Secure boot enabled setting for the VM.
+         */
         public bool SecureBootEnabled
         {
             get
             {
-                if ((curObj[nameof(SecureBootEnabled)] == null))
+                if (LateBoundObject[nameof(SecureBootEnabled)] == null)
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj[nameof(SecureBootEnabled)]));
+                return (bool)LateBoundObject[nameof(SecureBootEnabled)];
             }
             set
             {
-                curObj[nameof(SecureBootEnabled)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(SecureBootEnabled)] = value;
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("The globally-unique identifier of the template of intial values of UEFI Secure Bo" +
-            "ot related variables.\nThis is a read-only property, but it can be changed using " +
-            "the ModifyVirtualSystem method of the Msvm_VirtualSystemManagementService class." +
-            "")]
+        /*
+         * The globally-unique identifier of the template of intial values of UEFI Secure Boot related variables.
+         * This is a read-only property, but it can be changed using the ModifyVirtualSystem method of the Msvm_VirtualSystemManagementService class.
+         */
         public string SecureBootTemplateId
         {
             get
             {
-                return ((string)(curObj[nameof(SecureBootTemplateId)]));
+                return (string)LateBoundObject[nameof(SecureBootTemplateId)];
             }
             set
             {
-                curObj[nameof(SecureBootTemplateId)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(SecureBootTemplateId)] = value;
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string SnapshotDataRoot
-        {
-            get
-            {
-                return ((string)(curObj[nameof(SnapshotDataRoot)]));
-            }
-        }
+        public string SnapshotDataRoot => (string)LateBoundObject[nameof(SnapshotDataRoot)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string SuspendDataRoot
-        {
-            get
-            {
-                return ((string)(curObj[nameof(SuspendDataRoot)]));
-            }
-        }
+        public string SuspendDataRoot => (string)LateBoundObject[nameof(SuspendDataRoot)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string SwapFileDataRoot
-        {
-            get
-            {
-                return ((string)(curObj[nameof(SwapFileDataRoot)]));
-            }
-        }
+        public string SwapFileDataRoot => (string)LateBoundObject[nameof(SwapFileDataRoot)];
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsTurnOffOnGuestRestartNull
         {
             get
             {
-                if ((curObj[nameof(TurnOffOnGuestRestart)] == null))
+                if (LateBoundObject[nameof(TurnOffOnGuestRestart)] == null)
                 {
                     return true;
                 }
@@ -1843,39 +1527,35 @@ This is a read-only property, it cannot be changed.")]
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("Turn off the VM instead of restarting the VM if the guest operating system initia" +
-            "ted a restart.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * Turn off the VM instead of restarting the VM if the guest operating system initiated a restart.
+         */
         public bool TurnOffOnGuestRestart
         {
             get
             {
-                if ((curObj[nameof(TurnOffOnGuestRestart)] == null))
+                if (LateBoundObject[nameof(TurnOffOnGuestRestart)] == null)
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj[nameof(TurnOffOnGuestRestart)]));
+                return (bool)LateBoundObject[nameof(TurnOffOnGuestRestart)];
             }
             set
             {
-                curObj[nameof(TurnOffOnGuestRestart)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(TurnOffOnGuestRestart)] = value;
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsUserSnapshotTypeNull
         {
             get
             {
-                if ((curObj[nameof(UserSnapshotType)] == null))
+                if (LateBoundObject[nameof(UserSnapshotType)] == null)
                 {
                     return true;
                 }
@@ -1886,62 +1566,51 @@ This is a read-only property, it cannot be changed.")]
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description(@"Indicates the user-defined snapshot type. 
-Disable: Disable the creation of any snapshot. 
-ProductionFallbackToTest: Data-consistent snapshot for use in the production environment.Performs a snapshot with application state when the ability to create data consistent snapshot is not available. 
-ProductionNoFallback: Data-consistent snapshot for use in the production environment.Does not create a snapshot with application state if it is not possible to create a data consistent snapshot. 
-Test: Snapshot that contains memory and device information for test and development purpose. 
-")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * Indicates the user-defined snapshot type. 
+         * Disable: Disable the creation of any snapshot.
+         * ProductionFallbackToTest: Data-consistent snapshot for use in the production environment. Performs a snapshot with application state when the ability to create data consistent snapshot is not available.
+         * ProductionNoFallback: Data-consistent snapshot for use in the production environment.Does not create a snapshot with application state if it is not possible to create a data consistent snapshot.
+         * Test: Snapshot that contains memory and device information for test and development purpose. 
+         */
         public UserSnapshotTypeValues UserSnapshotType
         {
             get
             {
-                if ((curObj[nameof(UserSnapshotType)] == null))
+                if (LateBoundObject[nameof(UserSnapshotType)] == null)
                 {
-                    return ((UserSnapshotTypeValues)(Convert.ToInt32(0)));
+                    return (UserSnapshotTypeValues)Convert.ToInt32(0);
                 }
-                return ((UserSnapshotTypeValues)(Convert.ToInt32(curObj[nameof(UserSnapshotType)])));
+                return (UserSnapshotTypeValues)Convert.ToInt32(LateBoundObject[nameof(UserSnapshotType)]);
             }
             set
             {
-                if ((UserSnapshotTypeValues.NULL_ENUM_VALUE == value))
+                if (UserSnapshotTypeValues.NULL_ENUM_VALUE == value)
                 {
-                    curObj[nameof(UserSnapshotType)] = null;
+                    LateBoundObject[nameof(UserSnapshotType)] = null;
                 }
                 else
                 {
-                    curObj[nameof(UserSnapshotType)] = value;
+                    LateBoundObject[nameof(UserSnapshotType)] = value;
                 }
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                if ((isEmbedded == false) && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("The version of the virtual system in a format of \"major.minor\", for example \"2.0\"" +
-            ".\nWindows Server 2008:  The Version property is not supported.")]
-        public string Version
-        {
-            get
-            {
-                return ((string)(curObj[nameof(Version)]));
-            }
-        }
+        /*
+         * The version of the virtual system in a format of "major.minor", for example "2.0"
+         * Windows Server 2008:  The Version property is not supported.
+         */
+        public string Version => (string)LateBoundObject[nameof(Version)];
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsVirtualNumaEnabledNull
         {
             get
             {
-                if ((curObj[nameof(VirtualNumaEnabled)] == null))
+                if (LateBoundObject[nameof(VirtualNumaEnabled)] == null)
                 {
                     return true;
                 }
@@ -1952,93 +1621,75 @@ Test: Snapshot that contains memory and device information for test and developm
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description(@"Indicates whether virtual non-uniform memory access (NUMA) nodes are projected into the virtual machine. If FALSE, the virtual machine will have a single node. If TRUE, the number of virtual NUMA nodes projected into the virtual machine is determined from the values of the Msvm_ProcessorSettingData.MaxProcessorsPerNumaNode and Msvm_MemorySettingData.MaxMemoryBlocksPerNumaNode properties.
-")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * Indicates whether virtual non-uniform memory access (NUMA) nodes are projected into the virtual machine. 
+         * If FALSE, the virtual machine will have a single node.
+         * If TRUE, the number of virtual NUMA nodes projected into the virtual machine is determined
+         * from the values of the Msvm_ProcessorSettingData.MaxProcessorsPerNumaNode and Msvm_MemorySettingData.MaxMemoryBlocksPerNumaNode properties.
+         */
         public bool VirtualNumaEnabled
         {
             get
             {
-                if ((curObj[nameof(VirtualNumaEnabled)] == null))
+                if (LateBoundObject[nameof(VirtualNumaEnabled)] == null)
                 {
                     return Convert.ToBoolean(0);
                 }
-                return ((bool)(curObj[nameof(VirtualNumaEnabled)]));
+                return (bool)LateBoundObject[nameof(VirtualNumaEnabled)];
             }
             set
             {
-                curObj[nameof(VirtualNumaEnabled)] = value;
-                if (((isEmbedded == false)
-                            && (AutoCommitProp == true)))
+                LateBoundObject[nameof(VirtualNumaEnabled)] = value;
+                if ((isEmbedded == false)
+                            && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("The name of the CIM_ComputerSystem to which this setting data belongs")]
-        public string VirtualSystemIdentifier
-        {
-            get
-            {
-                return ((string)(curObj[nameof(VirtualSystemIdentifier)]));
-            }
-        }
+        /*
+         * The name of the CIM_ComputerSystem to which this setting data belongs.
+         */
+        public string VirtualSystemIdentifier => (string)LateBoundObject[nameof(VirtualSystemIdentifier)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("The subtype of the virtual system.")]
-        public string VirtualSystemSubType
-        {
-            get
-            {
-                return ((string)(curObj[nameof(VirtualSystemSubType)]));
-            }
-        }
+        /*
+         * The subtype of the virtual system.
+         */
+        public string VirtualSystemSubType => (string)LateBoundObject[nameof(VirtualSystemSubType)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string VirtualSystemType
-        {
-            get
-            {
-                return ((string)(curObj[nameof(VirtualSystemType)]));
-            }
-        }
+        public string VirtualSystemType => (string)LateBoundObject[nameof(VirtualSystemType)];
 
         private bool CheckIfProperClass(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions OptionsParam)
         {
-            if (((path != null)
-                        && (string.Compare(path.ClassName, ManagementClassName, true, CultureInfo.InvariantCulture) == 0)))
+            if ((path != null) && (string.Compare(path.ClassName, ManagementClassName, true, CultureInfo.InvariantCulture) == 0))
             {
                 return true;
             }
             else
             {
-                return CheckIfProperClass(new ManagementObject(mgmtScope, path, OptionsParam));
+                using (ManagementObject theObj = new ManagementObject(mgmtScope, path, OptionsParam))
+                {
+                    return CheckIfProperClass(theObj);
+                }
             }
         }
-
+        
         private bool CheckIfProperClass(ManagementBaseObject theObj)
         {
-            if (((theObj != null)
-                        && (string.Compare(((string)(theObj["__CLASS"])), ManagementClassName, true, CultureInfo.InvariantCulture) == 0)))
+            if ((theObj != null) && (string.Compare((string)theObj["__CLASS"], ManagementClassName, true, CultureInfo.InvariantCulture) == 0))
             {
                 return true;
             }
             else
             {
-                Array parentClasses = ((Array)(theObj["__DERIVATION"]));
-                if ((parentClasses != null))
+                Array parentClasses = (Array)theObj["__DERIVATION"];
+                if (parentClasses != null)
                 {
-                    int count = 0;
-                    for (count = 0; (count < parentClasses.Length); count = (count + 1))
+                    int count;
+                    for (count = 0; count < parentClasses.Length; count = count + 1)
                     {
-                        if ((string.Compare(((string)(parentClasses.GetValue(count))), ManagementClassName, true, CultureInfo.InvariantCulture) == 0))
+                        if (string.Compare((string)parentClasses.GetValue(count), ManagementClassName, true, CultureInfo.InvariantCulture) == 0)
                         {
                             return true;
                         }
@@ -2050,9 +1701,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetAdditionalRecoveryInformation()
         {
-            curObj[nameof(AdditionalRecoveryInformation)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(AdditionalRecoveryInformation)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2060,7 +1711,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeAllowFullSCSICommandSet()
         {
-            if ((IsAllowFullSCSICommandSetNull == false))
+            if (IsAllowFullSCSICommandSetNull == false)
             {
                 return true;
             }
@@ -2069,9 +1720,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetAllowFullSCSICommandSet()
         {
-            curObj[nameof(AllowFullSCSICommandSet)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(AllowFullSCSICommandSet)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2079,7 +1730,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeAllowReducedFcRedundancy()
         {
-            if ((IsAllowReducedFcRedundancyNull == false))
+            if (IsAllowReducedFcRedundancyNull == false)
             {
                 return true;
             }
@@ -2088,9 +1739,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetAllowReducedFcRedundancy()
         {
-            curObj[nameof(AllowReducedFcRedundancy)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(AllowReducedFcRedundancy)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2098,7 +1749,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeAutomaticCriticalErrorAction()
         {
-            if ((IsAutomaticCriticalErrorActionNull == false))
+            if (IsAutomaticCriticalErrorActionNull == false)
             {
                 return true;
             }
@@ -2107,9 +1758,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetAutomaticCriticalErrorAction()
         {
-            curObj[nameof(AutomaticCriticalErrorAction)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(AutomaticCriticalErrorAction)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2118,27 +1769,27 @@ Test: Snapshot that contains memory and device information for test and developm
         // Converts a given time interval in DMTF format to System.TimeSpan object.
         static TimeSpan ToTimeSpan(string dmtfTimespan)
         {
-            int days = 0;
-            int hours = 0;
-            int minutes = 0;
-            int seconds = 0;
-            long ticks = 0;
-            if ((dmtfTimespan == null))
+            if (dmtfTimespan == null)
             {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(dmtfTimespan);
             }
-            if ((dmtfTimespan.Length == 0))
+            if (dmtfTimespan.Length == 0)
             {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(dmtfTimespan);
             }
-            if ((dmtfTimespan.Length != 25))
+            if (dmtfTimespan.Length != 25)
             {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(dmtfTimespan);
             }
-            if ((dmtfTimespan.Substring(21, 4) != ":000"))
+            if (dmtfTimespan.Substring(21, 4) != ":000")
             {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(dmtfTimespan);
             }
+            int days;
+            int hours;
+            int minutes;
+            int seconds;
+            long ticks;
             try
             {
                 string tempString = string.Empty;
@@ -2151,7 +1802,7 @@ Test: Snapshot that contains memory and device information for test and developm
                 tempString = dmtfTimespan.Substring(12, 2);
                 seconds = int.Parse(tempString);
                 tempString = dmtfTimespan.Substring(15, 6);
-                ticks = (long.Parse(tempString) * (TimeSpan.TicksPerMillisecond / 1000));
+                ticks = long.Parse(tempString) * (TimeSpan.TicksPerMillisecond / 1000);
             }
             catch (Exception e)
             {
@@ -2168,25 +1819,25 @@ Test: Snapshot that contains memory and device information for test and developm
         {
             string dmtftimespan = timespan.Days.ToString().PadLeft(8, '0');
             TimeSpan maxTimeSpan = TimeSpan.MaxValue;
-            if ((timespan.Days > maxTimeSpan.Days))
+            if (timespan.Days > maxTimeSpan.Days)
             {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(timespan.ToString());
             }
             TimeSpan minTimeSpan = TimeSpan.MinValue;
-            if ((timespan.Days < minTimeSpan.Days))
+            if (timespan.Days < minTimeSpan.Days)
             {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(timespan.ToString());
             }
             dmtftimespan = string.Concat(dmtftimespan, timespan.Hours.ToString().PadLeft(2, '0'));
             dmtftimespan = string.Concat(dmtftimespan, timespan.Minutes.ToString().PadLeft(2, '0'));
             dmtftimespan = string.Concat(dmtftimespan, timespan.Seconds.ToString().PadLeft(2, '0'));
             dmtftimespan = string.Concat(dmtftimespan, ".");
             TimeSpan tsTemp = new TimeSpan(timespan.Days, timespan.Hours, timespan.Minutes, timespan.Seconds, 0);
-            long microsec = (((timespan.Ticks - tsTemp.Ticks)
-                        * 1000)
-                        / TimeSpan.TicksPerMillisecond);
+            long microsec = (timespan.Ticks - tsTemp.Ticks)
+                        * 1000
+                        / TimeSpan.TicksPerMillisecond;
             string strMicroSec = microsec.ToString();
-            if ((strMicroSec.Length > 6))
+            if (strMicroSec.Length > 6)
             {
                 strMicroSec = strMicroSec.Substring(0, 6);
             }
@@ -2197,7 +1848,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeAutomaticCriticalErrorActionTimeout()
         {
-            if ((IsAutomaticCriticalErrorActionTimeoutNull == false))
+            if (IsAutomaticCriticalErrorActionTimeoutNull == false)
             {
                 return true;
             }
@@ -2206,9 +1857,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetAutomaticCriticalErrorActionTimeout()
         {
-            curObj[nameof(AutomaticCriticalErrorActionTimeout)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(AutomaticCriticalErrorActionTimeout)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2216,7 +1867,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeAutomaticRecoveryAction()
         {
-            if ((IsAutomaticRecoveryActionNull == false))
+            if (IsAutomaticRecoveryActionNull == false)
             {
                 return true;
             }
@@ -2225,7 +1876,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeAutomaticShutdownAction()
         {
-            if ((IsAutomaticShutdownActionNull == false))
+            if (IsAutomaticShutdownActionNull == false)
             {
                 return true;
             }
@@ -2234,7 +1885,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeAutomaticSnapshotsEnabled()
         {
-            if ((IsAutomaticSnapshotsEnabledNull == false))
+            if (IsAutomaticSnapshotsEnabledNull == false)
             {
                 return true;
             }
@@ -2243,9 +1894,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetAutomaticSnapshotsEnabled()
         {
-            curObj[nameof(AutomaticSnapshotsEnabled)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(AutomaticSnapshotsEnabled)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2253,7 +1904,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeAutomaticStartupAction()
         {
-            if ((IsAutomaticStartupActionNull == false))
+            if (IsAutomaticStartupActionNull == false)
             {
                 return true;
             }
@@ -2272,83 +1923,82 @@ Test: Snapshot that contains memory and device information for test and developm
             int second = initializer.Second;
             long ticks = 0;
             string dmtf = dmtfDate;
-            DateTime datetime = DateTime.MinValue;
-            string tempString = string.Empty;
-            if ((dmtf == null))
+            if (dmtf == null)
             {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(dmtf);
             }
-            if ((dmtf.Length == 0))
+            if (dmtf.Length == 0)
             {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(dmtf);
             }
-            if ((dmtf.Length != 25))
+            if (dmtf.Length != 25)
             {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(dmtf);
             }
+
+            string tempString;
             try
             {
                 tempString = dmtf.Substring(0, 4);
-                if (("****" != tempString))
+                if ("****" != tempString)
                 {
                     year = int.Parse(tempString);
                 }
                 tempString = dmtf.Substring(4, 2);
-                if (("**" != tempString))
+                if ("**" != tempString)
                 {
                     month = int.Parse(tempString);
                 }
                 tempString = dmtf.Substring(6, 2);
-                if (("**" != tempString))
+                if ("**" != tempString)
                 {
                     day = int.Parse(tempString);
                 }
                 tempString = dmtf.Substring(8, 2);
-                if (("**" != tempString))
+                if ("**" != tempString)
                 {
                     hour = int.Parse(tempString);
                 }
                 tempString = dmtf.Substring(10, 2);
-                if (("**" != tempString))
+                if ("**" != tempString)
                 {
                     minute = int.Parse(tempString);
                 }
                 tempString = dmtf.Substring(12, 2);
-                if (("**" != tempString))
+                if ("**" != tempString)
                 {
                     second = int.Parse(tempString);
                 }
                 tempString = dmtf.Substring(15, 6);
-                if (("******" != tempString))
+                if ("******" != tempString)
                 {
-                    ticks = (long.Parse(tempString) * (TimeSpan.TicksPerMillisecond / 1000));
+                    ticks = long.Parse(tempString) * (TimeSpan.TicksPerMillisecond / 1000);
                 }
-                if (((((((((year < 0)
-                            || (month < 0))
-                            || (day < 0))
-                            || (hour < 0))
-                            || (minute < 0))
-                            || (minute < 0))
-                            || (second < 0))
-                            || (ticks < 0)))
+                if ((year < 0)
+                            || (month < 0)
+                            || (day < 0)
+                            || (hour < 0)
+                            || (minute < 0)
+                            || (minute < 0)
+                            || (second < 0)
+                            || (ticks < 0))
                 {
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException(year.ToString());
                 }
             }
             catch (Exception e)
             {
                 throw new ArgumentOutOfRangeException(null, e.Message);
             }
-            datetime = new DateTime(year, month, day, hour, minute, second, 0);
+            DateTime datetime = new DateTime(year, month, day, hour, minute, second, 0);
             datetime = datetime.AddTicks(ticks);
             TimeSpan tickOffset = TimeZone.CurrentTimeZone.GetUtcOffset(datetime);
-            int UTCOffset = 0;
-            int OffsetToBeAdjusted = 0;
-            long OffsetMins = (tickOffset.Ticks / TimeSpan.TicksPerMinute);
+            long OffsetMins = tickOffset.Ticks / TimeSpan.TicksPerMinute;
             tempString = dmtf.Substring(22, 3);
-            if ((tempString != "******"))
+            if (tempString != "******")
             {
                 tempString = dmtf.Substring(21, 4);
+                int UTCOffset;
                 try
                 {
                     UTCOffset = int.Parse(tempString);
@@ -2357,7 +2007,8 @@ Test: Snapshot that contains memory and device information for test and developm
                 {
                     throw new ArgumentOutOfRangeException(null, e.Message);
                 }
-                OffsetToBeAdjusted = ((int)((OffsetMins - UTCOffset)));
+
+                int OffsetToBeAdjusted = (int)(OffsetMins - UTCOffset);
                 datetime = datetime.AddMinutes(OffsetToBeAdjusted);
             }
             return datetime;
@@ -2366,24 +2017,24 @@ Test: Snapshot that contains memory and device information for test and developm
         // Converts a given System.DateTime object to DMTF datetime format.
         static string ToDmtfDateTime(DateTime date)
         {
-            string utcString = string.Empty;
             TimeSpan tickOffset = TimeZone.CurrentTimeZone.GetUtcOffset(date);
-            long OffsetMins = (tickOffset.Ticks / TimeSpan.TicksPerMinute);
-            if ((Math.Abs(OffsetMins) > 999))
+            long OffsetMins = tickOffset.Ticks / TimeSpan.TicksPerMinute;
+            string utcString;
+            if (Math.Abs(OffsetMins) > 999)
             {
                 date = date.ToUniversalTime();
                 utcString = "+000";
             }
             else
             {
-                if ((tickOffset.Ticks >= 0))
+                if (tickOffset.Ticks >= 0)
                 {
                     utcString = string.Concat("+", (tickOffset.Ticks / TimeSpan.TicksPerMinute).ToString().PadLeft(3, '0'));
                 }
                 else
                 {
                     string strTemp = OffsetMins.ToString();
-                    utcString = string.Concat("-", strTemp.Substring(1, (strTemp.Length - 1)).PadLeft(3, '0'));
+                    utcString = string.Concat("-", strTemp.Substring(1, strTemp.Length - 1).PadLeft(3, '0'));
                 }
             }
             string dmtfDateTime = date.Year.ToString().PadLeft(4, '0');
@@ -2394,11 +2045,11 @@ Test: Snapshot that contains memory and device information for test and developm
             dmtfDateTime = string.Concat(dmtfDateTime, date.Second.ToString().PadLeft(2, '0'));
             dmtfDateTime = string.Concat(dmtfDateTime, ".");
             DateTime dtTemp = new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, 0);
-            long microsec = (((date.Ticks - dtTemp.Ticks)
-                        * 1000)
-                        / TimeSpan.TicksPerMillisecond);
+            long microsec = (date.Ticks - dtTemp.Ticks)
+                        * 1000
+                        / TimeSpan.TicksPerMillisecond;
             string strMicrosec = microsec.ToString();
-            if ((strMicrosec.Length > 6))
+            if (strMicrosec.Length > 6)
             {
                 strMicrosec = strMicrosec.Substring(0, 6);
             }
@@ -2409,7 +2060,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeAutomaticStartupActionDelay()
         {
-            if ((IsAutomaticStartupActionDelayNull == false))
+            if (IsAutomaticStartupActionDelayNull == false)
             {
                 return true;
             }
@@ -2418,7 +2069,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeAutomaticStartupActionSequenceNumber()
         {
-            if ((IsAutomaticStartupActionSequenceNumberNull == false))
+            if (IsAutomaticStartupActionSequenceNumberNull == false)
             {
                 return true;
             }
@@ -2427,9 +2078,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetBaseBoardSerialNumber()
         {
-            curObj[nameof(BaseBoardSerialNumber)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(BaseBoardSerialNumber)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2437,9 +2088,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetBIOSGUID()
         {
-            curObj[nameof(BIOSGUID)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(BIOSGUID)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2447,7 +2098,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeBIOSNumLock()
         {
-            if ((IsBIOSNumLockNull == false))
+            if (IsBIOSNumLockNull == false)
             {
                 return true;
             }
@@ -2456,9 +2107,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetBIOSNumLock()
         {
-            curObj[nameof(BIOSNumLock)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(BIOSNumLock)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2466,9 +2117,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetBIOSSerialNumber()
         {
-            curObj[nameof(BIOSSerialNumber)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(BIOSSerialNumber)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2476,9 +2127,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetBootOrder()
         {
-            curObj[nameof(BootOrder)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(BootOrder)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2486,9 +2137,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetBootSourceOrder()
         {
-            curObj[nameof(BootSourceOrder)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(BootSourceOrder)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2496,9 +2147,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetChassisAssetTag()
         {
-            curObj[nameof(ChassisAssetTag)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(ChassisAssetTag)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2506,9 +2157,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetChassisSerialNumber()
         {
-            curObj[nameof(ChassisSerialNumber)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(ChassisSerialNumber)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2516,7 +2167,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeConsoleMode()
         {
-            if ((IsConsoleModeNull == false))
+            if (IsConsoleModeNull == false)
             {
                 return true;
             }
@@ -2525,9 +2176,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetConsoleMode()
         {
-            curObj[nameof(ConsoleMode)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(ConsoleMode)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2535,7 +2186,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeCreationTime()
         {
-            if ((IsCreationTimeNull == false))
+            if (IsCreationTimeNull == false)
             {
                 return true;
             }
@@ -2544,7 +2195,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeDebugChannelId()
         {
-            if ((IsDebugChannelIdNull == false))
+            if (IsDebugChannelIdNull == false)
             {
                 return true;
             }
@@ -2553,9 +2204,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetDebugChannelId()
         {
-            curObj[nameof(DebugChannelId)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(DebugChannelId)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2563,7 +2214,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeDebugPort()
         {
-            if ((IsDebugPortNull == false))
+            if (IsDebugPortNull == false)
             {
                 return true;
             }
@@ -2572,9 +2223,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetDebugPort()
         {
-            curObj[nameof(DebugPort)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(DebugPort)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2582,7 +2233,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeDebugPortEnabled()
         {
-            if ((IsDebugPortEnabledNull == false))
+            if (IsDebugPortEnabledNull == false)
             {
                 return true;
             }
@@ -2591,9 +2242,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetDebugPortEnabled()
         {
-            curObj[nameof(DebugPortEnabled)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(DebugPortEnabled)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2601,7 +2252,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeEnableHibernation()
         {
-            if ((IsEnableHibernationNull == false))
+            if (IsEnableHibernationNull == false)
             {
                 return true;
             }
@@ -2610,9 +2261,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetEnableHibernation()
         {
-            curObj[nameof(EnableHibernation)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(EnableHibernation)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2620,7 +2271,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeEnhancedSessionTransportType()
         {
-            if ((IsEnhancedSessionTransportTypeNull == false))
+            if (IsEnhancedSessionTransportTypeNull == false)
             {
                 return true;
             }
@@ -2629,9 +2280,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetEnhancedSessionTransportType()
         {
-            curObj[nameof(EnhancedSessionTransportType)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(EnhancedSessionTransportType)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2639,7 +2290,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeGuestControlledCacheTypes()
         {
-            if ((IsGuestControlledCacheTypesNull == false))
+            if (IsGuestControlledCacheTypesNull == false)
             {
                 return true;
             }
@@ -2648,9 +2299,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetGuestControlledCacheTypes()
         {
-            curObj[nameof(GuestControlledCacheTypes)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(GuestControlledCacheTypes)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2658,7 +2309,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeHighMmioGapBase()
         {
-            if ((IsHighMmioGapBaseNull == false))
+            if (IsHighMmioGapBaseNull == false)
             {
                 return true;
             }
@@ -2667,9 +2318,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetHighMmioGapBase()
         {
-            curObj[nameof(HighMmioGapBase)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(HighMmioGapBase)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2677,7 +2328,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeHighMmioGapSize()
         {
-            if ((IsHighMmioGapSizeNull == false))
+            if (IsHighMmioGapSizeNull == false)
             {
                 return true;
             }
@@ -2686,9 +2337,8 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetHighMmioGapSize()
         {
-            curObj[nameof(HighMmioGapSize)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(HighMmioGapSize)] = null;
+            if ((isEmbedded == false) && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2696,7 +2346,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeIncrementalBackupEnabled()
         {
-            if ((IsIncrementalBackupEnabledNull == false))
+            if (IsIncrementalBackupEnabledNull == false)
             {
                 return true;
             }
@@ -2705,9 +2355,8 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetIncrementalBackupEnabled()
         {
-            curObj[nameof(IncrementalBackupEnabled)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(IncrementalBackupEnabled)] = null;
+            if ((isEmbedded == false) && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2715,7 +2364,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeIsAutomaticSnapshot()
         {
-            if ((IsIsAutomaticSnapshotNull == false))
+            if (IsIsAutomaticSnapshotNull == false)
             {
                 return true;
             }
@@ -2724,7 +2373,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeIsSaved()
         {
-            if ((IsIsSavedNull == false))
+            if (IsIsSavedNull == false)
             {
                 return true;
             }
@@ -2733,7 +2382,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeLockOnDisconnect()
         {
-            if ((IsLockOnDisconnectNull == false))
+            if (IsLockOnDisconnectNull == false)
             {
                 return true;
             }
@@ -2742,9 +2391,8 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetLockOnDisconnect()
         {
-            curObj[nameof(LockOnDisconnect)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(LockOnDisconnect)] = null;
+            if ((isEmbedded == false) && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2752,7 +2400,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeLowMmioGapSize()
         {
-            if ((IsLowMmioGapSizeNull == false))
+            if (IsLowMmioGapSizeNull == false)
             {
                 return true;
             }
@@ -2761,9 +2409,8 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetLowMmioGapSize()
         {
-            curObj[nameof(LowMmioGapSize)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(LowMmioGapSize)] = null;
+            if ((isEmbedded == false) && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2771,7 +2418,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeNetworkBootPreferredProtocol()
         {
-            if ((IsNetworkBootPreferredProtocolNull == false))
+            if (IsNetworkBootPreferredProtocolNull == false)
             {
                 return true;
             }
@@ -2780,9 +2427,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetNetworkBootPreferredProtocol()
         {
-            curObj[nameof(NetworkBootPreferredProtocol)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(NetworkBootPreferredProtocol)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2790,7 +2437,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializePauseAfterBootFailure()
         {
-            if ((IsPauseAfterBootFailureNull == false))
+            if (IsPauseAfterBootFailureNull == false)
             {
                 return true;
             }
@@ -2799,9 +2446,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetPauseAfterBootFailure()
         {
-            curObj[nameof(PauseAfterBootFailure)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(PauseAfterBootFailure)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2809,7 +2456,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeSecureBootEnabled()
         {
-            if ((IsSecureBootEnabledNull == false))
+            if (IsSecureBootEnabledNull == false)
             {
                 return true;
             }
@@ -2818,9 +2465,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetSecureBootEnabled()
         {
-            curObj[nameof(SecureBootEnabled)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(SecureBootEnabled)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2828,9 +2475,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetSecureBootTemplateId()
         {
-            curObj[nameof(SecureBootTemplateId)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(SecureBootTemplateId)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2838,7 +2485,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeTurnOffOnGuestRestart()
         {
-            if ((IsTurnOffOnGuestRestartNull == false))
+            if (IsTurnOffOnGuestRestartNull == false)
             {
                 return true;
             }
@@ -2847,9 +2494,9 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetTurnOffOnGuestRestart()
         {
-            curObj[nameof(TurnOffOnGuestRestart)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(TurnOffOnGuestRestart)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2857,18 +2504,17 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeUserSnapshotType()
         {
-            if ((IsUserSnapshotTypeNull == false))
+            if (IsUserSnapshotTypeNull == false)
             {
                 return true;
             }
             return false;
         }
-
         private void ResetUserSnapshotType()
         {
-            curObj[nameof(UserSnapshotType)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(UserSnapshotType)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
@@ -2876,7 +2522,7 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private bool ShouldSerializeVirtualNumaEnabled()
         {
-            if ((IsVirtualNumaEnabledNull == false))
+            if (IsVirtualNumaEnabledNull == false)
             {
                 return true;
             }
@@ -2885,35 +2531,32 @@ Test: Snapshot that contains memory and device information for test and developm
 
         private void ResetVirtualNumaEnabled()
         {
-            curObj[nameof(VirtualNumaEnabled)] = null;
-            if (((isEmbedded == false)
-                        && (AutoCommitProp == true)))
+            LateBoundObject[nameof(VirtualNumaEnabled)] = null;
+            if ((isEmbedded == false)
+                        && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
         }
 
-        [Browsable(true)]
         public void CommitObject()
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
                 PrivateLateBoundObject.Put();
             }
         }
 
-        [Browsable(true)]
         public void CommitObject(PutOptions putOptions)
         {
-            if ((isEmbedded == false))
+            if (isEmbedded == false)
             {
                 PrivateLateBoundObject.Put(putOptions);
             }
         }
-
         private void Initialize()
         {
-            AutoCommitProp = true;
+            AutoCommit = true;
             isEmbedded = false;
         }
 
@@ -2927,108 +2570,99 @@ Test: Snapshot that contains memory and device information for test and developm
         private void InitializeObject(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions getOptions)
         {
             Initialize();
-            if ((path != null))
+            if (path != null)
             {
-                if ((CheckIfProperClass(mgmtScope, path, getOptions) != true))
+                if (CheckIfProperClass(mgmtScope, path, getOptions) != true)
                 {
                     throw new ArgumentException("Class name does not match.");
                 }
             }
             PrivateLateBoundObject = new ManagementObject(mgmtScope, path, getOptions);
-            PrivateSystemProperties = new ManagementSystemProperties(PrivateLateBoundObject);
-            curObj = PrivateLateBoundObject;
+            SystemProperties = new ManagementSystemProperties(PrivateLateBoundObject);
+            LateBoundObject = PrivateLateBoundObject;
         }
 
         // Different overloads of GetInstances() help in enumerating instances of the WMI class.
-        public static VirtualSystemSettingDataCollection GetInstances()
-        {
-            return GetInstances(null, null, null);
-        }
+        public static MsvmCollection<VirtualSystemSettingData> GetInstances() => GetInstances(null, null, null);
 
-        public static VirtualSystemSettingDataCollection GetInstances(string condition)
-        {
-            return GetInstances(null, condition, null);
-        }
+        public static MsvmCollection<VirtualSystemSettingData> GetInstances(string condition) => GetInstances(null, condition, null);
 
-        public static VirtualSystemSettingDataCollection GetInstances(string[] selectedProperties)
-        {
-            return GetInstances(null, null, selectedProperties);
-        }
+        public static MsvmCollection<VirtualSystemSettingData> GetInstances(string[] selectedProperties) => GetInstances(null, null, selectedProperties);
 
-        public static VirtualSystemSettingDataCollection GetInstances(string condition, string[] selectedProperties)
-        {
-            return GetInstances(null, condition, selectedProperties);
-        }
+        public static MsvmCollection<VirtualSystemSettingData> GetInstances(string condition, string[] selectedProperties) => GetInstances(null, condition, selectedProperties);
 
-        public static VirtualSystemSettingDataCollection GetInstances(ManagementScope mgmtScope, EnumerationOptions enumOptions)
+        public static MsvmCollection<VirtualSystemSettingData> GetInstances(ManagementScope mgmtScope, EnumerationOptions enumOptions)
         {
-            if ((mgmtScope == null))
+            if (mgmtScope == null)
             {
-                if ((statMgmtScope == null))
+                if (StaticScope == null)
                 {
                     mgmtScope = new ManagementScope();
                     mgmtScope.Path.NamespacePath = "root\\virtualization\\v2";
                 }
                 else
                 {
-                    mgmtScope = statMgmtScope;
+                    mgmtScope = StaticScope;
                 }
             }
-            ManagementPath pathObj = new ManagementPath();
-            pathObj.ClassName = "Msvm_VirtualSystemSettingData";
-            pathObj.NamespacePath = "root\\virtualization\\v2";
-            ManagementClass clsObject = new ManagementClass(mgmtScope, pathObj, null);
-            if ((enumOptions == null))
+            ManagementPath pathObj = new ManagementPath
             {
-                enumOptions = new EnumerationOptions();
-                enumOptions.EnsureLocatable = true;
+                ClassName = "Msvm_VirtualSystemSettingData",
+                NamespacePath = "root\\virtualization\\v2"
+            };
+            using (ManagementClass clsObject = new ManagementClass(mgmtScope, pathObj, null))
+            {
+                if (enumOptions == null)
+                {
+                    enumOptions = new EnumerationOptions
+                    {
+                        EnsureLocatable = true
+                    };
+                }
+                return new MsvmCollection<VirtualSystemSettingData>(clsObject.GetInstances(enumOptions));
             }
-            return new VirtualSystemSettingDataCollection(clsObject.GetInstances(enumOptions));
         }
 
-        public static VirtualSystemSettingDataCollection GetInstances(ManagementScope mgmtScope, string condition)
-        {
-            return GetInstances(mgmtScope, condition, null);
-        }
+        public static MsvmCollection<VirtualSystemSettingData> GetInstances(ManagementScope mgmtScope, string condition) => GetInstances(mgmtScope, condition, null);
 
-        public static VirtualSystemSettingDataCollection GetInstances(ManagementScope mgmtScope, string[] selectedProperties)
-        {
-            return GetInstances(mgmtScope, null, selectedProperties);
-        }
+        public static MsvmCollection<VirtualSystemSettingData> GetInstances(ManagementScope mgmtScope, string[] selectedProperties) => GetInstances(mgmtScope, null, selectedProperties);
 
-        public static VirtualSystemSettingDataCollection GetInstances(ManagementScope mgmtScope, string condition, string[] selectedProperties)
+        public static MsvmCollection<VirtualSystemSettingData> GetInstances(ManagementScope mgmtScope, string condition, string[] selectedProperties)
         {
-            if ((mgmtScope == null))
+            if (mgmtScope == null)
             {
-                if ((statMgmtScope == null))
+                if (StaticScope == null)
                 {
                     mgmtScope = new ManagementScope();
                     mgmtScope.Path.NamespacePath = "root\\virtualization\\v2";
                 }
                 else
                 {
-                    mgmtScope = statMgmtScope;
+                    mgmtScope = StaticScope;
                 }
             }
-            ManagementObjectSearcher ObjectSearcher = new ManagementObjectSearcher(mgmtScope, new SelectQuery("Msvm_VirtualSystemSettingData", condition, selectedProperties));
-            EnumerationOptions enumOptions = new EnumerationOptions();
-            enumOptions.EnsureLocatable = true;
-            ObjectSearcher.Options = enumOptions;
-            return new VirtualSystemSettingDataCollection(ObjectSearcher.Get());
+            using (ManagementObjectSearcher ObjectSearcher = new ManagementObjectSearcher(mgmtScope, new SelectQuery("Msvm_VirtualSystemSettingData", condition, selectedProperties)))
+            {
+                EnumerationOptions enumOptions = new EnumerationOptions
+                {
+                    EnsureLocatable = true
+                };
+                ObjectSearcher.Options = enumOptions;
+                return new MsvmCollection<VirtualSystemSettingData>(ObjectSearcher.Get());
+            }
         }
 
-        [Browsable(true)]
         public static VirtualSystemSettingData CreateInstance()
         {
             ManagementScope mgmtScope;
-            if ((statMgmtScope == null))
+            if (StaticScope == null)
             {
                 mgmtScope = new ManagementScope();
                 mgmtScope.Path.NamespacePath = CreatedWmiNamespace;
             }
             else
             {
-                mgmtScope = statMgmtScope;
+                mgmtScope = StaticScope;
             }
             ManagementPath mgmtPath = new ManagementPath(CreatedClassName);
             using (ManagementClass tmpMgmtClass = new ManagementClass(mgmtScope, mgmtPath, null))
@@ -3037,363 +2671,72 @@ Test: Snapshot that contains memory and device information for test and developm
             }
         }
 
-        [Browsable(true)]
-        public void Delete()
-        {
-            PrivateLateBoundObject.Delete();
-        }
+        public void Delete() => PrivateLateBoundObject.Delete();
 
         public enum AutomaticCriticalErrorActionValues
         {
-
             None = 0,
-
             Pause_Resume = 1,
-
             NULL_ENUM_VALUE = 2,
         }
 
         public enum ConsoleModeValues
         {
-
             Default = 0,
-
             COM1 = 1,
-
             COM2 = 2,
-
             None = 3,
-
             NULL_ENUM_VALUE = 4,
         }
 
         public enum DebugPortEnabledValues
         {
-
             Val__Off = 0,
-
             On = 1,
-
             OnAutoAssigned = 2,
-
             NULL_ENUM_VALUE = 3,
         }
 
         public enum EnhancedSessionTransportTypeValues
         {
-
             VMBus_Pipe = 0,
-
             Hyper_V_Socket = 1,
-
             NULL_ENUM_VALUE = 2,
         }
 
         public enum NetworkBootPreferredProtocolValues
         {
-
             IPv4 = 4096,
-
             IPv6 = 4097,
-
             NULL_ENUM_VALUE = 0,
         }
 
         public enum UserSnapshotTypeValues
         {
-
             Disable = 2,
-
             ProductionFallbackToTest = 3,
-
             ProductionNoFallback = 4,
-
             Test = 5,
-
             NULL_ENUM_VALUE = 0,
         }
 
-        // Enumerator implementation for enumerating instances of the class.
-        public class VirtualSystemSettingDataCollection : object, ICollection
+        public void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-            private ManagementObjectCollection privColObj;
-
-            public VirtualSystemSettingDataCollection(ManagementObjectCollection objCollection)
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
             {
-                privColObj = objCollection;
-            }
-
-            public virtual int Count
-            {
-                get
-                {
-                    return privColObj.Count;
-                }
-            }
-
-            public virtual bool IsSynchronized
-            {
-                get
-                {
-                    return privColObj.IsSynchronized;
-                }
-            }
-
-            public virtual object SyncRoot
-            {
-                get
-                {
-                    return this;
-                }
-            }
-
-            public virtual void CopyTo(Array array, int index)
-            {
-                privColObj.CopyTo(array, index);
-                int nCtr;
-                for (nCtr = 0; (nCtr < array.Length); nCtr = (nCtr + 1))
-                {
-                    array.SetValue(new VirtualSystemSettingData(((ManagementObject)(array.GetValue(nCtr)))), nCtr);
-                }
-            }
-
-            public virtual IEnumerator GetEnumerator()
-            {
-                return new VirtualSystemSettingDataEnumerator(privColObj.GetEnumerator());
-            }
-
-            public class VirtualSystemSettingDataEnumerator : object, IEnumerator
-            {
-
-                private ManagementObjectCollection.ManagementObjectEnumerator privObjEnum;
-
-                public VirtualSystemSettingDataEnumerator(ManagementObjectCollection.ManagementObjectEnumerator objEnum)
-                {
-                    privObjEnum = objEnum;
-                }
-
-                public virtual object Current
-                {
-                    get
-                    {
-                        return new VirtualSystemSettingData(((ManagementObject)(privObjEnum.Current)));
-                    }
-                }
-
-                public virtual bool MoveNext()
-                {
-                    return privObjEnum.MoveNext();
-                }
-
-                public virtual void Reset()
-                {
-                    privObjEnum.Reset();
-                }
+                PrivateLateBoundObject.Dispose();
             }
         }
 
-        // TypeConverter to handle null values for ValueType properties
-        public class WMIValueTypeConverter : TypeConverter
+        ~VirtualSystemSettingData()
         {
-
-            private TypeConverter baseConverter;
-
-            private Type baseType;
-
-            public WMIValueTypeConverter(Type inBaseType)
-            {
-                baseConverter = TypeDescriptor.GetConverter(inBaseType);
-                baseType = inBaseType;
-            }
-
-            public override bool CanConvertFrom(ITypeDescriptorContext context, Type srcType)
-            {
-                return baseConverter.CanConvertFrom(context, srcType);
-            }
-
-            public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
-            {
-                return baseConverter.CanConvertTo(context, destinationType);
-            }
-
-            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-            {
-                return baseConverter.ConvertFrom(context, culture, value);
-            }
-
-            public override object CreateInstance(ITypeDescriptorContext context, IDictionary dictionary)
-            {
-                return baseConverter.CreateInstance(context, dictionary);
-            }
-
-            public override bool GetCreateInstanceSupported(ITypeDescriptorContext context)
-            {
-                return baseConverter.GetCreateInstanceSupported(context);
-            }
-
-            public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context, object value, Attribute[] attributeVar)
-            {
-                return baseConverter.GetProperties(context, value, attributeVar);
-            }
-
-            public override bool GetPropertiesSupported(ITypeDescriptorContext context)
-            {
-                return baseConverter.GetPropertiesSupported(context);
-            }
-
-            public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
-            {
-                return baseConverter.GetStandardValues(context);
-            }
-
-            public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
-            {
-                return baseConverter.GetStandardValuesExclusive(context);
-            }
-
-            public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
-            {
-                return baseConverter.GetStandardValuesSupported(context);
-            }
-
-            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
-            {
-                if ((baseType.BaseType == typeof(Enum)))
-                {
-                    if ((value.GetType() == destinationType))
-                    {
-                        return value;
-                    }
-                    if ((((value == null)
-                                && (context != null))
-                                && (context.PropertyDescriptor.ShouldSerializeValue(context.Instance) == false)))
-                    {
-                        return "NULL_ENUM_VALUE";
-                    }
-                    return baseConverter.ConvertTo(context, culture, value, destinationType);
-                }
-                if (((baseType == typeof(bool))
-                            && (baseType.BaseType == typeof(ValueType))))
-                {
-                    if ((((value == null)
-                                && (context != null))
-                                && (context.PropertyDescriptor.ShouldSerializeValue(context.Instance) == false)))
-                    {
-                        return "";
-                    }
-                    return baseConverter.ConvertTo(context, culture, value, destinationType);
-                }
-                if (((context != null)
-                            && (context.PropertyDescriptor.ShouldSerializeValue(context.Instance) == false)))
-                {
-                    return "";
-                }
-                return baseConverter.ConvertTo(context, culture, value, destinationType);
-            }
-        }
-
-        // Embedded class to represent WMI system Properties.
-        [TypeConverter(typeof(ExpandableObjectConverter))]
-        public class ManagementSystemProperties
-        {
-
-            private ManagementBaseObject PrivateLateBoundObject;
-
-            public ManagementSystemProperties(ManagementBaseObject ManagedObject)
-            {
-                PrivateLateBoundObject = ManagedObject;
-            }
-
-            [Browsable(true)]
-            public int GENUS
-            {
-                get
-                {
-                    return ((int)(PrivateLateBoundObject["__GENUS"]));
-                }
-            }
-
-            [Browsable(true)]
-            public string CLASS
-            {
-                get
-                {
-                    return ((string)(PrivateLateBoundObject["__CLASS"]));
-                }
-            }
-
-            [Browsable(true)]
-            public string SUPERCLASS
-            {
-                get
-                {
-                    return ((string)(PrivateLateBoundObject["__SUPERCLASS"]));
-                }
-            }
-
-            [Browsable(true)]
-            public string DYNASTY
-            {
-                get
-                {
-                    return ((string)(PrivateLateBoundObject["__DYNASTY"]));
-                }
-            }
-
-            [Browsable(true)]
-            public string RELPATH
-            {
-                get
-                {
-                    return ((string)(PrivateLateBoundObject["__RELPATH"]));
-                }
-            }
-
-            [Browsable(true)]
-            public int PROPERTY_COUNT
-            {
-                get
-                {
-                    return ((int)(PrivateLateBoundObject["__PROPERTY_COUNT"]));
-                }
-            }
-
-            [Browsable(true)]
-            public string[] DERIVATION
-            {
-                get
-                {
-                    return ((string[])(PrivateLateBoundObject["__DERIVATION"]));
-                }
-            }
-
-            [Browsable(true)]
-            public string SERVER
-            {
-                get
-                {
-                    return ((string)(PrivateLateBoundObject["__SERVER"]));
-                }
-            }
-
-            [Browsable(true)]
-            public string NAMESPACE
-            {
-                get
-                {
-                    return ((string)(PrivateLateBoundObject["__NAMESPACE"]));
-                }
-            }
-
-            [Browsable(true)]
-            public string PATH
-            {
-                get
-                {
-                    return ((string)(PrivateLateBoundObject["__PATH"]));
-                }
-            }
+            Dispose(false);
         }
     }
 }

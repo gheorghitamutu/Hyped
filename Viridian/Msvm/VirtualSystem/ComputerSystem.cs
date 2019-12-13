@@ -1,7 +1,5 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Management;
-using System.Collections;
 using System.Globalization;
 
 namespace Viridian.Msvm.VirtualSystem
@@ -12,7 +10,7 @@ namespace Viridian.Msvm.VirtualSystem
     // Every property added to the class for WMI property has attributes set to define its behavior in Visual Studio designer and also to define a TypeConverter to be used.
     // Datetime conversion functions ToDateTime and ToDmtfDateTime are added to the class to convert DMTF datetime to System.DateTime and vice-versa.
     // An Early Bound class generated for the WMI class.Msvm_ComputerSystem
-    public class ComputerSystem : Component
+    public class ComputerSystem : IDisposable
     {
 
         // Private property to hold the WMI namespace in which the class resides.
@@ -21,70 +19,38 @@ namespace Viridian.Msvm.VirtualSystem
         // Private property to hold the name of WMI class which created this class.
         private static string CreatedClassName = "Msvm_ComputerSystem";
 
-        // Private member variable to hold the ManagementScope which is used by the various methods.
-        private static ManagementScope statMgmtScope = null;
-
-        private ManagementSystemProperties PrivateSystemProperties;
-
         // Underlying lateBound WMI object.
         private ManagementObject PrivateLateBoundObject;
 
-        // Member variable to store the 'automatic commit' behavior for the class.
-        private bool AutoCommitProp;
-
         // Private variable to hold the embedded property representing the instance.
-        private ManagementBaseObject embeddedObj;
-
-        // The current WMI object used
-        private ManagementBaseObject curObj;
+        private readonly ManagementBaseObject embeddedObj;
 
         // Flag to indicate if the instance is an embedded object.
         private bool isEmbedded;
 
         // Below are different overloads of constructors to initialize an instance of the class with a WMI object.
-        public ComputerSystem()
-        {
-            InitializeObject(null, null, null);
-        }
+        public ComputerSystem() => InitializeObject(null, null, null);
 
-        public ComputerSystem(string keyCreationClassName, string keyName)
-        {
-            InitializeObject(null, new ManagementPath(ConstructPath(keyCreationClassName, keyName)), null);
-        }
+        public ComputerSystem(string keyCreationClassName, string keyName) => InitializeObject(null, new ManagementPath(ConstructPath(keyCreationClassName, keyName)), null);
 
-        public ComputerSystem(ManagementScope mgmtScope, string keyCreationClassName, string keyName)
-        {
-            InitializeObject(mgmtScope, new ManagementPath(ConstructPath(keyCreationClassName, keyName)), null);
-        }
+        public ComputerSystem(ManagementScope mgmtScope, string keyCreationClassName, string keyName) => InitializeObject(mgmtScope, new ManagementPath(ConstructPath(keyCreationClassName, keyName)), null);
 
-        public ComputerSystem(ManagementPath path, ObjectGetOptions getOptions)
-        {
-            InitializeObject(null, path, getOptions);
-        }
+        public ComputerSystem(ManagementPath path, ObjectGetOptions getOptions) => InitializeObject(null, path, getOptions);
 
-        public ComputerSystem(ManagementScope mgmtScope, ManagementPath path)
-        {
-            InitializeObject(mgmtScope, path, null);
-        }
+        public ComputerSystem(ManagementScope mgmtScope, ManagementPath path) => InitializeObject(mgmtScope, path, null);
 
-        public ComputerSystem(ManagementPath path)
-        {
-            InitializeObject(null, path, null);
-        }
+        public ComputerSystem(ManagementPath path) => InitializeObject(null, path, null);
 
-        public ComputerSystem(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions getOptions)
-        {
-            InitializeObject(mgmtScope, path, getOptions);
-        }
+        public ComputerSystem(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions getOptions) => InitializeObject(mgmtScope, path, getOptions);
 
         public ComputerSystem(ManagementObject theObject)
         {
             Initialize();
-            if (CheckIfProperClass(theObject) == true)
+            if (theObject != null && CheckIfProperClass(theObject) == true)
             {
                 PrivateLateBoundObject = theObject;
-                PrivateSystemProperties = new ManagementSystemProperties(PrivateLateBoundObject);
-                curObj = PrivateLateBoundObject;
+                SystemProperties = new ManagementSystemProperties(PrivateLateBoundObject);
+                LateBoundObject = PrivateLateBoundObject;
             }
             else
             {
@@ -95,11 +61,11 @@ namespace Viridian.Msvm.VirtualSystem
         public ComputerSystem(ManagementBaseObject theObject)
         {
             Initialize();
-            if (CheckIfProperClass(theObject) == true)
+            if (theObject != null && CheckIfProperClass(theObject) == true)
             {
                 embeddedObj = theObject;
-                PrivateSystemProperties = new ManagementSystemProperties(theObject);
-                curObj = embeddedObj;
+                SystemProperties = new ManagementSystemProperties(theObject);
+                LateBoundObject = embeddedObj;
                 isEmbedded = true;
             }
             else
@@ -109,30 +75,19 @@ namespace Viridian.Msvm.VirtualSystem
         }
 
         // Property returns the namespace of the WMI class.
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string OriginatingNamespace
-        {
-            get
-            {
-                return "root\\virtualization\\v2";
-            }
-        }
+        public string OriginatingNamespace => "root\\virtualization\\v2";
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string ManagementClassName
         {
             get
             {
                 string strRet = CreatedClassName;
-                if (curObj != null)
+                if (LateBoundObject != null)
                 {
-                    if (curObj.ClassPath != null)
+                    if (LateBoundObject.ClassPath != null)
                     {
-                        strRet = (string)curObj["__CLASS"];
-                        if ((strRet == null)
-                                    || (strRet == string.Empty))
+                        strRet = (string)LateBoundObject["__CLASS"];
+                        if (string.IsNullOrEmpty(strRet))
                         {
                             strRet = CreatedClassName;
                         }
@@ -143,30 +98,12 @@ namespace Viridian.Msvm.VirtualSystem
         }
 
         // Property pointing to an embedded object to get System properties of the WMI object.
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ManagementSystemProperties SystemProperties
-        {
-            get
-            {
-                return PrivateSystemProperties;
-            }
-        }
+        public ManagementSystemProperties SystemProperties { get; private set; }
 
         // Property returning the underlying lateBound object.
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ManagementBaseObject LateBoundObject
-        {
-            get
-            {
-                return curObj;
-            }
-        }
+        public ManagementBaseObject LateBoundObject { get; private set; }
 
         // ManagementScope of the object.
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ManagementScope Scope
         {
             get
@@ -190,22 +127,9 @@ namespace Viridian.Msvm.VirtualSystem
         }
 
         // Property to show the commit behavior for the WMI object. If true, WMI object will be automatically saved after each property modification.(ie. Put() is called after modification of a property).
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool AutoCommit
-        {
-            get
-            {
-                return AutoCommitProp;
-            }
-            set
-            {
-                AutoCommitProp = value;
-            }
-        }
+        public bool AutoCommit { get; set; }
 
         // The ManagementPath of the underlying WMI object.
-        [Browsable(true)]
         public ManagementPath Path
         {
             get
@@ -233,47 +157,17 @@ namespace Viridian.Msvm.VirtualSystem
         }
 
         // Public static scope property which is used by the various methods.
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public static ManagementScope StaticScope
-        {
-            get
-            {
-                return statMgmtScope;
-            }
-            set
-            {
-                statMgmtScope = value;
-            }
-        }
+        public static ManagementScope StaticScope { get; set; } = null;
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ushort[] AvailableRequestedStates
-        {
-            get
-            {
-                return (ushort[])curObj[nameof(AvailableRequestedStates)];
-            }
-        }
+        public ushort[] AvailableRequestedStates => (ushort[])LateBoundObject[nameof(AvailableRequestedStates)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string Caption
-        {
-            get
-            {
-                return (string)curObj[nameof(Caption)];
-            }
-        }
+        public string Caption => (string)LateBoundObject[nameof(Caption)];
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsCommunicationStatusNull
         {
             get
             {
-                if (curObj[nameof(CommunicationStatus)] == null)
+                if (LateBoundObject[nameof(CommunicationStatus)] == null)
                 {
                     return true;
                 }
@@ -284,58 +178,29 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public ushort CommunicationStatus
         {
             get
             {
-                if (curObj[nameof(CommunicationStatus)] == null)
+                if (LateBoundObject[nameof(CommunicationStatus)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return (ushort)curObj[nameof(CommunicationStatus)];
+                return (ushort)LateBoundObject[nameof(CommunicationStatus)];
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string CreationClassName
-        {
-            get
-            {
-                return (string)curObj[nameof(CreationClassName)];
-            }
-        }
+        public string CreationClassName => (string)LateBoundObject[nameof(CreationClassName)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ushort[] Dedicated
-        {
-            get
-            {
-                return (ushort[])curObj[nameof(Dedicated)];
-            }
-        }
+        public ushort[] Dedicated => (ushort[])LateBoundObject[nameof(Dedicated)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string Description
-        {
-            get
-            {
-                return (string)curObj[nameof(Description)];
-            }
-        }
+        public string Description => (string)LateBoundObject[nameof(Description)];
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsDetailedStatusNull
         {
             get
             {
-                if (curObj[nameof(DetailedStatus)] == null)
+                if (LateBoundObject[nameof(DetailedStatus)] == null)
                 {
                     return true;
                 }
@@ -346,38 +211,25 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public ushort DetailedStatus
         {
             get
             {
-                if (curObj[nameof(DetailedStatus)] == null)
+                if (LateBoundObject[nameof(DetailedStatus)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return (ushort)curObj[nameof(DetailedStatus)];
+                return (ushort)LateBoundObject[nameof(DetailedStatus)];
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string ElementName
-        {
-            get
-            {
-                return (string)curObj[nameof(ElementName)];
-            }
-        }
+        public string ElementName => (string)LateBoundObject[nameof(ElementName)];
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsEnabledDefaultNull
         {
             get
             {
-                if (curObj[nameof(EnabledDefault)] == null)
+                if (LateBoundObject[nameof(EnabledDefault)] == null)
                 {
                     return true;
                 }
@@ -388,28 +240,23 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public ushort EnabledDefault
         {
             get
             {
-                if (curObj[nameof(EnabledDefault)] == null)
+                if (LateBoundObject[nameof(EnabledDefault)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return (ushort)curObj[nameof(EnabledDefault)];
+                return (ushort)LateBoundObject[nameof(EnabledDefault)];
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsEnabledStateNull
         {
             get
             {
-                if (curObj[nameof(EnabledState)] == null)
+                if (LateBoundObject[nameof(EnabledState)] == null)
                 {
                     return true;
                 }
@@ -420,28 +267,23 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public ushort EnabledState
         {
             get
             {
-                if (curObj[nameof(EnabledState)] == null)
+                if (LateBoundObject[nameof(EnabledState)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return (ushort)curObj[nameof(EnabledState)];
+                return (ushort)LateBoundObject[nameof(EnabledState)];
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsEnhancedSessionModeStateNull
         {
             get
             {
-                if (curObj[nameof(EnhancedSessionModeState)] == null)
+                if (LateBoundObject[nameof(EnhancedSessionModeState)] == null)
                 {
                     return true;
                 }
@@ -452,30 +294,27 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("Indicates whether or not enhanced mode connections are allowed by the host and if" +
-            " allowed, whether or not they are available to the virtual machine.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /* 
+         * Indicates whether or not enhanced mode connections are allowed by the host
+         * and if allowed, whether or not they are available to the virtual machine.
+         */
         public EnhancedSessionModeStateValues EnhancedSessionModeState
         {
             get
             {
-                if (curObj[nameof(EnhancedSessionModeState)] == null)
+                if (LateBoundObject[nameof(EnhancedSessionModeState)] == null)
                 {
                     return (EnhancedSessionModeStateValues)Convert.ToInt32(0);
                 }
-                return (EnhancedSessionModeStateValues)Convert.ToInt32(curObj[nameof(EnhancedSessionModeState)]);
+                return (EnhancedSessionModeStateValues)Convert.ToInt32(LateBoundObject[nameof(EnhancedSessionModeState)]);
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsFailedOverReplicationTypeNull
         {
             get
             {
-                if (curObj[nameof(FailedOverReplicationType)] == null)
+                if (LateBoundObject[nameof(FailedOverReplicationType)] == null)
                 {
                     return true;
                 }
@@ -486,29 +325,26 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("Type of failover that was performed for the virtual machine.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * Type of failover that was performed for the virtual machine.
+         */
         public FailedOverReplicationTypeValues FailedOverReplicationType
         {
             get
             {
-                if (curObj[nameof(FailedOverReplicationType)] == null)
+                if (LateBoundObject[nameof(FailedOverReplicationType)] == null)
                 {
                     return (FailedOverReplicationTypeValues)Convert.ToInt32(4);
                 }
-                return (FailedOverReplicationTypeValues)Convert.ToInt32(curObj[nameof(FailedOverReplicationType)]);
+                return (FailedOverReplicationTypeValues)Convert.ToInt32(LateBoundObject[nameof(FailedOverReplicationType)]);
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsHealthStateNull
         {
             get
             {
-                if (curObj[nameof(HealthState)] == null)
+                if (LateBoundObject[nameof(HealthState)] == null)
                 {
                     return true;
                 }
@@ -519,28 +355,23 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public ushort HealthState
         {
             get
             {
-                if (curObj[nameof(HealthState)] == null)
+                if (LateBoundObject[nameof(HealthState)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return (ushort)curObj[nameof(HealthState)];
+                return (ushort)LateBoundObject[nameof(HealthState)];
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsHwThreadsPerCoreRealizedNull
         {
             get
             {
-                if (curObj[nameof(HwThreadsPerCoreRealized)] == null)
+                if (LateBoundObject[nameof(HwThreadsPerCoreRealized)] == null)
                 {
                     return true;
                 }
@@ -551,40 +382,29 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("Indicates the number of SMT threads per core reported to the guest.  This reporti" +
-            "ng is independent of whether the hardware for SMT is present. ")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * Indicates the number of SMT threads per core reported to the guest.  This reporting
+         * is independent of whether the hardware for SMT is present.
+         */
         public uint HwThreadsPerCoreRealized
         {
             get
             {
-                if (curObj[nameof(HwThreadsPerCoreRealized)] == null)
+                if (LateBoundObject[nameof(HwThreadsPerCoreRealized)] == null)
                 {
                     return Convert.ToUInt32(0);
                 }
-                return (uint)curObj[nameof(HwThreadsPerCoreRealized)];
+                return (uint)LateBoundObject[nameof(HwThreadsPerCoreRealized)];
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string[] IdentifyingDescriptions
-        {
-            get
-            {
-                return (string[])curObj[nameof(IdentifyingDescriptions)];
-            }
-        }
+        public string[] IdentifyingDescriptions => (string[])LateBoundObject[nameof(IdentifyingDescriptions)];
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsInstallDateNull
         {
             get
             {
-                if (curObj[nameof(InstallDate)] == null)
+                if (LateBoundObject[nameof(InstallDate)] == null)
                 {
                     return true;
                 }
@@ -595,16 +415,13 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public DateTime InstallDate
         {
             get
             {
-                if (curObj[nameof(InstallDate)] != null)
+                if (LateBoundObject[nameof(InstallDate)] != null)
                 {
-                    return ToDateTime((string)curObj[nameof(InstallDate)]);
+                    return ToDateTime((string)LateBoundObject[nameof(InstallDate)]);
                 }
                 else
                 {
@@ -613,23 +430,13 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string InstanceID
-        {
-            get
-            {
-                return (string)curObj[nameof(InstanceID)];
-            }
-        }
+        public string InstanceID => (string)LateBoundObject[nameof(InstanceID)];
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsLastApplicationConsistentReplicationTimeNull
         {
             get
             {
-                if (curObj[nameof(LastApplicationConsistentReplicationTime)] == null)
+                if (LateBoundObject[nameof(LastApplicationConsistentReplicationTime)] == null)
                 {
                     return true;
                 }
@@ -640,18 +447,16 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("The time at which the last application consistent replication is received on reco" +
-            "very for the virtual machine.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * The time at which the last application consistent replication is received on recovery for the virtual machine.
+         */
         public DateTime LastApplicationConsistentReplicationTime
         {
             get
             {
-                if (curObj[nameof(LastApplicationConsistentReplicationTime)] != null)
+                if (LateBoundObject[nameof(LastApplicationConsistentReplicationTime)] != null)
                 {
-                    return ToDateTime((string)curObj[nameof(LastApplicationConsistentReplicationTime)]);
+                    return ToDateTime((string)LateBoundObject[nameof(LastApplicationConsistentReplicationTime)]);
                 }
                 else
                 {
@@ -660,13 +465,11 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsLastReplicationTimeNull
         {
             get
             {
-                if (curObj[nameof(LastReplicationTime)] == null)
+                if (LateBoundObject[nameof(LastReplicationTime)] == null)
                 {
                     return true;
                 }
@@ -677,18 +480,16 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("The time at which the last replication is received on recovery for the virtual ma" +
-            "chine.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * The time at which the last replication is received on recovery for the virtual machine.
+         */
         public DateTime LastReplicationTime
         {
             get
             {
-                if (curObj[nameof(LastReplicationTime)] != null)
+                if (LateBoundObject[nameof(LastReplicationTime)] != null)
                 {
-                    return ToDateTime((string)curObj[nameof(LastReplicationTime)]);
+                    return ToDateTime((string)LateBoundObject[nameof(LastReplicationTime)]);
                 }
                 else
                 {
@@ -697,13 +498,11 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsLastReplicationTypeNull
         {
             get
             {
-                if (curObj[nameof(LastReplicationType)] == null)
+                if (LateBoundObject[nameof(LastReplicationType)] == null)
                 {
                     return true;
                 }
@@ -714,29 +513,26 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("Type of the last replication that was received for the virtual machine.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * Type of the last replication that was received for the virtual machine.
+         */
         public LastReplicationTypeValues LastReplicationType
         {
             get
             {
-                if (curObj[nameof(LastReplicationType)] == null)
+                if (LateBoundObject[nameof(LastReplicationType)] == null)
                 {
                     return (LastReplicationTypeValues)Convert.ToInt32(4);
                 }
-                return (LastReplicationTypeValues)Convert.ToInt32(curObj[nameof(LastReplicationType)]);
+                return (LastReplicationTypeValues)Convert.ToInt32(LateBoundObject[nameof(LastReplicationType)]);
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsLastSuccessfulBackupTimeNull
         {
             get
             {
-                if (curObj[nameof(LastSuccessfulBackupTime)] == null)
+                if (LateBoundObject[nameof(LastSuccessfulBackupTime)] == null)
                 {
                     return true;
                 }
@@ -747,18 +543,16 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("The time at which the last successful backup has completed for the virtual machin" +
-            "e.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * The time at which the last successful backup has completed for the virtual machine.
+         */
         public DateTime LastSuccessfulBackupTime
         {
             get
             {
-                if (curObj[nameof(LastSuccessfulBackupTime)] != null)
+                if (LateBoundObject[nameof(LastSuccessfulBackupTime)] != null)
                 {
-                    return ToDateTime((string)curObj[nameof(LastSuccessfulBackupTime)]);
+                    return ToDateTime((string)LateBoundObject[nameof(LastSuccessfulBackupTime)]);
                 }
                 else
                 {
@@ -767,33 +561,15 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string Name
-        {
-            get
-            {
-                return (string)curObj[nameof(Name)];
-            }
-        }
+        public string Name => (string)LateBoundObject[nameof(Name)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string NameFormat
-        {
-            get
-            {
-                return (string)curObj[nameof(NameFormat)];
-            }
-        }
+        public string NameFormat => (string)LateBoundObject[nameof(NameFormat)];
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsNumberOfNumaNodesNull
         {
             get
             {
-                if (curObj[nameof(NumberOfNumaNodes)] == null)
+                if (LateBoundObject[nameof(NumberOfNumaNodes)] == null)
                 {
                     return true;
                 }
@@ -804,29 +580,29 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description(@"The number of non-uniform memory access (NUMA) nodes of the computer system. When Msvm_ComputerSystem represents the hosting computer system, this property contains the count of physical NUMA nodes. When Msvm_ComputerSystem represents a virtual computer system, this property contains the number of virtual NUMA nodes that are presented to the guest OS through the ACPI System Resource Affinity Table (SRAT).")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * The number of non-uniform memory access (NUMA) nodes of the computer system. 
+         * When Msvm_ComputerSystem represents the hosting computer system, this property contains the count of physical NUMA nodes.
+         * When Msvm_ComputerSystem represents a virtual computer system, 
+         * this property contains the number of virtual NUMA nodes that are presented to the guest OS through the ACPI System Resource Affinity Table (SRAT).
+         */
         public ushort NumberOfNumaNodes
         {
             get
             {
-                if (curObj[nameof(NumberOfNumaNodes)] == null)
+                if (LateBoundObject[nameof(NumberOfNumaNodes)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return (ushort)curObj[nameof(NumberOfNumaNodes)];
+                return (ushort)LateBoundObject[nameof(NumberOfNumaNodes)];
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsOnTimeInMillisecondsNull
         {
             get
             {
-                if (curObj[nameof(OnTimeInMilliseconds)] == null)
+                if (LateBoundObject[nameof(OnTimeInMilliseconds)] == null)
                 {
                     return true;
                 }
@@ -837,29 +613,27 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description(@"For the virtual system, this property describes the total up time, in milliseconds, since the machine was last turned on, reset, or restored. This time excludes the time the virtual system was in the paused state. For the host system, this property is set to NULL.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * For the virtual system, this property describes the total up time, in milliseconds, since the machine was last turned on, reset, or restored.
+         * This time excludes the time the virtual system was in the paused state. For the host system, this property is set to NULL.
+         */
         public ulong OnTimeInMilliseconds
         {
             get
             {
-                if (curObj[nameof(OnTimeInMilliseconds)] == null)
+                if (LateBoundObject[nameof(OnTimeInMilliseconds)] == null)
                 {
                     return Convert.ToUInt64(0);
                 }
-                return (ulong)curObj[nameof(OnTimeInMilliseconds)];
+                return (ulong)LateBoundObject[nameof(OnTimeInMilliseconds)];
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsOperatingStatusNull
         {
             get
             {
-                if (curObj[nameof(OperatingStatus)] == null)
+                if (LateBoundObject[nameof(OperatingStatus)] == null)
                 {
                     return true;
                 }
@@ -870,98 +644,37 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public ushort OperatingStatus
         {
             get
             {
-                if (curObj[nameof(OperatingStatus)] == null)
+                if (LateBoundObject[nameof(OperatingStatus)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return (ushort)curObj[nameof(OperatingStatus)];
+                return (ushort)LateBoundObject[nameof(OperatingStatus)];
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ushort[] OperationalStatus
-        {
-            get
-            {
-                return (ushort[])curObj[nameof(OperationalStatus)];
-            }
-        }
+        public ushort[] OperationalStatus => (ushort[])LateBoundObject[nameof(OperationalStatus)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string[] OtherDedicatedDescriptions
-        {
-            get
-            {
-                return (string[])curObj[nameof(OtherDedicatedDescriptions)];
-            }
-        }
+        public string[] OtherDedicatedDescriptions => (string[])LateBoundObject[nameof(OtherDedicatedDescriptions)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string OtherEnabledState
-        {
-            get
-            {
-                return (string)curObj[nameof(OtherEnabledState)];
-            }
-        }
+        public string OtherEnabledState => (string)LateBoundObject[nameof(OtherEnabledState)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string[] OtherIdentifyingInfo
-        {
-            get
-            {
-                return (string[])curObj[nameof(OtherIdentifyingInfo)];
-            }
-        }
+        public string[] OtherIdentifyingInfo => (string[])LateBoundObject[nameof(OtherIdentifyingInfo)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ushort[] PowerManagementCapabilities
-        {
-            get
-            {
-                return (ushort[])curObj[nameof(PowerManagementCapabilities)];
-            }
-        }
+        public ushort[] PowerManagementCapabilities => (ushort[])LateBoundObject[nameof(PowerManagementCapabilities)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string PrimaryOwnerContact
-        {
-            get
-            {
-                return (string)curObj[nameof(PrimaryOwnerContact)];
-            }
-        }
+        public string PrimaryOwnerContact => (string)LateBoundObject[nameof(PrimaryOwnerContact)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string PrimaryOwnerName
-        {
-            get
-            {
-                return (string)curObj[nameof(PrimaryOwnerName)];
-            }
-        }
+        public string PrimaryOwnerName => (string)LateBoundObject[nameof(PrimaryOwnerName)];
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsPrimaryStatusNull
         {
             get
             {
-                if (curObj[nameof(PrimaryStatus)] == null)
+                if (LateBoundObject[nameof(PrimaryStatus)] == null)
                 {
                     return true;
                 }
@@ -972,28 +685,23 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public ushort PrimaryStatus
         {
             get
             {
-                if (curObj[nameof(PrimaryStatus)] == null)
+                if (LateBoundObject[nameof(PrimaryStatus)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return (ushort)curObj[nameof(PrimaryStatus)];
+                return (ushort)LateBoundObject[nameof(PrimaryStatus)];
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsProcessIDNull
         {
             get
             {
-                if (curObj[nameof(ProcessID)] == null)
+                if (LateBoundObject[nameof(ProcessID)] == null)
                 {
                     return true;
                 }
@@ -1004,31 +712,27 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("The identifier of the process under which this virtual machine is running. This v" +
-            "alue can be used to uniquely identify the instance of Vmwp.exe on the system tha" +
-            "t is running the virtual machine.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * The identifier of the process under which this virtual machine is running.
+         * This value can be used to uniquely identify the instance of Vmwp.exe on the system that is running the virtual machine.
+         */
         public uint ProcessID
         {
             get
             {
-                if (curObj[nameof(ProcessID)] == null)
+                if (LateBoundObject[nameof(ProcessID)] == null)
                 {
                     return Convert.ToUInt32(0);
                 }
-                return (uint)curObj[nameof(ProcessID)];
+                return (uint)LateBoundObject[nameof(ProcessID)];
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsReplicationHealthNull
         {
             get
             {
-                if (curObj[nameof(ReplicationHealth)] == null)
+                if (LateBoundObject[nameof(ReplicationHealth)] == null)
                 {
                     return true;
                 }
@@ -1039,29 +743,26 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("Replication health for the virtual machine.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * Replication health for the virtual machine.
+         */
         public ReplicationHealthValues ReplicationHealth
         {
             get
             {
-                if (curObj[nameof(ReplicationHealth)] == null)
+                if (LateBoundObject[nameof(ReplicationHealth)] == null)
                 {
                     return (ReplicationHealthValues)Convert.ToInt32(4);
                 }
-                return (ReplicationHealthValues)Convert.ToInt32(curObj[nameof(ReplicationHealth)]);
+                return (ReplicationHealthValues)Convert.ToInt32(LateBoundObject[nameof(ReplicationHealth)]);
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsReplicationModeNull
         {
             get
             {
-                if (curObj[nameof(ReplicationMode)] == null)
+                if (LateBoundObject[nameof(ReplicationMode)] == null)
                 {
                     return true;
                 }
@@ -1072,29 +773,26 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("Identifies replication type for the virtual machine.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * Identifies replication type for the virtual machine.
+         */
         public ReplicationModeValues ReplicationMode
         {
             get
             {
-                if (curObj[nameof(ReplicationMode)] == null)
+                if (LateBoundObject[nameof(ReplicationMode)] == null)
                 {
                     return (ReplicationModeValues)Convert.ToInt32(5);
                 }
-                return (ReplicationModeValues)Convert.ToInt32(curObj[nameof(ReplicationMode)]);
+                return (ReplicationModeValues)Convert.ToInt32(LateBoundObject[nameof(ReplicationMode)]);
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsReplicationStateNull
         {
             get
             {
-                if (curObj[nameof(ReplicationState)] == null)
+                if (LateBoundObject[nameof(ReplicationState)] == null)
                 {
                     return true;
                 }
@@ -1105,29 +803,26 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("Replication state for the virtual machine.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * Replication state for the virtual machine.
+         */
         public ReplicationStateValues ReplicationState
         {
             get
             {
-                if (curObj[nameof(ReplicationState)] == null)
+                if (LateBoundObject[nameof(ReplicationState)] == null)
                 {
                     return (ReplicationStateValues)Convert.ToInt32(15);
                 }
-                return (ReplicationStateValues)Convert.ToInt32(curObj[nameof(ReplicationState)]);
+                return (ReplicationStateValues)Convert.ToInt32(LateBoundObject[nameof(ReplicationState)]);
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsRequestedStateNull
         {
             get
             {
-                if (curObj[nameof(RequestedState)] == null)
+                if (LateBoundObject[nameof(RequestedState)] == null)
                 {
                     return true;
                 }
@@ -1138,28 +833,23 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public ushort RequestedState
         {
             get
             {
-                if (curObj[nameof(RequestedState)] == null)
+                if (LateBoundObject[nameof(RequestedState)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return (ushort)curObj[nameof(RequestedState)];
+                return (ushort)LateBoundObject[nameof(RequestedState)];
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsResetCapabilityNull
         {
             get
             {
-                if (curObj[nameof(ResetCapability)] == null)
+                if (LateBoundObject[nameof(ResetCapability)] == null)
                 {
                     return true;
                 }
@@ -1170,58 +860,29 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public ushort ResetCapability
         {
             get
             {
-                if (curObj[nameof(ResetCapability)] == null)
+                if (LateBoundObject[nameof(ResetCapability)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return (ushort)curObj[nameof(ResetCapability)];
+                return (ushort)LateBoundObject[nameof(ResetCapability)];
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string[] Roles
-        {
-            get
-            {
-                return (string[])curObj[nameof(Roles)];
-            }
-        }
+        public string[] Roles => (string[])LateBoundObject[nameof(Roles)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string Status
-        {
-            get
-            {
-                return (string)curObj[nameof(Status)];
-            }
-        }
+        public string Status => (string)LateBoundObject[nameof(Status)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string[] StatusDescriptions
-        {
-            get
-            {
-                return (string[])curObj[nameof(StatusDescriptions)];
-            }
-        }
+        public string[] StatusDescriptions => (string[])LateBoundObject[nameof(StatusDescriptions)];
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsTimeOfLastConfigurationChangeNull
         {
             get
             {
-                if (curObj[nameof(TimeOfLastConfigurationChange)] == null)
+                if (LateBoundObject[nameof(TimeOfLastConfigurationChange)] == null)
                 {
                     return true;
                 }
@@ -1232,20 +893,18 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("The date and time when the virtual machine configuration file was last modified. " +
-            "The configuration file is modified during certain virtual machine operations, as" +
-            " well as when any of the virtual machine or device settings are added, modified," +
-            " or removed.")]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
+        /*
+         * The date and time when the virtual machine configuration file was last modified.
+         * The configuration file is modified during certain virtual machine operations,
+         * as well as when any of the virtual machine or device settings are added, modified, or removed.
+         */
         public DateTime TimeOfLastConfigurationChange
         {
             get
             {
-                if (curObj[nameof(TimeOfLastConfigurationChange)] != null)
+                if (LateBoundObject[nameof(TimeOfLastConfigurationChange)] != null)
                 {
-                    return ToDateTime((string)curObj[nameof(TimeOfLastConfigurationChange)]);
+                    return ToDateTime((string)LateBoundObject[nameof(TimeOfLastConfigurationChange)]);
                 }
                 else
                 {
@@ -1254,13 +913,11 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsTimeOfLastStateChangeNull
         {
             get
             {
-                if (curObj[nameof(TimeOfLastStateChange)] == null)
+                if (LateBoundObject[nameof(TimeOfLastStateChange)] == null)
                 {
                     return true;
                 }
@@ -1271,16 +928,13 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public DateTime TimeOfLastStateChange
         {
             get
             {
-                if (curObj[nameof(TimeOfLastStateChange)] != null)
+                if (LateBoundObject[nameof(TimeOfLastStateChange)] != null)
                 {
-                    return ToDateTime((string)curObj[nameof(TimeOfLastStateChange)]);
+                    return ToDateTime((string)LateBoundObject[nameof(TimeOfLastStateChange)]);
                 }
                 else
                 {
@@ -1289,13 +943,11 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsTransitioningToStateNull
         {
             get
             {
-                if (curObj[nameof(TransitioningToState)] == null)
+                if (LateBoundObject[nameof(TransitioningToState)] == null)
                 {
                     return true;
                 }
@@ -1306,18 +958,15 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public ushort TransitioningToState
         {
             get
             {
-                if (curObj[nameof(TransitioningToState)] == null)
+                if (LateBoundObject[nameof(TransitioningToState)] == null)
                 {
                     return Convert.ToUInt16(0);
                 }
-                return (ushort)curObj[nameof(TransitioningToState)];
+                return (ushort)LateBoundObject[nameof(TransitioningToState)];
             }
         }
 
@@ -1740,7 +1389,6 @@ namespace Viridian.Msvm.VirtualSystem
             return false;
         }
 
-        [Browsable(true)]
         public void CommitObject()
         {
             if (isEmbedded == false)
@@ -1749,7 +1397,6 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
         public void CommitObject(PutOptions putOptions)
         {
             if (isEmbedded == false)
@@ -1760,7 +1407,7 @@ namespace Viridian.Msvm.VirtualSystem
 
         private void Initialize()
         {
-            AutoCommitProp = true;
+            AutoCommit = true;
             isEmbedded = false;
         }
 
@@ -1783,43 +1430,31 @@ namespace Viridian.Msvm.VirtualSystem
                 }
             }
             PrivateLateBoundObject = new ManagementObject(mgmtScope, path, getOptions);
-            PrivateSystemProperties = new ManagementSystemProperties(PrivateLateBoundObject);
-            curObj = PrivateLateBoundObject;
+            SystemProperties = new ManagementSystemProperties(PrivateLateBoundObject);
+            LateBoundObject = PrivateLateBoundObject;
         }
 
         // Different overloads of GetInstances() help in enumerating instances of the WMI class.
-        public static ComputerSystemCollection GetInstances()
-        {
-            return GetInstances(null, null, null);
-        }
+        public static MsvmCollection<ComputerSystem> GetInstances() => GetInstances(null, null, null);
 
-        public static ComputerSystemCollection GetInstances(string condition)
-        {
-            return GetInstances(null, condition, null);
-        }
+        public static MsvmCollection<ComputerSystem> GetInstances(string condition) => GetInstances(null, condition, null);
 
-        public static ComputerSystemCollection GetInstances(string[] selectedProperties)
-        {
-            return GetInstances(null, null, selectedProperties);
-        }
+        public static MsvmCollection<ComputerSystem> GetInstances(string[] selectedProperties) => GetInstances(null, null, selectedProperties);
 
-        public static ComputerSystemCollection GetInstances(string condition, string[] selectedProperties)
-        {
-            return GetInstances(null, condition, selectedProperties);
-        }
+        public static MsvmCollection<ComputerSystem> GetInstances(string condition, string[] selectedProperties) => GetInstances(null, condition, selectedProperties);
 
-        public static ComputerSystemCollection GetInstances(ManagementScope mgmtScope, EnumerationOptions enumOptions)
+        public static MsvmCollection<ComputerSystem> GetInstances(ManagementScope mgmtScope, EnumerationOptions enumOptions)
         {
             if (mgmtScope == null)
             {
-                if (statMgmtScope == null)
+                if (StaticScope == null)
                 {
                     mgmtScope = new ManagementScope();
                     mgmtScope.Path.NamespacePath = "root\\virtualization\\v2";
                 }
                 else
                 {
-                    mgmtScope = statMgmtScope;
+                    mgmtScope = StaticScope;
                 }
             }
             ManagementPath pathObj = new ManagementPath
@@ -1835,54 +1470,49 @@ namespace Viridian.Msvm.VirtualSystem
                     EnsureLocatable = true
                 };
             }
-            return new ComputerSystemCollection(clsObject.GetInstances(enumOptions));
+            return new MsvmCollection<ComputerSystem>(clsObject.GetInstances(enumOptions));
         }
 
-        public static ComputerSystemCollection GetInstances(ManagementScope mgmtScope, string condition)
-        {
-            return GetInstances(mgmtScope, condition, null);
-        }
+        public static MsvmCollection<ComputerSystem> GetInstances(ManagementScope mgmtScope, string condition) => GetInstances(mgmtScope, condition, null);
 
-        public static ComputerSystemCollection GetInstances(ManagementScope mgmtScope, string[] selectedProperties)
-        {
-            return GetInstances(mgmtScope, null, selectedProperties);
-        }
+        public static MsvmCollection<ComputerSystem> GetInstances(ManagementScope mgmtScope, string[] selectedProperties) => GetInstances(mgmtScope, null, selectedProperties);
 
-        public static ComputerSystemCollection GetInstances(ManagementScope mgmtScope, string condition, string[] selectedProperties)
+        public static MsvmCollection<ComputerSystem> GetInstances(ManagementScope mgmtScope, string condition, string[] selectedProperties)
         {
             if (mgmtScope == null)
             {
-                if (statMgmtScope == null)
+                if (StaticScope == null)
                 {
                     mgmtScope = new ManagementScope();
                     mgmtScope.Path.NamespacePath = "root\\virtualization\\v2";
                 }
                 else
                 {
-                    mgmtScope = statMgmtScope;
+                    mgmtScope = StaticScope;
                 }
             }
-            ManagementObjectSearcher ObjectSearcher = new ManagementObjectSearcher(mgmtScope, new SelectQuery("Msvm_ComputerSystem", condition, selectedProperties));
-            EnumerationOptions enumOptions = new EnumerationOptions
+            using (ManagementObjectSearcher ObjectSearcher = new ManagementObjectSearcher(mgmtScope, new SelectQuery("Msvm_ComputerSystem", condition, selectedProperties)))
             {
-                EnsureLocatable = true
-            };
-            ObjectSearcher.Options = enumOptions;
-            return new ComputerSystemCollection(ObjectSearcher.Get());
+                EnumerationOptions enumOptions = new EnumerationOptions
+                {
+                    EnsureLocatable = true
+                };
+                ObjectSearcher.Options = enumOptions;
+                return new MsvmCollection<ComputerSystem>(ObjectSearcher.Get());
+            }
         }
 
-        [Browsable(true)]
         public static ComputerSystem CreateInstance()
         {
             ManagementScope mgmtScope;
-            if (statMgmtScope == null)
+            if (StaticScope == null)
             {
                 mgmtScope = new ManagementScope();
                 mgmtScope.Path.NamespacePath = CreatedWmiNamespace;
             }
             else
             {
-                mgmtScope = statMgmtScope;
+                mgmtScope = StaticScope;
             }
             ManagementPath mgmtPath = new ManagementPath(CreatedClassName);
             using (ManagementClass tmpMgmtClass = new ManagementClass(mgmtScope, mgmtPath, null))
@@ -1891,10 +1521,25 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        [Browsable(true)]
-        public void Delete()
+        public void Delete() => PrivateLateBoundObject.Delete();
+
+        public void Dispose()
         {
-            PrivateLateBoundObject.Delete();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                PrivateLateBoundObject.Dispose();
+            }
+        }
+
+        ~ComputerSystem()
+        {
+            Dispose(false);
         }
 
         public uint InjectNonMaskableInterrupt(out ManagementPath Job)
@@ -2002,391 +1647,67 @@ namespace Viridian.Msvm.VirtualSystem
 
         public enum EnhancedSessionModeStateValues
         {
-
             Allowed_and_available = 2,
-
             Not_allowed = 3,
-
             Allowed_but_not_available = 6,
-
             NULL_ENUM_VALUE = 0,
         }
 
         public enum FailedOverReplicationTypeValues
         {
-
             None = 0,
-
             Regular = 1,
-
             Application_consistent = 2,
-
             Planned = 3,
-
             NULL_ENUM_VALUE = 4,
         }
 
         public enum LastReplicationTypeValues
         {
-
             None = 0,
-
             Regular = 1,
-
             Application_consistent = 2,
-
             Planned = 3,
-
             NULL_ENUM_VALUE = 4,
         }
 
         public enum ReplicationHealthValues
         {
-
             Not_applicable = 0,
-
             Ok = 1,
-
             Warning = 2,
-
             Critical = 3,
-
             NULL_ENUM_VALUE = 4,
         }
 
         public enum ReplicationModeValues
         {
-
             None = 0,
-
             Primary = 1,
-
             Replica = 2,
-
             Test_Replica = 3,
-
             Extended_Replica = 4,
-
             NULL_ENUM_VALUE = 5,
         }
 
         public enum ReplicationStateValues
         {
-
             Disabled = 0,
-
             Ready_for_replication = 1,
-
             Waiting_to_complete_initial_replication = 2,
-
             Replicating = 3,
-
             Synced_replication_complete = 4,
-
             Recovered = 5,
-
             Committed = 6,
-
             Suspended = 7,
-
             Critical = 8,
-
             Waiting_to_start_resynchronization = 9,
-
             Resynchronizing = 10,
-
             Resynchronization_suspended = 11,
-
             Failover_in_progress = 12,
-
             Failback_in_progress = 13,
-
             Failback_complete = 14,
-
             NULL_ENUM_VALUE = 15,
-        }
-
-        // Enumerator implementation for enumerating instances of the class.
-        public class ComputerSystemCollection : object, ICollection
-        {
-
-            private ManagementObjectCollection privColObj;
-
-            public ComputerSystemCollection(ManagementObjectCollection objCollection)
-            {
-                privColObj = objCollection;
-            }
-
-            public virtual int Count
-            {
-                get
-                {
-                    return privColObj.Count;
-                }
-            }
-
-            public virtual bool IsSynchronized
-            {
-                get
-                {
-                    return privColObj.IsSynchronized;
-                }
-            }
-
-            public virtual object SyncRoot
-            {
-                get
-                {
-                    return this;
-                }
-            }
-
-            public virtual void CopyTo(Array array, int index)
-            {
-                privColObj.CopyTo(array, index);
-                int nCtr;
-                for (nCtr = 0; nCtr < array.Length; nCtr = nCtr + 1)
-                {
-                    array.SetValue(new ComputerSystem((ManagementObject)array.GetValue(nCtr)), nCtr);
-                }
-            }
-
-            public virtual IEnumerator GetEnumerator()
-            {
-                return new ComputerSystemEnumerator(privColObj.GetEnumerator());
-            }
-
-            public class ComputerSystemEnumerator : object, IEnumerator
-            {
-
-                private ManagementObjectCollection.ManagementObjectEnumerator privObjEnum;
-
-                public ComputerSystemEnumerator(ManagementObjectCollection.ManagementObjectEnumerator objEnum)
-                {
-                    privObjEnum = objEnum;
-                }
-
-                public virtual object Current
-                {
-                    get
-                    {
-                        return new ComputerSystem((ManagementObject)privObjEnum.Current);
-                    }
-                }
-
-                public virtual bool MoveNext()
-                {
-                    return privObjEnum.MoveNext();
-                }
-
-                public virtual void Reset()
-                {
-                    privObjEnum.Reset();
-                }
-            }
-        }
-
-        // TypeConverter to handle null values for ValueType properties
-        public class WMIValueTypeConverter : TypeConverter
-        {
-
-            private TypeConverter baseConverter;
-
-            private Type baseType;
-
-            public WMIValueTypeConverter(Type inBaseType)
-            {
-                baseConverter = TypeDescriptor.GetConverter(inBaseType);
-                baseType = inBaseType;
-            }
-
-            public override bool CanConvertFrom(ITypeDescriptorContext context, Type srcType)
-            {
-                return baseConverter.CanConvertFrom(context, srcType);
-            }
-
-            public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
-            {
-                return baseConverter.CanConvertTo(context, destinationType);
-            }
-
-            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-            {
-                return baseConverter.ConvertFrom(context, culture, value);
-            }
-
-            public override object CreateInstance(ITypeDescriptorContext context, IDictionary dictionary)
-            {
-                return baseConverter.CreateInstance(context, dictionary);
-            }
-
-            public override bool GetCreateInstanceSupported(ITypeDescriptorContext context)
-            {
-                return baseConverter.GetCreateInstanceSupported(context);
-            }
-
-            public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context, object value, Attribute[] attributeVar)
-            {
-                return baseConverter.GetProperties(context, value, attributeVar);
-            }
-
-            public override bool GetPropertiesSupported(ITypeDescriptorContext context)
-            {
-                return baseConverter.GetPropertiesSupported(context);
-            }
-
-            public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
-            {
-                return baseConverter.GetStandardValues(context);
-            }
-
-            public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
-            {
-                return baseConverter.GetStandardValuesExclusive(context);
-            }
-
-            public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
-            {
-                return baseConverter.GetStandardValuesSupported(context);
-            }
-
-            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
-            {
-                if (baseType.BaseType == typeof(Enum))
-                {
-                    if (value.GetType() == destinationType)
-                    {
-                        return value;
-                    }
-                    if ((value == null)
-                                && (context != null)
-                                && (context.PropertyDescriptor.ShouldSerializeValue(context.Instance) == false))
-                    {
-                        return "NULL_ENUM_VALUE";
-                    }
-                    return baseConverter.ConvertTo(context, culture, value, destinationType);
-                }
-                if ((baseType == typeof(bool))
-                            && (baseType.BaseType == typeof(ValueType)))
-                {
-                    if ((value == null)
-                                && (context != null)
-                                && (context.PropertyDescriptor.ShouldSerializeValue(context.Instance) == false))
-                    {
-                        return "";
-                    }
-                    return baseConverter.ConvertTo(context, culture, value, destinationType);
-                }
-                if ((context != null)
-                            && (context.PropertyDescriptor.ShouldSerializeValue(context.Instance) == false))
-                {
-                    return "";
-                }
-                return baseConverter.ConvertTo(context, culture, value, destinationType);
-            }
-        }
-
-        // Embedded class to represent WMI system Properties.
-        [TypeConverter(typeof(ExpandableObjectConverter))]
-        public class ManagementSystemProperties
-        {
-
-            private ManagementBaseObject PrivateLateBoundObject;
-
-            public ManagementSystemProperties(ManagementBaseObject ManagedObject)
-            {
-                PrivateLateBoundObject = ManagedObject;
-            }
-
-            [Browsable(true)]
-            public int GENUS
-            {
-                get
-                {
-                    return (int)PrivateLateBoundObject["__GENUS"];
-                }
-            }
-
-            [Browsable(true)]
-            public string CLASS
-            {
-                get
-                {
-                    return (string)PrivateLateBoundObject["__CLASS"];
-                }
-            }
-
-            [Browsable(true)]
-            public string SUPERCLASS
-            {
-                get
-                {
-                    return (string)PrivateLateBoundObject["__SUPERCLASS"];
-                }
-            }
-
-            [Browsable(true)]
-            public string DYNASTY
-            {
-                get
-                {
-                    return (string)PrivateLateBoundObject["__DYNASTY"];
-                }
-            }
-
-            [Browsable(true)]
-            public string RELPATH
-            {
-                get
-                {
-                    return (string)PrivateLateBoundObject["__RELPATH"];
-                }
-            }
-
-            [Browsable(true)]
-            public int PROPERTY_COUNT
-            {
-                get
-                {
-                    return (int)PrivateLateBoundObject["__PROPERTY_COUNT"];
-                }
-            }
-
-            [Browsable(true)]
-            public string[] DERIVATION
-            {
-                get
-                {
-                    return (string[])PrivateLateBoundObject["__DERIVATION"];
-                }
-            }
-
-            [Browsable(true)]
-            public string SERVER
-            {
-                get
-                {
-                    return (string)PrivateLateBoundObject["__SERVER"];
-                }
-            }
-
-            [Browsable(true)]
-            public string NAMESPACE
-            {
-                get
-                {
-                    return (string)PrivateLateBoundObject["__NAMESPACE"];
-                }
-            }
-
-            [Browsable(true)]
-            public string PATH
-            {
-                get
-                {
-                    return (string)PrivateLateBoundObject["__PATH"];
-                }
-            }
         }
     }
 }

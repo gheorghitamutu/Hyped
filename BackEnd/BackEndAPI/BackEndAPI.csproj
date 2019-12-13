@@ -24,7 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Hyped\Hyped.csproj" />
     <ProjectReference Include="..\..\Viridian\Viridian.csproj" />
   </ItemGroup>
 

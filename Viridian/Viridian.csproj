@@ -51,6 +51,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Job\Validator.cs" />
+    <Compile Include="Msvm\ManagementSystemProperties.cs" />
+    <Compile Include="Msvm\MsvmCollection.cs" />
     <Compile Include="Msvm\Networking\ExternalEthernetPort.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -62,24 +64,14 @@
     <Compile Include="Msvm\Networking\VirtualEthernetSwitchSettingData .cs" />
     <Compile Include="Msvm\Storage\StorageAllocationSettingData.cs" />
     <Compile Include="Msvm\Threshold\VirtualSystemSnapshotSettingData.cs" />
-    <Compile Include="Msvm\VirtualSystemManagement\SettingsDefineState.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Msvm\VirtualSystem\ComputerSystem.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Msvm\VirtualSystemManagement\LastAppliedSnapshot.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Msvm\VirtualSystem\MostCurrentSnapshotInBranch.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Msvm\VirtualSystem\SnapshotOfVirtualSystem.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Msvm\VirtualSystem\SummaryInformation.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Msvm\VirtualSystemManagement\SettingsDefineState.cs" />
+    <Compile Include="Msvm\VirtualSystemManagement\VirtualSystemManagementService.cs" />
+    <Compile Include="Msvm\VirtualSystem\ComputerSystem.cs" />
+    <Compile Include="Msvm\VirtualSystemManagement\LastAppliedSnapshot.cs" />
+    <Compile Include="Msvm\VirtualSystem\MostCurrentSnapshotInBranch.cs" />
+    <Compile Include="Msvm\VirtualSystem\SnapshotOfVirtualSystem.cs" />
+    <Compile Include="Msvm\VirtualSystem\SummaryInformation.cs" />
+    <Compile Include="Msvm\WMIValueTypeConverter.cs" />
     <Compile Include="Properties\ComputerSystem.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -104,21 +96,14 @@
     <Compile Include="WindowsStorageManagement\MSFT\Volume.cs" />
     <Compile Include="Msvm\Storage\MountedStorageImage.cs" />
     <Compile Include="Msvm\ResourceManagement\ResourcePool.cs" />
-    <Compile Include="Msvm\VirtualSystem\VirtualSystemSettingData.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Msvm\VirtualSystem\VirtualSystemSettingData.cs" />
     <Compile Include="Resources\Network\NetSwitch.cs" />
     <Compile Include="Msvm\BaseService.cs" />
     <Compile Include="Msvm\Storage\ImageManagementService.cs" />
-    <Compile Include="Msvm\VirtualSystemManagement\VirtualSystemManagementService.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Msvm\Networking\VirtualEthernetSwitchManagementService.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Msvm\VirtualSystemManagement\VirtualSystemSnapshotService.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Msvm\VirtualSystemManagement\VirtualSystemSnapshotService.cs" />
     <Compile Include="Msvm\Metrics\MetricService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Msvm\ResourceManagement\ResourceAllocationSettingData.cs" />
@@ -130,6 +115,7 @@
   <ItemGroup>
     <None Include=".editorconfig" />
     <None Include="app.config" />
+    <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
     <None Include="Properties\ComputerSystem.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

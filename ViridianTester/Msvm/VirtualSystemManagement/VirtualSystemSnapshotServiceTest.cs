@@ -75,13 +75,13 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
             }
         }
         [TestMethod]
-        public void ApplySnapshot_ExpectingReturnZero()
+        public void ApplySnapshot_ExpectingReturnLastSnapshotApplied()
         {
             using (var vsms = VirtualSystemManagementService.GetInstances().Cast<VirtualSystemManagementService>().ToList().First())
             {
                 var virtualSystemSettingData = VirtualSystemSettingData.CreateInstance();
 
-                virtualSystemSettingData.LateBoundObject["ElementName"] = nameof(ApplySnapshot_ExpectingReturnZero);
+                virtualSystemSettingData.LateBoundObject["ElementName"] = nameof(ApplySnapshot_ExpectingReturnLastSnapshotApplied);
                 virtualSystemSettingData.LateBoundObject["ConfigurationDataRoot"] = @"ConfigurationDataRoot";
                 virtualSystemSettingData.LateBoundObject["VirtualSystemSubtype"] = "Microsoft:Hyper-V:SubType:2";
                 virtualSystemSettingData.LateBoundObject["VirtualSystemSubtype"] = "Microsoft:Hyper-V:SubType:2";
@@ -96,7 +96,7 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                 {
                     var SnapshotSettingsInstance = VirtualSystemSettingData.CreateInstance();
 
-                    SnapshotSettingsInstance.LateBoundObject["ElementName"] = $"{nameof(ApplySnapshot_ExpectingReturnZero)}";
+                    SnapshotSettingsInstance.LateBoundObject["ElementName"] = $"{nameof(ApplySnapshot_ExpectingReturnLastSnapshotApplied)}";
                     SnapshotSettingsInstance.LateBoundObject["SnapshotDataRoot"] = @"SnapshotDataRoot";
                     SnapshotSettingsInstance.LateBoundObject["VirtualSystemType"] = 5;
 

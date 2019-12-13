@@ -1,7 +1,5 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Management;
-using System.Collections;
 using System.Globalization;
 
 namespace Viridian.Msvm.VirtualSystemManagement
@@ -12,7 +10,7 @@ namespace Viridian.Msvm.VirtualSystemManagement
     // Every property added to the class for WMI property has attributes set to define its behavior in Visual Studio designer and also to define a TypeConverter to be used.
     // Datetime conversion functions ToDateTime and ToDmtfDateTime are added to the class to convert DMTF datetime to System.DateTime and vice-versa.
     // An Early Bound class generated for the WMI class.Msvm_VirtualSystemManagementService
-    public class VirtualSystemManagementService : Component
+    public class VirtualSystemManagementService : IDisposable
     {
         // Private property to hold the WMI namespace in which the class resides.
         private static readonly string CreatedWmiNamespace = Properties.VESMS.Default.WMINamespace;
@@ -76,12 +74,8 @@ namespace Viridian.Msvm.VirtualSystemManagement
         }
 
         // Property returns the namespace of the WMI class.
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public static string OriginatingNamespace => Properties.VESMS.Default.WMINamespace;
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string ManagementClassName
         {
             get
@@ -103,18 +97,12 @@ namespace Viridian.Msvm.VirtualSystemManagement
         }
 
         // Property pointing to an embedded object to get System properties of the WMI object.
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ManagementSystemProperties SystemProperties { get; private set; }
 
         // Property returning the underlying lateBound object.
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ManagementBaseObject LateBoundObject { get; private set; }
 
         // ManagementScope of the object.
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ManagementScope Scope
         {
             get
@@ -138,12 +126,9 @@ namespace Viridian.Msvm.VirtualSystemManagement
         }
 
         // Property to show the commit behavior for the WMI object. If true, WMI object will be automatically saved after each property modification.(ie. Put() is called after modification of a property).
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool AutoCommit { get; set; }
 
         // The ManagementPath of the underlying WMI object.
-        [Browsable(true)]
         public ManagementPath Path
         {
             get
@@ -171,20 +156,12 @@ namespace Viridian.Msvm.VirtualSystemManagement
         }
 
         // Public static scope property which is used by the various methods.
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public static ManagementScope StaticScope { get; set; } = null;
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ushort[] AvailableRequestedStates => (ushort[])LateBoundObject[nameof(AvailableRequestedStates)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Caption => (string)LateBoundObject[nameof(Caption)];
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsCommunicationStatusNull
         {
             get
@@ -200,9 +177,6 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public ushort CommunicationStatus
         {
             get
@@ -215,16 +189,10 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string CreationClassName => (string)LateBoundObject[nameof(CreationClassName)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Description => (string)LateBoundObject[nameof(Description)];
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsDetailedStatusNull
         {
             get
@@ -240,9 +208,6 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public ushort DetailedStatus
         {
             get
@@ -255,12 +220,8 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string ElementName => (string)LateBoundObject[nameof(ElementName)];
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsEnabledDefaultNull
         {
             get
@@ -276,9 +237,6 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public ushort EnabledDefault
         {
             get
@@ -291,8 +249,6 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsEnabledStateNull
         {
             get
@@ -308,9 +264,6 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public ushort EnabledState
         {
             get
@@ -323,8 +276,6 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsHealthStateNull
         {
             get
@@ -340,9 +291,6 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public ushort HealthState
         {
             get
@@ -355,8 +303,6 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsInstallDateNull
         {
             get
@@ -372,9 +318,6 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public DateTime InstallDate
         {
             get
@@ -390,16 +333,10 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string InstanceID => (string)LateBoundObject[nameof(InstanceID)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Name => (string)LateBoundObject[nameof(Name)];
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsOperatingStatusNull
         {
             get
@@ -415,9 +352,6 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public ushort OperatingStatus
         {
             get
@@ -430,24 +364,14 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ushort[] OperationalStatus => (ushort[])LateBoundObject[nameof(OperationalStatus)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string OtherEnabledState => (string)LateBoundObject[nameof(OtherEnabledState)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string PrimaryOwnerContact => (string)LateBoundObject[nameof(PrimaryOwnerContact)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string PrimaryOwnerName => (string)LateBoundObject[nameof(PrimaryOwnerName)];
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsPrimaryStatusNull
         {
             get
@@ -463,9 +387,6 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public ushort PrimaryStatus
         {
             get
@@ -478,8 +399,6 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsRequestedStateNull
         {
             get
@@ -495,9 +414,6 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public ushort RequestedState
         {
             get
@@ -510,8 +426,6 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsStartedNull
         {
             get
@@ -527,9 +441,6 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public bool Started
         {
             get
@@ -542,28 +453,16 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string StartMode => (string)LateBoundObject[nameof(StartMode)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Status => (string)LateBoundObject[nameof(Status)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string[] StatusDescriptions => (string[])LateBoundObject[nameof(StatusDescriptions)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string SystemCreationClassName => (string)LateBoundObject[nameof(SystemCreationClassName)];
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string SystemName => (string)LateBoundObject[nameof(SystemName)];
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsTimeOfLastStateChangeNull
         {
             get
@@ -579,9 +478,6 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public DateTime TimeOfLastStateChange
         {
             get
@@ -597,8 +493,6 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsTransitioningToStateNull
         {
             get
@@ -614,9 +508,6 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [TypeConverter(typeof(WMIValueTypeConverter))]
         public ushort TransitioningToState
         {
             get
@@ -924,7 +815,6 @@ namespace Viridian.Msvm.VirtualSystemManagement
             return false;
         }
 
-        [Browsable(true)]
         public void CommitObject()
         {
             if (isEmbedded == false)
@@ -933,7 +823,6 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        [Browsable(true)]
         public void CommitObject(PutOptions putOptions)
         {
             if (isEmbedded == false)
@@ -974,27 +863,15 @@ namespace Viridian.Msvm.VirtualSystemManagement
         }
 
         // Different overloads of GetInstances() help in enumerating instances of the WMI class.
-        public static VirtualSystemManagementServiceCollection GetInstances()
-        {
-            return GetInstances(null, null, null);
-        }
+        public static MsvmCollection<VirtualSystemManagementService> GetInstances() => GetInstances(null, null, null);
 
-        public static VirtualSystemManagementServiceCollection GetInstances(string condition)
-        {
-            return GetInstances(null, condition, null);
-        }
+        public static MsvmCollection<VirtualSystemManagementService> GetInstances(string condition) => GetInstances(null, condition, null);
 
-        public static VirtualSystemManagementServiceCollection GetInstances(string[] selectedProperties)
-        {
-            return GetInstances(null, null, selectedProperties);
-        }
+        public static MsvmCollection<VirtualSystemManagementService> GetInstances(string[] selectedProperties) => GetInstances(null, null, selectedProperties);
 
-        public static VirtualSystemManagementServiceCollection GetInstances(string condition, string[] selectedProperties)
-        {
-            return GetInstances(null, condition, selectedProperties);
-        }
+        public static MsvmCollection<VirtualSystemManagementService> GetInstances(string condition, string[] selectedProperties) => GetInstances(null, condition, selectedProperties);
 
-        public static VirtualSystemManagementServiceCollection GetInstances(ManagementScope mgmtScope, EnumerationOptions enumOptions)
+        public static MsvmCollection<VirtualSystemManagementService> GetInstances(ManagementScope mgmtScope, EnumerationOptions enumOptions)
         {
             if (mgmtScope == null)
             {
@@ -1022,21 +899,15 @@ namespace Viridian.Msvm.VirtualSystemManagement
                         EnsureLocatable = true
                     };
                 }
-                return new VirtualSystemManagementServiceCollection(clsObject.GetInstances(enumOptions));
+                return new MsvmCollection<VirtualSystemManagementService>(clsObject.GetInstances(enumOptions));
             }
         }
 
-        public static VirtualSystemManagementServiceCollection GetInstances(ManagementScope mgmtScope, string condition)
-        {
-            return GetInstances(mgmtScope, condition, null);
-        }
+        public static MsvmCollection<VirtualSystemManagementService> GetInstances(ManagementScope mgmtScope, string condition) => GetInstances(mgmtScope, condition, null);
 
-        public static VirtualSystemManagementServiceCollection GetInstances(ManagementScope mgmtScope, string[] selectedProperties)
-        {
-            return GetInstances(mgmtScope, null, selectedProperties);
-        }
+        public static MsvmCollection<VirtualSystemManagementService> GetInstances(ManagementScope mgmtScope, string[] selectedProperties) => GetInstances(mgmtScope, null, selectedProperties);
 
-        public static VirtualSystemManagementServiceCollection GetInstances(ManagementScope mgmtScope, string condition, string[] selectedProperties)
+        public static MsvmCollection<VirtualSystemManagementService> GetInstances(ManagementScope mgmtScope, string condition, string[] selectedProperties)
         {
             if (mgmtScope == null)
             {
@@ -1057,11 +928,10 @@ namespace Viridian.Msvm.VirtualSystemManagement
                     EnsureLocatable = true
                 };
                 ObjectSearcher.Options = enumOptions;
-                return new VirtualSystemManagementServiceCollection(ObjectSearcher.Get());
+                return new MsvmCollection<VirtualSystemManagementService>(ObjectSearcher.Get());
             }
         }
 
-        [Browsable(true)]
         public static VirtualSystemManagementService CreateInstance()
         {
             ManagementScope mgmtScope;
@@ -1082,10 +952,25 @@ namespace Viridian.Msvm.VirtualSystemManagement
             }
         }
 
-        [Browsable(true)]
-        public void Delete()
+        public void Delete() => PrivateLateBoundObject.Delete();
+
+        public void Dispose()
         {
-            PrivateLateBoundObject.Delete();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                PrivateLateBoundObject.Dispose();
+            }
+        }
+
+        ~VirtualSystemManagementService()
+        {
+            Dispose(false);
         }
 
         public uint AddBootSourceSettings(ManagementPath AffectedConfiguration, string[] BootSourceSettings, out ManagementPath Job, out ManagementPath[] ResultingBootSourceSettings)
@@ -2243,150 +2128,6 @@ namespace Viridian.Msvm.VirtualSystemManagement
                 Job = null;
                 return Convert.ToUInt32(0);
             }
-        }
-
-        // Enumerator implementation for enumerating instances of the class.
-        public class VirtualSystemManagementServiceCollection : object, ICollection
-        {
-            private readonly ManagementObjectCollection privColObj;
-
-            public VirtualSystemManagementServiceCollection(ManagementObjectCollection objCollection) => privColObj = objCollection;
-
-            public virtual int Count => privColObj.Count;
-
-            public virtual bool IsSynchronized => privColObj.IsSynchronized;
-
-            public virtual object SyncRoot => this;
-
-            public virtual void CopyTo(Array array, int index)
-            {
-                privColObj.CopyTo(array, index);
-                int nCtr;
-                for (nCtr = 0; nCtr < array?.Length; nCtr += 1)
-                {
-                    using (ManagementObject theObj = (ManagementObject)array.GetValue(nCtr))
-                    {
-                        using (var vsmsObj = new VirtualSystemManagementService(theObj))
-                        {
-                            array.SetValue(vsmsObj, nCtr);
-                        }
-                    }
-                }
-            }
-
-            public virtual IEnumerator GetEnumerator() => new VirtualSystemManagementServiceEnumerator(privColObj.GetEnumerator());
-
-            public class VirtualSystemManagementServiceEnumerator : object, IEnumerator
-            {
-                private readonly ManagementObjectCollection.ManagementObjectEnumerator privObjEnum;
-
-                public VirtualSystemManagementServiceEnumerator(ManagementObjectCollection.ManagementObjectEnumerator objEnum) => privObjEnum = objEnum;
-
-                public virtual object Current => new VirtualSystemManagementService((ManagementObject)privObjEnum.Current);
-
-                public virtual bool MoveNext() => privObjEnum.MoveNext();
-
-                public virtual void Reset() => privObjEnum.Reset();
-            }
-        }
-
-        // TypeConverter to handle null values for ValueType properties
-        public class WMIValueTypeConverter : TypeConverter
-        {
-            private readonly TypeConverter baseConverter;
-
-            private readonly Type baseType;
-
-            public WMIValueTypeConverter(Type inBaseType)
-            {
-                baseConverter = TypeDescriptor.GetConverter(inBaseType);
-                baseType = inBaseType;
-            }
-
-            public override bool CanConvertFrom(ITypeDescriptorContext context, Type srcType) => baseConverter.CanConvertFrom(context, srcType);
-
-            public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) => baseConverter.CanConvertTo(context, destinationType);
-
-            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) => baseConverter.ConvertFrom(context, culture, value);
-
-            public override object CreateInstance(ITypeDescriptorContext context, IDictionary dictionary) => baseConverter.CreateInstance(context, dictionary);
-
-            public override bool GetCreateInstanceSupported(ITypeDescriptorContext context) => baseConverter.GetCreateInstanceSupported(context);
-
-            public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context, object value, Attribute[] attributeVar) => baseConverter.GetProperties(context, value, attributeVar);
-
-            public override bool GetPropertiesSupported(ITypeDescriptorContext context) => baseConverter.GetPropertiesSupported(context);
-
-            public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context) => baseConverter.GetStandardValues(context);
-
-            public override bool GetStandardValuesExclusive(ITypeDescriptorContext context) => baseConverter.GetStandardValuesExclusive(context);
-
-            public override bool GetStandardValuesSupported(ITypeDescriptorContext context) => baseConverter.GetStandardValuesSupported(context);
-
-            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
-            {
-                if (baseType.BaseType == typeof(Enum))
-                {
-                    if (value?.GetType() == destinationType)
-                    {
-                        return value;
-                    }
-                    if ((value == null)
-                                && (context != null)
-                                && (context.PropertyDescriptor.ShouldSerializeValue(context.Instance) == false))
-                    {
-                        return "NULL_ENUM_VALUE";
-                    }
-                    return baseConverter.ConvertTo(context, culture, value, destinationType);
-                }
-                if ((baseType == typeof(bool))
-                            && (baseType.BaseType == typeof(ValueType)))
-                {
-                    if ((value == null)
-                                && (context != null)
-                                && (context.PropertyDescriptor.ShouldSerializeValue(context.Instance) == false))
-                    {
-                        return "";
-                    }
-                    return baseConverter.ConvertTo(context, culture, value, destinationType);
-                }
-                if ((context != null)
-                            && (context.PropertyDescriptor.ShouldSerializeValue(context.Instance) == false))
-                {
-                    return "";
-                }
-                return baseConverter.ConvertTo(context, culture, value, destinationType);
-            }
-        }
-
-        // Embedded class to represent WMI system Properties.
-        [TypeConverter(typeof(ExpandableObjectConverter))]
-        public class ManagementSystemProperties
-        {
-            private readonly ManagementBaseObject PrivateLateBoundObject;
-
-            public ManagementSystemProperties(ManagementBaseObject ManagedObject) => PrivateLateBoundObject = ManagedObject;
-
-            [Browsable(true)]
-            public int GENUS => (int)PrivateLateBoundObject[$"__{nameof(GENUS)}"];
-            [Browsable(true)]
-            public string CLASS => (string)PrivateLateBoundObject[$"__{nameof(CLASS)}"];
-            [Browsable(true)]
-            public string SUPERCLASS => (string)PrivateLateBoundObject[$"__{nameof(SUPERCLASS)}"];
-            [Browsable(true)]
-            public string DYNASTY => (string)PrivateLateBoundObject[$"__{nameof(DYNASTY)}"];
-            [Browsable(true)]
-            public string RELPATH => (string)PrivateLateBoundObject[$"__{nameof(RELPATH)}"];
-            [Browsable(true)]
-            public int PROPERTY_COUNT => (int)PrivateLateBoundObject[$"__{nameof(PROPERTY_COUNT)}"];
-            [Browsable(true)]
-            public string[] DERIVATION => (string[])PrivateLateBoundObject[$"__{nameof(DERIVATION)}"];
-            [Browsable(true)]
-            public string SERVER => (string)PrivateLateBoundObject[$"__{nameof(SERVER)}"];
-            [Browsable(true)]
-            public string NAMESPACE => (string)PrivateLateBoundObject[$"__{nameof(NAMESPACE)}"];
-            [Browsable(true)]
-            public string PATH => (string)PrivateLateBoundObject[$"__{nameof(PATH)}"];
         }
     }
 }
