@@ -1021,7 +1021,7 @@ namespace Viridian.Msvm.Networking
             {
                 if (CheckIfProperClass(mgmtScope, path, getOptions) != true)
                 {
-                    throw new ArgumentException(Properties.VESMS.Default.ClassNameExceptionMessage);
+                    throw new ArgumentException(Properties.Exceptions.Default.ClassNameExceptionMessage);
                 }
             }
             PrivateLateBoundObject = new ManagementObject(mgmtScope, path, getOptions);
@@ -1081,7 +1081,7 @@ namespace Viridian.Msvm.Networking
                 if (statMgmtScope == null)
                 {
                     mgmtScope = new ManagementScope();
-                    mgmtScope.Path.NamespacePath = Properties.VESMS.Default.WMINamespace;
+                    mgmtScope.Path.NamespacePath = Properties.Environment.Default.Virtualization;
                 }
                 else
                 {

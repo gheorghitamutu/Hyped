@@ -6,7 +6,6 @@ using Viridian.Job;
 using Viridian.Msvm.Networking;
 using Viridian.Msvm.ResourceManagement;
 using Viridian.Msvm.VirtualSystem;
-using Viridian.Msvm.VirtualSystemManagement;
 using Viridian.Scopes;
 
 // TODO: change all <Operation>Custom<AppliedOn> to handle actual param settings

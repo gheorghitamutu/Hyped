@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Management;
 using Viridian.Scopes;
-using static Viridian.Msvm.VirtualSystem.VirtualSystemSettingData;
 
 namespace Viridian.Msvm.Networking
 {

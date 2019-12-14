@@ -23,7 +23,6 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                 virtualSystemSettingData.LateBoundObject["ElementName"] = nameof(CreateSnapshot_ExpectingOneSnapshot);
                 virtualSystemSettingData.LateBoundObject["ConfigurationDataRoot"] = @"ConfigurationDataRoot";
                 virtualSystemSettingData.LateBoundObject["VirtualSystemSubtype"] = "Microsoft:Hyper-V:SubType:2";
-                virtualSystemSettingData.LateBoundObject["VirtualSystemSubtype"] = "Microsoft:Hyper-V:SubType:2";
 
                 ManagementPath ReferenceConfiguration = null;
                 string[] ResourceSettings = null;
@@ -79,16 +78,15 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
         {
             using (var vsms = VirtualSystemManagementService.GetInstances().Cast<VirtualSystemManagementService>().ToList().First())
             {
-                var virtualSystemSettingData = VirtualSystemSettingData.CreateInstance();
+                var SystemSettingsObject = VirtualSystemSettingData.CreateInstance();
 
-                virtualSystemSettingData.LateBoundObject["ElementName"] = nameof(ApplySnapshot_ExpectingReturnLastSnapshotApplied);
-                virtualSystemSettingData.LateBoundObject["ConfigurationDataRoot"] = @"ConfigurationDataRoot";
-                virtualSystemSettingData.LateBoundObject["VirtualSystemSubtype"] = "Microsoft:Hyper-V:SubType:2";
-                virtualSystemSettingData.LateBoundObject["VirtualSystemSubtype"] = "Microsoft:Hyper-V:SubType:2";
+                SystemSettingsObject.LateBoundObject["ElementName"] = nameof(ApplySnapshot_ExpectingReturnLastSnapshotApplied);
+                SystemSettingsObject.LateBoundObject["ConfigurationDataRoot"] = @"ConfigurationDataRoot";
+                SystemSettingsObject.LateBoundObject["VirtualSystemSubtype"] = "Microsoft:Hyper-V:SubType:2";
 
                 ManagementPath ReferenceConfiguration = null;
                 string[] ResourceSettings = null;
-                string SystemSettings = virtualSystemSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20);
+                string SystemSettings = SystemSettingsObject.LateBoundObject.GetText(TextFormat.WmiDtd20);
 
                 var ReturnValue = vsms.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem);
 

@@ -1,163 +1,33 @@
 ﻿using System;
 using System.Management;
 using System.Globalization;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Viridian.Msvm.VirtualSystem
 {
-    // Functions ShouldSerialize<PropertyName> are functions used by VS property browser to check if a particular property has to be serialized. These functions are added for all ValueType properties ( properties of type Int32, BOOL etc.. which cannot be set to null). These functions use Is<PropertyName>Null function. These functions are also used in the TypeConverter implementation for the properties to check for NULL value of property so that an empty value can be shown in Property browser in case of Drag and Drop in Visual studio.
-    // Functions Is<PropertyName>Null() are used to check if a property is NULL.
-    // Functions Reset<PropertyName> are added for Nullable Read/Write properties. These functions are used by VS designer in property browser to set a property to NULL.
-    // Every property added to the class for WMI property has attributes set to define its behavior in Visual Studio designer and also to define a TypeConverter to be used.
-    // Time interval functions  ToTimeSpan and ToDmtfTimeInterval are added to the class to convert DMTF Time Interval to  System.TimeSpan and vice-versa.
-    // Datetime conversion functions ToDateTime and ToDmtfDateTime are added to the class to convert DMTF datetime to System.DateTime and vice-versa.
-    // An Early Bound class generated for the WMI class.Msvm_VirtualSystemSettingData
-    public class VirtualSystemSettingData : IDisposable
+    public class VirtualSystemSettingData : MsvmBase
     {
-        // Private property to hold the WMI namespace in which the class resides.
-        private static string CreatedWmiNamespace = "root\\virtualization\\v2";
-
-        // Private property to hold the name of WMI class which created this class.
-        private static string CreatedClassName = "Msvm_VirtualSystemSettingData";
-
-        // Underlying lateBound WMI object.
-        private ManagementObject PrivateLateBoundObject;
-
-        // Private variable to hold the embedded property representing the instance.
-        private readonly ManagementBaseObject embeddedObj;
-
-        // Flag to indicate if the instance is an embedded object.
-        private bool isEmbedded;
+        public static string ClassName => $"Msvm_{nameof(VirtualSystemSettingData)}";
 
         // Below are different overloads of constructors to initialize an instance of the class with a WMI object.
-        public VirtualSystemSettingData() => InitializeObject(null, null, null);
+        public VirtualSystemSettingData() : base(ClassName) { }
 
-        public VirtualSystemSettingData(string keyInstanceID) => InitializeObject(null, new ManagementPath(ConstructPath(keyInstanceID)), null);
+        public VirtualSystemSettingData(string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
 
-        public VirtualSystemSettingData(ManagementScope mgmtScope, string keyInstanceID) => InitializeObject(mgmtScope, new ManagementPath(ConstructPath(keyInstanceID)), null);
+        public VirtualSystemSettingData(ManagementScope mgmtScope, string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(mgmtScope, keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
 
-        public VirtualSystemSettingData(ManagementPath path, ObjectGetOptions getOptions) => InitializeObject(null, path, getOptions);
+        public VirtualSystemSettingData(ManagementPath path, ObjectGetOptions getOptions) : base(path, getOptions, ClassName) { }
 
-        public VirtualSystemSettingData(ManagementScope mgmtScope, ManagementPath path) => InitializeObject(mgmtScope, path, null);
+        public VirtualSystemSettingData(ManagementScope mgmtScope, ManagementPath path) : base(mgmtScope, path, ClassName) { }
 
-        public VirtualSystemSettingData(ManagementPath path) => InitializeObject(null, path, null);
+        public VirtualSystemSettingData(ManagementPath path) : base(path, ClassName) { }
 
-        public VirtualSystemSettingData(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions getOptions) => InitializeObject(mgmtScope, path, getOptions);
+        public VirtualSystemSettingData(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions getOptions) : base(mgmtScope, path, getOptions, ClassName) { }
 
-        public VirtualSystemSettingData(ManagementObject theObject)
-        {
-            Initialize();
-            if (theObject != null && CheckIfProperClass(theObject) == true)
-            {
-                PrivateLateBoundObject = theObject;
-                SystemProperties = new ManagementSystemProperties(PrivateLateBoundObject);
-                LateBoundObject = PrivateLateBoundObject;
-            }
-            else
-            {
-                throw new ArgumentException("Class name does not match.");
-            }
-        }
+        public VirtualSystemSettingData(ManagementObject theObject) : base(theObject, ClassName) { }
 
-        public VirtualSystemSettingData(ManagementBaseObject theObject)
-        {
-            Initialize();
-            if (theObject != null && CheckIfProperClass(theObject) == true)
-            {
-                embeddedObj = theObject;
-                SystemProperties = new ManagementSystemProperties(theObject);
-                LateBoundObject = embeddedObj;
-                isEmbedded = true;
-            }
-            else
-            {
-                throw new ArgumentException("Class name does not match.");
-            }
-        }
-
-        // Property returns the namespace of the WMI class.
-        public string OriginatingNamespace => "root\\virtualization\\v2";
-
-        public string ManagementClassName
-        {
-            get
-            {
-                string strRet = CreatedClassName;
-                if (LateBoundObject != null)
-                {
-                    if (LateBoundObject.ClassPath != null)
-                    {
-                        strRet = (string)LateBoundObject["__CLASS"];
-                        if (string.IsNullOrEmpty(strRet))
-                        {
-                            strRet = CreatedClassName;
-                        }
-                    }
-                }
-                return strRet;
-            }
-        }
-
-        // Property pointing to an embedded object to get System properties of the WMI object.
-        public ManagementSystemProperties SystemProperties { get; private set; }
-
-        // Property returning the underlying lateBound object.
-        public ManagementBaseObject LateBoundObject { get; private set; }
-
-        // ManagementScope of the object.
-        public ManagementScope Scope
-        {
-            get
-            {
-                if (isEmbedded == false)
-                {
-                    return PrivateLateBoundObject.Scope;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            set
-            {
-                if (isEmbedded == false)
-                {
-                    PrivateLateBoundObject.Scope = value;
-                }
-            }
-        }
-
-        // Property to show the commit behavior for the WMI object. If true, WMI object will be automatically saved after each property modification.(ie. Put() is called after modification of a property).
-        public bool AutoCommit { get; set; }
-
-        // The ManagementPath of the underlying WMI object.
-        public ManagementPath Path
-        {
-            get
-            {
-                if (isEmbedded == false)
-                {
-                    return PrivateLateBoundObject.Path;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            set
-            {
-                if (isEmbedded == false)
-                {
-                    if (CheckIfProperClass(null, value, null) != true)
-                    {
-                        throw new ArgumentException("Class name does not match.");
-                    }
-                    PrivateLateBoundObject.Path = value;
-                }
-            }
-        }
-
-        // Public static scope property which is used by the various methods.
-        public static ManagementScope StaticScope { get; set; } = null;
+        public VirtualSystemSettingData(ManagementBaseObject theObject) : base(theObject, ClassName) { }
 
         /*
          * Any additional information provided to the recovery action. The meaning of this property is defined by the action in AutomaticRecoveryAction.
@@ -174,25 +44,9 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(AdditionalRecoveryInformation)] = value;
-                if ((isEmbedded == false)
-                            && (AutoCommit == true))
+                if ((IsEmbedded == false) && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
-                }
-            }
-        }
-
-        public bool IsAllowFullSCSICommandSetNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(AllowFullSCSICommandSet)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
                 }
             }
         }
@@ -217,25 +71,9 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(AllowFullSCSICommandSet)] = value;
-                if ((isEmbedded == false)
-                            && (AutoCommit == true))
+                if ((IsEmbedded == false) && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
-                }
-            }
-        }
-
-        public bool IsAllowReducedFcRedundancyNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(AllowReducedFcRedundancy)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
                 }
             }
         }
@@ -261,7 +99,7 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(AllowReducedFcRedundancy)] = value;
-                if ((isEmbedded == false)
+                if ((IsEmbedded == false)
                             && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
@@ -273,21 +111,6 @@ namespace Viridian.Msvm.VirtualSystem
          * The architecture of this system.
          */
         public string Architecture => (string)LateBoundObject[nameof(Architecture)];
-
-        public bool IsAutomaticCriticalErrorActionNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(AutomaticCriticalErrorAction)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
 
         /*
          * Identifies the action to be taken on VM, when a critical error happens, like storage disconnect.
@@ -314,25 +137,10 @@ namespace Viridian.Msvm.VirtualSystem
                 {
                     LateBoundObject[nameof(AutomaticCriticalErrorAction)] = value;
                 }
-                if ((isEmbedded == false)
+                if ((IsEmbedded == false)
                             && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
-                }
-            }
-        }
-
-        public bool IsAutomaticCriticalErrorActionTimeoutNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(AutomaticCriticalErrorActionTimeout)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
                 }
             }
         }
@@ -359,25 +167,10 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(AutomaticCriticalErrorActionTimeout)] = ToDmtfTimeInterval(value);
-                if ((isEmbedded == false)
+                if ((IsEmbedded == false)
                             && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
-                }
-            }
-        }
-
-        public bool IsAutomaticRecoveryActionNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(AutomaticRecoveryAction)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
                 }
             }
         }
@@ -394,21 +187,6 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        public bool IsAutomaticShutdownActionNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(AutomaticShutdownAction)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
-
         public ushort AutomaticShutdownAction
         {
             get
@@ -418,21 +196,6 @@ namespace Viridian.Msvm.VirtualSystem
                     return Convert.ToUInt16(0);
                 }
                 return (ushort)LateBoundObject[nameof(AutomaticShutdownAction)];
-            }
-        }
-
-        public bool IsAutomaticSnapshotsEnabledNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(AutomaticSnapshotsEnabled)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
             }
         }
 
@@ -452,24 +215,9 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(AutomaticSnapshotsEnabled)] = value;
-                if ((isEmbedded == false) && (AutoCommit == true))
+                if ((IsEmbedded == false) && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
-                }
-            }
-        }
-
-        public bool IsAutomaticStartupActionNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(AutomaticStartupAction)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
                 }
             }
         }
@@ -486,21 +234,6 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        public bool IsAutomaticStartupActionDelayNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(AutomaticStartupActionDelay)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
-
         public DateTime AutomaticStartupActionDelay
         {
             get
@@ -512,21 +245,6 @@ namespace Viridian.Msvm.VirtualSystem
                 else
                 {
                     return DateTime.MinValue;
-                }
-            }
-        }
-
-        public bool IsAutomaticStartupActionSequenceNumberNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(AutomaticStartupActionSequenceNumber)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
                 }
             }
         }
@@ -556,7 +274,7 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(BaseBoardSerialNumber)] = value;
-                if ((isEmbedded == false)
+                if ((IsEmbedded == false)
                             && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
@@ -577,25 +295,10 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(BIOSGUID)] = value;
-                if ((isEmbedded == false)
+                if ((IsEmbedded == false)
                             && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
-                }
-            }
-        }
-
-        public bool IsBIOSNumLockNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(BIOSNumLock)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
                 }
             }
         }
@@ -617,7 +320,7 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(BIOSNumLock)] = value;
-                if ((isEmbedded == false)
+                if ((IsEmbedded == false)
                             && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
@@ -638,7 +341,7 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(BIOSSerialNumber)] = value;
-                if ((isEmbedded == false)
+                if ((IsEmbedded == false)
                             && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
@@ -673,7 +376,7 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(BootOrder)] = value;
-                if ((isEmbedded == false)
+                if ((IsEmbedded == false)
                             && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
@@ -695,7 +398,7 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(BootSourceOrder)] = value;
-                if ((isEmbedded == false)
+                if ((IsEmbedded == false)
                             && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
@@ -718,7 +421,7 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(ChassisAssetTag)] = value;
-                if ((isEmbedded == false)
+                if ((IsEmbedded == false)
                             && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
@@ -739,7 +442,7 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(ChassisSerialNumber)] = value;
-                if ((isEmbedded == false)
+                if ((IsEmbedded == false)
                             && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
@@ -752,21 +455,6 @@ namespace Viridian.Msvm.VirtualSystem
         public string ConfigurationFile => (string)LateBoundObject[nameof(ConfigurationFile)];
 
         public string ConfigurationID => (string)LateBoundObject[nameof(ConfigurationID)];
-
-        public bool IsConsoleModeNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(ConsoleMode)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
 
         /*
          * Identifies the Console Mode for the VM.
@@ -791,25 +479,10 @@ namespace Viridian.Msvm.VirtualSystem
                 {
                     LateBoundObject[nameof(ConsoleMode)] = value;
                 }
-                if ((isEmbedded == false)
+                if ((IsEmbedded == false)
                             && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
-                }
-            }
-        }
-
-        public bool IsCreationTimeNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(CreationTime)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
                 }
             }
         }
@@ -825,21 +498,6 @@ namespace Viridian.Msvm.VirtualSystem
                 else
                 {
                     return DateTime.MinValue;
-                }
-            }
-        }
-
-        public bool IsDebugChannelIdNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(DebugChannelId)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
                 }
             }
         }
@@ -860,25 +518,10 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(DebugChannelId)] = value;
-                if ((isEmbedded == false)
+                if ((IsEmbedded == false)
                             && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
-                }
-            }
-        }
-
-        public bool IsDebugPortNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(DebugPort)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
                 }
             }
         }
@@ -899,25 +542,10 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(DebugPort)] = value;
-                if ((isEmbedded == false)
+                if ((IsEmbedded == false)
                             && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
-                }
-            }
-        }
-
-        public bool IsDebugPortEnabledNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(DebugPortEnabled)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
                 }
             }
         }
@@ -945,7 +573,7 @@ namespace Viridian.Msvm.VirtualSystem
                 {
                     LateBoundObject[nameof(DebugPortEnabled)] = value;
                 }
-                if ((isEmbedded == false)
+                if ((IsEmbedded == false)
                             && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
@@ -956,21 +584,6 @@ namespace Viridian.Msvm.VirtualSystem
         public string Description => (string)LateBoundObject[nameof(Description)];
 
         public string ElementName => (string)LateBoundObject[nameof(ElementName)];
-
-        public bool IsEnableHibernationNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(EnableHibernation)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
 
         /*
          * This property is set to TRUE if hibernate (S4) is enabled by the BIOS, FALSE if hibernate is disabled.
@@ -989,25 +602,10 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(EnableHibernation)] = value;
-                if ((isEmbedded == false)
+                if ((IsEmbedded == false)
                             && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
-                }
-            }
-        }
-
-        public bool IsEnhancedSessionTransportTypeNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(EnhancedSessionTransportType)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
                 }
             }
         }
@@ -1035,25 +633,10 @@ namespace Viridian.Msvm.VirtualSystem
                 {
                     LateBoundObject[nameof(EnhancedSessionTransportType)] = value;
                 }
-                if ((isEmbedded == false)
+                if ((IsEmbedded == false)
                             && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
-                }
-            }
-        }
-
-        public bool IsGuestControlledCacheTypesNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(GuestControlledCacheTypes)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
                 }
             }
         }
@@ -1074,7 +657,7 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(GuestControlledCacheTypes)] = value;
-                if ((isEmbedded == false) && (AutoCommit == true))
+                if ((IsEmbedded == false) && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
@@ -1092,21 +675,6 @@ namespace Viridian.Msvm.VirtualSystem
          */
         public string GuestStateFile => (string)LateBoundObject[nameof(GuestStateFile)];
 
-        public bool IsHighMmioGapBaseNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(HighMmioGapBase)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
-
         /*
          * The base address of the High (above 4GB) Memory-Mapped IO Gap in MB.
          */
@@ -1123,24 +691,9 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(HighMmioGapBase)] = value;
-                if ((isEmbedded == false) && (AutoCommit == true))
+                if ((IsEmbedded == false) && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
-                }
-            }
-        }
-
-        public bool IsHighMmioGapSizeNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(HighMmioGapSize)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
                 }
             }
         }
@@ -1161,24 +714,9 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(HighMmioGapSize)] = value;
-                if ((isEmbedded == false) && (AutoCommit == true))
+                if ((IsEmbedded == false) && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
-                }
-            }
-        }
-
-        public bool IsIncrementalBackupEnabledNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(IncrementalBackupEnabled)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
                 }
             }
         }
@@ -1200,7 +738,7 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(IncrementalBackupEnabled)] = value;
-                if ((isEmbedded == false) && (AutoCommit == true))
+                if ((IsEmbedded == false) && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
@@ -1208,21 +746,6 @@ namespace Viridian.Msvm.VirtualSystem
         }
 
         public string InstanceID => (string)LateBoundObject[nameof(InstanceID)];
-
-        public bool IsIsAutomaticSnapshotNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(IsAutomaticSnapshot)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
 
         /*
          * Indicates whether this is a snapshot created automatically for the user.
@@ -1236,21 +759,6 @@ namespace Viridian.Msvm.VirtualSystem
                     return Convert.ToBoolean(0);
                 }
                 return (bool)LateBoundObject[nameof(IsAutomaticSnapshot)];
-            }
-        }
-
-        public bool IsIsSavedNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(IsSaved)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
             }
         }
 
@@ -1271,21 +779,6 @@ namespace Viridian.Msvm.VirtualSystem
             }
         }
 
-        public bool IsLockOnDisconnectNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(LockOnDisconnect)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
-
         /*
          * Lock the console when disconnecting from vmconnect.
          */
@@ -1302,7 +795,7 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(LockOnDisconnect)] = value;
-                if ((isEmbedded == false)
+                if ((IsEmbedded == false)
                             && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
@@ -1311,21 +804,6 @@ namespace Viridian.Msvm.VirtualSystem
         }
 
         public string LogDataRoot => (string)LateBoundObject[nameof(LogDataRoot)];
-
-        public bool IsLowMmioGapSizeNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(LowMmioGapSize)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
 
         /*
          * The size of the Low (below 4GB) Memory-Mapped IO Gap in MB.
@@ -1343,25 +821,10 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(LowMmioGapSize)] = value;
-                if ((isEmbedded == false)
+                if ((IsEmbedded == false)
                             && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
-                }
-            }
-        }
-
-        public bool IsNetworkBootPreferredProtocolNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(NetworkBootPreferredProtocol)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
                 }
             }
         }
@@ -1389,7 +852,7 @@ namespace Viridian.Msvm.VirtualSystem
                 {
                     LateBoundObject[nameof(NetworkBootPreferredProtocol)] = value;
                 }
-                if ((isEmbedded == false)
+                if ((IsEmbedded == false)
                             && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
@@ -1404,21 +867,6 @@ namespace Viridian.Msvm.VirtualSystem
          * This property will be NULL if this object is not based off a snapshot.
          */
         public string Parent => (string)LateBoundObject[nameof(Parent)];
-
-        public bool IsPauseAfterBootFailureNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(PauseAfterBootFailure)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
 
         /*
          * Pause after boot failure setting for the VM.
@@ -1436,7 +884,7 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(PauseAfterBootFailure)] = value;
-                if ((isEmbedded == false)
+                if ((IsEmbedded == false)
                             && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
@@ -1445,21 +893,6 @@ namespace Viridian.Msvm.VirtualSystem
         }
 
         public string RecoveryFile => (string)LateBoundObject[nameof(RecoveryFile)];
-
-        public bool IsSecureBootEnabledNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(SecureBootEnabled)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
 
         /*
          * Secure boot enabled setting for the VM.
@@ -1477,7 +910,7 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(SecureBootEnabled)] = value;
-                if ((isEmbedded == false)
+                if ((IsEmbedded == false)
                             && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
@@ -1498,7 +931,7 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(SecureBootTemplateId)] = value;
-                if ((isEmbedded == false)
+                if ((IsEmbedded == false)
                             && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
@@ -1511,21 +944,6 @@ namespace Viridian.Msvm.VirtualSystem
         public string SuspendDataRoot => (string)LateBoundObject[nameof(SuspendDataRoot)];
 
         public string SwapFileDataRoot => (string)LateBoundObject[nameof(SwapFileDataRoot)];
-
-        public bool IsTurnOffOnGuestRestartNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(TurnOffOnGuestRestart)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
 
         /*
          * Turn off the VM instead of restarting the VM if the guest operating system initiated a restart.
@@ -1543,25 +961,10 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(TurnOffOnGuestRestart)] = value;
-                if ((isEmbedded == false)
+                if ((IsEmbedded == false)
                             && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
-                }
-            }
-        }
-
-        public bool IsUserSnapshotTypeNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(UserSnapshotType)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
                 }
             }
         }
@@ -1593,7 +996,7 @@ namespace Viridian.Msvm.VirtualSystem
                 {
                     LateBoundObject[nameof(UserSnapshotType)] = value;
                 }
-                if ((isEmbedded == false) && (AutoCommit == true))
+                if ((IsEmbedded == false) && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
                 }
@@ -1605,21 +1008,6 @@ namespace Viridian.Msvm.VirtualSystem
          * Windows Server 2008:  The Version property is not supported.
          */
         public string Version => (string)LateBoundObject[nameof(Version)];
-
-        public bool IsVirtualNumaEnabledNull
-        {
-            get
-            {
-                if (LateBoundObject[nameof(VirtualNumaEnabled)] == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
 
         /*
          * Indicates whether virtual non-uniform memory access (NUMA) nodes are projected into the virtual machine. 
@@ -1640,7 +1028,7 @@ namespace Viridian.Msvm.VirtualSystem
             set
             {
                 LateBoundObject[nameof(VirtualNumaEnabled)] = value;
-                if ((isEmbedded == false)
+                if ((IsEmbedded == false)
                             && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();
@@ -1659,427 +1047,71 @@ namespace Viridian.Msvm.VirtualSystem
         public string VirtualSystemSubType => (string)LateBoundObject[nameof(VirtualSystemSubType)];
 
         public string VirtualSystemType => (string)LateBoundObject[nameof(VirtualSystemType)];
-
-        private bool CheckIfProperClass(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions OptionsParam)
-        {
-            if ((path != null) && (string.Compare(path.ClassName, ManagementClassName, true, CultureInfo.InvariantCulture) == 0))
-            {
-                return true;
-            }
-            else
-            {
-                using (ManagementObject theObj = new ManagementObject(mgmtScope, path, OptionsParam))
-                {
-                    return CheckIfProperClass(theObj);
-                }
-            }
-        }
-        
-        private bool CheckIfProperClass(ManagementBaseObject theObj)
-        {
-            if ((theObj != null) && (string.Compare((string)theObj["__CLASS"], ManagementClassName, true, CultureInfo.InvariantCulture) == 0))
-            {
-                return true;
-            }
-            else
-            {
-                Array parentClasses = (Array)theObj["__DERIVATION"];
-                if (parentClasses != null)
-                {
-                    int count;
-                    for (count = 0; count < parentClasses.Length; count = count + 1)
-                    {
-                        if (string.Compare((string)parentClasses.GetValue(count), ManagementClassName, true, CultureInfo.InvariantCulture) == 0)
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
-        }
-
+               
         private void ResetAdditionalRecoveryInformation()
         {
             LateBoundObject[nameof(AdditionalRecoveryInformation)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
-        }
-
-        private bool ShouldSerializeAllowFullSCSICommandSet()
-        {
-            if (IsAllowFullSCSICommandSetNull == false)
-            {
-                return true;
-            }
-            return false;
         }
 
         private void ResetAllowFullSCSICommandSet()
         {
             LateBoundObject[nameof(AllowFullSCSICommandSet)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
-        }
-
-        private bool ShouldSerializeAllowReducedFcRedundancy()
-        {
-            if (IsAllowReducedFcRedundancyNull == false)
-            {
-                return true;
-            }
-            return false;
         }
 
         private void ResetAllowReducedFcRedundancy()
         {
             LateBoundObject[nameof(AllowReducedFcRedundancy)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
-        }
-
-        private bool ShouldSerializeAutomaticCriticalErrorAction()
-        {
-            if (IsAutomaticCriticalErrorActionNull == false)
-            {
-                return true;
-            }
-            return false;
         }
 
         private void ResetAutomaticCriticalErrorAction()
         {
             LateBoundObject[nameof(AutomaticCriticalErrorAction)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
-        }
-
-        // Converts a given time interval in DMTF format to System.TimeSpan object.
-        static TimeSpan ToTimeSpan(string dmtfTimespan)
-        {
-            if (dmtfTimespan == null)
-            {
-                throw new ArgumentOutOfRangeException(dmtfTimespan);
-            }
-            if (dmtfTimespan.Length == 0)
-            {
-                throw new ArgumentOutOfRangeException(dmtfTimespan);
-            }
-            if (dmtfTimespan.Length != 25)
-            {
-                throw new ArgumentOutOfRangeException(dmtfTimespan);
-            }
-            if (dmtfTimespan.Substring(21, 4) != ":000")
-            {
-                throw new ArgumentOutOfRangeException(dmtfTimespan);
-            }
-            int days;
-            int hours;
-            int minutes;
-            int seconds;
-            long ticks;
-            try
-            {
-                string tempString = string.Empty;
-                tempString = dmtfTimespan.Substring(0, 8);
-                days = int.Parse(tempString);
-                tempString = dmtfTimespan.Substring(8, 2);
-                hours = int.Parse(tempString);
-                tempString = dmtfTimespan.Substring(10, 2);
-                minutes = int.Parse(tempString);
-                tempString = dmtfTimespan.Substring(12, 2);
-                seconds = int.Parse(tempString);
-                tempString = dmtfTimespan.Substring(15, 6);
-                ticks = long.Parse(tempString) * (TimeSpan.TicksPerMillisecond / 1000);
-            }
-            catch (Exception e)
-            {
-                throw new ArgumentOutOfRangeException(null, e.Message);
-            }
-            TimeSpan timespan = new TimeSpan(days, hours, minutes, seconds, 0);
-            TimeSpan tsTemp = TimeSpan.FromTicks(ticks);
-            timespan = timespan.Add(tsTemp);
-            return timespan;
-        }
-
-        // Converts a given System.TimeSpan object to DMTF Time interval format.
-        static string ToDmtfTimeInterval(TimeSpan timespan)
-        {
-            string dmtftimespan = timespan.Days.ToString().PadLeft(8, '0');
-            TimeSpan maxTimeSpan = TimeSpan.MaxValue;
-            if (timespan.Days > maxTimeSpan.Days)
-            {
-                throw new ArgumentOutOfRangeException(timespan.ToString());
-            }
-            TimeSpan minTimeSpan = TimeSpan.MinValue;
-            if (timespan.Days < minTimeSpan.Days)
-            {
-                throw new ArgumentOutOfRangeException(timespan.ToString());
-            }
-            dmtftimespan = string.Concat(dmtftimespan, timespan.Hours.ToString().PadLeft(2, '0'));
-            dmtftimespan = string.Concat(dmtftimespan, timespan.Minutes.ToString().PadLeft(2, '0'));
-            dmtftimespan = string.Concat(dmtftimespan, timespan.Seconds.ToString().PadLeft(2, '0'));
-            dmtftimespan = string.Concat(dmtftimespan, ".");
-            TimeSpan tsTemp = new TimeSpan(timespan.Days, timespan.Hours, timespan.Minutes, timespan.Seconds, 0);
-            long microsec = (timespan.Ticks - tsTemp.Ticks)
-                        * 1000
-                        / TimeSpan.TicksPerMillisecond;
-            string strMicroSec = microsec.ToString();
-            if (strMicroSec.Length > 6)
-            {
-                strMicroSec = strMicroSec.Substring(0, 6);
-            }
-            dmtftimespan = string.Concat(dmtftimespan, strMicroSec.PadLeft(6, '0'));
-            dmtftimespan = string.Concat(dmtftimespan, ":000");
-            return dmtftimespan;
-        }
-
-        private bool ShouldSerializeAutomaticCriticalErrorActionTimeout()
-        {
-            if (IsAutomaticCriticalErrorActionTimeoutNull == false)
-            {
-                return true;
-            }
-            return false;
         }
 
         private void ResetAutomaticCriticalErrorActionTimeout()
         {
             LateBoundObject[nameof(AutomaticCriticalErrorActionTimeout)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
-        }
-
-        private bool ShouldSerializeAutomaticRecoveryAction()
-        {
-            if (IsAutomaticRecoveryActionNull == false)
-            {
-                return true;
-            }
-            return false;
-        }
-
-        private bool ShouldSerializeAutomaticShutdownAction()
-        {
-            if (IsAutomaticShutdownActionNull == false)
-            {
-                return true;
-            }
-            return false;
-        }
-
-        private bool ShouldSerializeAutomaticSnapshotsEnabled()
-        {
-            if (IsAutomaticSnapshotsEnabledNull == false)
-            {
-                return true;
-            }
-            return false;
         }
 
         private void ResetAutomaticSnapshotsEnabled()
         {
             LateBoundObject[nameof(AutomaticSnapshotsEnabled)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
         }
 
-        private bool ShouldSerializeAutomaticStartupAction()
-        {
-            if (IsAutomaticStartupActionNull == false)
-            {
-                return true;
-            }
-            return false;
-        }
-
-        // Converts a given datetime in DMTF format to System.DateTime object.
-        static DateTime ToDateTime(string dmtfDate)
-        {
-            DateTime initializer = DateTime.MinValue;
-            int year = initializer.Year;
-            int month = initializer.Month;
-            int day = initializer.Day;
-            int hour = initializer.Hour;
-            int minute = initializer.Minute;
-            int second = initializer.Second;
-            long ticks = 0;
-            string dmtf = dmtfDate;
-            if (dmtf == null)
-            {
-                throw new ArgumentOutOfRangeException(dmtf);
-            }
-            if (dmtf.Length == 0)
-            {
-                throw new ArgumentOutOfRangeException(dmtf);
-            }
-            if (dmtf.Length != 25)
-            {
-                throw new ArgumentOutOfRangeException(dmtf);
-            }
-
-            string tempString;
-            try
-            {
-                tempString = dmtf.Substring(0, 4);
-                if ("****" != tempString)
-                {
-                    year = int.Parse(tempString);
-                }
-                tempString = dmtf.Substring(4, 2);
-                if ("**" != tempString)
-                {
-                    month = int.Parse(tempString);
-                }
-                tempString = dmtf.Substring(6, 2);
-                if ("**" != tempString)
-                {
-                    day = int.Parse(tempString);
-                }
-                tempString = dmtf.Substring(8, 2);
-                if ("**" != tempString)
-                {
-                    hour = int.Parse(tempString);
-                }
-                tempString = dmtf.Substring(10, 2);
-                if ("**" != tempString)
-                {
-                    minute = int.Parse(tempString);
-                }
-                tempString = dmtf.Substring(12, 2);
-                if ("**" != tempString)
-                {
-                    second = int.Parse(tempString);
-                }
-                tempString = dmtf.Substring(15, 6);
-                if ("******" != tempString)
-                {
-                    ticks = long.Parse(tempString) * (TimeSpan.TicksPerMillisecond / 1000);
-                }
-                if ((year < 0)
-                            || (month < 0)
-                            || (day < 0)
-                            || (hour < 0)
-                            || (minute < 0)
-                            || (minute < 0)
-                            || (second < 0)
-                            || (ticks < 0))
-                {
-                    throw new ArgumentOutOfRangeException(year.ToString());
-                }
-            }
-            catch (Exception e)
-            {
-                throw new ArgumentOutOfRangeException(null, e.Message);
-            }
-            DateTime datetime = new DateTime(year, month, day, hour, minute, second, 0);
-            datetime = datetime.AddTicks(ticks);
-            TimeSpan tickOffset = TimeZone.CurrentTimeZone.GetUtcOffset(datetime);
-            long OffsetMins = tickOffset.Ticks / TimeSpan.TicksPerMinute;
-            tempString = dmtf.Substring(22, 3);
-            if (tempString != "******")
-            {
-                tempString = dmtf.Substring(21, 4);
-                int UTCOffset;
-                try
-                {
-                    UTCOffset = int.Parse(tempString);
-                }
-                catch (Exception e)
-                {
-                    throw new ArgumentOutOfRangeException(null, e.Message);
-                }
-
-                int OffsetToBeAdjusted = (int)(OffsetMins - UTCOffset);
-                datetime = datetime.AddMinutes(OffsetToBeAdjusted);
-            }
-            return datetime;
-        }
-
-        // Converts a given System.DateTime object to DMTF datetime format.
-        static string ToDmtfDateTime(DateTime date)
-        {
-            TimeSpan tickOffset = TimeZone.CurrentTimeZone.GetUtcOffset(date);
-            long OffsetMins = tickOffset.Ticks / TimeSpan.TicksPerMinute;
-            string utcString;
-            if (Math.Abs(OffsetMins) > 999)
-            {
-                date = date.ToUniversalTime();
-                utcString = "+000";
-            }
-            else
-            {
-                if (tickOffset.Ticks >= 0)
-                {
-                    utcString = string.Concat("+", (tickOffset.Ticks / TimeSpan.TicksPerMinute).ToString().PadLeft(3, '0'));
-                }
-                else
-                {
-                    string strTemp = OffsetMins.ToString();
-                    utcString = string.Concat("-", strTemp.Substring(1, strTemp.Length - 1).PadLeft(3, '0'));
-                }
-            }
-            string dmtfDateTime = date.Year.ToString().PadLeft(4, '0');
-            dmtfDateTime = string.Concat(dmtfDateTime, date.Month.ToString().PadLeft(2, '0'));
-            dmtfDateTime = string.Concat(dmtfDateTime, date.Day.ToString().PadLeft(2, '0'));
-            dmtfDateTime = string.Concat(dmtfDateTime, date.Hour.ToString().PadLeft(2, '0'));
-            dmtfDateTime = string.Concat(dmtfDateTime, date.Minute.ToString().PadLeft(2, '0'));
-            dmtfDateTime = string.Concat(dmtfDateTime, date.Second.ToString().PadLeft(2, '0'));
-            dmtfDateTime = string.Concat(dmtfDateTime, ".");
-            DateTime dtTemp = new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, 0);
-            long microsec = (date.Ticks - dtTemp.Ticks)
-                        * 1000
-                        / TimeSpan.TicksPerMillisecond;
-            string strMicrosec = microsec.ToString();
-            if (strMicrosec.Length > 6)
-            {
-                strMicrosec = strMicrosec.Substring(0, 6);
-            }
-            dmtfDateTime = string.Concat(dmtfDateTime, strMicrosec.PadLeft(6, '0'));
-            dmtfDateTime = string.Concat(dmtfDateTime, utcString);
-            return dmtfDateTime;
-        }
-
-        private bool ShouldSerializeAutomaticStartupActionDelay()
-        {
-            if (IsAutomaticStartupActionDelayNull == false)
-            {
-                return true;
-            }
-            return false;
-        }
-
-        private bool ShouldSerializeAutomaticStartupActionSequenceNumber()
-        {
-            if (IsAutomaticStartupActionSequenceNumberNull == false)
-            {
-                return true;
-            }
-            return false;
-        }
-
         private void ResetBaseBoardSerialNumber()
         {
             LateBoundObject[nameof(BaseBoardSerialNumber)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
@@ -2089,26 +1121,17 @@ namespace Viridian.Msvm.VirtualSystem
         private void ResetBIOSGUID()
         {
             LateBoundObject[nameof(BIOSGUID)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
         }
-
-        private bool ShouldSerializeBIOSNumLock()
-        {
-            if (IsBIOSNumLockNull == false)
-            {
-                return true;
-            }
-            return false;
-        }
-
+                
         private void ResetBIOSNumLock()
         {
             LateBoundObject[nameof(BIOSNumLock)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
@@ -2118,7 +1141,7 @@ namespace Viridian.Msvm.VirtualSystem
         private void ResetBIOSSerialNumber()
         {
             LateBoundObject[nameof(BIOSSerialNumber)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
@@ -2128,7 +1151,7 @@ namespace Viridian.Msvm.VirtualSystem
         private void ResetBootOrder()
         {
             LateBoundObject[nameof(BootOrder)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
@@ -2138,7 +1161,7 @@ namespace Viridian.Msvm.VirtualSystem
         private void ResetBootSourceOrder()
         {
             LateBoundObject[nameof(BootSourceOrder)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
@@ -2148,7 +1171,7 @@ namespace Viridian.Msvm.VirtualSystem
         private void ResetChassisAssetTag()
         {
             LateBoundObject[nameof(ChassisAssetTag)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
@@ -2158,315 +1181,153 @@ namespace Viridian.Msvm.VirtualSystem
         private void ResetChassisSerialNumber()
         {
             LateBoundObject[nameof(ChassisSerialNumber)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
-        }
-
-        private bool ShouldSerializeConsoleMode()
-        {
-            if (IsConsoleModeNull == false)
-            {
-                return true;
-            }
-            return false;
         }
 
         private void ResetConsoleMode()
         {
             LateBoundObject[nameof(ConsoleMode)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
-        }
-
-        private bool ShouldSerializeCreationTime()
-        {
-            if (IsCreationTimeNull == false)
-            {
-                return true;
-            }
-            return false;
-        }
-
-        private bool ShouldSerializeDebugChannelId()
-        {
-            if (IsDebugChannelIdNull == false)
-            {
-                return true;
-            }
-            return false;
         }
 
         private void ResetDebugChannelId()
         {
             LateBoundObject[nameof(DebugChannelId)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
-        }
-
-        private bool ShouldSerializeDebugPort()
-        {
-            if (IsDebugPortNull == false)
-            {
-                return true;
-            }
-            return false;
         }
 
         private void ResetDebugPort()
         {
             LateBoundObject[nameof(DebugPort)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
-        }
-
-        private bool ShouldSerializeDebugPortEnabled()
-        {
-            if (IsDebugPortEnabledNull == false)
-            {
-                return true;
-            }
-            return false;
         }
 
         private void ResetDebugPortEnabled()
         {
             LateBoundObject[nameof(DebugPortEnabled)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
-        }
-
-        private bool ShouldSerializeEnableHibernation()
-        {
-            if (IsEnableHibernationNull == false)
-            {
-                return true;
-            }
-            return false;
         }
 
         private void ResetEnableHibernation()
         {
             LateBoundObject[nameof(EnableHibernation)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
-        }
-
-        private bool ShouldSerializeEnhancedSessionTransportType()
-        {
-            if (IsEnhancedSessionTransportTypeNull == false)
-            {
-                return true;
-            }
-            return false;
         }
 
         private void ResetEnhancedSessionTransportType()
         {
             LateBoundObject[nameof(EnhancedSessionTransportType)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
-        }
-
-        private bool ShouldSerializeGuestControlledCacheTypes()
-        {
-            if (IsGuestControlledCacheTypesNull == false)
-            {
-                return true;
-            }
-            return false;
         }
 
         private void ResetGuestControlledCacheTypes()
         {
             LateBoundObject[nameof(GuestControlledCacheTypes)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
-        }
-
-        private bool ShouldSerializeHighMmioGapBase()
-        {
-            if (IsHighMmioGapBaseNull == false)
-            {
-                return true;
-            }
-            return false;
         }
 
         private void ResetHighMmioGapBase()
         {
             LateBoundObject[nameof(HighMmioGapBase)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
-        }
-
-        private bool ShouldSerializeHighMmioGapSize()
-        {
-            if (IsHighMmioGapSizeNull == false)
-            {
-                return true;
-            }
-            return false;
         }
 
         private void ResetHighMmioGapSize()
         {
             LateBoundObject[nameof(HighMmioGapSize)] = null;
-            if ((isEmbedded == false) && (AutoCommit == true))
+            if ((IsEmbedded == false) && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
-        }
-
-        private bool ShouldSerializeIncrementalBackupEnabled()
-        {
-            if (IsIncrementalBackupEnabledNull == false)
-            {
-                return true;
-            }
-            return false;
         }
 
         private void ResetIncrementalBackupEnabled()
         {
             LateBoundObject[nameof(IncrementalBackupEnabled)] = null;
-            if ((isEmbedded == false) && (AutoCommit == true))
+            if ((IsEmbedded == false) && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
-        }
-
-        private bool ShouldSerializeIsAutomaticSnapshot()
-        {
-            if (IsIsAutomaticSnapshotNull == false)
-            {
-                return true;
-            }
-            return false;
-        }
-
-        private bool ShouldSerializeIsSaved()
-        {
-            if (IsIsSavedNull == false)
-            {
-                return true;
-            }
-            return false;
-        }
-
-        private bool ShouldSerializeLockOnDisconnect()
-        {
-            if (IsLockOnDisconnectNull == false)
-            {
-                return true;
-            }
-            return false;
         }
 
         private void ResetLockOnDisconnect()
         {
             LateBoundObject[nameof(LockOnDisconnect)] = null;
-            if ((isEmbedded == false) && (AutoCommit == true))
+            if ((IsEmbedded == false) && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
-        }
-
-        private bool ShouldSerializeLowMmioGapSize()
-        {
-            if (IsLowMmioGapSizeNull == false)
-            {
-                return true;
-            }
-            return false;
         }
 
         private void ResetLowMmioGapSize()
         {
             LateBoundObject[nameof(LowMmioGapSize)] = null;
-            if ((isEmbedded == false) && (AutoCommit == true))
+            if ((IsEmbedded == false) && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
-        }
-
-        private bool ShouldSerializeNetworkBootPreferredProtocol()
-        {
-            if (IsNetworkBootPreferredProtocolNull == false)
-            {
-                return true;
-            }
-            return false;
         }
 
         private void ResetNetworkBootPreferredProtocol()
         {
             LateBoundObject[nameof(NetworkBootPreferredProtocol)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
-        }
-
-        private bool ShouldSerializePauseAfterBootFailure()
-        {
-            if (IsPauseAfterBootFailureNull == false)
-            {
-                return true;
-            }
-            return false;
         }
 
         private void ResetPauseAfterBootFailure()
         {
             LateBoundObject[nameof(PauseAfterBootFailure)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
         }
 
-        private bool ShouldSerializeSecureBootEnabled()
-        {
-            if (IsSecureBootEnabledNull == false)
-            {
-                return true;
-            }
-            return false;
-        }
-
         private void ResetSecureBootEnabled()
         {
             LateBoundObject[nameof(SecureBootEnabled)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
@@ -2476,202 +1337,61 @@ namespace Viridian.Msvm.VirtualSystem
         private void ResetSecureBootTemplateId()
         {
             LateBoundObject[nameof(SecureBootTemplateId)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
-        }
-
-        private bool ShouldSerializeTurnOffOnGuestRestart()
-        {
-            if (IsTurnOffOnGuestRestartNull == false)
-            {
-                return true;
-            }
-            return false;
         }
 
         private void ResetTurnOffOnGuestRestart()
         {
             LateBoundObject[nameof(TurnOffOnGuestRestart)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
         }
-
-        private bool ShouldSerializeUserSnapshotType()
-        {
-            if (IsUserSnapshotTypeNull == false)
-            {
-                return true;
-            }
-            return false;
-        }
+        
         private void ResetUserSnapshotType()
         {
             LateBoundObject[nameof(UserSnapshotType)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
-        }
-
-        private bool ShouldSerializeVirtualNumaEnabled()
-        {
-            if (IsVirtualNumaEnabledNull == false)
-            {
-                return true;
-            }
-            return false;
         }
 
         private void ResetVirtualNumaEnabled()
         {
             LateBoundObject[nameof(VirtualNumaEnabled)] = null;
-            if ((isEmbedded == false)
+            if ((IsEmbedded == false)
                         && (AutoCommit == true))
             {
                 PrivateLateBoundObject.Put();
             }
         }
 
-        public void CommitObject()
-        {
-            if (isEmbedded == false)
-            {
-                PrivateLateBoundObject.Put();
-            }
-        }
-
-        public void CommitObject(PutOptions putOptions)
-        {
-            if (isEmbedded == false)
-            {
-                PrivateLateBoundObject.Put(putOptions);
-            }
-        }
-        private void Initialize()
-        {
-            AutoCommit = true;
-            isEmbedded = false;
-        }
-
-        private static string ConstructPath(string keyInstanceID)
-        {
-            string strPath = "root\\virtualization\\v2:Msvm_VirtualSystemSettingData";
-            strPath = string.Concat(strPath, string.Concat(".InstanceID=", string.Concat("\"", string.Concat(keyInstanceID, "\""))));
-            return strPath;
-        }
-
-        private void InitializeObject(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions getOptions)
-        {
-            Initialize();
-            if (path != null)
-            {
-                if (CheckIfProperClass(mgmtScope, path, getOptions) != true)
-                {
-                    throw new ArgumentException("Class name does not match.");
-                }
-            }
-            PrivateLateBoundObject = new ManagementObject(mgmtScope, path, getOptions);
-            SystemProperties = new ManagementSystemProperties(PrivateLateBoundObject);
-            LateBoundObject = PrivateLateBoundObject;
-        }
-
         // Different overloads of GetInstances() help in enumerating instances of the WMI class.
-        public static MsvmCollection<VirtualSystemSettingData> GetInstances() => GetInstances(null, null, null);
+        public static List<VirtualSystemSettingData> GetInstances() => GetInstances(null, null, null, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualSystemSettingData(mo)).ToList();
 
-        public static MsvmCollection<VirtualSystemSettingData> GetInstances(string condition) => GetInstances(null, condition, null);
+        public new static List<VirtualSystemSettingData> GetInstances(string condition) => GetInstances(null, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualSystemSettingData(mo)).ToList();
 
-        public static MsvmCollection<VirtualSystemSettingData> GetInstances(string[] selectedProperties) => GetInstances(null, null, selectedProperties);
+        public static List<VirtualSystemSettingData> GetInstances(string[] selectedProperties) => GetInstances(null, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualSystemSettingData(mo)).ToList();
 
-        public static MsvmCollection<VirtualSystemSettingData> GetInstances(string condition, string[] selectedProperties) => GetInstances(null, condition, selectedProperties);
+        public static List<VirtualSystemSettingData> GetInstances(string condition, string[] selectedProperties) => GetInstances(null, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualSystemSettingData(mo)).ToList();
 
-        public static MsvmCollection<VirtualSystemSettingData> GetInstances(ManagementScope mgmtScope, EnumerationOptions enumOptions)
-        {
-            if (mgmtScope == null)
-            {
-                if (StaticScope == null)
-                {
-                    mgmtScope = new ManagementScope();
-                    mgmtScope.Path.NamespacePath = "root\\virtualization\\v2";
-                }
-                else
-                {
-                    mgmtScope = StaticScope;
-                }
-            }
-            ManagementPath pathObj = new ManagementPath
-            {
-                ClassName = "Msvm_VirtualSystemSettingData",
-                NamespacePath = "root\\virtualization\\v2"
-            };
-            using (ManagementClass clsObject = new ManagementClass(mgmtScope, pathObj, null))
-            {
-                if (enumOptions == null)
-                {
-                    enumOptions = new EnumerationOptions
-                    {
-                        EnsureLocatable = true
-                    };
-                }
-                return new MsvmCollection<VirtualSystemSettingData>(clsObject.GetInstances(enumOptions));
-            }
-        }
+        public static List<VirtualSystemSettingData> GetInstances(ManagementScope mgmtScope, EnumerationOptions enumOptions) => GetInstances(mgmtScope, enumOptions, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualSystemSettingData(mo)).ToList();
 
-        public static MsvmCollection<VirtualSystemSettingData> GetInstances(ManagementScope mgmtScope, string condition) => GetInstances(mgmtScope, condition, null);
+        public static List<VirtualSystemSettingData> GetInstances(ManagementScope mgmtScope, string condition) => GetInstances(mgmtScope, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualSystemSettingData(mo)).ToList();
 
-        public static MsvmCollection<VirtualSystemSettingData> GetInstances(ManagementScope mgmtScope, string[] selectedProperties) => GetInstances(mgmtScope, null, selectedProperties);
+        public static List<VirtualSystemSettingData> GetInstances(ManagementScope mgmtScope, string[] selectedProperties) => GetInstances(mgmtScope, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualSystemSettingData(mo)).ToList();
 
-        public static MsvmCollection<VirtualSystemSettingData> GetInstances(ManagementScope mgmtScope, string condition, string[] selectedProperties)
-        {
-            if (mgmtScope == null)
-            {
-                if (StaticScope == null)
-                {
-                    mgmtScope = new ManagementScope();
-                    mgmtScope.Path.NamespacePath = "root\\virtualization\\v2";
-                }
-                else
-                {
-                    mgmtScope = StaticScope;
-                }
-            }
-            using (ManagementObjectSearcher ObjectSearcher = new ManagementObjectSearcher(mgmtScope, new SelectQuery("Msvm_VirtualSystemSettingData", condition, selectedProperties)))
-            {
-                EnumerationOptions enumOptions = new EnumerationOptions
-                {
-                    EnsureLocatable = true
-                };
-                ObjectSearcher.Options = enumOptions;
-                return new MsvmCollection<VirtualSystemSettingData>(ObjectSearcher.Get());
-            }
-        }
+        public static List<VirtualSystemSettingData> GetInstances(ManagementScope mgmtScope, string condition, string[] selectedProperties) => GetInstances(mgmtScope, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualSystemSettingData(mo)).ToList();
 
-        public static VirtualSystemSettingData CreateInstance()
-        {
-            ManagementScope mgmtScope;
-            if (StaticScope == null)
-            {
-                mgmtScope = new ManagementScope();
-                mgmtScope.Path.NamespacePath = CreatedWmiNamespace;
-            }
-            else
-            {
-                mgmtScope = StaticScope;
-            }
-            ManagementPath mgmtPath = new ManagementPath(CreatedClassName);
-            using (ManagementClass tmpMgmtClass = new ManagementClass(mgmtScope, mgmtPath, null))
-            {
-                return new VirtualSystemSettingData(tmpMgmtClass.CreateInstance());
-            }
-        }
-
-        public void Delete() => PrivateLateBoundObject.Delete();
+        public static VirtualSystemSettingData CreateInstance() => new VirtualSystemSettingData(CreateInstance(ClassName));
 
         public enum AutomaticCriticalErrorActionValues
         {
@@ -2718,25 +1438,6 @@ namespace Viridian.Msvm.VirtualSystem
             ProductionNoFallback = 4,
             Test = 5,
             NULL_ENUM_VALUE = 0,
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                PrivateLateBoundObject.Dispose();
-            }
-        }
-
-        ~VirtualSystemSettingData()
-        {
-            Dispose(false);
         }
     }
 }

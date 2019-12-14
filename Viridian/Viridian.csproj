@@ -52,7 +52,7 @@
   <ItemGroup>
     <Compile Include="Job\Validator.cs" />
     <Compile Include="Msvm\ManagementSystemProperties.cs" />
-    <Compile Include="Msvm\MsvmCollection.cs" />
+    <Compile Include="Msvm\MsvmBase.cs" />
     <Compile Include="Msvm\Networking\ExternalEthernetPort.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -71,7 +71,6 @@
     <Compile Include="Msvm\VirtualSystem\MostCurrentSnapshotInBranch.cs" />
     <Compile Include="Msvm\VirtualSystem\SnapshotOfVirtualSystem.cs" />
     <Compile Include="Msvm\VirtualSystem\SummaryInformation.cs" />
-    <Compile Include="Msvm\WMIValueTypeConverter.cs" />
     <Compile Include="Properties\ComputerSystem.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -82,10 +81,10 @@
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Properties\VESMS.Designer.cs">
+    <Compile Include="Properties\Exceptions.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>VESMS.settings</DependentUpon>
+      <DependentUpon>Exceptions.settings</DependentUpon>
     </Compile>
     <Compile Include="Properties\VirtualSystemSettingData.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -115,15 +114,14 @@
   <ItemGroup>
     <None Include=".editorconfig" />
     <None Include="app.config" />
-    <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
     <None Include="Properties\ComputerSystem.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>ComputerSystem.Designer.cs</LastGenOutput>
     </None>
-    <None Include="Properties\VESMS.settings">
+    <None Include="Properties\Exceptions.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>VESMS.Designer.cs</LastGenOutput>
+      <LastGenOutput>Exceptions.Designer.cs</LastGenOutput>
     </None>
     <None Include="Properties\VirtualSystemSettingData.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

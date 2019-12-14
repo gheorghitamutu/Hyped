@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Management;
 using Viridian.Msvm.ResourceManagement;
-using Viridian.Msvm.VirtualSystem;
 using Viridian.Scopes;
 
 namespace Viridian.Msvm.Storage
