@@ -63,6 +63,7 @@
     <Compile Include="Msvm\Networking\VirtualEthernetSwitch.cs" />
     <Compile Include="Msvm\Networking\VirtualEthernetSwitchSettingData .cs" />
     <Compile Include="Msvm\Storage\StorageAllocationSettingData.cs" />
+    <Compile Include="Msvm\Storage\VirtualHardDiskSettingData.cs" />
     <Compile Include="Msvm\Threshold\VirtualSystemSnapshotSettingData.cs" />
     <Compile Include="Msvm\VirtualSystemManagement\SettingsDefineState.cs" />
     <Compile Include="Msvm\VirtualSystemManagement\VirtualSystemManagementService.cs" />

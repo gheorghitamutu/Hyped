@@ -104,7 +104,7 @@ namespace Viridian.Msvm.ResourceManagement
             }
         }
 
-        public string[] AddChild(StorageAllocationSettingData.AccessSASD Access, int Address, string ResourceSubType, string HostResource) // Virtual Hard Disk
+        public string[] AddChild(ushort Access, int Address, string ResourceSubType, string HostResource) // Virtual Hard Disk
         {
             using (var pool = ResourcePool.GetPool(ResourceSubType))
             using (var RASD = GetDefaultResourceAllocationSettingDataForPool(pool))
@@ -142,7 +142,7 @@ namespace Viridian.Msvm.ResourceManagement
 
         public List<StorageAllocationSettingData> SASDChildren
         {
-            get { return StorageAllocationSettingData.GetRelatedSASD(this); }
+            get { return null; } // TODO: fix this -> StorageAllocationSettingData.GetRelatedSASD(this); }
             private set { }
         }
 

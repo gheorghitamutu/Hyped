@@ -6,145 +6,396 @@ using Viridian.Scopes;
 
 namespace Viridian.Msvm.Storage
 {
-    public sealed class StorageAllocationSettingData
+    public sealed class StorageAllocationSettingData : MsvmBase
     {
-        private ManagementObject Msvm_StorageAllocationSettingData = null;
-        public ResourceAllocationSettingData ResourceAllocationSettingData { get; private set; }
-        private string[] hostResource = null;
+        public static string ClassName => $"Msvm_{nameof(StorageAllocationSettingData)}";
 
-        public StorageAllocationSettingData(ManagementObject StorageAllocationSettingData, ResourceAllocationSettingData ResourceAllocationSettingData)
-        {
-            MsvmStorageAllocationSettingData = StorageAllocationSettingData;
-            this.ResourceAllocationSettingData = ResourceAllocationSettingData;
-        }
+        // Below are different overloads of constructors to initialize an instance of the class with a WMI object.
+        public StorageAllocationSettingData() : base(ClassName) { }
 
-        public ManagementObject MsvmStorageAllocationSettingData
+        public StorageAllocationSettingData(string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
+
+        public StorageAllocationSettingData(ManagementScope mgmtScope, string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(mgmtScope, keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
+
+        public StorageAllocationSettingData(ManagementPath path, ObjectGetOptions getOptions) : base(path, getOptions, ClassName) { }
+
+        public StorageAllocationSettingData(ManagementScope mgmtScope, ManagementPath path) : base(mgmtScope, path, ClassName) { }
+
+        public StorageAllocationSettingData(ManagementPath path) : base(path, ClassName) { }
+
+        public StorageAllocationSettingData(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions getOptions) : base(mgmtScope, path, getOptions, ClassName) { }
+
+        public StorageAllocationSettingData(ManagementObject theObject) : base(theObject, ClassName) { }
+
+        public StorageAllocationSettingData(ManagementBaseObject theObject) : base(theObject, ClassName) { }
+
+        public ushort Access
         {
             get
             {
-                hostResource = Msvm_StorageAllocationSettingData?[nameof(HostResource)] as string[];
-
-                if (Msvm_StorageAllocationSettingData != null && hostResource != null && hostResource?.Length > 0)
-                    using (var mos = new ManagementObjectSearcher(Scope.Virtualization.ScopeObject, new ObjectQuery($"SELECT * FROM {nameof(Msvm_StorageAllocationSettingData)}")))
-                        Msvm_StorageAllocationSettingData = mos.Get().Cast<ManagementObject>().Where((c) => (c[nameof(HostResource)] as string[])?[0] == hostResource[0]).FirstOrDefault();
-
-                return Msvm_StorageAllocationSettingData;
+                if (LateBoundObject[nameof(Access)] == null)
+                {
+                    return System.Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(Access)];
             }
+        }
 
-            set
+        public string Address => (string)LateBoundObject[nameof(Address)];
+
+        public string AddressOnParent => (string)LateBoundObject[nameof(AddressOnParent)];
+
+        public string AllocationUnits => (string)LateBoundObject[nameof(AllocationUnits)];
+
+        public bool AutomaticAllocation
+        {
+            get
             {
-                Msvm_StorageAllocationSettingData?.Dispose();
-                Msvm_StorageAllocationSettingData = value;
+                if (LateBoundObject[nameof(AutomaticAllocation)] == null)
+                {
+                    return System.Convert.ToBoolean(0);
+                }
+                return (bool)LateBoundObject[nameof(AutomaticAllocation)];
             }
         }
 
-        public enum AccessSASD : ushort
+        public bool AutomaticDeallocation
         {
-            Unknown = 0,
-            Readable = 1,
-            Writeable = 2,
-            ReadWriteSupported = 3
+            get
+            {
+                if (LateBoundObject[nameof(AutomaticDeallocation)] == null)
+                {
+                    return System.Convert.ToBoolean(0);
+                }
+                return (bool)LateBoundObject[nameof(AutomaticDeallocation)];
+            }
         }
-        public enum CachingModeSASD : ushort
+
+        /*
+         * Indicates whether and how in-memory file caching should be used for this VHD
+         * The default policy is set in the DefaultVirtualHardDiskCachingMode field of the Msvm_VirtualSystemManagementServiceSettingData class.
+         * This property is reserved for system use.
+         */
+        public CachingModeValues CachingMode
         {
-            Unknown = 0,
+            get
+            {
+                if (LateBoundObject[nameof(CachingMode)] == null)
+                {
+                    return (CachingModeValues)System.Convert.ToInt32(5);
+                }
+                return (CachingModeValues)System.Convert.ToInt32(LateBoundObject[nameof(CachingMode)]);
+            }
+        }
+
+        public string Caption => (string)LateBoundObject[nameof(Caption)];
+
+        public string[] Connection => (string[])LateBoundObject[nameof(Connection)];
+
+        public ushort ConsumerVisibility
+        {
+            get
+            {
+                if (LateBoundObject[nameof(ConsumerVisibility)] == null)
+                {
+                    return System.Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(ConsumerVisibility)];
+            }
+        }
+
+        public string Description => (string)LateBoundObject[nameof(Description)];
+
+        public string ElementName => (string)LateBoundObject[nameof(ElementName)];
+
+        public string HostExtentName => (string)LateBoundObject[nameof(HostExtentName)];
+
+        public ushort HostExtentNameFormat
+        {
+            get
+            {
+                if (LateBoundObject[nameof(HostExtentNameFormat)] == null)
+                {
+                    return System.Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(HostExtentNameFormat)];
+            }
+        }
+
+        public ushort HostExtentNameNamespace
+        {
+            get
+            {
+                if (LateBoundObject[nameof(HostExtentNameNamespace)] == null)
+                {
+                    return System.Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(HostExtentNameNamespace)];
+            }
+        }
+
+        public ulong HostExtentStartingAddress
+        {
+            get
+            {
+                if (LateBoundObject[nameof(HostExtentStartingAddress)] == null)
+                {
+                    return System.Convert.ToUInt64(0);
+                }
+                return (ulong)LateBoundObject[nameof(HostExtentStartingAddress)];
+            }
+        }
+
+        public string[] HostResource => (string[])LateBoundObject[nameof(HostResource)];
+
+        public ulong HostResourceBlockSize
+        {
+            get
+            {
+                if (LateBoundObject[nameof(HostResourceBlockSize)] == null)
+                {
+                    return System.Convert.ToUInt64(0);
+                }
+                return (ulong)LateBoundObject[nameof(HostResourceBlockSize)];
+            }
+        }
+
+        /*
+         * Specifies whether requests from the VM to flush or write through the cache are respected.
+         * If true, then the host ignores all flush or write through requests.
+         */
+        public bool IgnoreFlushes
+        {
+            get
+            {
+                if (LateBoundObject[nameof(IgnoreFlushes)] == null)
+                {
+                    return System.Convert.ToBoolean(0);
+                }
+                return (bool)LateBoundObject[nameof(IgnoreFlushes)];
+            }
+        }
+
+        public string InstanceID => (string)LateBoundObject[nameof(InstanceID)];
+
+        /*
+         * Specifies the allocation units used by the IOPSLimit and IOPSReservation properties.
+         */
+        public string IOPSAllocationUnits => (string)LateBoundObject[nameof(IOPSAllocationUnits)];
+
+        /*
+         * The maximum number of I/O operations per second which will be serviced for this virtual storage extent.
+         * If the value is not defined or 0 there is no limit to the number of IOPS that the device can issue.
+         * This property is expressed in normalized I/Os per second.
+         * Each I/O request is accounted for as 1 normalized I/O if the size of the request is less than or equal to a predefined base size (8KB).
+         * Requests that are larger than the base size are accounted for as N I/Os, where N is the rounded-up value of the request size divided by the base size
+         * (for example, if the base size is 8KB, a 32KB requests is counted as 4 normalized I/Os, a 60KB request as 8 normalized I/Os, etc...).
+         */
+        public ulong IOPSLimit
+        {
+            get
+            {
+                if (LateBoundObject[nameof(IOPSLimit)] == null)
+                {
+                    return System.Convert.ToUInt64(0);
+                }
+                return (ulong)LateBoundObject[nameof(IOPSLimit)];
+            }
+        }
+
+        /*
+         * The minimum number of I/O operations per second which will be serviced for this virtual storage extent.
+         * If both IOPSLimit and IOPSReservation are defined, the value of IOPSLimit must be greater or equal to IOPSReservation.
+         * This property is expressed in normalized I/Os per second.
+         * Each I/O request is accounted for as 1 normalized I/O if the size of the request is less than or equal to a predefined base size (8KB).
+         * Requests that are larger than the base size are accounted for as N I/Os, where N is the rounded-up value of the request size divided by the base size
+         * (for example, if the base size is 8KB, a 32KB requests is counted as 4 normalized I/Os, a 64KB request as 8 normalized I/Os, etc...).
+         */
+        public ulong IOPSReservation
+        {
+            get
+            {
+                if (LateBoundObject[nameof(IOPSReservation)] == null)
+                {
+                    return System.Convert.ToUInt64(0);
+                }
+                return (ulong)LateBoundObject[nameof(IOPSReservation)];
+            }
+        }
+
+        public ulong Limit
+        {
+            get
+            {
+                if (LateBoundObject[nameof(Limit)] == null)
+                {
+                    return System.Convert.ToUInt64(0);
+                }
+                return (ulong)LateBoundObject[nameof(Limit)];
+            }
+        }
+
+        public ushort MappingBehavior
+        {
+            get
+            {
+                if (LateBoundObject[nameof(MappingBehavior)] == null)
+                {
+                    return System.Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(MappingBehavior)];
+            }
+        }
+
+        public string OtherHostExtentNameFormat => (string)LateBoundObject[nameof(OtherHostExtentNameFormat)];
+
+        public string OtherHostExtentNameNamespace => (string)LateBoundObject[nameof(OtherHostExtentNameNamespace)];
+
+        public string OtherResourceType => (string)LateBoundObject[nameof(OtherResourceType)];
+
+        public string Parent => (string)LateBoundObject[nameof(Parent)];
+
+        /*
+         * Indicates whether the virtual hard disk supports SCSI-3 persistent reservations.
+         */
+        public bool PersistentReservationsSupported
+        {
+            get
+            {
+                if (LateBoundObject[nameof(PersistentReservationsSupported)] == null)
+                {
+                    return System.Convert.ToBoolean(0);
+                }
+                return (bool)LateBoundObject[nameof(PersistentReservationsSupported)];
+            }
+        }
+
+        public string PoolID => (string)LateBoundObject[nameof(PoolID)];
+
+        public ulong Reservation
+        {
+            get
+            {
+                if (LateBoundObject[nameof(Reservation)] == null)
+                {
+                    return System.Convert.ToUInt64(0);
+                }
+                return (ulong)LateBoundObject[nameof(Reservation)];
+            }
+        }
+
+        public string ResourceSubType => (string)LateBoundObject[nameof(ResourceSubType)];
+
+        public ushort ResourceType
+        {
+            get
+            {
+                if (LateBoundObject[nameof(ResourceType)] == null)
+                {
+                    return System.Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(ResourceType)];
+            }
+        }
+
+        /*
+         * A GUID representing which snapshot within the VHD Set file is to be attached.
+         */
+        public string SnapshotId => (string)LateBoundObject[nameof(SnapshotId)];
+
+        /*
+         * Specifies the unique identifier of the Storage QoS Policy to be applied to this virtual storage extent.
+         */
+        public string StorageQoSPolicyID => (string)LateBoundObject[nameof(StorageQoSPolicyID)];
+
+        public ulong VirtualQuantity
+        {
+            get
+            {
+                if (LateBoundObject[nameof(VirtualQuantity)] == null)
+                {
+                    return System.Convert.ToUInt64(0);
+                }
+                return (ulong)LateBoundObject[nameof(VirtualQuantity)];
+            }
+        }
+
+        public string VirtualQuantityUnits => (string)LateBoundObject[nameof(VirtualQuantityUnits)];
+
+        public ulong VirtualResourceBlockSize
+        {
+            get
+            {
+                if (LateBoundObject[nameof(VirtualResourceBlockSize)] == null)
+                {
+                    return System.Convert.ToUInt64(0);
+                }
+                return (ulong)LateBoundObject[nameof(VirtualResourceBlockSize)];
+            }
+        }
+
+        public uint Weight
+        {
+            get
+            {
+                if (LateBoundObject[nameof(Weight)] == null)
+                {
+                    return System.Convert.ToUInt32(0);
+                }
+                return (uint)LateBoundObject[nameof(Weight)];
+            }
+        }
+
+        /*
+         * Indicates what write hardening method is supported by the disk.
+         */
+        public WriteHardeningMethodValues WriteHardeningMethod
+        {
+            get
+            {
+                if (LateBoundObject[nameof(WriteHardeningMethod)] == null)
+                {
+                    return (WriteHardeningMethodValues)System.Convert.ToInt32(4);
+                }
+                return (WriteHardeningMethodValues)System.Convert.ToInt32(LateBoundObject[nameof(WriteHardeningMethod)]);
+            }
+        }
+
+        // Different overloads of GetInstances() help in enumerating instances of the WMI class.
+        public static List<StorageAllocationSettingData> GetInstances() => GetInstances(null, null, null, ClassName).Cast<ManagementObject>().Select((mo) => new StorageAllocationSettingData(mo)).ToList();
+
+        public new static List<StorageAllocationSettingData> GetInstances(string condition) => GetInstances(null, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new StorageAllocationSettingData(mo)).ToList();
+
+        public static List<StorageAllocationSettingData> GetInstances(string[] selectedProperties) => GetInstances(null, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new StorageAllocationSettingData(mo)).ToList();
+
+        public static List<StorageAllocationSettingData> GetInstances(string condition, string[] selectedProperties) => GetInstances(null, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new StorageAllocationSettingData(mo)).ToList();
+
+        public static List<StorageAllocationSettingData> GetInstances(ManagementScope mgmtScope, EnumerationOptions enumOptions) => GetInstances(mgmtScope, enumOptions, ClassName).Cast<ManagementObject>().Select((mo) => new StorageAllocationSettingData(mo)).ToList();
+
+        public static List<StorageAllocationSettingData> GetInstances(ManagementScope mgmtScope, string condition) => GetInstances(mgmtScope, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new StorageAllocationSettingData(mo)).ToList();
+
+        public static List<StorageAllocationSettingData> GetInstances(ManagementScope mgmtScope, string[] selectedProperties) => GetInstances(mgmtScope, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new StorageAllocationSettingData(mo)).ToList();
+
+        public static List<StorageAllocationSettingData> GetInstances(ManagementScope mgmtScope, string condition, string[] selectedProperties) => GetInstances(mgmtScope, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new StorageAllocationSettingData(mo)).ToList();
+
+        public static StorageAllocationSettingData CreateInstance() => new StorageAllocationSettingData(CreateInstance(ClassName));
+
+        public enum CachingModeValues
+        {
+            Unknown0 = 0,
             Default = 2,
-            NoCaching = 3,
-            CacheSharableParents = 4
-        }
-        public enum ConsumerVisibilitySASD : ushort
-        {
-            Unknown = 0,
-            PassedThrough = 2,
-            Virtualized = 3,
-            NotRepresented = 4
-        }
-        public enum HostExtentNameFormatSASD : ushort
-        {
-            Unknown = 0,
-            Other = 1,
-            SNVM = 7,
-            NAA = 9,
-            EUI64 = 10,
-            T10VID = 11,
-            OSDeviceName = 12
-        }
-        public enum HostExtentNameNamespaceSASD : ushort
-        {
-            Unknown = 0,
-            Other = 1,
-            VPD83Type3 = 2,
-            VPD83Type2 = 3,
-            VPD83Type1 = 4,
-            VPD80 = 5,
-            NodeWWN = 6,
-            SNVM = 7,
-            OSDeviceNamespace = 8
+            No_Caching = 3,
+            Cache_Sharable_Parents = 4,
+            NULL_ENUM_VALUE = 5,
         }
 
-        #region MsvmProperties
-
-        public string InstanceID => MsvmStorageAllocationSettingData[nameof(InstanceID)] as string;
-        public string Caption => MsvmStorageAllocationSettingData[nameof(Caption)] as string;
-        public string Description => MsvmStorageAllocationSettingData[nameof(Description)] as string;
-        public string ElementName => MsvmStorageAllocationSettingData[nameof(ElementName)] as string;
-        public ResourcePoolSettingData.PoolResourceType ResourceType => (ResourcePoolSettingData.PoolResourceType)(ushort)MsvmStorageAllocationSettingData[nameof(ResourceType)];
-        public string OtherResourceType => MsvmStorageAllocationSettingData[nameof(OtherResourceType)] as string;
-        public string ResourceSubType => MsvmStorageAllocationSettingData[nameof(ResourceSubType)] as string;
-        public string PoolID => MsvmStorageAllocationSettingData[nameof(PoolID)] as string;
-        public ConsumerVisibilitySASD ConsumerVisibility => (ConsumerVisibilitySASD)(ushort)MsvmStorageAllocationSettingData[nameof(ConsumerVisibility)];
-        public string[] HostResource
+        public enum WriteHardeningMethodValues
         {
-            get { return Msvm_StorageAllocationSettingData != null ? MsvmStorageAllocationSettingData[nameof(HostResource)] as string[] : hostResource; }
-            private set { hostResource = value; }
-        }
-        public string AllocationUnits => MsvmStorageAllocationSettingData[nameof(AllocationUnits)] as string;
-        public ulong VirtualQuantity => (ulong)MsvmStorageAllocationSettingData[nameof(VirtualQuantity)];
-        public ulong Limit => (ulong)MsvmStorageAllocationSettingData[nameof(Limit)];
-        public uint Weight => (uint)MsvmStorageAllocationSettingData[nameof(Weight)];
-        public string StorageQoSPolicyID => MsvmStorageAllocationSettingData[nameof(StorageQoSPolicyID)] as string;
-        public bool AutomaticAllocation => (bool)MsvmStorageAllocationSettingData[nameof(AutomaticAllocation)];
-        public bool AutomaticDeallocation => (bool)MsvmStorageAllocationSettingData[nameof(AutomaticDeallocation)];
-        public string Parent => MsvmStorageAllocationSettingData[nameof(Parent)] as string;
-        public string[] Connection => MsvmStorageAllocationSettingData[nameof(Connection)] as string[];
-        public string Address => MsvmStorageAllocationSettingData[nameof(Address)] as string;
-        public ResourcePoolSettingData.PoolMappingBehavior MappingBehavior => (ResourcePoolSettingData.PoolMappingBehavior)(ushort)MsvmStorageAllocationSettingData[nameof(MappingBehavior)];
-        public string AddressOnParent => MsvmStorageAllocationSettingData[nameof(AddressOnParent)] as string;
-        public ulong VirtualResourceBlockSize => (ulong)MsvmStorageAllocationSettingData[nameof(VirtualResourceBlockSize)];
-        public string VirtualQuantityUnits => MsvmStorageAllocationSettingData[nameof(VirtualQuantityUnits)] as string;
-        public AccessSASD Access => (AccessSASD)(ushort)MsvmStorageAllocationSettingData[nameof(Access)];
-        public ulong HostResourceBlockSize => (ulong)MsvmStorageAllocationSettingData[nameof(HostResourceBlockSize)];
-        public ulong Reservation => (ulong)MsvmStorageAllocationSettingData[nameof(Reservation)];
-        public ulong HostExtentStartingAddress => (ulong)MsvmStorageAllocationSettingData[nameof(HostExtentStartingAddress)];
-        public string HostExtentName => MsvmStorageAllocationSettingData[nameof(HostExtentName)] as string;
-        public HostExtentNameFormatSASD HostExtentNameFormat => (HostExtentNameFormatSASD)(ushort)MsvmStorageAllocationSettingData[nameof(HostExtentNameFormat)];
-        public string OtherHostExtentNameFormat => MsvmStorageAllocationSettingData[nameof(OtherHostExtentNameFormat)] as string;
-        public HostExtentNameNamespaceSASD HostExtentNameNamespace => (HostExtentNameNamespaceSASD)(ushort)MsvmStorageAllocationSettingData[nameof(HostExtentNameNamespace)];
-        public string OtherHostExtentNameNamespace => MsvmStorageAllocationSettingData[nameof(OtherHostExtentNameNamespace)] as string;
-        public ulong IOPSLimit => (ulong)MsvmStorageAllocationSettingData[nameof(IOPSLimit)];
-        public ulong IOPSReservation => (ulong)MsvmStorageAllocationSettingData[nameof(IOPSReservation)];
-        public string IOPSAllocationUnits => MsvmStorageAllocationSettingData[nameof(IOPSAllocationUnits)] as string;
-        public bool PersistentReservationsSupported => (bool)MsvmStorageAllocationSettingData[nameof(PersistentReservationsSupported)];
-        public CachingModeSASD CachingMode => (CachingModeSASD)(ushort)MsvmStorageAllocationSettingData[nameof(CachingMode)];
-        public string SnapshotId => MsvmStorageAllocationSettingData[nameof(SnapshotId)] as string;
-        public bool IgnoreFlushes => (bool)MsvmStorageAllocationSettingData[nameof(IgnoreFlushes)];
-        public ushort WriteHardeningMethod => (ushort)MsvmStorageAllocationSettingData[nameof(WriteHardeningMethod)];
-
-        #endregion
-
-        public static List<StorageAllocationSettingData> GetRelatedSASD(ResourceAllocationSettingData ResourceAllocationSettingData)
-        {
-            return
-                ResourceAllocationSettingData?.MsvmResourceAllocationSettingData?
-                    .GetRelated(nameof(Msvm_StorageAllocationSettingData))
-                    .Cast<ManagementObject>()
-                    .Select((child) => new StorageAllocationSettingData(child, ResourceAllocationSettingData))
-                    .ToList();
-        }
-
-        ~StorageAllocationSettingData()
-        {
-            Msvm_StorageAllocationSettingData?.Dispose();
+            Default = 0,
+            WriteCacheEnabled = 1,
+            WriteCacheandFUAEnabled = 2,
+            WriteCacheDisabled = 3,
+            NULL_ENUM_VALUE = 4,
         }
     }
 }
