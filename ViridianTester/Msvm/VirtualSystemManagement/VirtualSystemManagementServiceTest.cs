@@ -206,31 +206,28 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
 
                 var ReturnValue = sut.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem);
 
-                var cs = new ComputerSystem(ResultingSystem);
+                var computerSystem = new ComputerSystem(ResultingSystem);
 
-                var sdsCollection = 
+                var vssdCollection =
                     SettingsDefineState.GetInstances()
                         .Cast<SettingsDefineState>()
-                        .Where((sds) => string.Compare(sds.ManagedElement.Path, cs.Path.Path, true, CultureInfo.InvariantCulture) == 0)
+                        .Where((sds) => string.Compare(sds.ManagedElement.Path, computerSystem.Path.Path, true, CultureInfo.InvariantCulture) == 0)
                         .Select((sds) => new VirtualSystemSettingData(sds.SettingData))
                         .ToList();
 
-                using (ManagementObject JobObject = new ManagementObject(Job))
-                {
-                    uint[] RequestedInformation = (uint[])Enum.GetValues(typeof(SummaryInformation.RequestedInformation));
-                    ManagementPath[] SettingData = new ManagementPath[] { sdsCollection.First().Path };
+                uint[] RequestedInformation = (uint[])Enum.GetValues(typeof(SummaryInformation.RequestedInformation));
+                ManagementPath[] SettingData = new ManagementPath[] { vssdCollection.First().Path };
 
-                    ReturnValue = sut.GetSummaryInformation(RequestedInformation, SettingData, out ManagementBaseObject[] SummaryInformation);
+                ReturnValue = sut.GetSummaryInformation(RequestedInformation, SettingData, out ManagementBaseObject[] SummaryInformation);
 
-                    SummaryInformation si = new SummaryInformation(SummaryInformation.First());
+                SummaryInformation si = new SummaryInformation(SummaryInformation.First());
 
-                    Assert.IsNotNull(ResultingSystem);
-                    Assert.AreEqual(0U, ReturnValue);
-                    Assert.AreEqual(1, sdsCollection.Count);
-                    Assert.AreEqual(1, SummaryInformation.Length);
-                    Assert.IsNotNull(SummaryInformation);
-                    Assert.AreEqual(0U, si.MemoryUsage);
-                }
+                Assert.IsNotNull(ResultingSystem);
+                Assert.AreEqual(0U, ReturnValue);
+                Assert.AreEqual(1, vssdCollection.Count);
+                Assert.AreEqual(1, SummaryInformation.Length);
+                Assert.IsNotNull(SummaryInformation);
+                Assert.AreEqual(0U, si.MemoryUsage);
 
                 sut.DestroySystem(ResultingSystem, out Job);
             }

@@ -60,6 +60,9 @@
     <Compile Include="Msvm\Networking\SyntheticEthernetPortSettingData.cs" />
     <Compile Include="Msvm\Networking\VirtualEthernetSwitch.cs" />
     <Compile Include="Msvm\Networking\VirtualEthernetSwitchSettingData .cs" />
+    <Compile Include="Msvm\ResourceManagement\AllocationCapabilities.cs" />
+    <Compile Include="Msvm\ResourceManagement\ElementCapabilities.cs" />
+    <Compile Include="Msvm\ResourceManagement\SettingsDefineCapabilities.cs" />
     <Compile Include="Msvm\Storage\StorageAllocationSettingData.cs" />
     <Compile Include="Msvm\Storage\VirtualHardDiskSettingData.cs" />
     <Compile Include="Msvm\Threshold\VirtualSystemSnapshotSettingData.cs" />

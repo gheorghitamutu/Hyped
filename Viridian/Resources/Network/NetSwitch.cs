@@ -617,8 +617,9 @@ namespace Viridian.Resources.Network
 
         public static ManagementObject GetDefaultEthernetPortAllocationSettingData()
         {
-            using (var rp = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.EthernetConnection.ResourceSubType))
-                return ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(rp);
+            //using (var rp = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.EthernetConnection.ResourceSubType))
+            //    return ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(rp);
+            return null;
         }
 
         public static ManagementObject FindExternalAdapter(string Name)

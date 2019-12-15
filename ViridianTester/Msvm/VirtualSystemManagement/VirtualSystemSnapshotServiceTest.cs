@@ -114,13 +114,13 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
 
                         ComputerSystem cs = new ComputerSystem(AffectedSystem);
 
-                        var sovsCollection = SnapshotOfVirtualSystem.GetInstances()
+                        var vssdCollection = SnapshotOfVirtualSystem.GetInstances()
                             .Cast<SnapshotOfVirtualSystem>()
                             .Where((sovs) => string.Compare(sovs.Antecedent.Path, cs.Path.Path, true, CultureInfo.InvariantCulture) == 0)
                             .Select((sovs) => new VirtualSystemSettingData(sovs.Dependent))
                             .ToList();
 
-                        ReturnValue = sut.ApplySnapshot(sovsCollection.First().Path, out Job);
+                        ReturnValue = sut.ApplySnapshot(vssdCollection.First().Path, out Job);
 
                         using (ManagementObject JobObjectApplySnapshot = new ManagementObject(Job))
                         {
@@ -136,7 +136,7 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                                 .ToList();
 
                             Assert.IsTrue(Validator.IsJobSuccessful(JobObjectApplySnapshot?["JobState"]));
-                            Assert.AreEqual(1, sovsCollection.Count);
+                            Assert.AreEqual(1, vssdCollection.Count);
                             Assert.AreEqual(4096U, ReturnValue);
                         }
                     }

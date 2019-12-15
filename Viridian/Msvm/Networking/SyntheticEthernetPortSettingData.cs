@@ -22,12 +22,12 @@ namespace Viridian.Msvm.Networking
 
         public SyntheticEthernetPortSettingData(string ResourceSubType, string ElementName, bool StaticMacAddress = false, VirtualSystemSettingData VirtualSystemSettingData = null)
         {
-            using (var pool = ResourcePool.GetPool(ResourceSubType))
-                Msvm_SyntheticEthernetPortSettingData = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(pool);
-
-            Msvm_SyntheticEthernetPortSettingData[nameof(ElementName)] = ElementName;
-            Msvm_SyntheticEthernetPortSettingData[nameof(VirtualSystemIdentifiers)] = new string[] { Guid.NewGuid().ToString("B") };
-            Msvm_SyntheticEthernetPortSettingData[nameof(StaticMacAddress)] = StaticMacAddress;
+            //using (var pool = ResourcePool.GetPool(ResourceSubType))
+            //    Msvm_SyntheticEthernetPortSettingData = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(pool);
+            //
+            //Msvm_SyntheticEthernetPortSettingData[nameof(ElementName)] = ElementName;
+            //Msvm_SyntheticEthernetPortSettingData[nameof(VirtualSystemIdentifiers)] = new string[] { Guid.NewGuid().ToString("B") };
+            //Msvm_SyntheticEthernetPortSettingData[nameof(StaticMacAddress)] = StaticMacAddress;
 
             this.VirtualSystemSettingData = VirtualSystemSettingData;
         }

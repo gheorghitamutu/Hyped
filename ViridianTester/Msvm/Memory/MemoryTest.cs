@@ -28,12 +28,12 @@ namespace ViridianTester.Msvm.Memory
 
                 var ReturnValue = sut.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem);
 
-                var cs = new ComputerSystem(ResultingSystem);
+                var computerSystem = new ComputerSystem(ResultingSystem);
 
-                var sdsCollection =
+                var vssdCollection =
                     SettingsDefineState.GetInstances()
                         .Cast<SettingsDefineState>()
-                        .Where((sds) => string.Compare(sds.ManagedElement.Path, cs.Path.Path, true, CultureInfo.InvariantCulture) == 0)
+                        .Where((sds) => string.Compare(sds.ManagedElement.Path, computerSystem.Path.Path, true, CultureInfo.InvariantCulture) == 0)
                         .Select((sds) => new VirtualSystemSettingData(sds.SettingData))
                         .ToList();
 
@@ -41,14 +41,14 @@ namespace ViridianTester.Msvm.Memory
                     VirtualSystemSettingDataComponent.GetInstances()
                         .Cast<VirtualSystemSettingDataComponent>()
                         .Where((sds) =>
-                            string.Compare(sds.GroupComponent.Path, sdsCollection.First().Path.Path, true, CultureInfo.InvariantCulture) == 0 &&
+                            string.Compare(sds.GroupComponent.Path, vssdCollection.First().Path.Path, true, CultureInfo.InvariantCulture) == 0 &&
                             string.Compare(sds.PartComponent.ClassName, $"Msvm_{nameof(MemorySettingData)}", true, CultureInfo.InvariantCulture) == 0)
                         .Select((sds) => new MemorySettingData(sds.PartComponent))
                         .ToList();
 
                 Assert.IsNotNull(ResultingSystem);
                 Assert.AreEqual(0U, ReturnValue);
-                Assert.AreEqual(1, sdsCollection.Count);
+                Assert.AreEqual(1, vssdCollection.Count);
                 Assert.AreEqual(1, msdCollection.Count);
                 Assert.AreEqual(1024U, msdCollection.First().VirtualQuantity);
 

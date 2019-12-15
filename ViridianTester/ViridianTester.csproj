@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="Msvm\Memory\MemoryTest.cs" />
     <Compile Include="Msvm\Networking\VirtualEthernetSwitchManagementServiceTest.cs" />
+    <Compile Include="Msvm\ResourceManagement\ResourceAllocationSettingDataTest.cs" />
     <Compile Include="Msvm\VirtualSystemManagement\VirtualSystemSnapshotServiceTest.cs" />
     <Compile Include="Msvm\VirtualSystemManagement\VirtualSystemManagementServiceTest.cs" />
     <Compile Include="Msvm\VirtualSystem\ComputerSystemTest.cs" />
