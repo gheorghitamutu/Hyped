@@ -53,12 +53,8 @@
     <Compile Include="Job\Validator.cs" />
     <Compile Include="Msvm\ManagementSystemProperties.cs" />
     <Compile Include="Msvm\MsvmBase.cs" />
-    <Compile Include="Msvm\Networking\ExternalEthernetPort.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Msvm\Networking\InternalEthernetPort.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Msvm\Networking\ExternalEthernetPort.cs" />
+    <Compile Include="Msvm\Networking\InternalEthernetPort.cs" />
     <Compile Include="Msvm\Networking\SyntheticEthernetPortSettingData.cs" />
     <Compile Include="Msvm\Networking\VirtualEthernetSwitch.cs" />
     <Compile Include="Msvm\Networking\VirtualEthernetSwitchSettingData .cs" />
@@ -100,9 +96,7 @@
     <Compile Include="Resources\Network\NetSwitch.cs" />
     <Compile Include="Msvm\BaseService.cs" />
     <Compile Include="Msvm\Storage\ImageManagementService.cs" />
-    <Compile Include="Msvm\Networking\VirtualEthernetSwitchManagementService.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Msvm\Networking\VirtualEthernetSwitchManagementService.cs" />
     <Compile Include="Msvm\VirtualSystemManagement\VirtualSystemSnapshotService.cs" />
     <Compile Include="Msvm\Metrics\MetricService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
