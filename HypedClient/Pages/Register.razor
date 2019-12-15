@@ -1,43 +1,107 @@
 @page "/register"
 @inject HttpClient Http
+@inject NavigationManager NavigationManager
 
 <h1>Register</h1>
 
 
 <div class="container">
-    <br />
-    <p>Please fill in this form to create an account.</p>
-    <hr>
+    <div class="row">
+        <p>Please fill in this form to create an account.</p>
+    </div>
 
-    <label for="email"><b>Email</b></label>
-    <input type="text" placeholder="Enter Email" name="email" @bind="email" required><br /><br />
+    <div class="row">
+        <div class="col">
+            <label for="text"><b>First name</b></label>
+        </div>
+        <div class="col">
+            <input type="text" placeholder="First name" name="name" @bind="Account.FirstName" required>
+        </div>
+    </div>
 
-    <label for="text"><b>First name</b></label>
-    <input type="text" placeholder="First name" name="name" @bind="fname" required><br /><br />
+    <div class="row">
+        <div class="col">
+            <label for="text"><b>Last name</b></label>
+        </div>
+        <div class="col">
+            <input type="text" placeholder="Last name" name="name" @bind="Account.LastName" required>
+        </div>
+    </div>
 
-    <label for="text"><b>Last name</b></label>
-    <input type="text" placeholder="Last name" name="name" @bind="lname" required><br /><br />
+    <div class="row">
+        <div class="col">
+            <label for="email"><b>Email</b></label>
+        </div>
+        <div class="col">
+            <input type="text" placeholder="Enter Email" name="email" @bind="Account.Email" required>
+        </div>
+    </div>
 
-    <label for="psw"><b>Password</b></label>
-    <input type="password" placeholder="Enter Password" name="psw" @bind = "psw" required><br /><br />
+    <div class="row">
+        <div class="col">
+            <label for="psw"><b>Password</b></label>
+        </div>
+        <div class="col">
+            <input type="password" placeholder="Enter Password" name="psw" @bind="Account.Password" required>
+        </div>
+    </div>
 
-    <label for="psw-repeat"><b>Repeat Password</b></label>
-    <input type="password" placeholder="Repeat Password" name="psw-repeat" @bind = "rpsw" required><br /><br />
+    <div class="row">
+        <div class="col">
+            <label for="psw-repeat"><b>Repeat Password</b></label>
+        </div>
+        <div class="col">
+            <input type="password" placeholder="Repeat Password" name="psw-repeat" @bind="repeatPass" required>
+        </div>
+    </div>
 
+    <div class="row">
+        <div class="col">
+            <label for="txt"><b>Work Place</b></label>
+        </div>
+        <div class="col">
+            <input type="text" placeholder="Work Place" name="work" @bind="Account.Workplace" required>
+        </div>
+    </div>
 
-    <label for="txt"><b>Work Place</b></label>
-    <input type="text" placeholder="Work Place" name="work" @bind = "wplace" required><br /><br />
+    <div class="row">
+        <div class="col">
+            <label for="txt"><b>Position title</b></label>
+        </div>
+        <div class="col">
+            <input type="text" placeholder="Position title" name="group" @bind="Account.PositionTitle" required>
+        </div>
+    </div>
 
-    <label for="txt"><b>Position title</b></label>
-    <input type="text" placeholder="Position title" name="group" @bind = "group" required><br /><br />
+    <div class="row">
+        <div class="col">
+            <label for="no"><b>country</b></label>
+        </div>
+        <div class="col">
+            <input type="text" placeholder="Contact no." name="co-no" @bind="Account.Country" required>
+        </div>
+    </div>
 
+    <div class="row">
+        <div class="col">
+            <label for="no"><b>Contact no.</b></label>
+        </div>
+        <div class="col">
+            <input type="number" placeholder="Contact no." name="co-no" @bind="Account.ContactNumber" required>
+        </div>
+    </div>
 
-    <label for="no"><b>Contact no.</b></label>
-    <input type="number" placeholder="Contact no." name="co-no" @bind = "co_no" required><br />
-    <hr>
+    <div class="row">
+        <div class="col">
+            <p><button @onclick="InsertUser">Sign in</button></p>
+        </div>
+        <div class="col">
+            <p><button @onclick="Back">Back</button></p>
+        </div>
+    </div>
 
     <div class="container signin">
-        <p>Already have an account? <a href="#">Sign in</a>.</p><br />
+        <p>Already have an account? <a role="button" @onclick="Login">Sign in</a>.</p><br />
     </div>
 </div>
 
@@ -45,66 +109,97 @@
 
 @code {
 
-    static string email = @email;
-    static string fname = @fname;
-    static string lname = @lname;
-    static string psw = @psw;
-    static string rpsw = @rpsw;
-    static string wplace = @wplace;
-    static string group = @group;
-    static string co_no = @co_no;
+    private string errMsg = "";
 
+    private string repeatPass="";
+
+    private string apiUrl = "https://localhost:44386/api/users";
 
     private AccountDetails Account = new AccountDetails();
+    private AccountDetails _editAccount = new AccountDetails();
 
     private AccountDetails[] accounts;
 
-    private void InsertUser(int id)
-    {
-
-        Account = new AccountDetails
-        {
-            AccountId = id,
-            Email = @email,
-            FirstName = fname,
-            LastName = lname,
-            Password = psw,
-            Workplace = rpsw,
-            PositionTitle = wplace,
-            ContactNumber = co_no
-        };
-    }
-
-    private async Task SaveItem()
-    {
-        InsertUser(2);
-        await Http.PutJsonAsync<AccountDetails>("/sample-data/account.json", Account);
-        await GetTodoItems();
-    }
-    
     protected override async Task OnInitializedAsync() => await GetTodoItems();
 
     private async Task GetTodoItems()
     {
-        accounts = await Http.GetJsonAsync<AccountDetails[]>("sample-data/account.json");
+        accounts = await Http.GetJsonAsync<AccountDetails[]>(apiUrl);
+    }
+
+    private void InsertUser()
+    {
+        var editItem = accounts.FirstOrDefault(i => i.Email == Account.Email);
+        if (editItem == null) {
+            if (Account.Password == repeatPass)
+            {
+                _editAccount = new AccountDetails
+                {
+                    FirstName = Account.FirstName,
+                    LastName = Account.LastName,
+                    Email = Account.Email,
+                    Country = Account.Country,
+                    Password = Account.Password,
+                    Rights = "0",
+                    Workplace = Account.Workplace,
+                    PositionTitle = Account.PositionTitle,
+                    ContactNumber = Account.ContactNumber,
+                    VMS = null
+                };
+            }
+            else
+            {
+                errMsg = "Passwords do not match!";
+            }
+
+        }
+        else
+        {
+            errMsg = "E-mail already in use!";
+        }
+
+    }
+
+    private async Task SaveItem()
+    {
+        InsertUser();
+        await Http.PutJsonAsync<AccountDetails>("/sample-data/account.json", Account);
+        await GetTodoItems();
+        NavigationManager.NavigateTo("");
+    }
+
+    private void Back()
+    {
+        NavigationManager.NavigateTo("");
+    }
+
+    private void Login()
+    {
+        NavigationManager.NavigateTo("/login");
     }
 
     public class AccountDetails
     {
-        public int AccountId { get; set; }
-
-        public string Email { get; set; }
+        public Guid UserId { get; set; }
 
         public string FirstName { get; set; }
 
         public string LastName { get; set; }
 
+        public string Email { get; set; }
+
+        public string Country { get; set; }
+
         public string Password { get; set; }
+
+        public string Rights { get; set; }
 
         public string Workplace { get; set; }
 
         public string PositionTitle { get; set; }
 
         public string ContactNumber { get; set; }
+
+        public string VMS { get; set; }
     }
 }

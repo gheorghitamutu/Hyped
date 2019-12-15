@@ -1,5 +1,6 @@
 ﻿@page "/counter"
 @attribute [Authorize]
+@using Microsoft.AspNetCore.Components.Authorization
 
 <h1>Counter</h1>
 
@@ -9,16 +10,16 @@
 </div>
 
 @*<AuthorizeView>
-    <Authorized>
-        
-    </Authorized>
-    <NotAuthorized>
-        You are not authorized to do this.
-    </NotAuthorized>
-    <Authorizing>
-        Loading...
-    </Authorizing>
-</AuthorizeView>*@
+        <Authorized>
+
+        </Authorized>
+        <NotAuthorized>
+            You are not authorized to do this.
+        </NotAuthorized>
+        <Authorizing>
+            Loading...
+        </Authorizing>
+    </AuthorizeView>*@
 
 
 @code {
@@ -34,11 +35,11 @@
         if (user.Identity.IsAuthenticated)
         {
             currentCount++;
-            
+
         }
         else
         {
-            
+
         }
 
     }

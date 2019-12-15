@@ -1,27 +1,43 @@
 @page "/login"
 @inject HttpClient Http
+@inject NavigationManager NavigationManager
 
 <h1>Sign in</h1>
 
 
 <div class="container">
-    <br />
-    <p>Please fill in this form to sign in into account.</p>
-    <hr>
-
-    <label for="email"><b>Email</b></label>
-    <input type="text" placeholder="Enter Email" @bind="email" name="email" required><br /><br />
-
-
-    <label for="psw"><b>Password</b></label>
-    <input type="password" placeholder="Enter Password" @bind="psw" name="@psw" required><br /><br />
-
-    <p><button @onclick="Sign_in">Sign in</button></p>
+    <div class="row">
+        <p>Please fill in this form to sign in into account.</p>
+    </div>
+    <div class="row">
+        <div class="col">
+            <label for="email"><b>Email</b></label>
+        </div>
+        <div class="col">
+            <input type="text" placeholder="Enter Email" @bind="email" name="email" required><br /><br />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <label for="psw"><b>Password</b></label>
+        </div>
+        <div class="col">
+            <input type="password" placeholder="Enter Password" @bind="psw" name="@psw" required><br /><br />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <p><button @onclick="Sign_in">Sign in</button></p>
+        </div>
+        <div class="col">
+            <p><button @onclick="Back">Back</button></p>
+        </div>
+    </div>
 
 
 
     <div class="container signin">
-        <p> Create an account? <a href="#">Register</a>.</p><br />
+        <p> Create an account? <a role="button" @onclick="Register">Register</a>.</p><br />
     </div>
 </div>
 
@@ -57,6 +73,16 @@
             }
 
         }
+    }
+
+    private void Back()
+    {
+        NavigationManager.NavigateTo("");
+    }
+
+    private void Register()
+    {
+        NavigationManager.NavigateTo("/register");
     }
 
     public class AccountDetails

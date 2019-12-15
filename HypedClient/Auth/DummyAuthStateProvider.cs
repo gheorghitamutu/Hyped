@@ -13,7 +13,7 @@ namespace HypedClient.Auth
         {
             var identity = new ClaimsIdentity(new List<Claim> { 
                 new Claim(ClaimTypes.Name,"Admin")
-            },"admin");
+            });
             return await Task.FromResult(new AuthenticationState(new ClaimsPrincipal(identity)));
         }
     }
