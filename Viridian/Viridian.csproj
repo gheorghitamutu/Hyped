@@ -52,6 +52,8 @@
   <ItemGroup>
     <Compile Include="Job\Validator.cs" />
     <Compile Include="Msvm\ManagementSystemProperties.cs" />
+    <Compile Include="Msvm\Memory\Memory.cs" />
+    <Compile Include="Msvm\Memory\MemorySettingData.cs" />
     <Compile Include="Msvm\MsvmBase.cs" />
     <Compile Include="Msvm\Networking\ExternalEthernetPort.cs" />
     <Compile Include="Msvm\Networking\InternalEthernetPort.cs" />
@@ -65,9 +67,12 @@
     <Compile Include="Msvm\VirtualSystemManagement\VirtualSystemManagementService.cs" />
     <Compile Include="Msvm\VirtualSystem\ComputerSystem.cs" />
     <Compile Include="Msvm\VirtualSystemManagement\LastAppliedSnapshot.cs" />
+    <Compile Include="Msvm\VirtualSystem\ConcreteComponent.cs" />
     <Compile Include="Msvm\VirtualSystem\MostCurrentSnapshotInBranch.cs" />
     <Compile Include="Msvm\VirtualSystem\SnapshotOfVirtualSystem.cs" />
     <Compile Include="Msvm\VirtualSystem\SummaryInformation.cs" />
+    <Compile Include="Msvm\VirtualSystem\SystemComponent .cs" />
+    <Compile Include="Msvm\VirtualSystem\VirtualSystemSettingDataComponent.cs" />
     <Compile Include="Properties\ComputerSystem.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
