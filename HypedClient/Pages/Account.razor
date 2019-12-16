@@ -82,10 +82,10 @@
                             <td><label for="no"><b>Contact no. : </b></label></td>
                             <td><input type="text" placeholder=@_editAccount.ContactNumber @bind="_editAccount.ContactNumber"></td>
                         </tr>
-                        <tr>
+                        /*<tr>
                             <td><label for="no"><b>VMS : </b></label></td>
                             <td><input type="text" placeholder=@_editAccount.VMS @bind="_editAccount.VMS"></td>
-                        </tr>
+                        </tr>*/
                         <tr>
                             <td>
                                 <div class="container signin">
@@ -109,7 +109,7 @@
 
     // TO BE MODIFIED, aici am testat cu back-end-ul rulat pe alt PC din retea
     private string apiUrl = "https://localhost:44386/api/users";
-    
+
 
     private AccountDetails _editAccount = new AccountDetails();
 
@@ -183,6 +183,16 @@
 
         public string ContactNumber { get; set; }
 
-        public string VMS { get; set; }
+        public ICollection<VM> VMS { get; set; }
+    }
+
+    public class VM
+    {
+        public Guid VMId { get; set; }
+        public string RealID { get; set; }
+        public string Name { get; set; }
+        public string Configuration { get; set; }
+        public string LastSave { get; set; }
+        public Guid UserId { get; set; }
     }
 }
