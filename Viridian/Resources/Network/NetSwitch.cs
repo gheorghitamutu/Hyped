@@ -4,7 +4,6 @@ using System.Linq;
 using System.Management;
 using Viridian.Job;
 using Viridian.Msvm.Networking;
-using Viridian.Msvm.ResourceManagement;
 using Viridian.Msvm.VirtualSystem;
 using Viridian.Scopes;
 

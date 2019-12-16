@@ -3,10 +3,13 @@ using BackEndAPI.DTOs.UserDTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Management;
 using System.Threading;
 using System.Threading.Tasks;
+using Viridian.Msvm.VirtualSystem;
+using Viridian.Msvm.VirtualSystemManagement;
 
 namespace BackEndAPI.Business.UserHandlers
 {
@@ -43,7 +46,25 @@ namespace BackEndAPI.Business.UserHandlers
                     }
                 }
                 context.VMs.Remove(delete_vm);//remove the virtual machine from DB
+
+                var computerSystem =
+                    ComputerSystem.GetInstances()
+                        .Cast<ComputerSystem>()
+                        .Where((cs) => cs.Name == vm.RealID)
+                        .ToList()
+                        .First();
+
+                var virtualSystemSettingData =
+                        SettingsDefineState.GetInstances()
+                            .Cast<SettingsDefineState>()
+                            .Where((sds) => string.Compare(sds.ManagedElement.Path, computerSystem.Path.Path, true, CultureInfo.InvariantCulture) == 0)
+                            .Select((sds) => new VirtualSystemSettingData(sds.SettingData))
+                            .ToList()
+                            .First();
+
+                VirtualSystemManagementService.GetInstances().First().DestroySystem(virtualSystemSettingData.Path, out ManagementPath Job);
             }
+
             //remove the user from DB
             context.Users.Remove(user);
             await context.SaveChangesAsync(cancellationToken);
