@@ -21,7 +21,7 @@ namespace ViridianTester.Msvm.Metrics
         [TestMethod]
         public void GettingBaseAndAggregationMetricsOnProcessorSettingData_ExpectingZeroBaseAndOneAggregation()
         {
-            using (var sut = VirtualSystemManagementService.GetInstances().Cast<VirtualSystemManagementService>().ToList().First())
+            using (var virtualSystemManagementService = VirtualSystemManagementService.GetInstances().Cast<VirtualSystemManagementService>().ToList().First())
             {
                 var virtualSystemSettingData = VirtualSystemSettingData.CreateInstance();
 
@@ -33,7 +33,7 @@ namespace ViridianTester.Msvm.Metrics
                 string[] ResourceSettings = null;
                 string SystemSettings = virtualSystemSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20);
 
-                var ReturnValue = sut.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem);
+                var ReturnValue = virtualSystemManagementService.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem);
 
                 var computerSystem = new ComputerSystem(ResultingSystem);
 
@@ -50,17 +50,17 @@ namespace ViridianTester.Msvm.Metrics
                     computerSystem = ComputerSystem.GetInstances($"Name='{computerSystem.Name}'").Cast<ComputerSystem>().ToList().First();
                 }
 
-                using (var metricService = MetricService.GetInstances().First())
+                using (var sut = MetricService.GetInstances().First())
                 {
                     var metricServiceSettingData = MetricServiceSettingData.GetInstances().First();
                     metricServiceSettingData.LateBoundObject["MetricsFlushInterval"] = MsvmBase.ToDmtfTimeInterval(new TimeSpan(1000));
-                    metricService.ModifyServiceSettings(metricServiceSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20), out Job);
+                    sut.ModifyServiceSettings(metricServiceSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20), out Job);
 
                     var baseMetricDefinitions = BaseMetricDefinition.GetInstances();                    
-                    baseMetricDefinitions.ForEach((bsd) => metricService.ControlMetrics(bsd.Path, 2, computerSystem.Path));
+                    baseMetricDefinitions.ForEach((bsd) => sut.ControlMetrics(bsd.Path, 2, computerSystem.Path));
 
                     var aggregationMetricDefinitions = AggregationMetricDefinition.GetInstances();
-                    aggregationMetricDefinitions.ForEach((agd) => metricService.ControlMetrics(agd.Path, 2, computerSystem.Path));
+                    aggregationMetricDefinitions.ForEach((agd) => sut.ControlMetrics(agd.Path, 2, computerSystem.Path));
 
                     var vssdCollection =
                         SettingsDefineState.GetInstances()
@@ -106,17 +106,6 @@ namespace ViridianTester.Msvm.Metrics
                             amvCollection.Where((amv) => string.Compare(amv.MetricDefinitionId, amd.Id, true, CultureInfo.InvariantCulture) == 0).ToList().First())
                         );
 
-                    foreach (var pair in aggregationMetricMap)
-                    {
-                        foreach (var p in pair.Key.LateBoundObject.Properties)
-                            Trace.Write("Definition [" + p.Name?.ToString() + "]:\t\t\t\t" + p.Value?.ToString() + "\n");
-
-                        foreach (var p in pair.Value.LateBoundObject.Properties)
-                            Trace.Write("Value [" + p.Name + "]:\t\t\t\t" + p.Value + "\n");
-
-                        Trace.Write("----------------------------------------\n");
-                    }
-
                     var bmdCollection =
                         MetricDefForME.GetInstances()
                             .Cast<MetricDefForME>()
@@ -144,17 +133,6 @@ namespace ViridianTester.Msvm.Metrics
                             bmvCollection.Where((amv) => string.Compare(amv.MetricDefinitionId, bmd.Id, true, CultureInfo.InvariantCulture) == 0).ToList().First())
                         );
 
-                    foreach (var pair in baseMetricMap)
-                    {
-                        foreach (var p in pair.Key.LateBoundObject.Properties)
-                            Trace.Write("Definition [" + p.Name?.ToString() + "]:\t\t\t\t" + p.Value?.ToString() + "\n");
-
-                        foreach (var p in pair.Value.LateBoundObject.Properties)
-                            Trace.Write("Value [" + p.Name + "]:\t\t\t\t" + p.Value + "\n");
-
-                        Trace.Write("----------------------------------------\n");
-                    }
-
                     ReturnValue = computerSystem.RequestStateChange(3, null, out Job);
 
                     using (ManagementObject JobObject = new ManagementObject(Job))
@@ -173,7 +151,7 @@ namespace ViridianTester.Msvm.Metrics
                     Assert.AreEqual(0, baseMetricMap.Count);
                 }
 
-                sut.DestroySystem(ResultingSystem, out Job);
+                virtualSystemManagementService.DestroySystem(ResultingSystem, out Job);
             }
         }
     }
