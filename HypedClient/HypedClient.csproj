@@ -9,6 +9,7 @@
     <!--<PackageReference Include="Blazorise" Version="0.8.6.4" />-->
     <!--<PackageReference Include="Blazorise.Bootstrap" Version="0.8.6.4" />-->
     <!--<PackageReference Include="Blazorise.Icons.FontAwesome" Version="0.8.6.4" />-->
+    <PackageReference Include="Blazored.SessionStorage" Version="1.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor" Version="3.1.0-preview3.19555.2" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="3.1.0-preview4.19579.2" PrivateAssets="all" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor.HttpClient" Version="3.1.0-preview3.19555.2" />

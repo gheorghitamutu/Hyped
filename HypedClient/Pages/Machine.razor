@@ -1,65 +1,65 @@
 ﻿@page "/machine"
 @inject HttpClient Http
 @attribute [Authorize]
-
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 
 <!-- Modal for new machine -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col">
-                                <label for="email"><b>VMId : </b></label>
-                            </div>
-                            <div class="col">
-                                <fieldset>
-                                    <input type="text" placeholder=@_addMachine.RealID @bind="_addMachine.RealID">
-                                </fieldset>
-                            </div>
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row">
+                        <div class="col">
+                            <label for="email"><b>VMId : </b></label>
                         </div>
-                        <div class="row">
-                            <div class="col">
-                                <label for="text"><b>Name : </b></label>
-                            </div>
-                            <div class="col">
-                                <input type="text" placeholder=@_addMachine.Name @bind="_addMachine.Name">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <label for="text"><b>Configuration : </b></label>
-                            </div>
-                            <div class="col">
-                                <input type="text" placeholder=@_addMachine.Configuration @bind="_addMachine.Configuration">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <label for="psw"><b>LastSave : </b></label>
-                            </div>
-                            <div class="col">
-                                <fieldset disabled>
-                                    <input type="text" placeholder=@_addMachine.LastSave @bind="_addMachine.LastSave">
-                                </fieldset>
-                            </div>
-                        </div>
+                        <div class="col">
+                            <fieldset>
+                                <input type="text" placeholder=@_addMachine.RealID @bind="_addMachine.RealID">
+                            </fieldset>
                         </div>
                     </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" @onclick="@AddItem">Save changes</button>
+                    <div class="row">
+                        <div class="col">
+                            <label for="text"><b>Name : </b></label>
+                        </div>
+                        <div class="col">
+                            <input type="text" placeholder=@_addMachine.Name @bind="_addMachine.Name">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label for="text"><b>Configuration : </b></label>
+                        </div>
+                        <div class="col">
+                            <input type="text" placeholder=@_addMachine.Configuration @bind="_addMachine.Configuration">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label for="psw"><b>LastSave : </b></label>
+                        </div>
+                        <div class="col">
+                            <fieldset disabled>
+                                <input type="text" placeholder=@_addMachine.LastSave @bind="_addMachine.LastSave">
+                            </fieldset>
+                        </div>
+                    </div>
                 </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" @onclick="@AddItem">Save changes</button>
             </div>
         </div>
     </div>
+</div>
 
 <div class="container-fluid border border-dark fill">
     <div class="row h-100">
@@ -90,9 +90,10 @@
             else
             {
 
-                <div class="list-group" id="list-tab" role="tablist">                    
-                    @foreach (var machine in machines) { 
-                    <a class="list-group-item list-group-item-action" role="tab" @onclick="@(() => GetVM(machine))">@machine.Name</a>
+                <div class="list-group" id="list-tab" role="tablist">
+                    @foreach (var machine in machines)
+                    {
+                        <a class="list-group-item list-group-item-action" role="tab" @onclick="@(() => GetVM(machine))">@machine.Name</a>
                     }
                 </div>
             }
@@ -119,6 +120,7 @@
 
     // TO BE MODIFIED, aici am testat cu back-end-ul rulat pe alt PC din retea
     private string apiUrl = "https://localhost:44386/api/vms";
+    private string name = "";
 
     private MachineDetails _editMachine = new MachineDetails();
 
@@ -136,6 +138,7 @@
     private async Task GetMachines()
     {
         machines = await Http.GetJsonAsync<MachineDetails[]>(apiUrl);
+        name = await sessionStorage.GetItemAsync<string>("id");
     }
 
     private void EditItem(string id)
@@ -161,27 +164,27 @@
         {
             _addMachine = new MachineDetails
             {
-            VMId = _addMachine.VMId,
-            RealID = _addMachine.RealID,
-            Name = _addMachine.Name,
-            Configuration = _addMachine.Configuration,
-            LastSave = Convert.ToString(date),
-            UserId = Guid.Parse("bd189d4a-08b9-408f-a627-5c31551ef118")
+                VMId = _addMachine.VMId,
+                RealID = _addMachine.RealID,
+                Name = _addMachine.Name,
+                Configuration = _addMachine.Configuration,
+                LastSave = Convert.ToString(date),
+                UserId = Guid.Parse(name)
             };
         }
         else
         {
             _addMachine = new MachineDetails
             {
-            VMId = lastItem.VMId,
-            RealID = Convert.ToString(Convert.ToInt32(lastItem.RealID)+1),
-            Name = lastItem.Name,
-            Configuration = lastItem.Configuration,
-            LastSave = Convert.ToString(date),
-            UserId = Guid.Parse("bd189d4a-08b9-408f-a627-5c31551ef118")
+                VMId = lastItem.VMId,
+                RealID = Convert.ToString(Convert.ToInt32(lastItem.RealID) + 1),
+                Name = lastItem.Name,
+                Configuration = lastItem.Configuration,
+                LastSave = Convert.ToString(date),
+                UserId = Guid.Parse(name)
             };
         }
-        
+
     }
 
     private async Task SaveItem()
