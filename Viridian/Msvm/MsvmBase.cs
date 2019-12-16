@@ -240,6 +240,7 @@ namespace Viridian.Msvm
                 PrivateLateBoundObject.Put(putOptions);
             }
         }
+
         public void Delete() => PrivateLateBoundObject.Delete();
 
         private string ConstructPath(string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName)
@@ -349,7 +350,7 @@ namespace Viridian.Msvm
         #region DateTime
 
         // Converts a given datetime in DMTF format to System.DateTime object.
-        protected static DateTime ToDateTime(string dmtfDate)
+        public static DateTime ToDateTime(string dmtfDate)
         {
             DateTime initializer = DateTime.MinValue;
             int year = initializer.Year;
@@ -452,7 +453,7 @@ namespace Viridian.Msvm
         }
 
         // Converts a given System.DateTime object to DMTF datetime format.
-        protected static string ToDmtfDateTime(DateTime date)
+        public static string ToDmtfDateTime(DateTime date)
         {
             TimeSpan tickOffset = TimeZone.CurrentTimeZone.GetUtcOffset(date);
             long OffsetMins = tickOffset.Ticks / TimeSpan.TicksPerMinute;
@@ -496,7 +497,7 @@ namespace Viridian.Msvm
         }
 
         // Converts a given time interval in DMTF format to System.TimeSpan object.
-        protected static TimeSpan ToTimeSpan(string dmtfTimespan)
+        public static TimeSpan ToTimeSpan(string dmtfTimespan)
         {
             if (dmtfTimespan == null)
             {
@@ -544,7 +545,7 @@ namespace Viridian.Msvm
         }
 
         // Converts a given System.TimeSpan object to DMTF Time interval format.
-        protected static string ToDmtfTimeInterval(TimeSpan timespan)
+        public static string ToDmtfTimeInterval(TimeSpan timespan)
         {
             string dmtftimespan = timespan.Days.ToString().PadLeft(8, '0');
             TimeSpan maxTimeSpan = TimeSpan.MaxValue;

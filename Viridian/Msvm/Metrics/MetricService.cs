@@ -2,354 +2,460 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Management;
-using Viridian.Job;
-using Viridian.Scopes;
 
 namespace Viridian.Msvm.Metrics
 {
-    public sealed class MetricService : BaseService
+    public class MetricService : MsvmBase
     {
-        private static MetricService instance = null;
+        public static string ClassName => $"Msvm_{nameof(MetricService)}";
 
-        public enum MetricCollectionEnabled : ushort
-        {
-            Enable = 2,
-            Disable = 3,
-            Reset = 4
-        };
+        // Below are different overloads of constructors to initialize an instance of the class with a WMI object.
+        public MetricService() : base(ClassName) { }
 
-        public enum MetricRequestedState : ushort
-        {
-            Enabled = 2,
-            Disabled = 3,
-            ShutDown = 4,
-            Offline = 6,
-            Test = 7,
-            Defer = 8,
-            Quiesce = 9,
-            Reboot = 10,
-            Reset = 11
-        };
+        public MetricService(string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
 
-        public static readonly string[] AggregationMetricDefinitionCaptions =
-        {
-            "Average Memory Utilization",
-            "Aggregated Average Memory Utilization",
-            "Maximum for Memory Utilization",
-            "Aggregated Maximum for Memory Utilization",
-            "Average CPU Utilization",
-            "Aggregated Average CPU Utilization",
-            "Average Disk Latency",
-            "Aggregated Average Normalized Disk Throughput",
-            "Aggregated Average Disk Latency",
-            "Average Normalized Disk Throughput",
-            "Maximum for Disk Allocation",
-            "Aggregated Maximum for Disk Allocations",
-            "Minimum for Memory Utilization",
-            "Aggregated Minimum for Memory Utilization"
-        };
+        public MetricService(ManagementScope mgmtScope, string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(mgmtScope, keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
 
-        public static readonly string[] BaseMetricDefinitionCaptions =
-        {
-            "Filtered Outgoing Network Traffic",
-            "Aggregated Filtered Outgoing Network Traffic",
-            "Normalized I/O Operations Completed",
-            "Disk Data Written",
-            "Aggregated Disk Data Read",
-            "Filtered Incoming Network Traffic",
-            "Aggregated Filtered Incoming Network Traffic",
-            "Disk Data Read",
-            "Aggregated Normalized I/O Operations Completed",
-            "Aggregated Disk Data Written"
-        };
+        public MetricService(ManagementPath path, ObjectGetOptions getOptions) : base(path, getOptions, ClassName) { }
 
-        private MetricService() : base("Msvm_MetricService") { }
+        public MetricService(ManagementScope mgmtScope, ManagementPath path) : base(mgmtScope, path, ClassName) { }
 
-        public static MetricService Instance
+        public MetricService(ManagementPath path) : base(path, ClassName) { }
+
+        public MetricService(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions getOptions) : base(mgmtScope, path, getOptions, ClassName) { }
+
+        public MetricService(ManagementObject theObject) : base(theObject, ClassName) { }
+
+        public MetricService(ManagementBaseObject theObject) : base(theObject, ClassName) { }
+
+
+        public ushort[] AvailableRequestedStates => (ushort[])LateBoundObject[nameof(AvailableRequestedStates)];
+
+        public string Caption => (string)LateBoundObject[nameof(Caption)];
+
+        public ushort CommunicationStatus
         {
             get
             {
-                if (instance == null)
-                    instance = new MetricService();
-
-                return instance;
-            }
-        }
-
-#pragma warning disable CA1303 // Do not pass literals as localized parameters
-#pragma warning disable CA1707 // Identifiers should not contain underscores
-#pragma warning disable CA1065 // Do not raise exceptions in unexpected locations
-        public ManagementObject Msvm_MetricService => Service ?? throw new NullReferenceException($"{nameof(ServiceName)} is null!");
-#pragma warning restore CA1065 // Do not raise exceptions in unexpected locations
-#pragma warning restore CA1707 // Identifiers should not contain underscores
-#pragma warning restore CA1303 // Do not pass literals as localized parameters
-
-        public void ControlMetrics(string Subject, string Definition, MetricCollectionEnabled MetricCollectionEnabled)
-        {
-            using (var ip = Msvm_MetricService.GetMethodParameters(nameof(ControlMetrics)))
-            {
-                ip[nameof(Subject)] = Subject ?? throw new ArgumentNullException(nameof(Subject));
-                ip[nameof(Definition)] = Definition;
-                ip[nameof(MetricCollectionEnabled)] = MetricCollectionEnabled;
-
-                using (var op = Msvm_MetricService.InvokeMethod(nameof(ControlMetrics), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public void ControlMetricsByClass(string Subject, string Definition, MetricCollectionEnabled MetricCollectionEnabled)
-        {
-            using (var ip = Msvm_MetricService.GetMethodParameters(nameof(ControlMetricsByClass)))
-            {
-                ip[nameof(Subject)] = Subject ?? throw new ArgumentNullException(nameof(Subject));
-                ip[nameof(Definition)] = Definition ?? throw new ArgumentNullException(nameof(Definition));
-                ip[nameof(MetricCollectionEnabled)] = MetricCollectionEnabled;
-
-                using (var op = Msvm_MetricService.InvokeMethod(nameof(ControlMetricsByClass), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public void ControlSampleTimes(DateTime StartSampleTime, DateTime PreferredSampleInterval, bool RestartGathering)
-        {
-            using (var ip = Msvm_MetricService.GetMethodParameters(nameof(ControlSampleTimes)))
-            {
-                ip[nameof(StartSampleTime)] = ManagementDateTimeConverter.ToDmtfDateTime(StartSampleTime) ?? throw new ArgumentNullException(nameof(StartSampleTime));
-                ip[nameof(PreferredSampleInterval)] = ManagementDateTimeConverter.ToDmtfDateTime(PreferredSampleInterval) ?? throw new ArgumentNullException(nameof(PreferredSampleInterval));
-                ip[nameof(RestartGathering)] = RestartGathering;
-
-                using (var op = Msvm_MetricService.InvokeMethod(nameof(ControlSampleTimes), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public void GetMetricValues(string Definition, ushort Range, ushort Count)
-        {
-            using (var ip = Msvm_MetricService.GetMethodParameters(nameof(GetMetricValues)))
-            {
-                ip[nameof(Definition)] = Definition ?? throw new ArgumentNullException(nameof(Definition));
-                ip[nameof(Range)] = Range;
-                ip[nameof(Count)] = Count;
-
-                using (var op = Msvm_MetricService.InvokeMethod(nameof(GetMetricValues), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public void ModifyServiceSettings(string SettingData)
-        {
-            using (var ip = Msvm_MetricService.GetMethodParameters(nameof(ModifyServiceSettings)))
-            {
-                ip[nameof(SettingData)] = SettingData ?? throw new ArgumentNullException(nameof(SettingData));
-
-                using (var op = Msvm_MetricService.InvokeMethod(nameof(ModifyServiceSettings), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public void RequestStateChange(MetricRequestedState RequestedState, ulong TimeoutPeriod = 0)
-        {
-            using (var ip = Msvm_MetricService.GetMethodParameters(nameof(RequestStateChange)))
-            {
-                ip[nameof(RequestedState)] = (uint)RequestedState;
-                ip[nameof(TimeoutPeriod)] = null; // CIM_DateTime
-
-                using (var op = Msvm_MetricService.InvokeMethod(nameof(RequestStateChange), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public object[] ShowMetrics(string Subject, string Definition)
-        {
-            using (var ip = Msvm_MetricService.GetMethodParameters(nameof(ShowMetrics)))
-            {
-                ip[nameof(Subject)] = Subject ?? throw new ArgumentNullException(nameof(Subject));
-                ip[nameof(Definition)] = Definition ?? throw new ArgumentNullException(nameof(Definition));
-
-                using (var op = Msvm_MetricService.InvokeMethod(nameof(ShowMetrics), ip, null))
+                if (LateBoundObject[nameof(CommunicationStatus)] == null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(CommunicationStatus)];
+            }
+        }
 
-                    return new object[] { op["ManagedElements"] as string[], op["MetricNames"] as string[], op["MetricCollectionEnabled"] as MetricCollectionEnabled[] };
+        public string CreationClassName => (string)LateBoundObject[nameof(CreationClassName)];
+
+        public string Description => (string)LateBoundObject[nameof(Description)];
+
+        public ushort DetailedStatus
+        {
+            get
+            {
+                if (LateBoundObject[nameof(DetailedStatus)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(DetailedStatus)];
+            }
+        }
+
+        public string ElementName => (string)LateBoundObject[nameof(ElementName)];
+
+        public ushort EnabledDefault
+        {
+            get
+            {
+                if (LateBoundObject[nameof(EnabledDefault)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(EnabledDefault)];
+            }
+        }
+
+        public ushort EnabledState
+        {
+            get
+            {
+                if (LateBoundObject[nameof(EnabledState)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(EnabledState)];
+            }
+        }
+
+        public ushort HealthState
+        {
+            get
+            {
+                if (LateBoundObject[nameof(HealthState)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(HealthState)];
+            }
+        }
+
+        public DateTime InstallDate
+        {
+            get
+            {
+                if (LateBoundObject[nameof(InstallDate)] != null)
+                {
+                    return ToDateTime((string)LateBoundObject[nameof(InstallDate)]);
+                }
+                else
+                {
+                    return DateTime.MinValue;
                 }
             }
         }
 
-        public object[] ShowMetricsByClass(string Subject, string Definition)
+        public string InstanceID => (string)LateBoundObject[nameof(InstanceID)];
+
+        public string Name => (string)LateBoundObject[nameof(Name)];
+
+        public ushort OperatingStatus
         {
-            using (var ip = Msvm_MetricService.GetMethodParameters(nameof(ShowMetricsByClass)))
+            get
             {
-                ip[nameof(Subject)] = Subject ?? throw new ArgumentNullException(nameof(Subject));
-                ip[nameof(Definition)] = Definition ?? throw new ArgumentNullException(nameof(Definition));
-
-                using (var op = Msvm_MetricService.InvokeMethod(nameof(ShowMetricsByClass), ip, null))
+                if (LateBoundObject[nameof(OperatingStatus)] == null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(OperatingStatus)];
+            }
+        }
 
-                    return new object[] { op["DefinitionList"] as string[], op["MetricNames"] as string[], op["MetricCollectionEnabled"] as MetricCollectionEnabled[] };
+        public ushort[] OperationalStatus => (ushort[])LateBoundObject[nameof(OperationalStatus)];
+
+        public string OtherEnabledState => (string)LateBoundObject[nameof(OtherEnabledState)];
+
+        public string PrimaryOwnerContact => (string)LateBoundObject[nameof(PrimaryOwnerContact)];
+
+        public string PrimaryOwnerName => (string)LateBoundObject[nameof(PrimaryOwnerName)];
+
+        public ushort PrimaryStatus
+        {
+            get
+            {
+                if (LateBoundObject[nameof(PrimaryStatus)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(PrimaryStatus)];
+            }
+        }
+
+        public ushort RequestedState
+        {
+            get
+            {
+                if (LateBoundObject[nameof(RequestedState)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(RequestedState)];
+            }
+        }
+
+        public bool Started
+        {
+            get
+            {
+                if (LateBoundObject[nameof(Started)] == null)
+                {
+                    return Convert.ToBoolean(0);
+                }
+                return (bool)LateBoundObject[nameof(Started)];
+            }
+        }
+
+        public string StartMode => (string)LateBoundObject[nameof(StartMode)];
+
+        public string Status => (string)LateBoundObject[nameof(Status)];
+
+        public string[] StatusDescriptions => (string[])LateBoundObject[nameof(StatusDescriptions)];
+
+        public string SystemCreationClassName => (string)LateBoundObject[nameof(SystemCreationClassName)];
+
+        public string SystemName => (string)LateBoundObject[nameof(SystemName)];
+
+        public DateTime TimeOfLastStateChange
+        {
+            get
+            {
+                if (LateBoundObject[nameof(TimeOfLastStateChange)] != null)
+                {
+                    return ToDateTime((string)LateBoundObject[nameof(TimeOfLastStateChange)]);
+                }
+                else
+                {
+                    return DateTime.MinValue;
                 }
             }
         }
 
-        public override void StartService()
+        public ushort TransitioningToState
         {
-            using (var ip = Msvm_MetricService.GetMethodParameters(nameof(StartService)))
-            using (var op = Msvm_MetricService.InvokeMethod(nameof(StartService), ip, null))
-                Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-        }
-
-        public override void StopService()
-        {
-            using (var ip = Msvm_MetricService.GetMethodParameters(nameof(StopService)))
-            using (var op = Msvm_MetricService.InvokeMethod(nameof(StopService), ip, null))
-                Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-        }
-
-
-        #region Utils
-
-        public void SetAllMetrics(ManagementObject msvmObject, MetricCollectionEnabled operation)
-        {
-            if (msvmObject is null)
-                throw new ArgumentNullException(nameof(msvmObject));
-
-            ControlMetrics(msvmObject.Path.Path, null, operation);
-        }
-
-        public void SetBaseMetric(ManagementObject msvmObject, ManagementObject baseMetricDef, MetricCollectionEnabled operation)
-        {
-            if (msvmObject is null)
-                throw new ArgumentNullException(nameof(msvmObject));
-
-            if (baseMetricDef is null)
-                throw new ArgumentNullException(nameof(baseMetricDef));
-
-            ControlMetrics(msvmObject.Path.Path, baseMetricDef.Path.Path, operation);
-        }
-
-        public void SetAllMetrics(ManagementObjectCollection msvmObjectCollection, MetricCollectionEnabled operation)
-        {
-            if (msvmObjectCollection is null)
-                throw new ArgumentNullException(nameof(msvmObjectCollection));
-
-            foreach (ManagementObject msvmObject in msvmObjectCollection)
-                ControlMetrics(msvmObject.Path.Path, null, operation);
-        }
-
-        public void ConfigureMetricsFlushInterval(TimeSpan interval)
-        {
-            using (var mssdClass = new ManagementClass("Msvm_MetricServiceSettingData"))
+            get
             {
-                mssdClass.Scope = Scope.Virtualization.ScopeObject;
-
-                using (var mssd = mssdClass.CreateInstance())
+                if (LateBoundObject[nameof(TransitioningToState)] == null)
                 {
-                    mssd["MetricsFlushInterval"] = ManagementDateTimeConverter.ToDmtfTimeInterval(interval);
-
-                    ModifyServiceSettings(mssd.GetText(TextFormat.WmiDtd20));
+                    return Convert.ToUInt16(0);
                 }
+                return (ushort)LateBoundObject[nameof(TransitioningToState)];
             }
         }
 
-        public static Dictionary<ManagementObject, ManagementObject> GetAggregationMetricValueCollection(ManagementObject msvmObject)
-        {
-            if (msvmObject is null)
-                throw new ArgumentNullException(nameof(msvmObject));
+        // Different overloads of GetInstances() help in enumerating instances of the WMI class.
+        public static List<MetricService> GetInstances() => GetInstances(null, null, null, ClassName).Cast<ManagementObject>().Select((mo) => new MetricService(mo)).ToList();
 
-            using (var amdCollection = msvmObject.GetRelated("Msvm_AggregationMetricDefinition", "Msvm_MetricDefForME", null, null, null, null, false, null))
-            using (var amvCollection = msvmObject.GetRelated("Msvm_AggregationMetricValue", "Msvm_MetricForME", null, null, null, null, false, null))
+        public new static List<MetricService> GetInstances(string condition) => GetInstances(null, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new MetricService(mo)).ToList();
+
+        public static List<MetricService> GetInstances(string[] selectedProperties) => GetInstances(null, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new MetricService(mo)).ToList();
+
+        public static List<MetricService> GetInstances(string condition, string[] selectedProperties) => GetInstances(null, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new MetricService(mo)).ToList();
+
+        public static List<MetricService> GetInstances(ManagementScope mgmtScope, EnumerationOptions enumOptions) => GetInstances(mgmtScope, enumOptions, ClassName).Cast<ManagementObject>().Select((mo) => new MetricService(mo)).ToList();
+
+        public static List<MetricService> GetInstances(ManagementScope mgmtScope, string condition) => GetInstances(mgmtScope, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new MetricService(mo)).ToList();
+
+        public static List<MetricService> GetInstances(ManagementScope mgmtScope, string[] selectedProperties) => GetInstances(mgmtScope, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new MetricService(mo)).ToList();
+
+        public static List<MetricService> GetInstances(ManagementScope mgmtScope, string condition, string[] selectedProperties) => GetInstances(mgmtScope, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new MetricService(mo)).ToList();
+
+        public static MetricService CreateInstance() => new MetricService(CreateInstance(ClassName));
+
+
+        public uint ControlMetrics(ManagementPath Definition, ushort MetricCollectionEnabled, ManagementPath Subject)
+        {
+            if (IsEmbedded == false)
             {
-                var metricMap = new Dictionary<ManagementObject, ManagementObject>();
-
-                foreach (ManagementObject amd in amdCollection)
-                    foreach (ManagementObject amv in amvCollection)
-                        if (amv["MetricDefinitionId"].ToString() == amd["Id"].ToString())
-                            metricMap.Add(amd, amv);
-
-                return metricMap;
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ControlMetrics");
+                inParams["Definition"] = Definition?.Path;
+                inParams["MetricCollectionEnabled"] = MetricCollectionEnabled;
+                inParams["Subject"] = Subject?.Path;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ControlMetrics", inParams, null);
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
             }
-        }
-
-        public static Dictionary<ManagementObject, ManagementObject> GetBaseMetricValueCollection(ManagementObject msvmObject)
-        {
-            if (msvmObject is null)
-                throw new ArgumentNullException(nameof(msvmObject));
-
-            using (var amdCollection = msvmObject.GetRelated("Msvm_BaseMetricDefinition", "Msvm_MetricDefForME", null, null, null, null, false, null))
-            using (var amvCollection = msvmObject.GetRelated("Msvm_BaseMetricValue", "Msvm_MetricForME", null, null, null, null, false, null))
+            else
             {
-                var metricMap = new Dictionary<ManagementObject, ManagementObject>();
-
-                foreach (ManagementObject amd in amdCollection)
-                    foreach (ManagementObject amv in amvCollection)
-                        if (amv["MetricDefinitionId"].ToString() == amd["Id"].ToString())
-                            metricMap.Add(amd, amv);
-
-                return metricMap;
+                return Convert.ToUInt32(0);
             }
         }
 
-        public static ManagementObject GetBaseMetricDefForMEByName(ManagementObject msvmObject, string metricDefinitionName)
+        public uint ControlMetricsByClass(ManagementPath Definition, ushort MetricCollectionEnabled, ManagementPath Subject)
         {
-            if (msvmObject is null)
-                throw new ArgumentNullException(nameof(msvmObject));
-
-            using (var md = GetBaseMetricDefinition(metricDefinitionName, msvmObject.Scope))
+            if (IsEmbedded == false)
             {
-                if (md == null) // definition for this metric has not been found
-                    return null;
-
-                using (var mos = new ManagementObjectSearcher(msvmObject.Scope, new ObjectQuery("SELECT * FROM Msvm_MetricDefForME")))
-                    return mos
-                        .Get()
-                        .Cast<ManagementObject>()
-                        .Where((c) =>
-                            string.Equals((string)c?["Antecedent"], msvmObject.Path.Path, StringComparison.OrdinalIgnoreCase) &&
-                            string.Equals((string)c?["Dependent"], md.Path.Path, StringComparison.OrdinalIgnoreCase))
-                        .FirstOrDefault();
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ControlMetricsByClass");
+                inParams["Definition"] = Definition?.Path;
+                inParams["MetricCollectionEnabled"] = MetricCollectionEnabled;
+                inParams["Subject"] = Subject?.Path;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ControlMetricsByClass", inParams, null);
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                return Convert.ToUInt32(0);
             }
         }
 
-        public static List<ManagementObject> GetMetricsByDefinition(ManagementObject msvmObject, ManagementObject metricDefinition)
+        public uint ControlSampleTimes(DateTime PreferredSampleInterval, bool RestartGathering, DateTime StartSampleTime)
         {
-            if (msvmObject is null)
-                throw new ArgumentNullException(nameof(msvmObject));
-
-            if (metricDefinition is null)
-                throw new ArgumentNullException(nameof(metricDefinition));
-
-            using (var mos = new ManagementObjectSearcher(msvmObject.Scope, new ObjectQuery("SELECT * FROM Msvm_MetricDefForME")))
-                return mos
-                    .Get()
-                    .Cast<ManagementObject>()
-                    .Where((c) =>
-                        string.Equals((string)c?["Antecedent"], msvmObject.Path.Path, StringComparison.OrdinalIgnoreCase) &&
-                        string.Equals((string)c?["Dependent"], metricDefinition.Path.Path, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ControlSampleTimes");
+                inParams["PreferredSampleInterval"] = ToDmtfDateTime(PreferredSampleInterval);
+                inParams["RestartGathering"] = RestartGathering;
+                inParams["StartSampleTime"] = ToDmtfDateTime(StartSampleTime);
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ControlSampleTimes", inParams, null);
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                return Convert.ToUInt32(0);
+            }
         }
 
-        public static List<ManagementObject> GetAllBaseMetricDefinitions(ManagementObject msvmObject)
+        public uint GetMetricValues(ushort Count, ManagementPath Definition, ushort Range, out ManagementPath[] Values)
         {
-            return msvmObject?.GetRelated("Msvm_BaseMetricDefinition", "Msvm_MetricDefForME", null, null, null, null, false, null).Cast<ManagementObject>().ToList();
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("GetMetricValues");
+                inParams["Count"] = Count;
+                inParams["Definition"] = Definition?.Path;
+                inParams["Range"] = Range;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("GetMetricValues", inParams, null);
+                Values = null;
+                if (outParams.Properties["Values"] != null)
+                {
+                    int len = ((Array)outParams.Properties["Values"].Value).Length;
+                    ManagementPath[] arrToRet = new ManagementPath[len];
+                    for (int iCounter = 0; iCounter < len; iCounter += 1)
+                    {
+                        arrToRet[iCounter] = new ManagementPath(((Array)outParams.Properties["Values"].Value).GetValue(iCounter).ToString());
+                    }
+                    Values = arrToRet;
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Values = null;
+                return Convert.ToUInt32(0);
+            }
         }
 
-        public static List<ManagementObject> GetAllAggregationMetricDefinitions(ManagementObject msvmObject)
+        public uint ModifyServiceSettings(string SettingData, out ManagementPath Job)
         {
-            if (msvmObject is null)
-                throw new ArgumentNullException(nameof(msvmObject));
-
-            return 
-                msvmObject.GetRelated("Msvm_AggregationMetricDefinition", "Msvm_MetricDefForME", null, null, null, null, false, null)
-                    .Cast<ManagementObject>()
-                    .ToList();
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ModifyServiceSettings");
+                inParams["SettingData"] = SettingData;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ModifyServiceSettings", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams.Properties["Job"].Value as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
         }
-               
-        public static ManagementObject GetBaseMetricDefinition(string ElementName, ManagementScope scope)
+
+        public uint RequestStateChange(ushort RequestedState, DateTime TimeoutPeriod, out ManagementPath Job)
         {
-            using (var mos = new ManagementObjectSearcher(scope, new ObjectQuery("SELECT * FROM CIM_BaseMetricDefinition")))
-                return mos.Get().Cast<ManagementObject>().Where((c) => c[nameof(ElementName)]?.ToString() == ElementName).FirstOrDefault();
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RequestStateChange");
+                inParams[nameof(RequestedState)] = RequestedState;
+                inParams["TimeoutPeriod"] = ToDmtfDateTime(TimeoutPeriod);
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RequestStateChange", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams.Properties["Job"].Value as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
         }
 
-        #endregion
+        public uint ShowMetrics(ManagementPath Definition, ManagementPath Subject, out ManagementPath[] DefinitionList, out ManagementPath[] ManagedElements, out ushort[] MetricCollectionEnabled, out string[] MetricNames)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ShowMetrics");
+                inParams["Definition"] = Definition?.Path;
+                inParams["Subject"] = Subject?.Path;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ShowMetrics", inParams, null);
+                DefinitionList = null;
+                if (outParams.Properties["DefinitionList"] != null)
+                {
+                    int len = ((Array)outParams.Properties["DefinitionList"].Value).Length;
+                    ManagementPath[] arrToRet = new ManagementPath[len];
+                    for (int iCounter = 0; iCounter < len; iCounter += 1)
+                    {
+                        arrToRet[iCounter] = new ManagementPath(((Array)outParams.Properties["DefinitionList"].Value).GetValue(iCounter).ToString());
+                    }
+                    DefinitionList = arrToRet;
+                }
+                ManagedElements = null;
+                if (outParams.Properties["ManagedElements"] != null)
+                {
+                    int len = ((Array)outParams.Properties["ManagedElements"].Value).Length;
+                    ManagementPath[] arrToRet = new ManagementPath[len];
+                    for (int iCounter = 0; iCounter < len; iCounter += 1)
+                    {
+                        arrToRet[iCounter] = new ManagementPath(((Array)outParams.Properties["ManagedElements"].Value).GetValue(iCounter).ToString());
+                    }
+                    ManagedElements = arrToRet;
+                }
+                MetricCollectionEnabled = (ushort[])outParams.Properties["MetricCollectionEnabled"].Value;
+                MetricNames = (string[])outParams.Properties["MetricNames"].Value;
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                DefinitionList = null;
+                ManagedElements = null;
+                MetricCollectionEnabled = null;
+                MetricNames = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint ShowMetricsByClass(ManagementPath Definition, ManagementPath Subject, out ManagementPath[] DefinitionList, out ushort[] MetricCollectionEnabled, out string[] MetricNames)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ShowMetricsByClass");
+                inParams["Definition"] = Definition?.Path;
+                inParams["Subject"] = Subject?.Path;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ShowMetricsByClass", inParams, null);
+                DefinitionList = null;
+                if (outParams.Properties["DefinitionList"] != null)
+                {
+                    int len = ((Array)outParams.Properties["DefinitionList"].Value).Length;
+                    ManagementPath[] arrToRet = new ManagementPath[len];
+                    for (int iCounter = 0; iCounter < len; iCounter += 1)
+                    {
+                        arrToRet[iCounter] = new ManagementPath(((Array)outParams.Properties["DefinitionList"].Value).GetValue(iCounter).ToString());
+                    }
+                    DefinitionList = arrToRet;
+                }
+                MetricCollectionEnabled = (ushort[])outParams.Properties["MetricCollectionEnabled"].Value;
+                MetricNames = (string[])outParams.Properties["MetricNames"].Value;
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                DefinitionList = null;
+                MetricCollectionEnabled = null;
+                MetricNames = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint StartService()
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = null;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("StartService", inParams, null);
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint StopService()
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = null;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("StopService", inParams, null);
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                return Convert.ToUInt32(0);
+            }
+        }
     }
 }
