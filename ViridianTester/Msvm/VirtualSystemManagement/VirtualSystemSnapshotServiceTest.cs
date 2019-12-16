@@ -52,16 +52,16 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                             JobObject.Get();
                         }
 
-                        ComputerSystem cs = new ComputerSystem(AffectedSystem);
+                        ComputerSystem computerSystem = new ComputerSystem(AffectedSystem);
 
                         var sovsCollection = SnapshotOfVirtualSystem.GetInstances()
                             .Cast<SnapshotOfVirtualSystem>()
-                            .Where((sovs) => string.Compare(sovs.Antecedent.Path, cs.Path.Path, true, CultureInfo.InvariantCulture) == 0)
+                            .Where((sovs) => string.Compare(sovs.Antecedent.Path, computerSystem.Path.Path, true, CultureInfo.InvariantCulture) == 0)
                             .ToList();
 
                         var mcsibCollection = MostCurrentSnapshotInBranch.GetInstances()
                             .Cast<MostCurrentSnapshotInBranch>()
-                            .Where((sovs) => string.Compare(sovs.Antecedent.Path, cs.Path.Path, true, CultureInfo.InvariantCulture) == 0)
+                            .Where((sovs) => string.Compare(sovs.Antecedent.Path, computerSystem.Path.Path, true, CultureInfo.InvariantCulture) == 0)
                             .ToList();
 
                         Assert.IsTrue(Validator.IsJobSuccessful(JobObject?["JobState"]));

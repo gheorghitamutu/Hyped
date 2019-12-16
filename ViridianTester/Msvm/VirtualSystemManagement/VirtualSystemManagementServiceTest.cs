@@ -220,14 +220,14 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
 
                 ReturnValue = sut.GetSummaryInformation(RequestedInformation, SettingData, out ManagementBaseObject[] SummaryInformation);
 
-                SummaryInformation si = new SummaryInformation(SummaryInformation.First());
+                SummaryInformation summaryInformation = new SummaryInformation(SummaryInformation.First());
 
                 Assert.IsNotNull(ResultingSystem);
                 Assert.AreEqual(0U, ReturnValue);
                 Assert.AreEqual(1, vssdCollection.Count);
                 Assert.AreEqual(1, SummaryInformation.Length);
                 Assert.IsNotNull(SummaryInformation);
-                Assert.AreEqual(0U, si.MemoryUsage);
+                Assert.AreEqual(0U, summaryInformation.MemoryUsage);
 
                 sut.DestroySystem(ResultingSystem, out Job);
             }
