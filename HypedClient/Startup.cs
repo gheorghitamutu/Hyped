@@ -10,7 +10,8 @@ namespace HypedClient
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAuthorizationCore();
-            services.AddScoped<AuthenticationStateProvider, DummyAuthStateProvider>();
+            services.AddScoped<DummyAuthStateProvider>();
+            services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<DummyAuthStateProvider>());
         }
 
         public void Configure(IComponentsApplicationBuilder app)
