@@ -1,385 +1,757 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Management;
 using Viridian.Job;
 using Viridian.Scopes;
 
 namespace Viridian.Msvm.Storage
 {
-    public sealed class ImageManagementService : BaseService
+    public class ImageManagementService : MsvmBase
     {
-        private static ImageManagementService instance = null;
+        public static string ClassName => $"Msvm_{nameof(ImageManagementService)}";
 
-        public enum VirtualHardDiskType : ushort
-        {
-            Fixed = 2,
-            Dynamic = 3,
-            PhysicalDrive = 5
-        }
+        // Below are different overloads of constructors to initialize an instance of the class with a WMI object.
+        public ImageManagementService() : base(ClassName) { }
 
-        public enum VirtualDiskFormat
-        {
-            VHD = 2,
-            VHDX = 3,
-            VHDSet = 4
-        }
+        public ImageManagementService(string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
 
-        public enum CompactMode : ushort
-        {
-            Full = 0,
-            Quick = 1,
-            Retrim = 2,
-            Pretrimmed = 3,
-            Prezeroed = 4
-        }
+        public ImageManagementService(ManagementScope mgmtScope, string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(mgmtScope, keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
 
-        public enum CriterionType : ushort
-        {
-            Unknown = 0,
-            Path = 2
-        }
+        public ImageManagementService(ManagementPath path, ObjectGetOptions getOptions) : base(path, getOptions, ClassName) { }
 
-        public enum State : ushort
-        {
-            Enabled = 2,
-            Disabled = 3,
-            ShutDown = 4,
-            Offline = 6,
-            Test = 7,
-            Defer = 8,
-            Quiesce = 9,
-            Reboot = 10,
-            Reset = 11
-        }
+        public ImageManagementService(ManagementScope mgmtScope, ManagementPath path) : base(mgmtScope, path, ClassName) { }
 
-        private ImageManagementService() : base("Msvm_ImageManagementService") {}
+        public ImageManagementService(ManagementPath path) : base(path, ClassName) { }
 
-        public static ImageManagementService Instance
+        public ImageManagementService(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions getOptions) : base(mgmtScope, path, getOptions, ClassName) { }
+
+        public ImageManagementService(ManagementObject theObject) : base(theObject, ClassName) { }
+
+        public ImageManagementService(ManagementBaseObject theObject) : base(theObject, ClassName) { }
+
+        public ushort[] AvailableRequestedStates => (ushort[])LateBoundObject[nameof(AvailableRequestedStates)];
+
+        public string Caption => (string)LateBoundObject[nameof(Caption)];
+        
+        public ushort CommunicationStatus
         {
             get
             {
-                if (instance == null)
-                    instance = new ImageManagementService();
-
-                return instance;
-            }
-        }
-
-#pragma warning disable CA1707 // Identifiers should not contain underscores
-#pragma warning disable CA1065 // Do not raise exceptions in unexpected locations
-#pragma warning disable CA1303 // Do not pass literals as localized parameters
-        private ManagementObject Msvm_ImageManagementService => Service ?? throw new NullReferenceException(nameof(Service));
-#pragma warning restore CA1303 // Do not pass literals as localized parameters
-#pragma warning restore CA1065 // Do not raise exceptions in unexpected locations
-#pragma warning restore CA1707 // Identifiers should not contain underscores
-
-        public void AttachVirtualHardDisk(string Path, bool AssignDriveLetter, bool ReadOnly)
-        {
-            using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(AttachVirtualHardDisk)))
-            {
-                ip[nameof(Path)] = Path ?? throw new ArgumentNullException(nameof(Path));
-                ip[nameof(AssignDriveLetter)] = AssignDriveLetter;
-                ip[nameof(ReadOnly)] = ReadOnly;
-
-                using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(AttachVirtualHardDisk), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public void CompactVirtualHardDisk(string Path, CompactMode Mode)
-        {
-            using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(CompactVirtualHardDisk)))
-            {
-                ip[nameof(Path)] = Path ?? throw new ArgumentNullException(nameof(Path));
-                ip[nameof(Mode)] = Mode;
-
-                using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(CompactVirtualHardDisk), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public void ConvertVirtualHardDisk(string SourcePath, string VirtualDiskSettingData)
-        {
-            using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(ConvertVirtualHardDisk)))
-            {
-                ip[nameof(SourcePath)] = SourcePath ?? throw new ArgumentNullException(nameof(SourcePath));
-                ip[nameof(VirtualDiskSettingData)] = VirtualDiskSettingData ?? throw new ArgumentNullException(nameof(VirtualDiskSettingData));
-
-                using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(ConvertVirtualHardDisk), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public void CreateVirtualHardDisk(string VirtualDiskSettingData)
-        {
-            using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(CreateVirtualHardDisk)))
-            {
-                ip[nameof(VirtualDiskSettingData)] = VirtualDiskSettingData ?? throw new ArgumentNullException(nameof(VirtualDiskSettingData));
-
-                using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(CreateVirtualHardDisk), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public void CreateVirtualFloppyDisk(string Path)
-        {
-            using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(CreateVirtualFloppyDisk)))
-            {
-                ip[nameof(Path)] = Path ?? throw new ArgumentNullException(nameof(Path));
-
-                using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(CreateVirtualFloppyDisk), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public void ConvertVirtualHardDiskToVHDSet(string VirtualHardDiskPath)
-        {
-            using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(ConvertVirtualHardDiskToVHDSet)))
-            {
-                ip[nameof(VirtualHardDiskPath)] = VirtualHardDiskPath ?? throw new ArgumentNullException(nameof(VirtualHardDiskPath));
-
-                using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(ConvertVirtualHardDiskToVHDSet), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public void DeleteVHDSnapshot(string VHDSetPath, string SnapshotId, bool PersistReferenceSnapshot)
-        {
-            using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(DeleteVHDSnapshot)))
-            {
-                ip[nameof(VHDSetPath)] = VHDSetPath ?? throw new ArgumentNullException(nameof(VHDSetPath));
-                ip[nameof(SnapshotId)] = SnapshotId ?? throw new ArgumentNullException(nameof(SnapshotId));
-                ip[nameof(PersistReferenceSnapshot)] = PersistReferenceSnapshot;
-
-                using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(DeleteVHDSnapshot), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public ManagementObject FindMountedStorageImageInstance(string SelectionCriterion, CriterionType CriterionType)
-        {
-            using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(FindMountedStorageImageInstance)))
-            {
-                ip[nameof(SelectionCriterion)] = SelectionCriterion ?? throw new ArgumentNullException(nameof(SelectionCriterion));
-                ip[nameof(CriterionType)] = CriterionType;
-
-                using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(FindMountedStorageImageInstance), ip, null))
+                if (LateBoundObject[nameof(CommunicationStatus)] == null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(CommunicationStatus)];
+            }
+        }
 
-                    return new ManagementObject(op["Image"] as string);
+        public string CreationClassName => (string)LateBoundObject[nameof(CreationClassName)];
+
+        public string Description => (string)LateBoundObject[nameof(Description)];
+
+        public ushort DetailedStatus
+        {
+            get
+            {
+                if (LateBoundObject[nameof(DetailedStatus)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(DetailedStatus)];
+            }
+        }
+
+        public string ElementName => (string)LateBoundObject[nameof(ElementName)];
+
+        public ushort EnabledDefault
+        {
+            get
+            {
+                if (LateBoundObject[nameof(EnabledDefault)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(EnabledDefault)];
+            }
+        }
+
+        public ushort EnabledState
+        {
+            get
+            {
+                if (LateBoundObject[nameof(EnabledState)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(EnabledState)];
+            }
+        }
+
+        public ushort HealthState
+        {
+            get
+            {
+                if (LateBoundObject[nameof(HealthState)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(HealthState)];
+            }
+        }
+
+        public DateTime InstallDate
+        {
+            get
+            {
+                if (LateBoundObject[nameof(InstallDate)] != null)
+                {
+                    return ToDateTime((string)LateBoundObject[nameof(InstallDate)]);
+                }
+                else
+                {
+                    return DateTime.MinValue;
                 }
             }
         }
 
-        public object GetVirtualDiskChanges(string Path, string LimitId, string TargetSnapshotId, ulong ByteOffset, ulong ByteLength)
+        public string InstanceID => (string)LateBoundObject[nameof(InstanceID)];
+
+        public string Name => (string)LateBoundObject[nameof(Name)];
+
+        public ushort OperatingStatus
         {
-            using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(GetVirtualDiskChanges)))
+            get
             {
-                ip[nameof(Path)] = Path ?? throw new ArgumentNullException(nameof(Path));
-                ip[nameof(LimitId)] = LimitId ?? throw new ArgumentNullException(nameof(LimitId));
-                ip[nameof(TargetSnapshotId)] = TargetSnapshotId ?? throw new ArgumentNullException(nameof(TargetSnapshotId));
-                ip[nameof(ByteOffset)] = ByteOffset;
-                ip[nameof(ByteLength)] = ByteLength;
-
-                using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(GetVirtualDiskChanges), ip, null))
+                if (LateBoundObject[nameof(OperatingStatus)] == null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(OperatingStatus)];
+            }
+        }
 
-                    return new object[] { (ulong)op["ProcessedByteLength"], (ulong[])op["ChangedByteOffsets"], (ulong[])op["ChangedByteLengths"] };
+        public ushort[] OperationalStatus => (ushort[])LateBoundObject[nameof(OperationalStatus)];
+
+        public string OtherEnabledState => (string)LateBoundObject[nameof(OtherEnabledState)];
+
+        public string PrimaryOwnerContact => (string)LateBoundObject[nameof(PrimaryOwnerContact)];
+
+        public string PrimaryOwnerName => (string)LateBoundObject[nameof(PrimaryOwnerName)];
+
+        public ushort PrimaryStatus
+        {
+            get
+            {
+                if (LateBoundObject[nameof(PrimaryStatus)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(PrimaryStatus)];
+            }
+        }
+
+        public ushort RequestedState
+        {
+            get
+            {
+                if (LateBoundObject[nameof(RequestedState)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(RequestedState)];
+            }
+        }
+
+        public bool Started
+        {
+            get
+            {
+                if (LateBoundObject[nameof(Started)] == null)
+                {
+                    return Convert.ToBoolean(0);
+                }
+                return (bool)LateBoundObject[nameof(Started)];
+            }
+        }
+
+        public string StartMode => (string)LateBoundObject[nameof(StartMode)];
+
+        public string Status => (string)LateBoundObject[nameof(Status)];
+
+        public string[] StatusDescriptions => (string[])LateBoundObject[nameof(StatusDescriptions)];
+
+        public string SystemCreationClassName => (string)LateBoundObject[nameof(SystemCreationClassName)];
+
+        public string SystemName => (string)LateBoundObject[nameof(SystemName)];
+
+        public DateTime TimeOfLastStateChange
+        {
+            get
+            {
+                if (LateBoundObject[nameof(TimeOfLastStateChange)] != null)
+                {
+                    return ToDateTime((string)LateBoundObject[nameof(TimeOfLastStateChange)]);
+                }
+                else
+                {
+                    return DateTime.MinValue;
                 }
             }
         }
 
-        public string GetVirtualHardDiskSettingData(string Path)
+        public ushort TransitioningToState
         {
-            using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(GetVirtualHardDiskSettingData)))
+            get
             {
-                ip[nameof(Path)] = Path ?? throw new ArgumentNullException(nameof(Path));
-
-                using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(GetVirtualHardDiskSettingData), ip, null))
+                if (LateBoundObject[nameof(TransitioningToState)] == null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-
-                    return op["SettingData"].ToString();
+                    return Convert.ToUInt16(0);
                 }
+                return (ushort)LateBoundObject[nameof(TransitioningToState)];
             }
         }
 
-        public string GetVirtualHardDiskState(string Path)
-        {
-            using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(GetVirtualHardDiskState)))
-            {
-                ip[nameof(Path)] = Path ?? throw new ArgumentNullException(nameof(Path));
+        // Different overloads of GetInstances() help in enumerating instances of the WMI class.
+        public static List<ImageManagementService> GetInstances() => GetInstances(null, null, null, ClassName).Cast<ManagementObject>().Select((mo) => new ImageManagementService(mo)).ToList();
 
-                using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(GetVirtualHardDiskState), ip, null))
+        public new static List<ImageManagementService> GetInstances(string condition) => GetInstances(null, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new ImageManagementService(mo)).ToList();
+
+        public static List<ImageManagementService> GetInstances(string[] selectedProperties) => GetInstances(null, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new ImageManagementService(mo)).ToList();
+
+        public static List<ImageManagementService> GetInstances(string condition, string[] selectedProperties) => GetInstances(null, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new ImageManagementService(mo)).ToList();
+
+        public static List<ImageManagementService> GetInstances(ManagementScope mgmtScope, EnumerationOptions enumOptions) => GetInstances(mgmtScope, enumOptions, ClassName).Cast<ManagementObject>().Select((mo) => new ImageManagementService(mo)).ToList();
+
+        public static List<ImageManagementService> GetInstances(ManagementScope mgmtScope, string condition) => GetInstances(mgmtScope, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new ImageManagementService(mo)).ToList();
+
+        public static List<ImageManagementService> GetInstances(ManagementScope mgmtScope, string[] selectedProperties) => GetInstances(mgmtScope, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new ImageManagementService(mo)).ToList();
+
+        public static List<ImageManagementService> GetInstances(ManagementScope mgmtScope, string condition, string[] selectedProperties) => GetInstances(mgmtScope, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new ImageManagementService(mo)).ToList();
+
+        public static ImageManagementService CreateInstance() => new ImageManagementService(CreateInstance(ClassName));
+
+        public uint AttachVirtualHardDisk(bool AssignDriveLetter, string Path, bool ReadOnly, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("AttachVirtualHardDisk");
+                inParams["AssignDriveLetter"] = AssignDriveLetter;
+                inParams["Path"] = Path;
+                inParams["ReadOnly"] = ReadOnly;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("AttachVirtualHardDisk", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-
-                    return op["State"].ToString();
+                    Job = new ManagementPath(outParams.Properties["Job"].Value as string);
                 }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
             }
         }
 
-        public string GetVHDSetInformation(string VHDSetPath, uint[] AdditionalInformation)
+        public uint CompactVirtualHardDisk(ushort Mode, string Path, out ManagementPath Job)
         {
-            using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(GetVHDSetInformation)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(VHDSetPath)] = VHDSetPath ?? throw new ArgumentNullException(nameof(VHDSetPath));
-                ip[nameof(VHDSetPath)] = AdditionalInformation ?? throw new ArgumentNullException(nameof(AdditionalInformation));
-
-                using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(GetVHDSetInformation), ip, null))
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("CompactVirtualHardDisk");
+                inParams["Mode"] = Mode;
+                inParams["Path"] = Path;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("CompactVirtualHardDisk", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-
-                    return op["Information"].ToString();
+                    Job = new ManagementPath(outParams.Properties["Job"].Value as string);
                 }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
             }
         }
 
-        public string[] GetVHDSnapshotInformation(string VHDSetPath, string[] SnapshotIds, uint[] AdditionalInformation)
+        public uint ConvertVirtualHardDisk(string SourcePath, string VirtualDiskSettingData, out ManagementPath Job)
         {
-            using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(GetVHDSnapshotInformation)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(VHDSetPath)] = VHDSetPath ?? throw new ArgumentNullException(nameof(VHDSetPath));
-                ip[nameof(SnapshotIds)] = SnapshotIds ?? throw new ArgumentNullException(nameof(SnapshotIds));
-                ip[nameof(VHDSetPath)] = AdditionalInformation ?? throw new ArgumentNullException(nameof(AdditionalInformation));
-
-                using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(GetVHDSnapshotInformation), ip, null))
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ConvertVirtualHardDisk");
+                inParams["SourcePath"] = SourcePath;
+                inParams["VirtualDiskSettingData"] = VirtualDiskSettingData;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ConvertVirtualHardDisk", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-
-                    return op["SnapshotInformation"] as string[];
+                    Job = new ManagementPath(outParams.Properties["Job"].Value as string);
                 }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
             }
         }
 
-        public void MergeVirtualHardDisk(string SourcePath, string DestinationPath)
+        public uint ConvertVirtualHardDiskToVHDSet(string VirtualHardDiskPath, out ManagementPath Job)
         {
-            using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(MergeVirtualHardDisk)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(SourcePath)] = SourcePath ?? throw new ArgumentNullException(nameof(SourcePath));
-                ip[nameof(DestinationPath)] = DestinationPath ?? throw new ArgumentNullException(nameof(DestinationPath));
-
-                using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(MergeVirtualHardDisk), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ConvertVirtualHardDiskToVHDSet");
+                inParams["VirtualHardDiskPath"] = VirtualHardDiskPath;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ConvertVirtualHardDiskToVHDSet", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams.Properties["Job"].Value as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
             }
         }
 
-        public void OptimizeVHDSet(string VHDSetPath)
+        public uint CreateVirtualFloppyDisk(string Path, out ManagementPath Job)
         {
-            using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(OptimizeVHDSet)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(VHDSetPath)] = VHDSetPath ?? throw new ArgumentNullException(nameof(VHDSetPath));
-
-                using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(OptimizeVHDSet), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("CreateVirtualFloppyDisk");
+                inParams["Path"] = Path;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("CreateVirtualFloppyDisk", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams.Properties["Job"].Value as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
             }
         }
 
-        public void ResizeVirtualHardDisk(string Path, ulong MaxInternalSize)
+        public uint CreateVirtualHardDisk(string VirtualDiskSettingData, out ManagementPath Job)
         {
-            using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(ResizeVirtualHardDisk)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(Path)] = Path ?? throw new ArgumentNullException(nameof(Path));
-                ip[nameof(MaxInternalSize)] = MaxInternalSize;
-
-                using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(ResizeVirtualHardDisk), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("CreateVirtualHardDisk");
+                inParams["VirtualDiskSettingData"] = VirtualDiskSettingData;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("CreateVirtualHardDisk", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams.Properties["Job"].Value as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
             }
         }
 
-        public void RequestStateChange(State RequestedState, DateTime TimeoutPeriod)
+        public uint DeleteVHDSnapshot(bool PersistReferenceSnapshot, string SnapshotId, string VHDSetPath, out ManagementPath Job)
         {
-            using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(RequestStateChange)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(RequestedState)] = RequestedState;
-                ip[nameof(TimeoutPeriod)] = TimeoutPeriod;
-
-                using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(RequestStateChange), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("DeleteVHDSnapshot");
+                inParams["PersistReferenceSnapshot"] = PersistReferenceSnapshot;
+                inParams["SnapshotId"] = SnapshotId;
+                inParams["VHDSetPath"] = VHDSetPath;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("DeleteVHDSnapshot", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams.Properties["Job"].Value as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
             }
         }
 
-        public void SetParentVirtualHardDisk(string ChildPath, string ParentPath, string LeafPath, bool IgnoreIDMismatch)
+        public uint FindMountedStorageImageInstance(ushort CriterionType, string SelectionCriterion, out ManagementPath Image)
         {
-            using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(SetParentVirtualHardDisk)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(ChildPath)] = ChildPath ?? throw new ArgumentNullException(nameof(ChildPath));
-                ip[nameof(ParentPath)] = ParentPath ?? throw new ArgumentNullException(nameof(ParentPath));
-                ip[nameof(LeafPath)] = LeafPath ?? throw new ArgumentNullException(nameof(LeafPath));
-                ip[nameof(IgnoreIDMismatch)] = IgnoreIDMismatch;
-
-                using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(SetParentVirtualHardDisk), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("FindMountedStorageImageInstance");
+                inParams["CriterionType"] = CriterionType;
+                inParams["SelectionCriterion"] = SelectionCriterion;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("FindMountedStorageImageInstance", inParams, null);
+                Image = null;
+                if (outParams.Properties["Image"] != null)
+                {
+                    Image = new ManagementPath(outParams.Properties["Image"].Value as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Image = null;
+                return Convert.ToUInt32(0);
             }
         }
 
-        public void SetVirtualHardDiskSettingData(string VirtualDiskSettingData)
+        public uint GetVHDSetInformation(uint[] AdditionalInformation, string VHDSetPath, out string Information, out ManagementPath Job)
         {
-            using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(SetVirtualHardDiskSettingData)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(VirtualDiskSettingData)] = VirtualDiskSettingData ?? throw new ArgumentNullException(nameof(VirtualDiskSettingData));
-
-                using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(SetVirtualHardDiskSettingData), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("GetVHDSetInformation");
+                inParams["AdditionalInformation"] = AdditionalInformation;
+                inParams["VHDSetPath"] = VHDSetPath;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("GetVHDSetInformation", inParams, null);
+                Information = Convert.ToString(outParams.Properties["Information"].Value);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams.Properties["Job"].Value as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Information = null;
+                Job = null;
+                return Convert.ToUInt32(0);
             }
         }
 
-        public void SetVHDSnapshotInformation(string Information)
+        public uint GetVHDSnapshotInformation(uint[] AdditionalInformation, string[] SnapshotIds, string VHDSetPath, out ManagementPath Job, out string[] SnapshotInformation)
         {
-            using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(SetVHDSnapshotInformation)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(Information)] = Information ?? throw new ArgumentNullException(nameof(Information));
-
-                using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(SetVHDSnapshotInformation), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("GetVHDSnapshotInformation");
+                inParams["AdditionalInformation"] = AdditionalInformation;
+                inParams["SnapshotIds"] = SnapshotIds;
+                inParams["VHDSetPath"] = VHDSetPath;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("GetVHDSnapshotInformation", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams.Properties["Job"].Value as string);
+                }
+                SnapshotInformation = (string[])outParams.Properties["SnapshotInformation"].Value;
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                SnapshotInformation = null;
+                return Convert.ToUInt32(0);
             }
         }
 
-        public override void StartService()
+        public uint GetVirtualDiskChanges(ulong ByteLength, ulong ByteOffset, string LimitId, string Path, string TargetSnapshotId, out ulong[] ChangedByteLengths, out ulong[] ChangedByteOffsets, out ManagementPath Job, out ulong ProcessedByteLength)
         {
-            using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(StartService)))
-            using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(StartService), ip, null))
-                Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-        }
-
-        public override void StopService()
-        {
-            using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(StopService)))
-            using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(StopService), ip, null))
-                Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-        }
-
-        public void Unmount(string Path)
-        {
-            using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(Unmount)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(Path)] = Path ?? throw new ArgumentNullException(nameof(Path));
-
-                using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(Unmount), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("GetVirtualDiskChanges");
+                inParams["ByteLength"] = ByteLength;
+                inParams["ByteOffset"] = ByteOffset;
+                inParams["LimitId"] = LimitId;
+                inParams["Path"] = Path;
+                inParams["TargetSnapshotId"] = TargetSnapshotId;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("GetVirtualDiskChanges", inParams, null);
+                ChangedByteLengths = (ulong[])outParams.Properties["ChangedByteLengths"].Value;
+                ChangedByteOffsets = (ulong[])outParams.Properties["ChangedByteOffsets"].Value;
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams.Properties["Job"].Value as string);
+                }
+                ProcessedByteLength = Convert.ToUInt64(outParams.Properties["ProcessedByteLength"].Value);
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                ChangedByteLengths = null;
+                ChangedByteOffsets = null;
+                Job = null;
+                ProcessedByteLength = Convert.ToUInt64(0);
+                return Convert.ToUInt32(0);
             }
         }
 
-        public void ValidatePersistentReservationSupport(string Path)
+        public uint GetVirtualHardDiskSettingData(string Path, out ManagementPath Job, out string SettingData)
         {
-            using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(ValidatePersistentReservationSupport)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(Path)] = Path ?? throw new ArgumentNullException(nameof(Path));
-
-                using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(ValidatePersistentReservationSupport), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("GetVirtualHardDiskSettingData");
+                inParams["Path"] = Path;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("GetVirtualHardDiskSettingData", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams.Properties["Job"].Value as string);
+                }
+                SettingData = Convert.ToString(outParams.Properties["SettingData"].Value);
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                SettingData = null;
+                return Convert.ToUInt32(0);
             }
         }
 
-        public void ValidateVirtualHardDisk(string Path)
+        public uint GetVirtualHardDiskState(string Path, out ManagementPath Job, out string State)
         {
-            using (var ip = Msvm_ImageManagementService.GetMethodParameters(nameof(ValidateVirtualHardDisk)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(Path)] = Path ?? throw new ArgumentNullException(nameof(Path));
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("GetVirtualHardDiskState");
+                inParams["Path"] = Path;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("GetVirtualHardDiskState", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams.Properties["Job"].Value as string);
+                }
+                State = Convert.ToString(outParams.Properties["State"].Value);
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                State = null;
+                return Convert.ToUInt32(0);
+            }
+        }
 
-                using (var op = Msvm_ImageManagementService.InvokeMethod(nameof(ValidateVirtualHardDisk), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
+        public uint MergeVirtualHardDisk(string DestinationPath, string SourcePath, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("MergeVirtualHardDisk");
+                inParams["DestinationPath"] = DestinationPath;
+                inParams["SourcePath"] = SourcePath;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("MergeVirtualHardDisk", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams.Properties["Job"].Value as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint OptimizeVHDSet(string VHDSetPath, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("OptimizeVHDSet");
+                inParams["VHDSetPath"] = VHDSetPath;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("OptimizeVHDSet", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams.Properties["Job"].Value as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint RequestStateChange(ushort RequestedState, DateTime TimeoutPeriod, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RequestStateChange");
+                inParams[nameof(RequestedState)] = RequestedState;
+                inParams["TimeoutPeriod"] = ToDmtfDateTime(TimeoutPeriod);
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RequestStateChange", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams.Properties["Job"].Value as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint ResizeVirtualHardDisk(ulong MaxInternalSize, string Path, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ResizeVirtualHardDisk");
+                inParams["MaxInternalSize"] = MaxInternalSize;
+                inParams["Path"] = Path;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ResizeVirtualHardDisk", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams.Properties["Job"].Value as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint SetParentVirtualHardDisk(string ChildPath, bool IgnoreIDMismatch, string LeafPath, string ParentPath, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("SetParentVirtualHardDisk");
+                inParams["ChildPath"] = ChildPath;
+                inParams["IgnoreIDMismatch"] = IgnoreIDMismatch;
+                inParams["LeafPath"] = LeafPath;
+                inParams["ParentPath"] = ParentPath;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("SetParentVirtualHardDisk", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams.Properties["Job"].Value as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint SetVHDSnapshotInformation(string Information, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("SetVHDSnapshotInformation");
+                inParams["Information"] = Information;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("SetVHDSnapshotInformation", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams.Properties["Job"].Value as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint SetVirtualHardDiskSettingData(string VirtualDiskSettingData, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("SetVirtualHardDiskSettingData");
+                inParams["VirtualDiskSettingData"] = VirtualDiskSettingData;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("SetVirtualHardDiskSettingData", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams.Properties["Job"].Value as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint StartService()
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = null;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("StartService", inParams, null);
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint StopService()
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = null;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("StopService", inParams, null);
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint ValidatePersistentReservationSupport(string Path, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ValidatePersistentReservationSupport");
+                inParams["Path"] = Path;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ValidatePersistentReservationSupport", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams.Properties["Job"].Value as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint ValidateVirtualHardDisk(string Path, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ValidateVirtualHardDisk");
+                inParams["Path"] = Path;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ValidateVirtualHardDisk", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams.Properties["Job"].Value as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
             }
         }
     }

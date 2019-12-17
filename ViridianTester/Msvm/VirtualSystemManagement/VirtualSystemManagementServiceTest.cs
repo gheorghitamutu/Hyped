@@ -21,6 +21,7 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                 Assert.IsNotNull(sut.LateBoundObject);
             }
         }
+
         [TestMethod]
         public void CreateInstance_ExpectingGetInstancesCountIsOne()
         {
@@ -28,6 +29,7 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
 
             Assert.AreEqual(sut.Count, 1);
         }
+
         [TestMethod]
         public void DefineSystem_ExpectingNotNullResultingSystemAndReturnValueIsZero()
         {
@@ -54,6 +56,7 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                 sut.DestroySystem(ResultingSystem, out Job);
             }
         }
+
         [TestMethod]
         public void DestroySystem_ExpectingGetInstancesWithElementNameConditionCountZero()
         {
