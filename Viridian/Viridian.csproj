@@ -52,8 +52,10 @@
   <ItemGroup>
     <Compile Include="Job\Validator.cs" />
     <Compile Include="Msvm\ManagementSystemProperties.cs" />
+    <Compile Include="Msvm\Memory\ElementAllocatedFromNumaNode.cs" />
     <Compile Include="Msvm\Memory\Memory.cs" />
     <Compile Include="Msvm\Memory\MemorySettingData.cs" />
+    <Compile Include="Msvm\Memory\NumaNode.cs" />
     <Compile Include="Msvm\Metrics\AggregationMetricDefinition.cs" />
     <Compile Include="Msvm\Metrics\AggregationMetricValue.cs" />
     <Compile Include="Msvm\Metrics\BaseMetricDefinition.cs" />
@@ -70,6 +72,8 @@
     <Compile Include="Msvm\Networking\SyntheticEthernetPortSettingData.cs" />
     <Compile Include="Msvm\Networking\VirtualEthernetSwitch.cs" />
     <Compile Include="Msvm\Networking\VirtualEthernetSwitchSettingData .cs" />
+    <Compile Include="Msvm\Processor\Processor.cs" />
+    <Compile Include="Msvm\Processor\ProcessorPool.cs" />
     <Compile Include="Msvm\Processor\ProcessorSettingData.cs" />
     <Compile Include="Msvm\ResourceManagement\AllocationCapabilities.cs" />
     <Compile Include="Msvm\ResourceManagement\ElementCapabilities.cs" />
