@@ -1,659 +1,1389 @@
 ﻿using System;
 using System.Management;
-using Viridian.Job;
-using Viridian.Scopes;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Viridian.Msvm.VirtualSystemManagement
 {
-    public sealed class VirtualSystemManagementService : BaseService
+    public class VirtualSystemManagementService : MsvmBase
     {
-        private static VirtualSystemManagementService instance = null;
-        
-        public enum RequestedStateVSM : uint
-        {
-            Other = 1,
-            Running = 2,
-            Off = 3,
-            Saved = 6,
-            Paused = 9,
-            Starting = 10,
-            Reset = 11,
-            Saving = 32773,
-            Pausing = 32776,
-            Resuming = 32777,
-            FastSaved = 32779,
-            FastSaving = 32780,
-        };
+        public static string ClassName => $"Msvm_{nameof(VirtualSystemManagementService)}";
 
-        private VirtualSystemManagementService() : base("Msvm_VirtualSystemManagementService") { }
+        // Below are different overloads of constructors to initialize an instance of the class with a WMI object.
+        public VirtualSystemManagementService() : base(ClassName) { }
 
-        public static VirtualSystemManagementService Instance
+        public VirtualSystemManagementService(string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
+
+        public VirtualSystemManagementService(ManagementScope mgmtScope, string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(mgmtScope, keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
+
+        public VirtualSystemManagementService(ManagementPath path, ObjectGetOptions getOptions) : base(path, getOptions, ClassName) { }
+
+        public VirtualSystemManagementService(ManagementScope mgmtScope, ManagementPath path) : base(mgmtScope, path, ClassName) { }
+
+        public VirtualSystemManagementService(ManagementPath path) : base(path, ClassName) { }
+
+        public VirtualSystemManagementService(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions getOptions) : base(mgmtScope, path, getOptions, ClassName) { }
+
+        public VirtualSystemManagementService(ManagementObject theObject) : base(theObject, ClassName) { }
+
+        public VirtualSystemManagementService(ManagementBaseObject theObject) : base(theObject, ClassName) { }
+
+        public ushort[] AvailableRequestedStates => (ushort[])LateBoundObject[nameof(AvailableRequestedStates)];
+
+        public string Caption => (string)LateBoundObject[nameof(Caption)];
+
+        public ushort CommunicationStatus
         {
             get
             {
-                if (instance == null)
-                    instance = new VirtualSystemManagementService();
-
-                return instance;
+                if (LateBoundObject[nameof(CommunicationStatus)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(CommunicationStatus)];
             }
         }
 
-        public ManagementObject Msvm_VirtualSystemManagementService => Service;
+        public string CreationClassName => (string)LateBoundObject[nameof(CreationClassName)];
 
-        public string[] AddBootSourceSettings(string AffectedConfiguration, string[] BootSourceSettings)
+        public string Description => (string)LateBoundObject[nameof(Description)];
+
+        public ushort DetailedStatus
         {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(AddBootSourceSettings)))
+            get
             {
-                ip[nameof(AffectedConfiguration)] = AffectedConfiguration ?? throw new ArgumentNullException(nameof(AffectedConfiguration));
-                ip[nameof(BootSourceSettings)] = BootSourceSettings ?? throw new ArgumentNullException(nameof(BootSourceSettings));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(AddBootSourceSettings), ip, null))
+                if (LateBoundObject[nameof(DetailedStatus)] == null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(DetailedStatus)];
+            }
+        }
 
-                    return op["ResultingBootSourceSettings"] as string[];
+        public string ElementName => (string)LateBoundObject[nameof(ElementName)];
+
+        public ushort EnabledDefault
+        {
+            get
+            {
+                if (LateBoundObject[nameof(EnabledDefault)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(EnabledDefault)];
+            }
+        }
+
+        public ushort EnabledState
+        {
+            get
+            {
+                if (LateBoundObject[nameof(EnabledState)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(EnabledState)];
+            }
+        }
+
+        public ushort HealthState
+        {
+            get
+            {
+                if (LateBoundObject[nameof(HealthState)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(HealthState)];
+            }
+        }
+
+        public DateTime InstallDate
+        {
+            get
+            {
+                if (LateBoundObject[nameof(InstallDate)] != null)
+                {
+                    return ToDateTime((string)LateBoundObject[nameof(InstallDate)]);
+                }
+                else
+                {
+                    return DateTime.MinValue;
                 }
             }
         }
 
-        public string[] AddFeatureSettings(string AffectedConfiguration, string[] FeatureSettings)
+        public string InstanceID => (string)LateBoundObject[nameof(InstanceID)];
+
+        public string Name => (string)LateBoundObject[nameof(Name)];
+
+        public ushort OperatingStatus
         {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(AddFeatureSettings)))
+            get
             {
-                ip[nameof(AffectedConfiguration)] = AffectedConfiguration ?? throw new ArgumentNullException(nameof(AffectedConfiguration));
-                ip[nameof(FeatureSettings)] = FeatureSettings ?? throw new ArgumentNullException(nameof(FeatureSettings));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(AddFeatureSettings), ip, null))
+                if (LateBoundObject[nameof(OperatingStatus)] == null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(OperatingStatus)];
+            }
+        }
 
-                    return op["ResultingFeatureSettings"] as string[];
+        public ushort[] OperationalStatus => (ushort[])LateBoundObject[nameof(OperationalStatus)];
+
+        public string OtherEnabledState => (string)LateBoundObject[nameof(OtherEnabledState)];
+
+        public string PrimaryOwnerContact => (string)LateBoundObject[nameof(PrimaryOwnerContact)];
+
+        public string PrimaryOwnerName => (string)LateBoundObject[nameof(PrimaryOwnerName)];
+
+        public ushort PrimaryStatus
+        {
+            get
+            {
+                if (LateBoundObject[nameof(PrimaryStatus)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(PrimaryStatus)];
+            }
+        }
+
+        public ushort RequestedState
+        {
+            get
+            {
+                if (LateBoundObject[nameof(RequestedState)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(RequestedState)];
+            }
+        }
+
+        public bool Started
+        {
+            get
+            {
+                if (LateBoundObject[nameof(Started)] == null)
+                {
+                    return Convert.ToBoolean(0);
+                }
+                return (bool)LateBoundObject[nameof(Started)];
+            }
+        }
+
+        public string StartMode => (string)LateBoundObject[nameof(StartMode)];
+
+        public string Status => (string)LateBoundObject[nameof(Status)];
+
+        public string[] StatusDescriptions => (string[])LateBoundObject[nameof(StatusDescriptions)];
+
+        public string SystemCreationClassName => (string)LateBoundObject[nameof(SystemCreationClassName)];
+
+        public string SystemName => (string)LateBoundObject[nameof(SystemName)];
+
+        public DateTime TimeOfLastStateChange
+        {
+            get
+            {
+                if (LateBoundObject[nameof(TimeOfLastStateChange)] != null)
+                {
+                    return ToDateTime((string)LateBoundObject[nameof(TimeOfLastStateChange)]);
+                }
+                else
+                {
+                    return DateTime.MinValue;
                 }
             }
         }
 
-        public string[] AddGuestServiceSettings(string AffectedConfiguration, string[] GuestServiceSettings)
+        public ushort TransitioningToState
         {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(AddGuestServiceSettings)))
+            get
             {
-                ip[nameof(AffectedConfiguration)] = AffectedConfiguration ?? throw new ArgumentNullException(nameof(AffectedConfiguration));
-                ip[nameof(GuestServiceSettings)] = GuestServiceSettings ?? throw new ArgumentNullException(nameof(GuestServiceSettings));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(AddGuestServiceSettings), ip, null))
+                if (LateBoundObject[nameof(TransitioningToState)] == null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(TransitioningToState)];
+            }
+        }
 
-                    return op["ResultingGuestServiceSettings"] as string[];
+        // Different overloads of GetInstances() help in enumerating instances of the WMI class.
+        public static List<VirtualSystemManagementService> GetInstances() => GetInstances(null, null, null, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualSystemManagementService(mo)).ToList();
+
+        public new static List<VirtualSystemManagementService> GetInstances(string condition) => GetInstances(null, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualSystemManagementService(mo)).ToList();
+
+        public static List<VirtualSystemManagementService> GetInstances(string[] selectedProperties) => GetInstances(null, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualSystemManagementService(mo)).ToList();
+
+        public static List<VirtualSystemManagementService> GetInstances(string condition, string[] selectedProperties) => GetInstances(null, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualSystemManagementService(mo)).ToList();
+
+        public static List<VirtualSystemManagementService> GetInstances(ManagementScope mgmtScope, EnumerationOptions enumOptions) => GetInstances(mgmtScope, enumOptions, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualSystemManagementService(mo)).ToList();
+
+        public static List<VirtualSystemManagementService> GetInstances(ManagementScope mgmtScope, string condition) => GetInstances(mgmtScope, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualSystemManagementService(mo)).ToList();
+
+        public static List<VirtualSystemManagementService> GetInstances(ManagementScope mgmtScope, string[] selectedProperties) => GetInstances(mgmtScope, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualSystemManagementService(mo)).ToList();
+
+        public static List<VirtualSystemManagementService> GetInstances(ManagementScope mgmtScope, string condition, string[] selectedProperties) => GetInstances(mgmtScope, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualSystemManagementService(mo)).ToList();
+
+        public static VirtualSystemManagementService CreateInstance() => new VirtualSystemManagementService(CreateInstance(ClassName));
+
+        public uint AddBootSourceSettings(ManagementPath AffectedConfiguration, string[] BootSourceSettings, out ManagementPath Job, out ManagementPath[] ResultingBootSourceSettings)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("AddBootSourceSettings");
+                inParams["AffectedConfiguration"] = AffectedConfiguration?.Path;
+                inParams["BootSourceSettings"] = BootSourceSettings;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("AddBootSourceSettings", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                ResultingBootSourceSettings = null;
+                if (outParams.Properties["ResultingBootSourceSettings"] != null)
+                {
+                    int len = ((Array)outParams.Properties["ResultingBootSourceSettings"].Value).Length;
+                    ManagementPath[] arrToRet = new ManagementPath[len];
+                    for (int iCounter = 0; iCounter < len; iCounter += 1)
+                    {
+                        arrToRet[iCounter] = new ManagementPath(((Array)outParams.Properties["ResultingBootSourceSettings"].Value).GetValue(iCounter).ToString());
+                    }
+                    ResultingBootSourceSettings = arrToRet;
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                ResultingBootSourceSettings = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint AddFeatureSettings(ManagementPath AffectedConfiguration, string[] FeatureSettings, out ManagementPath Job, out ManagementPath[] ResultingFeatureSettings)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("AddFeatureSettings");
+                inParams["AffectedConfiguration"] = AffectedConfiguration?.Path;
+                inParams["FeatureSettings"] = FeatureSettings;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("AddFeatureSettings", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                ResultingFeatureSettings = null;
+                if (outParams.Properties["ResultingFeatureSettings"] != null)
+                {
+                    int len = ((Array)outParams.Properties["ResultingFeatureSettings"].Value).Length;
+                    ManagementPath[] arrToRet = new ManagementPath[len];
+                    for (int iCounter = 0; iCounter < len; iCounter += 1)
+                    {
+                        arrToRet[iCounter] = new ManagementPath(((Array)outParams.Properties["ResultingFeatureSettings"].Value).GetValue(iCounter).ToString());
+                    }
+                    ResultingFeatureSettings = arrToRet;
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                ResultingFeatureSettings = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint AddFibreChannelChap(string[] FcPortSettings, byte SecretEncoding, byte[] SharedSecret)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("AddFibreChannelChap");
+                inParams["FcPortSettings"] = FcPortSettings;
+                inParams["SecretEncoding"] = SecretEncoding;
+                inParams["SharedSecret"] = SharedSecret;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("AddFibreChannelChap", inParams, null);
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint AddGuestServiceSettings(ManagementPath AffectedConfiguration, string[] GuestServiceSettings, out ManagementPath Job, out ManagementPath[] ResultingGuestServiceSettings)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("AddGuestServiceSettings");
+                inParams["AffectedConfiguration"] = AffectedConfiguration?.Path;
+                inParams["GuestServiceSettings"] = GuestServiceSettings;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("AddGuestServiceSettings", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                ResultingGuestServiceSettings = null;
+                if (outParams.Properties["ResultingGuestServiceSettings"] != null)
+                {
+                    int len = ((Array)outParams.Properties["ResultingGuestServiceSettings"].Value).Length;
+                    ManagementPath[] arrToRet = new ManagementPath[len];
+                    for (int iCounter = 0; iCounter < len; iCounter += 1)
+                    {
+                        arrToRet[iCounter] = new ManagementPath(((Array)outParams.Properties["ResultingGuestServiceSettings"].Value).GetValue(iCounter).ToString());
+                    }
+                    ResultingGuestServiceSettings = arrToRet;
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                ResultingGuestServiceSettings = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint AddKvpItems(string[] DataItems, ManagementPath TargetSystem, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("AddKvpItems");
+                inParams["DataItems"] = DataItems;
+                inParams["TargetSystem"] = TargetSystem?.Path;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("AddKvpItems", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint AddResourceSettings(ManagementPath AffectedConfiguration, string[] ResourceSettings, out ManagementPath Job, out ManagementPath[] ResultingResourceSettings)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("AddResourceSettings");
+                inParams["AffectedConfiguration"] = AffectedConfiguration?.Path;
+                inParams["ResourceSettings"] = ResourceSettings;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("AddResourceSettings", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                ResultingResourceSettings = null;
+                if (outParams.Properties["ResultingResourceSettings"] != null)
+                {
+                    int len = ((Array)outParams.Properties["ResultingResourceSettings"].Value).Length;
+                    ManagementPath[] arrToRet = new ManagementPath[len];
+                    for (int iCounter = 0; iCounter < len; iCounter += 1)
+                    {
+                        arrToRet[iCounter] = new ManagementPath(((Array)outParams.Properties["ResultingResourceSettings"].Value).GetValue(iCounter).ToString());
+                    }
+                    ResultingResourceSettings = arrToRet;
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                ResultingResourceSettings = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint AddSystemComponentSettings(ManagementPath AffectedConfiguration, string[] ComponentSettings, out ManagementPath Job, out ManagementPath[] ResultingComponentSettings)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("AddSystemComponentSettings");
+                inParams["AffectedConfiguration"] = AffectedConfiguration?.Path;
+                inParams["ComponentSettings"] = ComponentSettings;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("AddSystemComponentSettings", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                ResultingComponentSettings = null;
+                if (outParams.Properties["ResultingComponentSettings"] != null)
+                {
+                    int len = ((Array)outParams.Properties["ResultingComponentSettings"].Value).Length;
+                    ManagementPath[] arrToRet = new ManagementPath[len];
+                    for (int iCounter = 0; iCounter < len; iCounter += 1)
+                    {
+                        arrToRet[iCounter] = new ManagementPath(((Array)outParams.Properties["ResultingComponentSettings"].Value).GetValue(iCounter).ToString());
+                    }
+                    ResultingComponentSettings = arrToRet;
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                ResultingComponentSettings = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint DefinePlannedSystem(ManagementPath ReferenceConfiguration, string[] ResourceSettings, string SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("DefinePlannedSystem");
+                inParams["ReferenceConfiguration"] = ReferenceConfiguration?.Path;
+                inParams["ResourceSettings"] = ResourceSettings;
+                inParams["SystemSettings"] = SystemSettings;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("DefinePlannedSystem", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                ResultingSystem = null;
+                if (outParams.Properties["ResultingSystem"] != null)
+                {
+                    ResultingSystem = new ManagementPath(outParams["ResultingSystem"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                ResultingSystem = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint DefineSystem(ManagementPath ReferenceConfiguration, string[] ResourceSettings, string SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("DefineSystem");
+                inParams["ReferenceConfiguration"] = ReferenceConfiguration?.Path;
+                inParams["ResourceSettings"] = ResourceSettings;
+                inParams["SystemSettings"] = SystemSettings;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("DefineSystem", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                ResultingSystem = null;
+                if (outParams.Properties["ResultingSystem"] != null)
+                {
+                    ResultingSystem = new ManagementPath(outParams["ResultingSystem"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                ResultingSystem = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint DestroySystem(ManagementPath AffectedSystem, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("DestroySystem");
+                inParams["AffectedSystem"] = AffectedSystem?.Path;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("DestroySystem", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint DiagnoseNetworkConnection(string DiagnosticSettings, ManagementPath TargetNetworkAdapter, out string DiagnosticInformation, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("DiagnoseNetworkConnection");
+                inParams["DiagnosticSettings"] = DiagnosticSettings;
+                inParams["TargetNetworkAdapter"] = TargetNetworkAdapter?.Path;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("DiagnoseNetworkConnection", inParams, null);
+                DiagnosticInformation = Convert.ToString(outParams.Properties["DiagnosticInformation"].Value);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                DiagnosticInformation = null;
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint ExportSystemDefinition(ManagementPath ComputerSystem, string ExportDirectory, string ExportSettingData, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ExportSystemDefinition");
+                inParams["ComputerSystem"] = ComputerSystem?.Path;
+                inParams["ExportDirectory"] = ExportDirectory;
+                inParams["ExportSettingData"] = ExportSettingData;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ExportSystemDefinition", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint FormatError(string[] Errors, out string ErrorMessage)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("FormatError");
+                inParams["Errors"] = Errors;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("FormatError", inParams, null);
+                ErrorMessage = Convert.ToString(outParams.Properties["ErrorMessage"].Value);
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                ErrorMessage = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint GenerateWwpn(uint NumberOfWwpns, out string[] GeneratedWwpn)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("GenerateWwpn");
+                inParams["NumberOfWwpns"] = NumberOfWwpns;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("GenerateWwpn", inParams, null);
+                GeneratedWwpn = (string[])outParams.Properties["GeneratedWwpn"].Value;
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                GeneratedWwpn = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint GetCurrentWwpnFromGenerator(out string CurrentWwpn)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = null;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("GetCurrentWwpnFromGenerator", inParams, null);
+                CurrentWwpn = Convert.ToString(outParams.Properties["CurrentWwpn"].Value);
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                CurrentWwpn = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint GetDefinitionFileSummaryInformation(string[] DefinitionFiles, out ManagementBaseObject[] SummaryInformation)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("GetDefinitionFileSummaryInformation");
+                inParams["DefinitionFiles"] = DefinitionFiles;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("GetDefinitionFileSummaryInformation", inParams, null);
+                SummaryInformation = (ManagementBaseObject[])outParams.Properties["SummaryInformation"].Value;
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                SummaryInformation = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint GetSizeOfSystemFiles(ManagementPath Vssd, out ulong Size)
+        {
+            if (IsEmbedded == false)
+            {
+                using (ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("GetSizeOfSystemFiles"))
+                {
+                    inParams["Vssd"] = Vssd?.Path;
+                    using (ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("GetSizeOfSystemFiles", inParams, null))
+                    {
+                        Size = Convert.ToUInt64(outParams.Properties["Size"].Value);
+                        return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+                    }
                 }
             }
-        }
-
-        public void AddFibreChannelChap(string[] FcPortSettings, byte[] SecretEncoding, byte[] SharedSecret)
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(AddFibreChannelChap)))
+            else
             {
-                ip[nameof(FcPortSettings)] = FcPortSettings ?? throw new ArgumentNullException(nameof(FcPortSettings));
-                ip[nameof(SecretEncoding)] = SecretEncoding ?? throw new ArgumentNullException(nameof(SecretEncoding));
-                ip[nameof(SharedSecret)] = SharedSecret ?? throw new ArgumentNullException(nameof(SharedSecret));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(AddFibreChannelChap), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
+                Size = Convert.ToUInt64(0);
+                return Convert.ToUInt32(0);
             }
         }
 
-        public void AddKvpItems(string TargetSystem, string[] DataItems)
+        public uint GetSummaryInformation(uint[] RequestedInformation, ManagementPath[] SettingData, out ManagementBaseObject[] SummaryInformation)
         {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(AddKvpItems)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(TargetSystem)] = TargetSystem ?? throw new ArgumentNullException(nameof(TargetSystem));
-                ip[nameof(DataItems)] = DataItems ?? throw new ArgumentNullException(nameof(DataItems));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(AddKvpItems), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public string[] AddResourceSettings(ManagementObject AffectedConfiguration, string[] ResourceSettings)
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(AddResourceSettings)))
-            {
-                ip[nameof(AffectedConfiguration)] = AffectedConfiguration ?? throw new ArgumentNullException(nameof(AffectedConfiguration));
-                ip[nameof(ResourceSettings)] = ResourceSettings ?? throw new ArgumentNullException(nameof(ResourceSettings));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(AddResourceSettings), ip, null))
+                using (ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("GetSummaryInformation"))
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-
-                    return op["ResultingResourceSettings"] as string[];
+                    inParams["RequestedInformation"] = RequestedInformation;
+                    if (SettingData != null)
+                    {
+                        int len = SettingData.Length;
+                        string[] arrProp = new string[len];
+                        for (int iCounter = 0; iCounter < len; iCounter = iCounter + 1)
+                        {
+                            arrProp[iCounter] = ((ManagementPath)SettingData.GetValue(iCounter)).Path;
+                        }
+                        inParams["SettingData"] = arrProp;
+                    }
+                    else
+                    {
+                        inParams["SettingData"] = null;
+                    }
+                    using (ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("GetSummaryInformation", inParams, null))
+                    {
+                        SummaryInformation = (ManagementBaseObject[])outParams.Properties["SummaryInformation"].Value;
+                        return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+                    }
                 }
             }
+            else
+            {
+                SummaryInformation = null;
+                return Convert.ToUInt32(0);
+            }
         }
 
-        public string[] AddSystemComponentSettings(ManagementObject AffectedConfiguration, string[] ComponentSettings)
+        public uint GetVirtualSystemThumbnailImage(ushort HeightPixels, ManagementPath TargetSystem, ushort WidthPixels, out byte[] ImageData)
         {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(AddSystemComponentSettings)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(AffectedConfiguration)] = AffectedConfiguration ?? throw new ArgumentNullException(nameof(AffectedConfiguration));
-                ip[nameof(ComponentSettings)] = ComponentSettings ?? throw new ArgumentNullException(nameof(ComponentSettings));
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("GetVirtualSystemThumbnailImage");
+                inParams["HeightPixels"] = HeightPixels;
+                inParams["TargetSystem"] = TargetSystem?.Path;
+                inParams["WidthPixels"] = WidthPixels;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("GetVirtualSystemThumbnailImage", inParams, null);
+                ImageData = (byte[])outParams.Properties["ImageData"].Value;
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                ImageData = null;
+                return Convert.ToUInt32(0);
+            }
+        }
 
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(AddSystemComponentSettings), ip, null))
+        public uint ImportSnapshotDefinitions(ManagementPath PlannedSystem, string SnapshotFolder, out ManagementPath[] ImportedSnapshots, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ImportSnapshotDefinitions");
+                inParams["PlannedSystem"] = PlannedSystem?.Path;
+                inParams["SnapshotFolder"] = SnapshotFolder;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ImportSnapshotDefinitions", inParams, null);
+                ImportedSnapshots = null;
+                if (outParams.Properties["ImportedSnapshots"] != null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-
-                    return op["ResultingComponentSettings"] as string[];
+                    int len = ((Array)outParams.Properties["ImportedSnapshots"].Value).Length;
+                    ManagementPath[] arrToRet = new ManagementPath[len];
+                    for (int iCounter = 0; iCounter < len; iCounter = iCounter + 1)
+                    {
+                        arrToRet[iCounter] = new ManagementPath(((Array)outParams.Properties["ImportedSnapshots"].Value).GetValue(iCounter).ToString());
+                    }
+                    ImportedSnapshots = arrToRet;
                 }
-            }
-        }
-
-        public ManagementObject DefinePlannedSystem(string SystemSettings, string[] ResourceSettings, string ReferenceConfiguration)
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(DefinePlannedSystem)))
-            {
-                ip[nameof(SystemSettings)] = SystemSettings ?? throw new ArgumentNullException(nameof(SystemSettings));
-                ip[nameof(ResourceSettings)] = ResourceSettings ?? throw new ArgumentNullException(nameof(ResourceSettings));
-                ip[nameof(ReferenceConfiguration)] = ReferenceConfiguration ?? throw new ArgumentNullException(nameof(ReferenceConfiguration));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(DefinePlannedSystem), ip, null))
+                Job = null;
+                if (outParams.Properties["Job"] != null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-
-                    return op["ResultingSystem"] as ManagementObject;
+                    Job = new ManagementPath(outParams["Job"] as string);
                 }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                ImportedSnapshots = null;
+                Job = null;
+                return Convert.ToUInt32(0);
             }
         }
 
-        public ManagementObject DefineSystem(string SystemSettings, string[] ResourceSettings, string ReferenceConfiguration)
+        public uint ImportSystemDefinition(bool GenerateNewSystemIdentifier, string SnapshotFolder, string SystemDefinitionFile, out ManagementPath ImportedSystem, out ManagementPath Job)
         {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(DefineSystem)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(SystemSettings)] = SystemSettings ?? throw new ArgumentNullException(nameof(SystemSettings));
-                ip[nameof(ResourceSettings)] = ResourceSettings;
-                ip[nameof(ReferenceConfiguration)] = ReferenceConfiguration;
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(DefineSystem), ip, null))
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ImportSystemDefinition");
+                inParams["GenerateNewSystemIdentifier"] = GenerateNewSystemIdentifier;
+                inParams["SnapshotFolder"] = SnapshotFolder;
+                inParams["SystemDefinitionFile"] = SystemDefinitionFile;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ImportSystemDefinition", inParams, null);
+                ImportedSystem = null;
+                if (outParams.Properties["ImportedSystem"] != null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-
-                    return new ManagementObject(new ManagementPath(op["ResultingSystem"] as string));
+                    ImportedSystem = new ManagementPath(outParams.Properties["ImportedSystem"].ToString());
                 }
-            }
-        }
-
-        public void DestroySystem(ManagementObject AffectedSystem)
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(DestroySystem)))
-            {
-                ip[nameof(AffectedSystem)] = AffectedSystem ?? throw new ArgumentNullException(nameof(AffectedSystem));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(DestroySystem), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public string DiagnoseNetworkConnection(ManagementObject TargetNetworkAdapter, string DiagnosticSettings)
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(DiagnoseNetworkConnection)))
-            {
-                ip[nameof(TargetNetworkAdapter)] = TargetNetworkAdapter ?? throw new ArgumentNullException(nameof(TargetNetworkAdapter));
-                ip[nameof(DiagnosticSettings)] = DiagnosticSettings ?? throw new ArgumentNullException(nameof(DiagnosticSettings));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(DiagnoseNetworkConnection), ip, null))
+                Job = null;
+                if (outParams.Properties["Job"] != null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-
-                    return op["DiagnosticInformation"] as string;
+                    Job = new ManagementPath(outParams["Job"] as string);
                 }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                ImportedSystem = null;
+                Job = null;
+                return Convert.ToUInt32(0);
             }
         }
 
-        public void ExportSystemDefinition(ManagementObject ComputerSystem, string ExportDirectory, string ExportSettingData)
+        public uint ModifyDiskMergeSettings(string SettingData, out ManagementPath Job)
         {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(ExportSystemDefinition)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(ComputerSystem)] = ComputerSystem ?? throw new ArgumentNullException(nameof(ComputerSystem));
-                ip[nameof(ExportDirectory)] = ExportDirectory ?? throw new ArgumentNullException(nameof(ExportDirectory));
-                ip[nameof(ExportSettingData)] = ExportSettingData ?? throw new ArgumentNullException(nameof(ExportSettingData));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(ExportSystemDefinition), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public string FormatError(string[] Errors)
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(FormatError)))
-            {
-                ip[nameof(Errors)] = Errors ?? throw new ArgumentNullException(nameof(Errors));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(FormatError), ip, null))
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ModifyDiskMergeSettings");
+                inParams["SettingData"] = SettingData;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ModifyDiskMergeSettings", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-
-                    return op["ErrorMessage"] as string;
+                    Job = new ManagementPath(outParams["Job"] as string);
                 }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
             }
         }
 
-        public string[] GenerateWwpn(uint NumberOfWwpns)
+        public uint ModifyFeatureSettings(string[] FeatureSettings, out ManagementPath Job, out ManagementPath[] ResultingFeatureSettings)
         {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(GenerateWwpn)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(NumberOfWwpns)] = NumberOfWwpns;
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(GenerateWwpn), ip, null))
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ModifyFeatureSettings");
+                inParams["FeatureSettings"] = FeatureSettings;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ModifyFeatureSettings", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-
-                    return op["GeneratedWwpn"] as string[];
+                    Job = new ManagementPath(outParams["Job"] as string);
                 }
-            }
-        }
-
-        public string GetCurrentWwpnFromGenerator()
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(GetCurrentWwpnFromGenerator)))
-            using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(GetCurrentWwpnFromGenerator), ip, null))
-            {
-                Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-
-                return op["CurrentWwpn"] as string;
-            }
-        }
-
-        public string[] GetDefinitionFileSummaryInformation(string[] DefinitionFiles)
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(GetDefinitionFileSummaryInformation)))
-            {
-                ip[nameof(DefinitionFiles)] = DefinitionFiles ?? throw new ArgumentNullException(nameof(DefinitionFiles));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(GetDefinitionFileSummaryInformation), ip, null))
+                ResultingFeatureSettings = null;
+                if (outParams.Properties["ResultingFeatureSettings"] != null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-
-                    return op["SummaryInformation"] as string[];
+                    int len = ((Array)outParams.Properties["ResultingFeatureSettings"].Value).Length;
+                    ManagementPath[] arrToRet = new ManagementPath[len];
+                    for (int iCounter = 0; iCounter < len; iCounter = iCounter + 1)
+                    {
+                        arrToRet[iCounter] = new ManagementPath(((Array)outParams.Properties["ResultingFeatureSettings"].Value).GetValue(iCounter).ToString());
+                    }
+                    ResultingFeatureSettings = arrToRet;
                 }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                ResultingFeatureSettings = null;
+                return Convert.ToUInt32(0);
             }
         }
 
-        public ulong GetSizeOfSystemFiles(string Vssd)
+        public uint ModifyGuestServiceSettings(string[] GuestServiceSettings, out ManagementPath Job, out ManagementPath[] ResultingGuestServiceSettings)
         {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(GetSizeOfSystemFiles)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(Vssd)] = Vssd ?? throw new ArgumentNullException(nameof(Vssd));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(GetSizeOfSystemFiles), ip, null))
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ModifyGuestServiceSettings");
+                inParams["GuestServiceSettings"] = GuestServiceSettings;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ModifyGuestServiceSettings", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-
-                    return (ulong)op["Size"];
+                    Job = new ManagementPath(outParams["Job"] as string);
                 }
-            }
-        }
-
-        public ManagementBaseObject[] GetSummaryInformation(ManagementObject[] SettingData, int[] RequestedInformation)
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(GetSummaryInformation)))
-            {
-                ip[nameof(SettingData)] = SettingData ?? throw new ArgumentNullException(nameof(SettingData));
-                ip[nameof(RequestedInformation)] = RequestedInformation ?? throw new ArgumentNullException(nameof(RequestedInformation));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(GetSummaryInformation), ip, null))
+                ResultingGuestServiceSettings = null;
+                if (outParams.Properties["ResultingGuestServiceSettings"] != null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-
-                    return op["SummaryInformation"] as ManagementBaseObject[];
+                    int len = ((Array)outParams.Properties["ResultingGuestServiceSettings"].Value).Length;
+                    ManagementPath[] arrToRet = new ManagementPath[len];
+                    for (int iCounter = 0; iCounter < len; iCounter += 1)
+                    {
+                        arrToRet[iCounter] = new ManagementPath(((Array)outParams.Properties["ResultingGuestServiceSettings"].Value).GetValue(iCounter).ToString());
+                    }
+                    ResultingGuestServiceSettings = arrToRet;
                 }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                ResultingGuestServiceSettings = null;
+                return Convert.ToUInt32(0);
             }
         }
 
-        public byte[] GetVirtualSystemThumbnailImage(string TargetSystem, ushort WidthPixels, ushort HeightPixels)
+        public uint ModifyKvpItems(string[] DataItems, ManagementPath TargetSystem, out ManagementPath Job)
         {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(GetVirtualSystemThumbnailImage)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(TargetSystem)] = TargetSystem ?? throw new ArgumentNullException(nameof(TargetSystem));
-                ip[nameof(WidthPixels)] = WidthPixels;
-                ip[nameof(HeightPixels)] = HeightPixels;
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(GetVirtualSystemThumbnailImage), ip, null))
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ModifyKvpItems");
+                inParams["DataItems"] = DataItems;
+                inParams["TargetSystem"] = TargetSystem?.Path;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ModifyKvpItems", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-
-                    return op["ImageData"] as byte[];
+                    Job = new ManagementPath(outParams["Job"] as string);
                 }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
             }
         }
 
-        public string[] ImportSnapshotDefinitions(ManagementObject PlannedSystem, string SnapshotFolder)
+        public uint ModifyResourceSettings(string[] ResourceSettings, out ManagementPath Job, out ManagementPath[] ResultingResourceSettings)
         {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(ImportSnapshotDefinitions)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(PlannedSystem)] = PlannedSystem ?? throw new ArgumentNullException(nameof(PlannedSystem));
-                ip[nameof(SnapshotFolder)] = SnapshotFolder ?? throw new ArgumentNullException(nameof(SnapshotFolder));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(ImportSnapshotDefinitions), ip, null))
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ModifyResourceSettings");
+                inParams["ResourceSettings"] = ResourceSettings;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ModifyResourceSettings", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-
-                    return op["ImportedSnapshots"] as string[];
+                    Job = new ManagementPath(outParams["Job"] as string);
                 }
-            }
-        }
-
-        public ManagementObject ImportSystemDefinition(string SystemDefinitionFile, string SnapshotFolder, bool GenerateNewSystemIdentifier)
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(ImportSystemDefinition)))
-            {
-                ip[nameof(SystemDefinitionFile)] = SystemDefinitionFile ?? throw new ArgumentNullException(nameof(SystemDefinitionFile));
-                ip[nameof(SnapshotFolder)] = SnapshotFolder ?? throw new ArgumentNullException(nameof(SnapshotFolder));
-                ip[nameof(GenerateNewSystemIdentifier)] = GenerateNewSystemIdentifier;
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(ImportSystemDefinition), ip, null))
+                ResultingResourceSettings = null;
+                if (outParams.Properties["ResultingResourceSettings"] != null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-
-                    return op["ImportedSystem"] as ManagementObject;
+                    int len = ((Array)outParams.Properties["ResultingResourceSettings"].Value).Length;
+                    ManagementPath[] arrToRet = new ManagementPath[len];
+                    for (int iCounter = 0; iCounter < len; iCounter += 1)
+                    {
+                        arrToRet[iCounter] = new ManagementPath(((Array)outParams.Properties["ResultingResourceSettings"].Value).GetValue(iCounter).ToString());
+                    }
+                    ResultingResourceSettings = arrToRet;
                 }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                ResultingResourceSettings = null;
+                return Convert.ToUInt32(0);
             }
         }
 
-        public void ModifyDiskMergeSettings(string SettingData)
+        public uint ModifyServiceSettings(string SettingData, out ManagementPath Job)
         {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(ModifyDiskMergeSettings)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(SettingData)] = SettingData ?? throw new ArgumentNullException(nameof(SettingData));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(ModifyDiskMergeSettings), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public ManagementObject[] ModifyFeatureSettings(string[] FeatureSettings)
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(ModifyFeatureSettings)))
-            {
-                ip[nameof(FeatureSettings)] = FeatureSettings ?? throw new ArgumentNullException(nameof(FeatureSettings));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(ModifyFeatureSettings), ip, null))
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ModifyServiceSettings");
+                inParams["SettingData"] = SettingData;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ModifyServiceSettings", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-
-                    return op["ResultingFeatureSettings"] as ManagementObject[];
+                    Job = new ManagementPath(outParams["Job"] as string);
                 }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
             }
         }
 
-        public string[] ModifyGuestServiceSettings(string[] GuestServiceSettings)
+        public uint ModifySystemComponentSettings(string[] ComponentSettings, out ManagementPath Job, out ManagementPath[] ResultingComponentSettings)
         {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(ModifyGuestServiceSettings)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(GuestServiceSettings)] = GuestServiceSettings ?? throw new ArgumentNullException(nameof(GuestServiceSettings));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(ModifyGuestServiceSettings), ip, null))
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ModifySystemComponentSettings");
+                inParams["ComponentSettings"] = ComponentSettings;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ModifySystemComponentSettings", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-
-                    return op["ResultingGuestServiceSettings"] as string[];
+                    Job = new ManagementPath(outParams["Job"] as string);
                 }
-            }
-        }
-
-        public string[] ModifyKvpItems(string TargetSystem)
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(ModifyKvpItems)))
-            {
-                ip[nameof(TargetSystem)] = TargetSystem ?? throw new ArgumentNullException(nameof(TargetSystem));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(ModifyKvpItems), ip, null))
+                ResultingComponentSettings = null;
+                if (outParams.Properties["ResultingComponentSettings"] != null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-
-                    return op["DataItems"] as string[];
+                    int len = ((Array)outParams.Properties["ResultingComponentSettings"].Value).Length;
+                    ManagementPath[] arrToRet = new ManagementPath[len];
+                    for (int iCounter = 0; iCounter < len; iCounter = iCounter + 1)
+                    {
+                        arrToRet[iCounter] = new ManagementPath(((Array)outParams.Properties["ResultingComponentSettings"].Value).GetValue(iCounter).ToString());
+                    }
+                    ResultingComponentSettings = arrToRet;
                 }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                ResultingComponentSettings = null;
+                return Convert.ToUInt32(0);
             }
         }
 
-        public string[] ModifyResourceSettings(string[] ResourceSettings)
+        public uint ModifySystemSettings(string SystemSettings, out ManagementPath Job)
         {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(ModifyResourceSettings)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(ResourceSettings)] = ResourceSettings ?? throw new ArgumentNullException(nameof(ResourceSettings));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(ModifyResourceSettings), ip, null))
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ModifySystemSettings");
+                inParams["SystemSettings"] = SystemSettings;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ModifySystemSettings", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-
-                    return op["ResultingResourceSettings"] as string[];
+                    Job = new ManagementPath(outParams["Job"] as string);
                 }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
             }
         }
 
-        public void ModifyServiceSettings(string SettingData)
+        public uint RealizePlannedSystem(ManagementPath PlannedSystem, out ManagementPath Job, out ManagementPath ResultingSystem)
         {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(ModifyServiceSettings)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(SettingData)] = SettingData ?? throw new ArgumentNullException(nameof(SettingData));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(ModifyServiceSettings), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-            
-        public string[] ModifySystemComponentSettings(string[] ComponentSettings)
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(ModifySystemComponentSettings)))
-            {
-                ip[nameof(ComponentSettings)] = ComponentSettings ?? throw new ArgumentNullException(nameof(ComponentSettings));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(ModifySystemComponentSettings), ip, null))
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RealizePlannedSystem");
+                inParams["PlannedSystem"] = PlannedSystem?.Path;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RealizePlannedSystem", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-
-                    return op["ResultingComponentSettings"] as string[];
+                    Job = new ManagementPath(outParams["Job"] as string);
                 }
-            }
-        }
-            
-        public void ModifySystemSettings(string SystemSettings)
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(ModifySystemSettings)))
-            {
-                ip[nameof(SystemSettings)] = SystemSettings ?? throw new ArgumentNullException(nameof(SystemSettings));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(ModifySystemSettings), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public ManagementObject RealizePlannedSystem(ManagementObject PlannedSystem)
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(RealizePlannedSystem)))
-            {
-                ip[nameof(PlannedSystem)] = PlannedSystem ?? throw new ArgumentNullException(nameof(PlannedSystem));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(RealizePlannedSystem), ip, null))
+                ResultingSystem = null;
+                if (outParams.Properties["ResultingSystem"] != null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-
-                    return op["ResultingSystem"] as ManagementObject;
+                    ResultingSystem = new ManagementPath(outParams["ResultingSystem"] as string);
                 }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                ResultingSystem = null;
+                return Convert.ToUInt32(0);
             }
         }
 
-        public void RemoveFeatureSettings(string[] FeatureSettings)
+        public uint RemoveBootSourceSettings(ManagementPath[] BootSourceSettings, out ManagementPath Job)
         {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(RemoveFeatureSettings)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(FeatureSettings)] = FeatureSettings ?? throw new ArgumentNullException(nameof(FeatureSettings));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(RemoveFeatureSettings), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public void RemoveBootSourceSettings(string[] BootSourceSettings)
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(RemoveBootSourceSettings)))
-            {
-                ip[nameof(BootSourceSettings)] = BootSourceSettings ?? throw new ArgumentNullException(nameof(BootSourceSettings));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(RemoveBootSourceSettings), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public void RemoveFibreChannelChap(string[] FcPortSettings)
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(RemoveFibreChannelChap)))
-            {
-                ip[nameof(FcPortSettings)] = FcPortSettings ?? throw new ArgumentNullException(nameof(FcPortSettings));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(RemoveFibreChannelChap), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public void RemoveKvpItems(string TargetSystem, string[] DataItems)
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(RemoveKvpItems)))
-            {
-                ip[nameof(TargetSystem)] = TargetSystem ?? throw new ArgumentNullException(nameof(TargetSystem));
-                ip[nameof(DataItems)] = DataItems ?? throw new ArgumentNullException(nameof(DataItems));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(RemoveKvpItems), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public void RemoveGuestServiceSettings(string[] GuestServiceSettings)
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(RemoveGuestServiceSettings)))
-            {
-                ip[nameof(GuestServiceSettings)] = GuestServiceSettings ?? throw new ArgumentNullException(nameof(GuestServiceSettings));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(RemoveGuestServiceSettings), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public void RemoveResourceSettings(ManagementBaseObject[] ResourceSettings)
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(RemoveResourceSettings)))
-            {
-                ip[nameof(ResourceSettings)] = ResourceSettings ?? throw new ArgumentNullException(nameof(ResourceSettings));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(RemoveResourceSettings), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public void RemoveSystemComponentSettings(string[] ComponentSettings)
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(RemoveSystemComponentSettings)))
-            {
-                ip[nameof(ComponentSettings)] = ComponentSettings ?? throw new ArgumentNullException(nameof(ComponentSettings));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(RemoveSystemComponentSettings), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public void RequestStateChange(RequestedStateVSM RequestedState, ulong TimeoutPeriod = 0)
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(RequestStateChange)))
-            {
-                ip[nameof(RequestedState)] = (uint)RequestedState;
-                ip[nameof(TimeoutPeriod)] = null; // CIM_DateTime
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(RequestStateChange), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public uint TestNetworkConnection(string TargetNetworkAdapter, bool IsSender, string SenderIP, string ReceiverIP, string ReceiverMac, uint IsolationId, uint SequenceNumber)
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(TestNetworkConnection)))
-            {
-                ip[nameof(TargetNetworkAdapter)] = TargetNetworkAdapter ?? throw new ArgumentNullException(nameof(TargetNetworkAdapter));
-                ip[nameof(IsSender)] = IsSender;
-                ip[nameof(SenderIP)] = SenderIP ?? throw new ArgumentNullException(nameof(SenderIP));
-                ip[nameof(ReceiverIP)] = ReceiverIP ?? throw new ArgumentNullException(nameof(ReceiverIP));
-                ip[nameof(ReceiverMac)] = ReceiverMac ?? throw new ArgumentNullException(nameof(ReceiverMac));
-                ip[nameof(IsolationId)] = IsolationId;
-                ip[nameof(SequenceNumber)] = SequenceNumber;
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(TestNetworkConnection), ip, null))
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RemoveBootSourceSettings");
+                if (BootSourceSettings != null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-
-                    return (uint)op["RoundTripTime"];
+                    int len = BootSourceSettings.Length;
+                    string[] arrProp = new string[len];
+                    for (int iCounter = 0; iCounter < len; iCounter = iCounter + 1)
+                    {
+                        arrProp[iCounter] = ((ManagementPath)BootSourceSettings.GetValue(iCounter)).Path;
+                    }
+                    inParams["BootSourceSettings"] = arrProp;
                 }
+                else
+                {
+                    inParams["BootSourceSettings"] = null;
+                }
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RemoveBootSourceSettings", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
             }
-        }
-
-        public void SetGuestNetworkAdapterConfiguration(ManagementObject ComputerSystem, string[] NetworkConfiguration)
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(SetGuestNetworkAdapterConfiguration)))
+            else
             {
-                ip[nameof(ComputerSystem)] = ComputerSystem ?? throw new ArgumentNullException(nameof(ComputerSystem));
-                ip[nameof(NetworkConfiguration)] = NetworkConfiguration ?? throw new ArgumentNullException(nameof(NetworkConfiguration));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(SetGuestNetworkAdapterConfiguration), ip, null))    
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
+                Job = null;
+                return Convert.ToUInt32(0);
             }
         }
-        public void SetInitialMachineConfigurationData(ManagementObject TargetSystem, byte[] ImcData)
+
+        public uint RemoveFeatureSettings(ManagementPath[] FeatureSettings, out ManagementPath Job)
         {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(SetInitialMachineConfigurationData)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(TargetSystem)] = TargetSystem ?? throw new ArgumentNullException(nameof(TargetSystem));
-                ip[nameof(ImcData)] = ImcData ?? throw new ArgumentNullException(nameof(ImcData));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(SetInitialMachineConfigurationData), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RemoveFeatureSettings");
+                if (FeatureSettings != null)
+                {
+                    int len = FeatureSettings.Length;
+                    string[] arrProp = new string[len];
+                    for (int iCounter = 0; iCounter < len; iCounter = iCounter + 1)
+                    {
+                        arrProp[iCounter] = ((ManagementPath)FeatureSettings.GetValue(iCounter)).Path;
+                    }
+                    inParams["FeatureSettings"] = arrProp;
+                }
+                else
+                {
+                    inParams["FeatureSettings"] = null;
+                }
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RemoveFeatureSettings", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
             }
-        }
-
-        public override void StartService()
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(StartService)))
-            using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(StartService), ip, null))
-                Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-        }
-
-        public override void StopService()
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(StopService)))
-            using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(StopService), ip, null))
-                Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-        }
-
-        public void UpgradeSystemVersion(ManagementObject ComputerSystem, string UpgradeSettingData)
-        {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(UpgradeSystemVersion)))
+            else
             {
-                ip[nameof(ComputerSystem)] = ComputerSystem ?? throw new ArgumentNullException(nameof(ComputerSystem));
-                ip[nameof(UpgradeSettingData)] = UpgradeSettingData ?? throw new ArgumentNullException(nameof(UpgradeSettingData));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(UpgradeSystemVersion), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
+                Job = null;
+                return Convert.ToUInt32(0);
             }
         }
 
-        public void ValidatePlannedSystem(ManagementObject PlannedSystem)
+        public uint RemoveFibreChannelChap(string[] FcPortSettings)
         {
-            using (var ip = Msvm_VirtualSystemManagementService.GetMethodParameters(nameof(ValidatePlannedSystem)))
+            if (IsEmbedded == false)
             {
-                ip[nameof(PlannedSystem)] = PlannedSystem ?? throw new ArgumentNullException(nameof(PlannedSystem));
-
-                using (var op = Msvm_VirtualSystemManagementService.InvokeMethod(nameof(ValidatePlannedSystem), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RemoveFibreChannelChap");
+                inParams["FcPortSettings"] = FcPortSettings;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RemoveFibreChannelChap", inParams, null);
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                return Convert.ToUInt32(0);
             }
         }
 
-        ~VirtualSystemManagementService()
+        public uint RemoveGuestServiceSettings(ManagementPath[] GuestServiceSettings, out ManagementPath Job)
         {
-            if (Msvm_VirtualSystemManagementService != null)
-                Msvm_VirtualSystemManagementService.Dispose();
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RemoveGuestServiceSettings");
+                if (GuestServiceSettings != null)
+                {
+                    int len = GuestServiceSettings.Length;
+                    string[] arrProp = new string[len];
+                    for (int iCounter = 0; iCounter < len; iCounter = iCounter + 1)
+                    {
+                        arrProp[iCounter] = ((ManagementPath)GuestServiceSettings.GetValue(iCounter)).Path;
+                    }
+                    inParams["GuestServiceSettings"] = arrProp;
+                }
+                else
+                {
+                    inParams["GuestServiceSettings"] = null;
+                }
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RemoveGuestServiceSettings", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint RemoveKvpItems(string[] DataItems, ManagementPath TargetSystem, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RemoveKvpItems");
+                inParams["DataItems"] = DataItems;
+                inParams["TargetSystem"] = TargetSystem?.Path;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RemoveKvpItems", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint RemoveResourceSettings(ManagementPath[] ResourceSettings, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RemoveResourceSettings");
+                if (ResourceSettings != null)
+                {
+                    int len = ResourceSettings.Length;
+                    string[] arrProp = new string[len];
+                    for (int iCounter = 0; iCounter < len; iCounter += 1)
+                    {
+                        arrProp[iCounter] = ((ManagementPath)ResourceSettings.GetValue(iCounter)).Path;
+                    }
+                    inParams["ResourceSettings"] = arrProp;
+                }
+                else
+                {
+                    inParams["ResourceSettings"] = null;
+                }
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RemoveResourceSettings", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint RemoveSystemComponentSettings(ManagementPath[] ComponentSettings, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RemoveSystemComponentSettings");
+                if (ComponentSettings != null)
+                {
+                    int len = ComponentSettings.Length;
+                    string[] arrProp = new string[len];
+                    for (int iCounter = 0; iCounter < len; iCounter += 1)
+                    {
+                        arrProp[iCounter] = ((ManagementPath)ComponentSettings.GetValue(iCounter)).Path;
+                    }
+                    inParams["ComponentSettings"] = arrProp;
+                }
+                else
+                {
+                    inParams["ComponentSettings"] = null;
+                }
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RemoveSystemComponentSettings", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint RequestStateChange(ushort RequestedState, DateTime TimeoutPeriod, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RequestStateChange");
+                inParams[nameof(RequestedState)] = RequestedState;
+                inParams["TimeoutPeriod"] = ToDmtfDateTime(TimeoutPeriod);
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RequestStateChange", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint SetGuestNetworkAdapterConfiguration(ManagementPath ComputerSystem, string[] NetworkConfiguration, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("SetGuestNetworkAdapterConfiguration");
+                inParams["ComputerSystem"] = ComputerSystem?.Path;
+                inParams["NetworkConfiguration"] = NetworkConfiguration;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("SetGuestNetworkAdapterConfiguration", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint SetInitialMachineConfigurationData(byte[] ImcData, ManagementPath TargetSystem, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("SetInitialMachineConfigurationData");
+                inParams["ImcData"] = ImcData;
+                inParams["TargetSystem"] = TargetSystem?.Path;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("SetInitialMachineConfigurationData", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint StartService()
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = null;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("StartService", inParams, null);
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint StopService()
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = null;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("StopService", inParams, null);
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint TestNetworkConnection(uint IsolationId, bool IsSender, string ReceiverIP, string ReceiverMac, string SenderIP, uint SequenceNumber, ManagementPath TargetNetworkAdapter, out ManagementPath Job, out uint RoundTripTime)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("TestNetworkConnection");
+                inParams["IsolationId"] = IsolationId;
+                inParams["IsSender"] = IsSender;
+                inParams["ReceiverIP"] = ReceiverIP;
+                inParams["ReceiverMac"] = ReceiverMac;
+                inParams["SenderIP"] = SenderIP;
+                inParams["SequenceNumber"] = SequenceNumber;
+                inParams["TargetNetworkAdapter"] = TargetNetworkAdapter?.Path;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("TestNetworkConnection", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                RoundTripTime = Convert.ToUInt32(outParams.Properties["RoundTripTime"].Value);
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                RoundTripTime = Convert.ToUInt32(0);
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint UpgradeSystemVersion(ManagementPath ComputerSystem, string UpgradeSettingData, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("UpgradeSystemVersion");
+                inParams["ComputerSystem"] = ComputerSystem?.Path;
+                inParams["UpgradeSettingData"] = UpgradeSettingData;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("UpgradeSystemVersion", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint ValidatePlannedSystem(ManagementPath PlannedSystem, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ValidatePlannedSystem");
+                inParams["PlannedSystem"] = PlannedSystem?.Path;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ValidatePlannedSystem", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
         }
     }
 }

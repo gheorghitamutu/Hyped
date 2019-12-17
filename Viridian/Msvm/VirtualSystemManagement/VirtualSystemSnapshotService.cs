@@ -1,135 +1,419 @@
 ﻿using System;
 using System.Management;
-using Viridian.Job;
-using Viridian.Scopes;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace Viridian.Msvm.VirtualSystemManagement
 {
-    public sealed class VirtualSystemSnapshotService : BaseService
+    public class VirtualSystemSnapshotService : MsvmBase
     {
-        private static VirtualSystemSnapshotService instance = null;
+        public static string ClassName => $"Msvm_{nameof(VirtualSystemSnapshotService)}";
 
-        public enum State : ushort
-        {
-            Enabled = 2,
-            Disabled = 3,
-            ShutDown = 4,
-            Offline = 6,
-            Test = 7,
-            Defer = 8,
-            Quiesce = 9,
-            Reboot = 10,
-            Reset = 11
-        }
+        // Below are different overloads of constructors to initialize an instance of the class with a WMI object.
+        public VirtualSystemSnapshotService() : base(ClassName) { }
 
-        private VirtualSystemSnapshotService() : base("Msvm_VirtualSystemSnapshotService") { }
+        public VirtualSystemSnapshotService(string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
 
-        public static VirtualSystemSnapshotService Instance
+        public VirtualSystemSnapshotService(ManagementScope mgmtScope, string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(mgmtScope, keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
+
+        public VirtualSystemSnapshotService(ManagementPath path, ObjectGetOptions getOptions) : base(path, getOptions, ClassName) { }
+
+        public VirtualSystemSnapshotService(ManagementScope mgmtScope, ManagementPath path) : base(mgmtScope, path, ClassName) { }
+
+        public VirtualSystemSnapshotService(ManagementPath path) : base(path, ClassName) { }
+
+        public VirtualSystemSnapshotService(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions getOptions) : base(mgmtScope, path, getOptions, ClassName) { }
+
+        public VirtualSystemSnapshotService(ManagementObject theObject) : base(theObject, ClassName) { }
+
+        public VirtualSystemSnapshotService(ManagementBaseObject theObject) : base(theObject, ClassName) { }
+
+        public ushort[] AvailableRequestedStates => (ushort[])LateBoundObject[nameof(AvailableRequestedStates)];
+
+        public string Caption => (string)LateBoundObject[nameof(Caption)];
+
+        public ushort CommunicationStatus
         {
             get
             {
-                if (instance == null)                                    
-                    instance = new VirtualSystemSnapshotService();
-
-                return instance;
-            }
-        }
-
-        public ManagementObject Msvm_VirtualSystemSnapshotService => Service;
-              
-        public void ApplySnapshot(ManagementObject Snapshot)
-        {
-            using (var ip = Msvm_VirtualSystemSnapshotService.GetMethodParameters(nameof(ApplySnapshot)))
-            {
-                ip[nameof(Snapshot)] = Snapshot ?? throw new ArgumentNullException(nameof(Snapshot));
-
-                using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(ApplySnapshot), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public void ClearSnapshotState(ManagementObject SnapshotSettingData)
-        {
-            using (var ip = Msvm_VirtualSystemSnapshotService.GetMethodParameters(nameof(ClearSnapshotState)))
-            {
-                ip[nameof(SnapshotSettingData)] = SnapshotSettingData ?? throw new ArgumentNullException(nameof(SnapshotSettingData));
-
-                using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(ClearSnapshotState), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public ManagementObject CreateSnapshot(string AffectedSystem, string SnapshotSettings, ushort SnapshotType)
-        {
-            using (var ip = Msvm_VirtualSystemSnapshotService.GetMethodParameters(nameof(CreateSnapshot)))
-            {
-                ip[nameof(AffectedSystem)] = AffectedSystem ?? throw new ArgumentNullException(nameof(AffectedSystem));
-                ip[nameof(SnapshotSettings)] = SnapshotSettings ?? throw new ArgumentNullException(nameof(SnapshotSettings));
-                ip[nameof(SnapshotType)] = SnapshotType;
-
-                using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(CreateSnapshot), ip, null))
+                if (LateBoundObject[nameof(CommunicationStatus)] == null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(CommunicationStatus)];
+            }
+        }
 
-                    return op["ResultingSnapshot"] as ManagementObject;
+        public string CreationClassName => (string)LateBoundObject[nameof(CreationClassName)];
+
+        public string Description => (string)LateBoundObject[nameof(Description)];
+
+        public ushort DetailedStatus
+        {
+            get
+            {
+                if (LateBoundObject[nameof(DetailedStatus)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(DetailedStatus)];
+            }
+        }
+
+        public string ElementName => (string)LateBoundObject[nameof(ElementName)];
+
+        public ushort EnabledDefault
+        {
+            get
+            {
+                if (LateBoundObject[nameof(EnabledDefault)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(EnabledDefault)];
+            }
+        }
+
+        public ushort EnabledState
+        {
+            get
+            {
+                if (LateBoundObject[nameof(EnabledState)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(EnabledState)];
+            }
+        }
+
+        public ushort HealthState
+        {
+            get
+            {
+                if (LateBoundObject[nameof(HealthState)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(HealthState)];
+            }
+        }
+
+        public DateTime InstallDate
+        {
+            get
+            {
+                if (LateBoundObject[nameof(InstallDate)] != null)
+                {
+                    return ToDateTime((string)LateBoundObject[nameof(InstallDate)]);
+                }
+                else
+                {
+                    return DateTime.MinValue;
                 }
             }
         }
 
-        public void DestroySnapshot(string AffectedSnapshot)
+        public string InstanceID => (string)LateBoundObject[nameof(InstanceID)];
+
+        public string Name => (string)LateBoundObject[nameof(Name)];
+
+        public ushort OperatingStatus
         {
-            using (var ip = Msvm_VirtualSystemSnapshotService.GetMethodParameters(nameof(DestroySnapshot)))
+            get
             {
-                ip[nameof(AffectedSnapshot)] = AffectedSnapshot ?? throw new ArgumentNullException(nameof(AffectedSnapshot));
-
-                using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(DestroySnapshot), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public void DestroySnapshotTree(string SnapshotSettingData)
-        {
-            using (var ip = Msvm_VirtualSystemSnapshotService.GetMethodParameters(nameof(DestroySnapshotTree)))
-            {
-                ip[nameof(SnapshotSettingData)] = SnapshotSettingData ?? throw new ArgumentNullException(nameof(SnapshotSettingData));
-
-                using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(DestroySnapshotTree), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public void RequestStateChange(State RequestedState, DateTime TimeoutPeriod)
-        {
-            using (var ip = Msvm_VirtualSystemSnapshotService.GetMethodParameters(nameof(RequestStateChange)))
-            {
-                ip[nameof(RequestedState)] = RequestedState;
-                ip[nameof(TimeoutPeriod)] = TimeoutPeriod;
-
-                using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(RequestStateChange), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
-            }
-        }
-
-        public ManagementObject ConvertToReferencePoint(string AffectedSnapshot, string ReferencePointSettings)
-        {
-            using (var ip = Msvm_VirtualSystemSnapshotService.GetMethodParameters(nameof(ConvertToReferencePoint)))
-            {
-                ip[nameof(AffectedSnapshot)] = AffectedSnapshot;
-                ip[nameof(ReferencePointSettings)] = ReferencePointSettings;
-
-                using (var op = Msvm_VirtualSystemSnapshotService.InvokeMethod(nameof(ConvertToReferencePoint), ip, null))
+                if (LateBoundObject[nameof(OperatingStatus)] == null)
                 {
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(OperatingStatus)];
+            }
+        }
 
-                    return op["ResultingReferencePoint"] as ManagementObject;
+        public ushort[] OperationalStatus => (ushort[])LateBoundObject[nameof(OperationalStatus)];
+
+        public string OtherEnabledState => (string)LateBoundObject[nameof(OtherEnabledState)];
+
+        public string PrimaryOwnerContact => (string)LateBoundObject[nameof(PrimaryOwnerContact)];
+
+        public string PrimaryOwnerName => (string)LateBoundObject[nameof(PrimaryOwnerName)];
+
+        public ushort PrimaryStatus
+        {
+            get
+            {
+                if (LateBoundObject[nameof(PrimaryStatus)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(PrimaryStatus)];
+            }
+        }
+
+        public ushort RequestedState
+        {
+            get
+            {
+                if (LateBoundObject[nameof(RequestedState)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(RequestedState)];
+            }
+        }
+
+        public bool Started
+        {
+            get
+            {
+                if (LateBoundObject[nameof(Started)] == null)
+                {
+                    return Convert.ToBoolean(0);
+                }
+                return (bool)LateBoundObject[nameof(Started)];
+            }
+        }
+
+        public string StartMode => (string)LateBoundObject[nameof(StartMode)];
+
+        public string Status => (string)LateBoundObject[nameof(Status)];
+
+        public string[] StatusDescriptions => (string[])LateBoundObject[nameof(StatusDescriptions)];
+
+        public string SystemCreationClassName => (string)LateBoundObject[nameof(SystemCreationClassName)];
+
+        public string SystemName => (string)LateBoundObject[nameof(SystemName)];
+
+        public DateTime TimeOfLastStateChange
+        {
+            get
+            {
+                if (LateBoundObject[nameof(TimeOfLastStateChange)] != null)
+                {
+                    return ToDateTime((string)LateBoundObject[nameof(TimeOfLastStateChange)]);
+                }
+                else
+                {
+                    return DateTime.MinValue;
                 }
             }
         }
 
-        ~VirtualSystemSnapshotService()
+        public ushort TransitioningToState
         {
-            if (Msvm_VirtualSystemSnapshotService != null)
-                Msvm_VirtualSystemSnapshotService.Dispose();
+            get
+            {
+                if (LateBoundObject[nameof(TransitioningToState)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(TransitioningToState)];
+            }
+        }
+
+        // Different overloads of GetInstances() help in enumerating instances of the WMI class.
+        public static List<VirtualSystemSnapshotService> GetInstances() => GetInstances(null, null, null, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualSystemSnapshotService(mo)).ToList();
+
+        public new static List<VirtualSystemSnapshotService> GetInstances(string condition) => GetInstances(null, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualSystemSnapshotService(mo)).ToList();
+
+        public static List<VirtualSystemSnapshotService> GetInstances(string[] selectedProperties) => GetInstances(null, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualSystemSnapshotService(mo)).ToList();
+
+        public static List<VirtualSystemSnapshotService> GetInstances(string condition, string[] selectedProperties) => GetInstances(null, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualSystemSnapshotService(mo)).ToList();
+
+        public static List<VirtualSystemSnapshotService> GetInstances(ManagementScope mgmtScope, EnumerationOptions enumOptions) => GetInstances(mgmtScope, enumOptions, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualSystemSnapshotService(mo)).ToList();
+
+        public static List<VirtualSystemSnapshotService> GetInstances(ManagementScope mgmtScope, string condition) => GetInstances(mgmtScope, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualSystemSnapshotService(mo)).ToList();
+
+        public static List<VirtualSystemSnapshotService> GetInstances(ManagementScope mgmtScope, string[] selectedProperties) => GetInstances(mgmtScope, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualSystemSnapshotService(mo)).ToList();
+
+        public static List<VirtualSystemSnapshotService> GetInstances(ManagementScope mgmtScope, string condition, string[] selectedProperties) => GetInstances(mgmtScope, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualSystemSnapshotService(mo)).ToList();
+
+        public static VirtualSystemSnapshotService CreateInstance() => new VirtualSystemSnapshotService(CreateInstance(ClassName));
+
+        public uint ApplySnapshot(ManagementPath Snapshot, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ApplySnapshot");
+                inParams["Snapshot"] = Snapshot?.Path;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ApplySnapshot", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint ClearSnapshotState(ManagementPath SnapshotSettingData, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ClearSnapshotState");
+                inParams["SnapshotSettingData"] = SnapshotSettingData?.Path;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ClearSnapshotState", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint ConvertToReferencePoint(ManagementPath AffectedSnapshot, string ReferencePointSettings, ref ManagementPath ResultingReferencePoint, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ConvertToReferencePoint");
+                inParams["AffectedSnapshot"] = AffectedSnapshot?.Path;
+                inParams["ReferencePointSettings"] = ReferencePointSettings;
+                inParams["ResultingReferencePoint"] = ResultingReferencePoint?.Path;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ConvertToReferencePoint", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                ResultingReferencePoint = (ManagementPath)outParams.Properties["ResultingReferencePoint"].Value;
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint CreateSnapshot(ManagementPath AffectedSystem, ref ManagementPath ResultingSnapshot, string SnapshotSettings, ushort SnapshotType, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                using (ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("CreateSnapshot"))
+                {
+                    inParams["AffectedSystem"] = AffectedSystem?.Path;
+                    inParams["ResultingSnapshot"] = ResultingSnapshot?.Path;
+                    inParams["SnapshotSettings"] = SnapshotSettings;
+                    inParams["SnapshotType"] = SnapshotType;
+                    using (ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("CreateSnapshot", inParams, null))
+                    {
+                        Job = null;
+                        if (outParams.Properties["Job"] != null)
+                        {
+                            Job = new ManagementPath(outParams["Job"] as string);
+                        }
+                        ResultingSnapshot = (ManagementPath)outParams.Properties["ResultingSnapshot"].Value;
+                        return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+                    }
+                }
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint DestroySnapshot(ManagementPath AffectedSnapshot, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("DestroySnapshot");
+                inParams["AffectedSnapshot"] = AffectedSnapshot?.Path;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("DestroySnapshot", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint DestroySnapshotTree(ManagementPath SnapshotSettingData, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("DestroySnapshotTree");
+                inParams["SnapshotSettingData"] = SnapshotSettingData?.Path;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("DestroySnapshotTree", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint RequestStateChange(ushort RequestedState, DateTime TimeoutPeriod, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RequestStateChange");
+                inParams[nameof(RequestedState)] = RequestedState;
+                inParams["TimeoutPeriod"] = ToDmtfDateTime(TimeoutPeriod);
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RequestStateChange", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint StartService()
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = null;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("StartService", inParams, null);
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint StopService()
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = null;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("StopService", inParams, null);
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                return Convert.ToUInt32(0);
+            }
         }
     }
 }

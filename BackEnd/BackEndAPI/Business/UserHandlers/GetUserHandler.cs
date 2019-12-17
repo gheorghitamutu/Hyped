@@ -3,7 +3,6 @@ using BackEndAPI.DTOs.UserDTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,6 +25,11 @@ namespace BackEndAPI.Business.UserHandlers
             {
                 throw new Exception("Requested user doesn't exist");
             }
+
+            var vms = await context?.VMs?.ToListAsync();
+            //get this user's virtual machines
+            user.VMS=vms.Where((vm) => vm.UserId == user.UserId).ToList();
+
             return user;
         }
     }

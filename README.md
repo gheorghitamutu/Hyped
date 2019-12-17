@@ -14,6 +14,7 @@
 	https://www.dmtf.org/sites/default/files/standards/documents/DSP1053_1.1.0a.pdf (Metrics + info/schemas/APIs)
 	https://docs.microsoft.com/en-us/windows/win32/hyperv_v2/images/msvm-computersystem-enabledstate-win2008r2.png (The following illustration shows the EnabledState values)
 	https://docs.microsoft.com/en-us/windows/win32/wmisdk/monitoring-events (Monitoring WMI Events)
+	https://docs.microfocus.com/itom/Universal_Discovery_Content_Pack:28/HYP-V_R_dscvry_mech_root_v2 (Discovery Mechanism for root\virtualization\v2 Namespace)
 
 ## Examples (snapshots of code/repositories)
 	https://blogs.msdn.microsoft.com/sergeim/2008/06/03/prepare-vm-create-vm-programmatically-hyper-v-api-c-version - API v1

@@ -56,15 +56,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Machine\ComputerSystemTest.cs" />
+    <Compile Include="Msvm\Memory\MemoryTest.cs" />
+    <Compile Include="Msvm\Memory\MemorySettingDataTest.cs" />
+    <Compile Include="Msvm\Networking\VirtualEthernetSwitchManagementServiceTest.cs" />
+    <Compile Include="Msvm\Processor\ProcessorSettingDataTest.cs" />
+    <Compile Include="Msvm\ResourceManagement\ResourceAllocationSettingDataTest.cs" />
+    <Compile Include="Msvm\Metrics\MetricServiceTest.cs" />
+    <Compile Include="Msvm\VirtualSystemManagement\VirtualSystemSnapshotServiceTest.cs" />
+    <Compile Include="Msvm\VirtualSystemManagement\VirtualSystemManagementServiceTest.cs" />
+    <Compile Include="Msvm\VirtualSystem\ComputerSystemTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Resources\Drives\DVDTest.cs" />
-    <Compile Include="Resources\Network\SyntheticEthernetAdapterTest.cs" />
-    <Compile Include="Resources\Physical\ISOTest.cs" />
-    <Compile Include="Resources\Physical\VHDTest.cs" />
-    <Compile Include="Statistics\MetricsTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".editorconfig" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

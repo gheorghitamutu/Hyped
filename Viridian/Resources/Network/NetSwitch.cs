@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Management;
 using Viridian.Job;
 using Viridian.Msvm.Networking;
-using Viridian.Msvm.ResourceManagement;
 using Viridian.Msvm.VirtualSystem;
-using Viridian.Msvm.VirtualSystemManagement;
 using Viridian.Scopes;
 
 // TODO: change all <Operation>Custom<AppliedOn> to handle actual param settings
@@ -71,120 +68,25 @@ namespace Viridian.Resources.Network
 
         #endregion
 
-        #region Create
+        #region Modify
 
-        public static void CreatePrivateSwitch(ManagementScope scope, string switchName, string switchNotes)
+        public static void AddPorts(string switchName, string Name)
         {
-            CreateSwitch(scope, switchName, switchNotes, null);
-        }
+            var ves = new VirtualEthernetSwitch(switchName);
 
-        public static void CreateInternalSwitch(ManagementScope scope, string switchName, string switchNotes)
-        {
-            using (var host = ComputerSystem.QueryMsvmComputerSystem("Name", Environment.MachineName))
-            using (var depasd = GetDefaultEthernetPortAllocationSettingData())
-            {
-                depasd["ElementName"] = switchName + "_Internal";
-                depasd["HostResource"] = new string[] { host.Path.Path };
-
-                string[] ports = new string[] { depasd.GetText(TextFormat.WmiDtd20) };
-
-                CreateSwitch(scope, switchName, switchNotes, ports);
-            }
-        }
-
-        public static void CreateExternalOnlySwitch(ManagementScope scope, string externalAdapterName, string switchName, string switchNotes)
-        {
-            using (var eep = FindExternalAdapter(scope, externalAdapterName))
+            using (var mos = new ManagementObjectSearcher(Scope.Virtualization.ScopeObject, new ObjectQuery("SELECT * FROM Msvm_ExternalEthernetPort")))
+            using (var eep = mos.Get().Cast<ManagementObject>().Where((c) => c[nameof(Name)]?.ToString() == Name).First())
             using (var depasd = GetDefaultEthernetPortAllocationSettingData())
             {
                 depasd["ElementName"] = switchName + "_External";
                 depasd["HostResource"] = new string[] { eep.Path.Path };
 
-                string[] ports = new string[] { depasd.GetText(TextFormat.WmiDtd20) };
-
-                CreateSwitch(scope, switchName, switchNotes, ports);
+                // TODO: fix this!
+                // VirtualEthernetSwitchManagementService.Instance.AddResourceSettings(ves.VirtualEthernetSwitchSettingData.MsvmVirtualEthernetSwitchSettingData.Path.Path, new string[] { depasd.GetText(TextFormat.WmiDtd20) });
             }
         }
 
-        public static void CreateExternalSwitch(ManagementScope scope, string externalAdapterName, string switchName, string switchNotes)
-        {
-            using (var eep = FindExternalAdapter(scope, externalAdapterName))
-            using (var host = ComputerSystem.QueryMsvmComputerSystem("Name", Environment.MachineName))
-            using (var depasdInternal = GetDefaultEthernetPortAllocationSettingData())
-            using (var depasdExternal = GetDefaultEthernetPortAllocationSettingData())
-            {
-                depasdExternal["ElementName"] = switchName + "_External";
-                depasdExternal["HostResource"] = new string[] { eep.Path.Path };
-
-                depasdInternal["ElementName"] = switchName + "_Internal";
-                depasdInternal["HostResource"] = new string[] { host.Path.Path };
-                depasdInternal["Address"] = eep["PermanentAddress"];
-
-                string[] ports = new string[] { depasdExternal.GetText(TextFormat.WmiDtd20), depasdInternal.GetText(TextFormat.WmiDtd20) };
-
-                CreateSwitch(scope, switchName, switchNotes, ports);
-            }
-        }
-
-        public static void CreateSwitch(ManagementScope scope, string switchName, string switchNotes, string[] ports)
-        {
-            using (var vessd = new ManagementClass("Msvm_VirtualEthernetSwitchSettingData"))
-            {
-                vessd.Scope = scope;
-                using (var vess = vessd.CreateInstance())
-                {
-                    vess["ElementName"] = switchName;
-                    vess["Notes"] = new string[] { switchNotes };
-
-                    VirtualEthernetSwitchManagementService.Instance.DefineSystem(vess.GetText(TextFormat.WmiDtd20), ports, null);
-                }
-            }
-        }
-
-        #endregion
-
-        #region Delete
-
-        public static void DeleteSwitchWithPorts(ManagementScope scope, string switchName)
-        {
-            using (var ves = FindVirtualEthernetSwitch(scope, switchName))
-                VirtualEthernetSwitchManagementService.Instance.DestroySystem(ves.Path.Path);
-        }
-
-        #endregion
-
-        #region Modify
-
-        public static void ModifySwitchName(ManagementScope scope, string existingSwitchName, string newSwitchName, string newNotes)
-        {
-            using (var ves = FindVirtualEthernetSwitch(scope, existingSwitchName))
-            using (var vessd = ves.GetRelated("Msvm_VirtualEthernetSwitchSettingData", "Msvm_SettingsDefineState", null, null, null, null, false, null).Cast<ManagementObject>().First())
-            {
-                vessd["ElementName"] = newSwitchName;
-                vessd["Notes"] = new string[] { newNotes };
-
-                VirtualEthernetSwitchManagementService.Instance.ModifySystemSettings(vessd.GetText(TextFormat.WmiDtd20));
-            }
-        }
-
-        public static void AddPorts(ManagementScope scope, string switchName, string Name)
-        {
-            using (var ves = FindVirtualEthernetSwitch(scope, switchName))
-            using (var vessd = ves.GetRelated("Msvm_VirtualEthernetSwitchSettingData", "Msvm_SettingsDefineState", null, null, null, null, false, null).Cast<ManagementObject>().First())
-            {
-                using (var mos = new ManagementObjectSearcher(scope, new ObjectQuery("SELECT * FROM Msvm_ExternalEthernetPort")))
-                using (var eep = mos.Get().Cast<ManagementObject>().Where((c) => c[nameof(Name)]?.ToString() == Name).First())
-                using (var depasd = GetDefaultEthernetPortAllocationSettingData())
-                {
-                    depasd["ElementName"] = switchName + "_External";
-                    depasd["HostResource"] = new string[] { eep.Path.Path };
-
-                    VirtualEthernetSwitchManagementService.Instance.AddResourceSettings(vessd.Path.Path, new string[] { depasd.GetText(TextFormat.WmiDtd20) });
-                }
-            }
-        }
-
-        public static void RemovePorts(ManagementScope scope, string switchName)
+        public static void RemovePorts(string switchName)
         {
             var searchedClassNames = new List<string>()
             {
@@ -194,7 +96,7 @@ namespace Viridian.Resources.Network
 
             var portsToDelete = new List<string>();
 
-            using (var ves = FindVirtualEthernetSwitch(scope, switchName))
+            using (var ves = FindVirtualEthernetSwitch(switchName))
                     ves.GetRelated("Msvm_EthernetSwitchPort", "Msvm_SystemDevice", null, null, null, null, false, null)
                        .Cast<ManagementObject>()
                        .Where((sd) =>
@@ -219,14 +121,15 @@ namespace Viridian.Resources.Network
                 if (portsToDelete.Count == 0)
                     throw new InvalidOperationException($"The switch [{switchName}] does not have any internal or external ports to remove!");
 
-                VirtualEthernetSwitchManagementService.Instance.RemoveResourceSettings(portsToDelete.ToArray());
+            // TODO: fix this!
+            // VirtualEthernetSwitchManagementService.Instance.RemoveResourceSettings(portsToDelete.ToArray());
         }
 
-        public static void ModifyPorts(ManagementScope scope, string switchName, string Name)
+        public static void ModifyPorts(string switchName, string Name)
         {
-            using (var mos = new ManagementObjectSearcher(scope, new ObjectQuery("SELECT * FROM Msvm_ExternalEthernetPort")))
+            using (var mos = new ManagementObjectSearcher(Scope.Virtualization.ScopeObject, new ObjectQuery("SELECT * FROM Msvm_ExternalEthernetPort")))
             using (var eep = mos.Get().Cast<ManagementObject>().Where((c) => c[nameof(Name)]?.ToString() == Name).First())
-            using (var ves = FindVirtualEthernetSwitch(scope, switchName))
+            using (var ves = FindVirtualEthernetSwitch(switchName))
             {
                 ves.GetRelated("Msvm_EthernetSwitchPort", "Msvm_SystemDevice", null, null, null, null, false, null)
                     .Cast<ManagementObject>()
@@ -251,7 +154,8 @@ namespace Viridian.Resources.Network
 
                             hostResource["HostResource"] = new string[] { eep.Path.Path };
 
-                            VirtualEthernetSwitchManagementService.Instance.ModifyResourceSettings(new string[] { hostResource.GetText(TextFormat.WmiDtd20) });
+                            // TODO: fix this!
+                            // VirtualEthernetSwitchManagementService.Instance.ModifyResourceSettings(new string[] { hostResource.GetText(TextFormat.WmiDtd20) });
                         });
             }
         }
@@ -260,7 +164,7 @@ namespace Viridian.Resources.Network
         {
             string featureId = GetPortFeatureId(FeatureType);
 
-            using (var defaultFeatureSetting = GetDefaultFeatureSetting(featureId, Scope.Virtualization.ScopeObject))
+            using (var defaultFeatureSetting = GetDefaultFeatureSetting(featureId))
             {
                 switch (FeatureType)
                 {
@@ -282,10 +186,11 @@ namespace Viridian.Resources.Network
                         throw new ArgumentOutOfRangeException(nameof(FeatureType));
                 }
 
-                vm?.VirtualSystemSettingData.GetEthernetPortAllocationSettingDataList()
-                    .Cast<ManagementObject>()
-                    .ToList()
-                    .ForEach((connection) => VirtualSystemManagementService.Instance.AddFeatureSettings(connection.Path.Path, new string[] { defaultFeatureSetting.GetText(TextFormat.WmiDtd20) }));
+                // TODO: fix this
+                // vm?.VirtualSystemSettingData.GetEthernetPortAllocationSettingDataList()
+                //     .Cast<ManagementObject>()
+                //     .ToList()
+                //     .ForEach((connection) => VirtualSystemManagementService.Instance.AddFeatureSettings(connection.Path.Path, new string[] { defaultFeatureSetting.GetText(TextFormat.WmiDtd20) }));
             }
         }
 
@@ -294,18 +199,19 @@ namespace Viridian.Resources.Network
             // featureSetting["AllowMacSpoofing"] | featureSetting["IOVQueuePairsRequested"]
             // Msvm_EthernetSwitchPortSecuritySettingData | Msvm_EthernetSwitchPortOffloadSettingData
 
-            vm?.VirtualSystemSettingData.GetEthernetPortAllocationSettingDataList()
-                .Cast<ManagementObject>()
-                .ToList()
-                .ForEach((connection) =>
-                    connection.GetRelated("Msvm_EthernetSwitchPortSecuritySettingData", "Msvm_EthernetPortSettingDataComponent", null, null, null, null, false, null)
-                        .Cast<ManagementObject>()
-                        .ToList()
-                        .ForEach((epsdc) =>
-                        {
-                            epsdc["AllowMacSpoofing"] = true;
-                            VirtualSystemManagementService.Instance.ModifyFeatureSettings(new string[] { epsdc.GetText(TextFormat.WmiDtd20) });
-                        }));
+            // TODO: fix this
+            // vm?.VirtualSystemSettingData.GetEthernetPortAllocationSettingDataList()
+            //     .Cast<ManagementObject>()
+            //     .ToList()
+            //     .ForEach((connection) =>
+            //         connection.GetRelated("Msvm_EthernetSwitchPortSecuritySettingData", "Msvm_EthernetPortSettingDataComponent", null, null, null, null, false, null)
+            //             .Cast<ManagementObject>()
+            //             .ToList()
+            //             .ForEach((epsdc) =>
+            //             {
+            //                 epsdc["AllowMacSpoofing"] = true;
+            //                 VirtualSystemManagementService.Instance.ModifyFeatureSettings(new string[] { epsdc.GetText(TextFormat.WmiDtd20) });
+            //             }));
         }
 
         public static void RemoveFeatureSettings(ComputerSystem vm, PortFeatureType FeatureType)
@@ -327,28 +233,29 @@ namespace Viridian.Resources.Network
                     throw new ArgumentOutOfRangeException(nameof(FeatureType));
             }
 
-            foreach (var ethernetConnectionSetting in vm?.VirtualSystemSettingData.GetEthernetPortAllocationSettingDataList())
-            {
-                var featureSettingPaths = new List<string>();
-
-                ethernetConnectionSetting.GetRelated(featureSettingClass, "Msvm_EthernetPortSettingDataComponent", null, null, null, null, false, null)
-                    .Cast<ManagementObjectCollection>()
-                    .ToList()
-                    .ForEach((epsdcCollection) =>
-                        epsdcCollection
-                            .Cast<ManagementObject>()
-                            .ToList()
-                            .ForEach((epsdc) => featureSettingPaths.Add(epsdc.Path.Path)));
-
-                VirtualSystemManagementService.Instance.RemoveFeatureSettings(featureSettingPaths.ToArray());
-            }
+            // TODO: fix this
+            // foreach (var ethernetConnectionSetting in vm?.VirtualSystemSettingData.GetEthernetPortAllocationSettingDataList())
+            // {
+            //     var featureSettingPaths = new List<string>();
+            // 
+            //     ethernetConnectionSetting.GetRelated(featureSettingClass, "Msvm_EthernetPortSettingDataComponent", null, null, null, null, false, null)
+            //         .Cast<ManagementObjectCollection>()
+            //         .ToList()
+            //         .ForEach((epsdcCollection) =>
+            //             epsdcCollection
+            //                 .Cast<ManagementObject>()
+            //                 .ToList()
+            //                 .ForEach((epsdc) => featureSettingPaths.Add(epsdc.Path.Path)));
+            // 
+            //     VirtualSystemManagementService.Instance.RemoveFeatureSettings(featureSettingPaths.ToArray());
+            // }
         }
 
-        public static void SetExtensionEnabledState(ManagementScope scope, string switchName, string extensionName, bool enabled)
+        public static void SetExtensionEnabledState(string switchName, string extensionName, bool enabled)
         {
             bool found = false;
 
-            using (var ves = FindVirtualEthernetSwitch(scope, switchName))
+            using (var ves = FindVirtualEthernetSwitch(switchName))
             using (var eseCollection = ves.GetRelated("Msvm_EthernetSwitchExtension", "Msvm_HostedEthernetSwitchExtension", null, null, null, null, false, null))
             {
                 foreach (ManagementObject ese in eseCollection)
@@ -373,7 +280,7 @@ namespace Viridian.Resources.Network
                             ip["RequestedState"] = enabled ? CimEnabledStateEnabled : CimEnabledStateDisabled;
 
                             using (var op = ese.InvokeMethod("RequestStateChange", ip, null))
-                                Validator.ValidateOutput(op, scope);
+                                Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
                         }
                     }
             }
@@ -382,9 +289,9 @@ namespace Viridian.Resources.Network
                 throw new InvalidOperationException($"Could not find extension [{extensionName}] on switch [{switchName}]!");
         }
 
-        public static void MoveExtension(ManagementScope scope, string switchName, string extensionName, int offset)
+        public static void MoveExtension(string switchName, string extensionName, int offset)
         {
-            using (var ves = FindVirtualEthernetSwitch(scope, switchName))
+            using (var ves = FindVirtualEthernetSwitch(switchName))
             using (var vessd = ves.GetRelated("Msvm_VirtualEthernetSwitchSettingData", "Msvm_SettingsDefineState", null, null, null, null, false, null).Cast<ManagementObject>().First())
             {
                 string[] extensionOrder = (string[])vessd["ExtensionOrder"];
@@ -420,7 +327,8 @@ namespace Viridian.Resources.Network
 
                 vessd["ExtensionOrder"] = extensionOrder;
 
-                VirtualEthernetSwitchManagementService.Instance.ModifySystemSettings(vessd.GetText(TextFormat.WmiDtd20));
+                // TODO: fix this!
+                // VirtualEthernetSwitchManagementService.Instance.ModifySystemSettings(vessd.GetText(TextFormat.WmiDtd20));
             }
         }
 
@@ -428,108 +336,110 @@ namespace Viridian.Resources.Network
         {
             var connectionsToModify = new List<string>();
 
-            using (var feature = FindFeatureByName(featureName, Scope.Virtualization.ScopeObject))
-                foreach (ManagementObject connection in vm.VirtualSystemSettingData.GetEthernetPortAllocationSettingDataList())
-                    using (connection)
-                    {
-                        string[] requiredFeatures = (string[])connection["RequiredFeatures"];
-                        int featureIndex = -1;
-
-                        for (int idx = 0; idx < requiredFeatures.Length; ++idx)
-                            using (var requiredFeature = new ManagementObject(requiredFeatures[idx]))
-                            {
-                                requiredFeature.Get();
-
-                                if (string.Equals((string)requiredFeature["ElementName"], featureName, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    featureIndex = idx;
-                                    break;
-                                }
-                            }
-
-                        if (((featureIndex == -1) && !required) || ((featureIndex != -1) && required))
-                            continue;
-
-                        string[] newRequiredFeatures = null;
-
-                        if (required)
-                        {
-                            newRequiredFeatures = new string[requiredFeatures.Length + 1];
-
-                            for (int idx = 0; idx < requiredFeatures.Length; ++idx)
-                                newRequiredFeatures[idx] = requiredFeatures[idx];
-
-                            newRequiredFeatures[newRequiredFeatures.Length - 1] = feature.Path.Path;
-                        }
-                        else
-                        {
-                            newRequiredFeatures = new string[requiredFeatures.Length - 1];
-
-                            for (int idx = 0; idx < featureIndex; ++idx)
-                                newRequiredFeatures[idx] = requiredFeatures[idx];
-
-                            for (int idx = featureIndex; idx < newRequiredFeatures.Length; ++idx)
-                                newRequiredFeatures[idx] = requiredFeatures[idx + 1];
-                        }
-
-                        connection["RequiredFeatures"] = newRequiredFeatures;
-                        connectionsToModify.Add(connection.GetText(TextFormat.WmiDtd20));
-                    }
-
-            if (connectionsToModify.Count > 0)
-                VirtualSystemManagementService.Instance.ModifyResourceSettings(connectionsToModify.ToArray());
+            // TODO: fix this
+            // using (var feature = FindFeatureByName(featureName, Scope.Virtualization.ScopeObject))
+            //     foreach (ManagementObject connection in vm.VirtualSystemSettingData.GetEthernetPortAllocationSettingDataList())
+            //         using (connection)
+            //         {
+            //             string[] requiredFeatures = (string[])connection["RequiredFeatures"];
+            //             int featureIndex = -1;
+            // 
+            //             for (int idx = 0; idx < requiredFeatures.Length; ++idx)
+            //                 using (var requiredFeature = new ManagementObject(requiredFeatures[idx]))
+            //                 {
+            //                     requiredFeature.Get();
+            // 
+            //                     if (string.Equals((string)requiredFeature["ElementName"], featureName, StringComparison.OrdinalIgnoreCase))
+            //                     {
+            //                         featureIndex = idx;
+            //                         break;
+            //                     }
+            //                 }
+            // 
+            //             if (((featureIndex == -1) && !required) || ((featureIndex != -1) && required))
+            //                 continue;
+            // 
+            //             string[] newRequiredFeatures = null;
+            // 
+            //             if (required)
+            //             {
+            //                 newRequiredFeatures = new string[requiredFeatures.Length + 1];
+            // 
+            //                 for (int idx = 0; idx < requiredFeatures.Length; ++idx)
+            //                     newRequiredFeatures[idx] = requiredFeatures[idx];
+            // 
+            //                 newRequiredFeatures[newRequiredFeatures.Length - 1] = feature.Path.Path;
+            //             }
+            //             else
+            //             {
+            //                 newRequiredFeatures = new string[requiredFeatures.Length - 1];
+            // 
+            //                 for (int idx = 0; idx < featureIndex; ++idx)
+            //                     newRequiredFeatures[idx] = requiredFeatures[idx];
+            // 
+            //                 for (int idx = featureIndex; idx < newRequiredFeatures.Length; ++idx)
+            //                     newRequiredFeatures[idx] = requiredFeatures[idx + 1];
+            //             }
+            // 
+            //             connection["RequiredFeatures"] = newRequiredFeatures;
+            //             connectionsToModify.Add(connection.GetText(TextFormat.WmiDtd20));
+            //         }
+            // 
+            // if (connectionsToModify.Count > 0)
+            //     VirtualSystemManagementService.Instance.ModifyResourceSettings(connectionsToModify.ToArray());
         }
 
-        public static void AddBandwithSettings(ManagementScope scope, string switchName, ulong bytesPerSecond)
+        public static void AddBandwithSettings(string switchName, ulong bytesPerSecond)
         {
             string featureId = GetSwitchFeatureId(SwitchFeatureType.Bandwidth);
 
-            using (var ves = FindVirtualEthernetSwitch(scope, switchName))
-            using (var vessd = ves.GetRelated("Msvm_VirtualEthernetSwitchSettingData", "Msvm_SettingsDefineState", null, null, null, null, false, null).Cast<ManagementObject>().First())
-            using (ManagementObject bandwidthSetting = GetDefaultFeatureSetting(featureId, scope))
+            var ves = new VirtualEthernetSwitch(switchName);
+            using (var bandwidthSetting = GetDefaultFeatureSetting(featureId))
             {
                 bandwidthSetting["DefaultFlowReservation"] = bytesPerSecond;
 
-                VirtualEthernetSwitchManagementService.Instance.AddFeatureSettings(vessd.Path.Path, new string[] { bandwidthSetting.GetText(TextFormat.WmiDtd20) });
+                // TODO: fix this!
+                // VirtualEthernetSwitchManagementService.Instance.AddFeatureSettings(ves.VirtualEthernetSwitchSettingData.MsvmVirtualEthernetSwitchSettingData.Path.Path, new string[] { bandwidthSetting.GetText(TextFormat.WmiDtd20) });
             }
         }
 
-        public static void ModifyFeatureSettings(ManagementScope scope, string switchName, ulong bytesPerSecond)
+        public static void ModifyFeatureSettings(string switchName, ulong bytesPerSecond)
         {
-            using (var ves = FindVirtualEthernetSwitch(scope,  switchName))
-            using (var vessd = ves.GetRelated("Msvm_VirtualEthernetSwitchSettingData", "Msvm_SettingsDefineState", null, null, null, null, false, null).Cast<ManagementObject>().First())
-            using (var bandwidthSetting = vessd.GetRelated("Msvm_VirtualEthernetSwitchBandwidthSettingData","Msvm_VirtualEthernetSwitchSettingDataComponent", null, null, null, null, false, null).Cast<ManagementObject>().First())
+            var ves = new VirtualEthernetSwitch(switchName);
+            using (var bandwidthSetting = ves.VirtualEthernetSwitchSettingData.MsvmVirtualEthernetSwitchSettingData.GetRelated("Msvm_VirtualEthernetSwitchBandwidthSettingData","Msvm_VirtualEthernetSwitchSettingDataComponent", null, null, null, null, false, null).Cast<ManagementObject>().First())
             {
                 bandwidthSetting["DefaultFlowReservation"] = bytesPerSecond;
 
-                VirtualEthernetSwitchManagementService.Instance.ModifyResourceSettings(new string[] { bandwidthSetting.GetText(TextFormat.WmiDtd20) });
+                // TODO: fix this!
+                // VirtualEthernetSwitchManagementService.Instance.ModifyResourceSettings(new string[] { bandwidthSetting.GetText(TextFormat.WmiDtd20) });
             }
         }
 
-        public static void RemoveFeatureSettings(ManagementScope scope, string switchName)
+        public static void RemoveFeatureSettings(string switchName)
         {
-            using (var ves = FindVirtualEthernetSwitch(scope, switchName))
-            using (var vessd = ves.GetRelated("Msvm_VirtualEthernetSwitchSettingData", "Msvm_SettingsDefineState", null, null, null, null, false, null).Cast<ManagementObject>().First())
-            using (var vesbsd = vessd.GetRelated("Msvm_VirtualEthernetSwitchBandwidthSettingData", "Msvm_VirtualEthernetSwitchSettingDataComponent", null, null, null, null, false, null).Cast<ManagementObject>().First())
-                VirtualEthernetSwitchManagementService.Instance.RemoveFeatureSettings(new string[] { vesbsd.Path.Path });
+            var ves = new VirtualEthernetSwitch(switchName);
+            using (var vesbsd = ves.VirtualEthernetSwitchSettingData.MsvmVirtualEthernetSwitchSettingData.GetRelated("Msvm_VirtualEthernetSwitchBandwidthSettingData", "Msvm_VirtualEthernetSwitchSettingDataComponent", null, null, null, null, false, null).Cast<ManagementObject>().First())
+            { } // TODO: fix this!
+                // VirtualEthernetSwitchManagementService.Instance.RemoveFeatureSettings(new string[] { vesbsd.Path.Path });
         }
 
         public static void ModifyClusterMonitored(ComputerSystem vm, bool onOff)
         {
-            using (var syntheticPortSettings = vm?.VirtualSystemSettingData.MsvmVirtualSystemSettingData.GetRelated("Msvm_SyntheticEthernetPortSettingData", "Msvm_VirtualSystemSettingDataComponent", null, null, null, null, false, null))
-                foreach (ManagementObject syntheticEthernetPortSetting in syntheticPortSettings)
-                {
-                    syntheticEthernetPortSetting["ClusterMonitored"] = onOff;
-
-                    VirtualSystemManagementService.Instance.ModifyResourceSettings(new string[] { syntheticEthernetPortSetting.GetText(TextFormat.CimDtd20) });
-                }
+            // TODO: fix this
+            // using (var syntheticPortSettings = vm?.VirtualSystemSettingData.MsvmVirtualSystemSettingData.GetRelated("Msvm_SyntheticEthernetPortSettingData", "Msvm_VirtualSystemSettingDataComponent", null, null, null, null, false, null))
+            //     foreach (ManagementObject syntheticEthernetPortSetting in syntheticPortSettings)
+            //     {
+            //         syntheticEthernetPortSetting["ClusterMonitored"] = onOff;
+            // 
+            //         VirtualSystemManagementService.Instance.ModifyResourceSettings(new string[] { syntheticEthernetPortSetting.GetText(TextFormat.CimDtd20) });
+            //     }
         }
 
         #endregion
 
         #region Info
 
-        public static SwitchInfo GetSwitch(ManagementScope scope, string switchName)
+        public static SwitchInfo GetSwitch(string switchName)
         {
             SwitchInfo ethernetSwitchInfo = new SwitchInfo
             {
@@ -539,49 +449,46 @@ namespace Viridian.Resources.Network
                 SwitchFeatureList = new List<SwitchFeatureType>()
             };
 
-            using (ManagementObject ves = FindVirtualEthernetSwitch(scope, switchName))
+            var ves = new VirtualEthernetSwitch(switchName);
+            using (var espCollection = ves.MsvmVirtualEthernetSwitch.GetRelated("Msvm_EthernetSwitchPort", "Msvm_SystemDevice", null, null, null, null, false, null))
             {
-                using (var espCollection = ves.GetRelated("Msvm_EthernetSwitchPort", "Msvm_SystemDevice", null, null, null, null, false, null))
-                {
-                    foreach (ManagementObject esp in espCollection)
-                        using (esp)
+                foreach (ManagementObject esp in espCollection)
+                    using (esp)
+                    {
+                        PortInfo portInfo = new PortInfo
                         {
-                            PortInfo portInfo = new PortInfo
-                            {
-                                Type = PortConnectionType.Nothing,
-                                FeatureList = new List<PortFeatureType>()
-                            };
+                            Type = PortConnectionType.Nothing,
+                            FeatureList = new List<PortFeatureType>()
+                        };
 
-                            using (ManagementObject epasd = esp.GetRelated("Msvm_EthernetPortAllocationSettingData", "Msvm_ElementSettingData", null, null, null, null, false, null).Cast<ManagementObject>().First())
-                            {
-                                portInfo.Type = DeterminePortType(epasd);
+                        using (ManagementObject epasd = esp.GetRelated("Msvm_EthernetPortAllocationSettingData", "Msvm_ElementSettingData", null, null, null, null, false, null).Cast<ManagementObject>().First())
+                        {
+                            portInfo.Type = DeterminePortType(epasd);
 
-                                if (portInfo.Type == PortConnectionType.VirtualMachine)
-                                    using (var vssd = epasd.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_VirtualSystemSettingDataComponent", null, null, null, null, false, null).Cast<ManagementObject>().First())
-                                        portInfo.ConnectedName = (string)vssd["ElementName"];
-                                else if (portInfo.Type == PortConnectionType.External)
-                                    using (var externalAdapter = new ManagementObject(((string[])epasd["HostResource"])[0]))
-                                        portInfo.ConnectedName = (string)externalAdapter["ElementName"];
+                            if (portInfo.Type == PortConnectionType.VirtualMachine)
+                                using (var vssd = epasd.GetRelated("Msvm_VirtualSystemSettingData", "Msvm_VirtualSystemSettingDataComponent", null, null, null, null, false, null).Cast<ManagementObject>().First())
+                                    portInfo.ConnectedName = (string)vssd["ElementName"];
+                            else if (portInfo.Type == PortConnectionType.External)
+                                using (var externalAdapter = new ManagementObject(((string[])epasd["HostResource"])[0]))
+                                    portInfo.ConnectedName = (string)externalAdapter["ElementName"];
 
-                                using (var portFeatureCollection = epasd.GetRelated("Msvm_EthernetSwitchPortFeatureSettingData", "Msvm_EthernetPortSettingDataComponent", null, null, null, null, false, null))
-                                    foreach (ManagementObject portFeature in portFeatureCollection)
-                                        using (portFeature)
-                                            portInfo.FeatureList.Add(DeterminePortFeatureType(portFeature));
-                            }
-
-                            ethernetSwitchInfo.PortList.Add(portInfo);
+                            using (var portFeatureCollection = epasd.GetRelated("Msvm_EthernetSwitchPortFeatureSettingData", "Msvm_EthernetPortSettingDataComponent", null, null, null, null, false, null))
+                                foreach (ManagementObject portFeature in portFeatureCollection)
+                                    using (portFeature)
+                                        portInfo.FeatureList.Add(DeterminePortFeatureType(portFeature));
                         }
 
-                    using (var vessd = ves.GetRelated("Msvm_VirtualEthernetSwitchSettingData", "Msvm_SettingsDefineState", null, null, null, null, false, null).Cast<ManagementObject>().First())
-                    using (var esfsd = vessd.GetRelated("Msvm_EthernetSwitchFeatureSettingData", "Msvm_VirtualEthernetSwitchSettingDataComponent", null, null, null, null, false, null))
-                        foreach (ManagementObject switchFeature in esfsd)
-                            using (switchFeature)
-                                ethernetSwitchInfo.SwitchFeatureList.Add(DetermineSwitchFeatureType(switchFeature));
+                        ethernetSwitchInfo.PortList.Add(portInfo);
+                    }
 
-                    ethernetSwitchInfo.Type = DetermineSwitchConnectionType(ethernetSwitchInfo.PortList);
+                using (var esfsd = ves.VirtualEthernetSwitchSettingData.MsvmVirtualEthernetSwitchSettingData.GetRelated("Msvm_EthernetSwitchFeatureSettingData", "Msvm_VirtualEthernetSwitchSettingDataComponent", null, null, null, null, false, null))
+                    foreach (ManagementObject switchFeature in esfsd)
+                        using (switchFeature)
+                            ethernetSwitchInfo.SwitchFeatureList.Add(DetermineSwitchFeatureType(switchFeature));
 
-                    return ethernetSwitchInfo;
-                }
+                ethernetSwitchInfo.Type = DetermineSwitchConnectionType(ethernetSwitchInfo.PortList);
+
+                return ethernetSwitchInfo;
             }
         }
 
@@ -687,9 +594,9 @@ namespace Viridian.Resources.Network
             return virtualMachineNames;
         }
 
-        public static bool SupportsTrunkMode(ManagementScope scope, string externalAdapterName)
+        public static bool SupportsTrunkMode(string externalAdapterName)
         {
-            using (var eep = FindExternalAdapter(scope, externalAdapterName))
+            using (var eep = FindExternalAdapter(externalAdapterName))
             using (var leCollection = eep.GetRelated("Msvm_LanEndpoint"))
             {
                 using (var le = leCollection.Cast<ManagementObject>().First())
@@ -709,19 +616,20 @@ namespace Viridian.Resources.Network
 
         public static ManagementObject GetDefaultEthernetPortAllocationSettingData()
         {
-            using (var rp = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.EthernetConnection.ResourceSubType))
-                return ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(rp);
+            //using (var rp = ResourcePool.GetPool(ResourcePool.ResourceTypeInfo.EthernetConnection.ResourceSubType))
+            //    return ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(rp);
+            return null;
         }
 
-        public static ManagementObject FindExternalAdapter(ManagementScope scope, string Name)
+        public static ManagementObject FindExternalAdapter(string Name)
         {
-            using (var mos = new ManagementObjectSearcher(scope, new ObjectQuery("SELECT * FROM Msvm_ExternalEthernetPort")))
+            using (var mos = new ManagementObjectSearcher(Scope.Virtualization.ScopeObject, new ObjectQuery("SELECT * FROM Msvm_ExternalEthernetPort")))
                 return mos.Get().Cast<ManagementObject>().Where((c) => c[nameof(Name)]?.ToString() == Name).First();
         }
 
-        public static ManagementObject FindVirtualEthernetSwitch(ManagementScope scope, string ElementName)
+        public static ManagementObject FindVirtualEthernetSwitch(string ElementName)
         {
-            using (var mos = new ManagementObjectSearcher(scope, new ObjectQuery("SELECT * FROM Msvm_VirtualEthernetSwitch")))
+            using (var mos = new ManagementObjectSearcher(Scope.Virtualization.ScopeObject, new ObjectQuery("SELECT * FROM Msvm_VirtualEthernetSwitch")))
                 return mos.Get().Cast<ManagementObject>().Where((c) => c[nameof(ElementName)]?.ToString() == ElementName).First();
         }
 
@@ -733,21 +641,22 @@ namespace Viridian.Resources.Network
                 throw new ArgumentNullException(nameof(ethernetSwitch));
 
             var connectionsToSwitch = new List<ManagementObject>();
-            foreach (ManagementObject epasd in vm.VirtualSystemSettingData.GetEthernetPortAllocationSettingDataList())
-            {
-                string[] hostResource = (string[])epasd["HostResource"];
-                if (hostResource != null && hostResource.Length > 0 && string.Equals(hostResource[0], ethernetSwitch.Path.Path, StringComparison.OrdinalIgnoreCase))
-                {
-                    connectionsToSwitch.Add(epasd);
-                    continue;
-                }
-
-                epasd.GetRelated("Msvm_EthernetSwitchPort", "Msvm_ElementSettingData", null, null, null, null, false, null)
-                    .Cast<ManagementObject>()
-                    .Where((esp) => esp["SystemName"].ToString() == ethernetSwitch["Name"].ToString())
-                    .ToList()
-                    .ForEach((esd) => connectionsToSwitch.Add(esd));
-            }
+            // TODO: fix this
+            //foreach (ManagementObject epasd in vm.VirtualSystemSettingData.GetEthernetPortAllocationSettingDataList())
+            //{
+            //    string[] hostResource = (string[])epasd["HostResource"];
+            //    if (hostResource != null && hostResource.Length > 0 && string.Equals(hostResource[0], ethernetSwitch.Path.Path, StringComparison.OrdinalIgnoreCase))
+            //    {
+            //        connectionsToSwitch.Add(epasd);
+            //        continue;
+            //    }
+            //
+            //    epasd.GetRelated("Msvm_EthernetSwitchPort", "Msvm_ElementSettingData", null, null, null, null, false, null)
+            //        .Cast<ManagementObject>()
+            //        .Where((esp) => esp["SystemName"].ToString() == ethernetSwitch["Name"].ToString())
+            //        .ToList()
+            //        .ForEach((esd) => connectionsToSwitch.Add(esd));
+            //}
 
             return connectionsToSwitch;
         }
@@ -766,13 +675,13 @@ namespace Viridian.Resources.Network
             }
         }
 
-        public static ManagementObject GetDefaultFeatureSetting(string featureId, ManagementScope scope)
+        public static ManagementObject GetDefaultFeatureSetting(string featureId)
         {
             string defaultFeatureSettingPath = null;
 
             using (var esfcClass = new ManagementClass("Msvm_EthernetSwitchFeatureCapabilities"))
             {
-                esfcClass.Scope = scope;
+                esfcClass.Scope = Scope.Virtualization.ScopeObject;
 
                 esfcClass.GetInstances()
                     .Cast<ManagementObject>()
@@ -791,7 +700,7 @@ namespace Viridian.Resources.Network
 
             var defaultFeatureSetting = new ManagementObject(defaultFeatureSettingPath)
             {
-                Scope = scope
+                Scope = Scope.Virtualization.ScopeObject
             };
 
             defaultFeatureSetting.Get();

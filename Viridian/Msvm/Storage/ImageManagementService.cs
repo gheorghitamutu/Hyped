@@ -382,39 +382,5 @@ namespace Viridian.Msvm.Storage
                     Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
             }
         }
-
-        #region Utils
-
-        public static ManagementObject CreateVirtualHardDiskSettingData(VirtualHardDiskType diskType, VirtualDiskFormat diskFormat, string path, string parentPath, long maxInternalSize, int blockSize = 0, int logicalSectorSize = 0, int physicalSectorSize = 0)
-        {
-            var managementPath = new ManagementPath()
-            { 
-                Server = Properties.Environment.Default.Server,
-                NamespacePath = Instance.Msvm_ImageManagementService.Path.Path,
-                ClassName = "Msvm_VirtualHardDiskSettingData"
-            };
-
-            using (var Msvm_VirtualHardDiskSettingDataClass = new ManagementClass(managementPath))
-            using (var Msvm_VirtualHardDiskSettingData = Msvm_VirtualHardDiskSettingDataClass.CreateInstance())
-            {
-                if (Msvm_VirtualHardDiskSettingData == null)
-#pragma warning disable CA1303 // Do not pass literals as localized parameters
-                    throw new NullReferenceException(nameof(Msvm_VirtualHardDiskSettingData));
-#pragma warning restore CA1303 // Do not pass literals as localized parameters
-
-                Msvm_VirtualHardDiskSettingData["Type"] = diskType;
-                Msvm_VirtualHardDiskSettingData["Format"] = diskFormat;
-                Msvm_VirtualHardDiskSettingData["Path"] = path;
-                Msvm_VirtualHardDiskSettingData["ParentPath"] = parentPath;
-                Msvm_VirtualHardDiskSettingData["MaxInternalSize"] = maxInternalSize;
-                Msvm_VirtualHardDiskSettingData["BlockSize"] = blockSize;
-                Msvm_VirtualHardDiskSettingData["LogicalSectorSize"] = logicalSectorSize;
-                Msvm_VirtualHardDiskSettingData["PhysicalSectorSize"] = physicalSectorSize;
-
-                return Msvm_VirtualHardDiskSettingData;
-            }
-        }
-
-        #endregion
     }
 }
