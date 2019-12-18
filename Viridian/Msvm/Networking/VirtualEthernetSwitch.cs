@@ -1,270 +1,317 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Management;
-using Viridian.Job;
-using Viridian.Msvm.VirtualSystem;
-using Viridian.Resources.Network;
-using Viridian.Scopes;
 
 namespace Viridian.Msvm.Networking
 {
-    public sealed class VirtualEthernetSwitch
+    public class VirtualEthernetSwitch : MsvmBase
     {
-        private ManagementObject Msvm_VirtualEthernetSwitch = null; // don't directly use it unless explicitly required (Name property)!
-        public VirtualEthernetSwitchSettingData VirtualEthernetSwitchSettingData { get; private set; }
+        public static string ClassName => $"Msvm_{nameof(VirtualEthernetSwitch)}";
 
-        private string elementName = null; // unique identifier
+        // Below are different overloads of constructors to initialize an instance of the class with a WMI object.
+        public VirtualEthernetSwitch() : base(ClassName) { }
 
-        public VirtualEthernetSwitch(string ElementName, string[] ResourceSettings = null)
-        {
-            this.ElementName = ElementName;
+        public VirtualEthernetSwitch(string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
 
-            Define(ResourceSettings);
+        public VirtualEthernetSwitch(ManagementScope mgmtScope, string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(mgmtScope, keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
 
-            VirtualEthernetSwitchSettingData = new VirtualEthernetSwitchSettingData(this, Properties.VirtualSystemSettingData.Default.Msvm_SettingsDefineState);
-        }
+        public VirtualEthernetSwitch(ManagementPath path, ObjectGetOptions getOptions) : base(path, getOptions, ClassName) { }
 
-        public ManagementObject MsvmVirtualEthernetSwitch
+        public VirtualEthernetSwitch(ManagementScope mgmtScope, ManagementPath path) : base(mgmtScope, path, ClassName) { }
+
+        public VirtualEthernetSwitch(ManagementPath path) : base(path, ClassName) { }
+
+        public VirtualEthernetSwitch(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions getOptions) : base(mgmtScope, path, getOptions, ClassName) { }
+
+        public VirtualEthernetSwitch(ManagementObject theObject) : base(theObject, ClassName) { }
+
+        public ushort[] AvailableRequestedStates => (ushort[])LateBoundObject[nameof(AvailableRequestedStates)];
+
+        public string Caption => (string)LateBoundObject[nameof(Caption)];
+
+        public ushort CommunicationStatus
         {
             get
             {
-                if (Name == null && Msvm_VirtualEthernetSwitch == null)
-                    return null;
-
-                if (Name == null)
-                    return QueryMsvmVirtualEthernetSwitch(nameof(ElementName), ElementName);
-
-                return QueryMsvmVirtualEthernetSwitch(nameof(Name), Name);
+                if (LateBoundObject[nameof(CommunicationStatus)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(CommunicationStatus)];
             }
+        }
 
+        public string CreationClassName => (string)LateBoundObject[nameof(CreationClassName)];
+
+        public ushort[] Dedicated => (ushort[])LateBoundObject[nameof(Dedicated)];
+
+        public string Description => (string)LateBoundObject[nameof(Description)];
+
+        public ushort DetailedStatus
+        {
+            get
+            {
+                if (LateBoundObject[nameof(DetailedStatus)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(DetailedStatus)];
+            }
+        }
+        public string ElementName => (string)LateBoundObject[nameof(ElementName)];
+
+        public ushort EnabledDefault
+        {
+            get
+            {
+                if (LateBoundObject[nameof(EnabledDefault)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(EnabledDefault)];
+            }
+        }
+
+        public ushort EnabledState
+        {
+            get
+            {
+                if (LateBoundObject[nameof(EnabledState)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(EnabledState)];
+            }
+        }
+
+        public ushort HealthState
+        {
+            get
+            {
+                if (LateBoundObject[nameof(HealthState)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(HealthState)];
+            }
+        }
+
+        public string[] IdentifyingDescriptions => (string[])LateBoundObject[nameof(IdentifyingDescriptions)];
+
+        public DateTime InstallDate
+        {
+            get
+            {
+                if (LateBoundObject[nameof(InstallDate)] != null)
+                {
+                    return ToDateTime((string)LateBoundObject[nameof(InstallDate)]);
+                }
+                else
+                {
+                    return DateTime.MinValue;
+                }
+            }
+        }
+
+        public string InstanceID => (string)LateBoundObject[nameof(InstanceID)];
+
+        /*
+         * The maximum number of SR-IOV Virtual Function offloads available on this switch.
+         */
+        public uint MaxIOVOffloads
+        {
+            get
+            {
+                if (LateBoundObject[nameof(MaxIOVOffloads)] == null)
+                {
+                    return Convert.ToUInt32(0);
+                }
+                return (uint)LateBoundObject[nameof(MaxIOVOffloads)];
+            }
+        }
+
+        /*
+         * The maximum number of VMQ offloads allowed for a port on this switch.
+         */
+        public uint MaxVMQOffloads
+        {
+            get
+            {
+                if (LateBoundObject[nameof(MaxVMQOffloads)] == null)
+                {
+                    return Convert.ToUInt32(0);
+                }
+                return (uint)LateBoundObject[nameof(MaxVMQOffloads)];
+            }
             set
             {
-                if (Msvm_VirtualEthernetSwitch != null)
-                    Msvm_VirtualEthernetSwitch.Dispose();
-
-                Msvm_VirtualEthernetSwitch = value;
+                LateBoundObject[nameof(MaxVMQOffloads)] = value;
+                if ((IsEmbedded == false) && (AutoCommit == true))
+                {
+                    PrivateLateBoundObject.Put();
+                }
             }
         }
 
-        private void Define(string[] ResourceSettings)
+        public string Name => (string)LateBoundObject[nameof(Name)];
+
+        public string NameFormat => (string)LateBoundObject[nameof(NameFormat)];
+
+        public ushort OperatingStatus
         {
-            if (MsvmVirtualEthernetSwitch == null)
+            get
             {
-                var virtualEthernetSwitch = QueryMsvmVirtualEthernetSwitch(nameof(ElementName), ElementName);
-                // TODO: fix this
-                //MsvmVirtualEthernetSwitch = virtualEthernetSwitch ??
-                //        VirtualEthernetSwitchManagementService.Instance.DefineSystem(
-                //            new VirtualEthernetSwitchSettingData().ModifyProperties(
-                //                new Dictionary<string, object>()
-                //                {
-                //                    { nameof(ElementName), ElementName }
-                //                }).GetText(TextFormat.WmiDtd20),
-                //            ResourceSettings,
-                //            null);
+                if (LateBoundObject[nameof(OperatingStatus)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(OperatingStatus)];
             }
         }
 
-        #region Enums
-        public enum CommunicationStatusVES : ushort
-        {
-            Unknown = 0,
-            NotAvailable = 1,
-            CommunicationOK = 2,
-            LostCommunication = 3,
-            NoContact = 4
-        }
-        public enum DetailedStatusVES : ushort
-        {
-            Unknown = 0,
-            NoAdditionalInformation = 1,
-            Stressed = 2,
-            PredictiveFailure = 3,
-            NonRecoverableError = 4,
-            SupportingEntityInError = 5
-        }
-        public enum EnabledDefaultVES : ushort
-        {
-            Enabled = 2,
-            Disabled = 3,
-            EnabledButOffline = 6
-        }
-        public enum HealthStateVES : ushort
-        {
-            OK = 5,
-            MajorFailure = 20,
-            CriticalFailure = 25
-        }
-        public enum OperatingStatusVES
-        {
-            Unknown = 0,
-            NotAvailable = 1,
-            Servicing = 2,
-            Starting = 3,
-            Stopping = 4,
-            Stopped = 5,
-            Aborted = 6,
-            Dormant = 7,
-            Completed = 8,
-            Migrating = 9,
-            Emigrating = 10,
-            Immigrating = 11,
-            Snapshotting = 12,
-            ShuttingDown = 13,
-            InTest = 14,
-            Transitioning = 15,
-            InService = 16
-        }
-        public enum PrimaryStatusVES
-        {
-            Unknown = 0,
-            OK = 1,
-            Degraded = 2,
-            Error = 3
-        }
-        public enum AvailableRequestedStatesVES
-        {
-            Enabled = 2,
-            Disabled = 3,
-            ShutDown = 4,
-            Offline = 6,
-            Test = 7,
-            Defer = 8,
-            Quiesce = 9,
-            Reboot = 10,
-            Reset = 11
-        }
+        public ushort[] OperationalStatus => (ushort[])LateBoundObject[nameof(OperationalStatus)];
 
-        #endregion
+        public string[] OtherDedicatedDescriptions => (string[])LateBoundObject[nameof(OtherDedicatedDescriptions)];
 
-        #region MsvmProperties
+        public string OtherEnabledState => (string)LateBoundObject[nameof(OtherEnabledState)];
 
-        public string InstanceID => MsvmVirtualEthernetSwitch[nameof(InstanceID)]?.ToString();
-        public string Caption => MsvmVirtualEthernetSwitch[nameof(Caption)].ToString();
-        public string Description => MsvmVirtualEthernetSwitch[nameof(Description)].ToString();
-        public string ElementName
+        public string[] OtherIdentifyingInfo => (string[])LateBoundObject[nameof(OtherIdentifyingInfo)];
+
+        public ushort[] PowerManagementCapabilities => (ushort[])LateBoundObject[nameof(PowerManagementCapabilities)];
+
+        public string PrimaryOwnerContact => (string)LateBoundObject[nameof(PrimaryOwnerContact)];
+
+        public string PrimaryOwnerName => (string)LateBoundObject[nameof(PrimaryOwnerName)];
+
+        public ushort PrimaryStatus
         {
-            get { return Msvm_VirtualEthernetSwitch != null ? MsvmVirtualEthernetSwitch[nameof(ElementName)].ToString() : elementName; }
-            private set { elementName = value; }
-        }
-        public DateTime InstallDate => ManagementDateTimeConverter.ToDateTime(MsvmVirtualEthernetSwitch[nameof(InstallDate)].ToString());
-        public ushort[] OperationalStatus => (ushort[])MsvmVirtualEthernetSwitch[nameof(OperationalStatus)];
-        public string[] StatusDescriptions => (string[])MsvmVirtualEthernetSwitch[nameof(StatusDescriptions)];
-        public string Status => MsvmVirtualEthernetSwitch[nameof(Status)].ToString();
-        public HealthStateVES HealthState => (HealthStateVES)MsvmVirtualEthernetSwitch[nameof(HealthState)];
-        public CommunicationStatusVES CommunicationStatus => (CommunicationStatusVES)(ushort)MsvmVirtualEthernetSwitch[nameof(CommunicationStatus)];
-        public DetailedStatusVES DetailedStatus => (DetailedStatusVES)(ushort)MsvmVirtualEthernetSwitch[nameof(DetailedStatus)];
-        public OperatingStatusVES OperatingStatus => (OperatingStatusVES)(ushort)MsvmVirtualEthernetSwitch[nameof(OperatingStatus)];
-        public PrimaryStatusVES PrimaryStatus => (PrimaryStatusVES)(ushort)MsvmVirtualEthernetSwitch[nameof(PrimaryStatus)];
-        public ushort EnabledState => (ushort)MsvmVirtualEthernetSwitch[nameof(EnabledState)];
-        public string OtherEnabledState => MsvmVirtualEthernetSwitch[nameof(OtherEnabledState)].ToString();
-        public ushort RequestedState => (ushort)MsvmVirtualEthernetSwitch[nameof(RequestedState)];
-        public EnabledDefaultVES EnabledDefault => (EnabledDefaultVES)MsvmVirtualEthernetSwitch[nameof(EnabledDefault)];
-        public DateTime TimeOfLastStateChange => ManagementDateTimeConverter.ToDateTime(MsvmVirtualEthernetSwitch[nameof(TimeOfLastStateChange)].ToString());
-        public AvailableRequestedStatesVES[] AvailableRequestedStates => (AvailableRequestedStatesVES[])MsvmVirtualEthernetSwitch[nameof(AvailableRequestedStates)];
-        public ushort TransitioningToState => (ushort)MsvmVirtualEthernetSwitch[nameof(TransitioningToState)];
-        public string CreationClassName => MsvmVirtualEthernetSwitch[nameof(CreationClassName)].ToString();
-        public string Name => Msvm_VirtualEthernetSwitch?[nameof(Name)].ToString();
-        public string PrimaryOwnerName => MsvmVirtualEthernetSwitch[nameof(PrimaryOwnerName)].ToString();
-        public string PrimaryOwnerContact => MsvmVirtualEthernetSwitch[nameof(PrimaryOwnerContact)].ToString();
-        public string[] Roles => (string[])MsvmVirtualEthernetSwitch[nameof(Roles)];
-        public string NameFormat => MsvmVirtualEthernetSwitch[nameof(NameFormat)].ToString();
-        public string[] OtherIdentifyingInfo => (string[])MsvmVirtualEthernetSwitch[nameof(OtherIdentifyingInfo)];
-        public string[] IdentifyingDescriptions => (string[])MsvmVirtualEthernetSwitch[nameof(IdentifyingDescriptions)];
-        public ushort[] Dedicated => (ushort[])MsvmVirtualEthernetSwitch[nameof(Dedicated)];
-        public string[] OtherDedicatedDescriptions => (string[])MsvmVirtualEthernetSwitch[nameof(OtherDedicatedDescriptions)];
-        public ushort ResetCapability => (ushort)MsvmVirtualEthernetSwitch[nameof(ResetCapability)];
-        public ushort[] PowerManagementCapabilities => (ushort[])MsvmVirtualEthernetSwitch[nameof(PowerManagementCapabilities)];
-        public uint MaxVMQOffloads => (uint)MsvmVirtualEthernetSwitch[nameof(MaxVMQOffloads)];
-        public uint MaxIOVOffloads => (uint)MsvmVirtualEthernetSwitch[nameof(MaxIOVOffloads)];
-
-
-        #endregion
-
-        #region MsvmMethods
-        public void RequestStateChange(AvailableRequestedStatesVES RequestedState, ulong TimeoutPeriod = 0)
-        {
-            using (var ip = MsvmVirtualEthernetSwitch.GetMethodParameters(nameof(RequestStateChange)))
+            get
             {
-                ip[nameof(RequestedState)] = (ushort)RequestedState;
-                ip[nameof(TimeoutPeriod)] = null; // CIM_DateTime
-
-                using (var op = MsvmVirtualEthernetSwitch.InvokeMethod(nameof(RequestStateChange), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.ScopeObject);
+                if (LateBoundObject[nameof(PrimaryStatus)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(PrimaryStatus)];
             }
         }
 
-        #endregion
-
-        public static ManagementObject QueryMsvmVirtualEthernetSwitch(string Name, string Value)
+        public ushort RequestedState
         {
-            using (var mos = new ManagementObjectSearcher(Scope.Virtualization.ScopeObject, new ObjectQuery($"SELECT * FROM {nameof(Msvm_VirtualEthernetSwitch)}")))
-                return mos.Get().Cast<ManagementObject>().Where((c) => c[Name]?.ToString() == Value).FirstOrDefault();
-        }
-
-        public static VirtualEthernetSwitch CreatePrivateSwitch(string ElementName)
-        {
-            return new VirtualEthernetSwitch(ElementName, null);
-        }
-
-        public static VirtualEthernetSwitch CreateInternalSwitch(string ElementName)
-        {
-            using (var host = ComputerSystem.GetInstances($"Name='{Environment.MachineName}'").Cast<ManagementObject>().ToList().First())
-            using (var depasd = NetSwitch.GetDefaultEthernetPortAllocationSettingData())
+            get
             {
-                depasd[nameof(ElementName)] = ElementName;
-                depasd["HostResource"] = new string[] { host.Path.Path };
-
-                string[] ResourceSettings = new string[] { depasd.GetText(TextFormat.WmiDtd20) };
-
-                return new VirtualEthernetSwitch(ElementName, ResourceSettings);
+                if (LateBoundObject[nameof(RequestedState)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(RequestedState)];
             }
         }
 
-        public static VirtualEthernetSwitch CreateExternalOnlySwitch(string ExternalAdapterName, string ElementName)
+        public ushort ResetCapability
         {
-            using (var eep = NetSwitch.FindExternalAdapter(ExternalAdapterName))
-            using (var depasd = NetSwitch.GetDefaultEthernetPortAllocationSettingData())
+            get
             {
-                depasd[nameof(ElementName)] = ElementName;
-                depasd["HostResource"] = new string[] { eep.Path.Path };
-
-                string[] ResourceSettings = new string[] { depasd.GetText(TextFormat.WmiDtd20) };
-
-                return new VirtualEthernetSwitch(ElementName, ResourceSettings);
+                if (LateBoundObject[nameof(ResetCapability)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(ResetCapability)];
             }
         }
 
-        public static VirtualEthernetSwitch CreateExternalSwitch(string externalAdapterName, string ElementName)
+        public string[] Roles => (string[])LateBoundObject[nameof(Roles)];
+
+        public string Status => (string)LateBoundObject[nameof(Status)];
+
+        public string[] StatusDescriptions => (string[])LateBoundObject[nameof(StatusDescriptions)];
+
+        public DateTime TimeOfLastStateChange
         {
-            using (var eep = NetSwitch.FindExternalAdapter(externalAdapterName))
-            using (var host = ComputerSystem.GetInstances($"Name='{Environment.MachineName}'").Cast<ManagementObject>().ToList().First())
-            using (var depasdInternal = NetSwitch.GetDefaultEthernetPortAllocationSettingData())
-            using (var depasdExternal = NetSwitch.GetDefaultEthernetPortAllocationSettingData())
+            get
             {
-                depasdExternal[nameof(ElementName)] = ElementName + "_External";
-                depasdExternal["HostResource"] = new string[] { eep.Path.Path };
-
-                depasdInternal[nameof(ElementName)] = ElementName + "_Internal";
-                depasdInternal["HostResource"] = new string[] { host.Path.Path };
-                depasdInternal["Address"] = eep["PermanentAddress"];
-
-                string[] ResourceSettings = new string[] { depasdExternal.GetText(TextFormat.WmiDtd20), depasdInternal.GetText(TextFormat.WmiDtd20) };
-
-                return new VirtualEthernetSwitch(ElementName, ResourceSettings);
+                if (LateBoundObject[nameof(TimeOfLastStateChange)] != null)
+                {
+                    return ToDateTime((string)LateBoundObject[nameof(TimeOfLastStateChange)]);
+                }
+                else
+                {
+                    return DateTime.MinValue;
+                }
             }
         }
-        public void DestroySystem()
+
+        public ushort TransitioningToState
         {
-            // TODO: fix this
-            //VirtualEthernetSwitchManagementService.Instance.DestroySystem(MsvmVirtualEthernetSwitch);
-            MsvmVirtualEthernetSwitch.Dispose();
-            MsvmVirtualEthernetSwitch = null;
+            get
+            {
+                if (LateBoundObject[nameof(TransitioningToState)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(TransitioningToState)];
+            }
         }
 
-        ~VirtualEthernetSwitch()
+        public VirtualEthernetSwitch(ManagementBaseObject theObject) : base(theObject, ClassName) { }
+
+        // Different overloads of GetInstances() help in enumerating instances of the WMI class.
+        public static List<VirtualEthernetSwitch> GetInstances() => GetInstances(null, null, null, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualEthernetSwitch(mo)).ToList();
+
+        public new static List<VirtualEthernetSwitch> GetInstances(string condition) => GetInstances(null, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualEthernetSwitch(mo)).ToList();
+
+        public static List<VirtualEthernetSwitch> GetInstances(string[] selectedProperties) => GetInstances(null, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualEthernetSwitch(mo)).ToList();
+
+        public static List<VirtualEthernetSwitch> GetInstances(string condition, string[] selectedProperties) => GetInstances(null, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualEthernetSwitch(mo)).ToList();
+
+        public static List<VirtualEthernetSwitch> GetInstances(ManagementScope mgmtScope, EnumerationOptions enumOptions) => GetInstances(mgmtScope, enumOptions, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualEthernetSwitch(mo)).ToList();
+
+        public static List<VirtualEthernetSwitch> GetInstances(ManagementScope mgmtScope, string condition) => GetInstances(mgmtScope, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualEthernetSwitch(mo)).ToList();
+
+        public static List<VirtualEthernetSwitch> GetInstances(ManagementScope mgmtScope, string[] selectedProperties) => GetInstances(mgmtScope, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualEthernetSwitch(mo)).ToList();
+
+        public static List<VirtualEthernetSwitch> GetInstances(ManagementScope mgmtScope, string condition, string[] selectedProperties) => GetInstances(mgmtScope, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualEthernetSwitch(mo)).ToList();
+
+        public static VirtualEthernetSwitch CreateInstance() => new VirtualEthernetSwitch(CreateInstance(ClassName));
+        
+        public uint RequestStateChange(ushort RequestedState, DateTime TimeoutPeriod, out ManagementPath Job)
         {
-            if (Msvm_VirtualEthernetSwitch != null)
-                Msvm_VirtualEthernetSwitch.Dispose();
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = null;
+                inParams = PrivateLateBoundObject.GetMethodParameters("RequestStateChange");
+                inParams[nameof(RequestedState)] = (ushort)RequestedState;
+                inParams["TimeoutPeriod"] = ToDmtfDateTime((DateTime)TimeoutPeriod);
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RequestStateChange", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams.Properties["Job"].ToString());
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint SetPowerState(uint PowerState, DateTime Time)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = null;
+                inParams = PrivateLateBoundObject.GetMethodParameters("SetPowerState");
+                inParams["PowerState"] = (uint)PowerState;
+                inParams["Time"] = ToDmtfDateTime((DateTime)Time);
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("SetPowerState", inParams, null);
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                return Convert.ToUInt32(0);
+            }
         }
     }
 }

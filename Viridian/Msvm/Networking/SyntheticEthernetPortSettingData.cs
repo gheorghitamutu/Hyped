@@ -2,124 +2,333 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Management;
-using Viridian.Msvm.ResourceManagement;
-using Viridian.Msvm.VirtualSystem;
-using Viridian.Scopes;
 
 namespace Viridian.Msvm.Networking
 {
-    public sealed class SyntheticEthernetPortSettingData
+    public class SyntheticEthernetPortSettingData : MsvmBase
     {
-        private ManagementObject Msvm_SyntheticEthernetPortSettingData = null;
-        private VirtualSystemSettingData VirtualSystemSettingData { get; set; }
-        private string[] virtualSystemIdentifiers = null;
+        public static string ClassName => $"Msvm_{nameof(SyntheticEthernetPortSettingData)}";
 
-        public SyntheticEthernetPortSettingData(ManagementObject SyntheticEthernetPortSettingData, VirtualSystemSettingData VirtualSystemSettingData = null)
-        {
-            MsvmSyntheticEthernetPortSettingData = SyntheticEthernetPortSettingData;
-            this.VirtualSystemSettingData = VirtualSystemSettingData;
-        }
+        // Below are different overloads of constructors to initialize an instance of the class with a WMI object.
+        public SyntheticEthernetPortSettingData() : base(ClassName) { }
 
-        public SyntheticEthernetPortSettingData(string ResourceSubType, string ElementName, bool StaticMacAddress = false, VirtualSystemSettingData VirtualSystemSettingData = null)
-        {
-            //using (var pool = ResourcePool.GetPool(ResourceSubType))
-            //    Msvm_SyntheticEthernetPortSettingData = ResourceAllocationSettingData.GetDefaultResourceAllocationSettingDataForPool(pool);
-            //
-            //Msvm_SyntheticEthernetPortSettingData[nameof(ElementName)] = ElementName;
-            //Msvm_SyntheticEthernetPortSettingData[nameof(VirtualSystemIdentifiers)] = new string[] { Guid.NewGuid().ToString("B") };
-            //Msvm_SyntheticEthernetPortSettingData[nameof(StaticMacAddress)] = StaticMacAddress;
+        public SyntheticEthernetPortSettingData(string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
 
-            this.VirtualSystemSettingData = VirtualSystemSettingData;
-        }
+        public SyntheticEthernetPortSettingData(ManagementScope mgmtScope, string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(mgmtScope, keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
 
-        public ManagementObject MsvmSyntheticEthernetPortSettingData
+        public SyntheticEthernetPortSettingData(ManagementPath path, ObjectGetOptions getOptions) : base(path, getOptions, ClassName) { }
+
+        public SyntheticEthernetPortSettingData(ManagementScope mgmtScope, ManagementPath path) : base(mgmtScope, path, ClassName) { }
+
+        public SyntheticEthernetPortSettingData(ManagementPath path) : base(path, ClassName) { }
+
+        public SyntheticEthernetPortSettingData(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions getOptions) : base(mgmtScope, path, getOptions, ClassName) { }
+
+        public SyntheticEthernetPortSettingData(ManagementObject theObject) : base(theObject, ClassName) { }
+
+        public SyntheticEthernetPortSettingData(ManagementBaseObject theObject) : base(theObject, ClassName) { }
+
+        public string Address => (string)LateBoundObject[nameof(Address)];
+
+        public string AddressOnParent => (string)LateBoundObject[nameof(AddressOnParent)];
+
+        public string AllocationUnits => (string)LateBoundObject[nameof(AllocationUnits)];
+
+        /*
+         * Indicates if PacketDirect projection is enabled for the VM.
+         */
+        public bool AllowPacketDirect
         {
             get
             {
-                virtualSystemIdentifiers = Msvm_SyntheticEthernetPortSettingData?[nameof(VirtualSystemIdentifiers)] as string[];
-
-                if (Msvm_SyntheticEthernetPortSettingData != null && virtualSystemIdentifiers != null && virtualSystemIdentifiers?.Length > 0)
-                    using (var mos = new ManagementObjectSearcher(Scope.Virtualization.ScopeObject, new ObjectQuery($"SELECT * FROM {nameof(Msvm_SyntheticEthernetPortSettingData)}")))
-                        Msvm_SyntheticEthernetPortSettingData = mos.Get().Cast<ManagementObject>().Where((c) => (c[nameof(VirtualSystemIdentifiers)] as string[])?[0] == virtualSystemIdentifiers[0]).FirstOrDefault();
-
-                return Msvm_SyntheticEthernetPortSettingData;
+                if (LateBoundObject[nameof(AllowPacketDirect)] == null)
+                {
+                    return Convert.ToBoolean(0);
+                }
+                return (bool)LateBoundObject[nameof(AllowPacketDirect)];
             }
-
             set
             {
-                Msvm_SyntheticEthernetPortSettingData?.Dispose();
-                Msvm_SyntheticEthernetPortSettingData = value;
+                LateBoundObject[nameof(AllowPacketDirect)] = value;
+                if ((IsEmbedded == false) && (AutoCommit == true))
+                {
+                    PrivateLateBoundObject.Put();
+                }
             }
         }
 
-        #region MsvmProperties
-
-        public string InstanceID => MsvmSyntheticEthernetPortSettingData[nameof(InstanceID)] as string;
-        public string Caption => MsvmSyntheticEthernetPortSettingData[nameof(Caption)] as string;
-        public string Description => MsvmSyntheticEthernetPortSettingData[nameof(Description)] as string;
-        public string ElementName => MsvmSyntheticEthernetPortSettingData[nameof(ElementName)] as string;
-        public ResourcePoolSettingData.PoolResourceType ResourceType => (ResourcePoolSettingData.PoolResourceType)(ushort)MsvmSyntheticEthernetPortSettingData[nameof(ResourceType)];
-        public string OtherResourceType => MsvmSyntheticEthernetPortSettingData[nameof(OtherResourceType)] as string;
-        public string ResourceSubType => MsvmSyntheticEthernetPortSettingData[nameof(ResourceSubType)] as string;
-        public string PoolID => MsvmSyntheticEthernetPortSettingData[nameof(PoolID)] as string;
-        public ushort ConsumerVisibility => (ushort)MsvmSyntheticEthernetPortSettingData[nameof(ConsumerVisibility)];
-        public string[] HostResource => MsvmSyntheticEthernetPortSettingData[nameof(HostResource)] as string[];
-        public string AllocationUnits => MsvmSyntheticEthernetPortSettingData[nameof(AllocationUnits)] as string;
-        public ulong VirtualQuantity => (ulong)MsvmSyntheticEthernetPortSettingData[nameof(VirtualQuantity)];
-        public ulong Reservation => (ulong)MsvmSyntheticEthernetPortSettingData[nameof(Reservation)];
-        public ulong Limit => (ulong)MsvmSyntheticEthernetPortSettingData[nameof(Limit)];
-        public uint Weight => (uint)MsvmSyntheticEthernetPortSettingData[nameof(Weight)];
-        public bool AutomaticAllocation => (bool)MsvmSyntheticEthernetPortSettingData[nameof(AutomaticAllocation)];
-        public bool AutomaticDeallocation => (bool)MsvmSyntheticEthernetPortSettingData[nameof(AutomaticDeallocation)];
-        public string Parent => MsvmSyntheticEthernetPortSettingData[nameof(Parent)] as string;
-        public string[] Connection => MsvmSyntheticEthernetPortSettingData[nameof(Connection)] as string[];
-        public string Address => MsvmSyntheticEthernetPortSettingData[nameof(Address)] as string;
-        public ResourcePoolSettingData.PoolMappingBehavior MappingBehavior => (ResourcePoolSettingData.PoolMappingBehavior)(ushort)MsvmSyntheticEthernetPortSettingData[nameof(MappingBehavior)];
-        public string AddressOnParent => MsvmSyntheticEthernetPortSettingData[nameof(AddressOnParent)] as string;
-        public string VirtualQuantityUnits => MsvmSyntheticEthernetPortSettingData[nameof(VirtualQuantityUnits)] as string;
-        public ushort DesiredVLANEndpointMode => (ushort)MsvmSyntheticEthernetPortSettingData[nameof(DesiredVLANEndpointMode)];
-        public string OtherEndpointMode => MsvmSyntheticEthernetPortSettingData[nameof(OtherEndpointMode)] as string;
-        public string[] VirtualSystemIdentifiers
+        public bool AutomaticAllocation
         {
-            get { return Msvm_SyntheticEthernetPortSettingData != null ? MsvmSyntheticEthernetPortSettingData[nameof(VirtualSystemIdentifiers)] as string[] : virtualSystemIdentifiers; }
-            private set { virtualSystemIdentifiers = value; }
-        }
-        public bool DeviceNamingEnabled => (bool)MsvmSyntheticEthernetPortSettingData[nameof(DeviceNamingEnabled)];
-        public bool AllowPacketDirect => (bool)MsvmSyntheticEthernetPortSettingData[nameof(AllowPacketDirect)];
-        public bool StaticMacAddress => (bool)MsvmSyntheticEthernetPortSettingData[nameof(StaticMacAddress)];
-        public bool ClusterMonitored => (bool)MsvmSyntheticEthernetPortSettingData[nameof(ClusterMonitored)];
-
-        #endregion
-
-        public void AddAsChild()
-        {
-            // TODO: fix this!
-            // VirtualSystemManagementService.Instance.AddResourceSettings(VirtualSystemSettingData.MsvmVirtualSystemSettingData, new string[] { Msvm_SyntheticEthernetPortSettingData.GetText(TextFormat.WmiDtd20) });
-        }
-        public static List<ManagementObject> GetRelatedSyntheticEthernetPortSettingDataCollection(ManagementObject msvmObjectRelatedTo, string ResourceType, string ResourceSubType)
-        {
-            return
-                msvmObjectRelatedTo?
-                    .GetRelated(nameof(Msvm_SyntheticEthernetPortSettingData))
-                        .Cast<ManagementObject>()
-                        .Where((c) =>
-                            c[nameof(ResourceType)]?.ToString() == ResourceType &&
-                            c[nameof(ResourceSubType)]?.ToString() == ResourceSubType)
-                        .ToList();
-        }
-        public static ManagementObject GetEthernetPortAllocationSettingData(ManagementObject Parent, ManagementScope scope)
-        {
-            using (var mos = new ManagementObjectSearcher(scope, new ObjectQuery("SELECT * FROM Msvm_EthernetPortAllocationSettingData")))
-                return mos
-                    .Get()
-                    .Cast<ManagementObject>()
-                    .Where((c) => string.Equals((string)c?[nameof(Parent)], Parent.Path.Path, StringComparison.OrdinalIgnoreCase))
-                    .First();
+            get
+            {
+                if (LateBoundObject[nameof(AutomaticAllocation)] == null)
+                {
+                    return Convert.ToBoolean(0);
+                }
+                return (bool)LateBoundObject[nameof(AutomaticAllocation)];
+            }
         }
 
-        public static List<ManagementObject> GetEthernetSwitchPortAclSettingData(ManagementObject ethernetConnection)
+        public bool AutomaticDeallocation
         {
-            return ethernetConnection?.GetRelated("Msvm_EthernetSwitchPortAclSettingData", "Msvm_EthernetPortSettingDataComponent", null, null, null, null, false, null).Cast<ManagementObject>().ToList();
+            get
+            {
+                if (LateBoundObject[nameof(AutomaticDeallocation)] == null)
+                {
+                    return Convert.ToBoolean(0);
+                }
+                return (bool)LateBoundObject[nameof(AutomaticDeallocation)];
+            }
         }
+
+        public string Caption => (string)LateBoundObject[nameof(Caption)];
+
+        /*
+         * Indicates whether this ethernet adapter is monitored by cluster.
+         * This is a read-only property, but it can be changed using the ModifyVirtualSystemResources method of the Msvm_VirtualSystemManagementService class.
+         */
+        public bool ClusterMonitored
+        {
+            get
+            {
+                if (LateBoundObject[nameof(ClusterMonitored)] == null)
+                {
+                    return Convert.ToBoolean(0);
+                }
+                return (bool)LateBoundObject[nameof(ClusterMonitored)];
+            }
+        }
+
+        public string[] Connection => (string[])LateBoundObject[nameof(Connection)];
+
+        public ushort ConsumerVisibility
+        {
+            get
+            {
+                if (LateBoundObject[nameof(ConsumerVisibility)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(ConsumerVisibility)];
+            }
+        }
+
+        public string Description => (string)LateBoundObject[nameof(Description)];
+
+        public ushort DesiredVLANEndpointMode
+        {
+            get
+            {
+                if (LateBoundObject[nameof(DesiredVLANEndpointMode)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(DesiredVLANEndpointMode)];
+            }
+        }
+
+        /*
+         * Indicates whether this ethernet adapter supports device naming.
+         * This is a read-only property, but it can be changed using the ModifyVirtualSystemResources method of the Msvm_VirtualSystemManagementService class.
+         */
+        public bool DeviceNamingEnabled
+        {
+            get
+            {
+                if (LateBoundObject[nameof(DeviceNamingEnabled)] == null)
+                {
+                    return Convert.ToBoolean(0);
+                }
+                return (bool)LateBoundObject[nameof(DeviceNamingEnabled)];
+            }
+        }
+
+        public string ElementName => (string)LateBoundObject[nameof(ElementName)];
+
+        public string[] HostResource => (string[])LateBoundObject[nameof(HostResource)];
+
+        public string InstanceID => (string)LateBoundObject[nameof(InstanceID)];
+
+        /*
+         * Indicates if Interrupt Moderation is Enabled.
+         * This is a read-only property, but it can be changed using the ModifyVirtualSystemResources method of the Msvm_VirtualSystemManagementService class.
+         */
+        public bool InterruptModeration
+        {
+            get
+            {
+                if (LateBoundObject[nameof(InterruptModeration)] == null)
+                {
+                    return Convert.ToBoolean(0);
+                }
+                return (bool)LateBoundObject[nameof(InterruptModeration)];
+            }
+        }
+
+        public ulong Limit
+        {
+            get
+            {
+                if (LateBoundObject[nameof(Limit)] == null)
+                {
+                    return Convert.ToUInt64(0);
+                }
+                return (ulong)LateBoundObject[nameof(Limit)];
+            }
+        }
+
+        public ushort MappingBehavior
+        {
+            get
+            {
+                if (LateBoundObject[nameof(MappingBehavior)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(MappingBehavior)];
+            }
+        }
+
+        /*
+         * Indicates what type of network is supported by the NIC.
+         * This is a read-only property, but it can be changed using the ModifyVirtualSystemResources method of theMsvm_VirtualSystemManagementService class.
+         */
+        public uint MediaType
+        {
+            get
+            {
+                if (LateBoundObject[nameof(MediaType)] == null)
+                {
+                    return Convert.ToUInt32(0);
+                }
+                return (uint)LateBoundObject[nameof(MediaType)];
+            }
+        }
+
+        /*
+         * Indicates if this ethernet adapter can influence VM placement using its NUMA proximity.
+         */
+        public bool NumaAwarePlacement
+        {
+            get
+            {
+                if (LateBoundObject[nameof(NumaAwarePlacement)] == null)
+                {
+                    return Convert.ToBoolean(0);
+                }
+                return (bool)LateBoundObject[nameof(NumaAwarePlacement)];
+            }
+            set
+            {
+                LateBoundObject[nameof(NumaAwarePlacement)] = value;
+                if ((IsEmbedded == false) && (AutoCommit == true))
+                {
+                    PrivateLateBoundObject.Put();
+                }
+            }
+        }
+
+        public string OtherEndpointMode => (string)LateBoundObject[nameof(OtherEndpointMode)];
+
+        public string OtherResourceType => (string)LateBoundObject[nameof(OtherResourceType)];
+
+        public string Parent => (string)LateBoundObject[nameof(Parent)];
+
+        public string PoolID => (string)LateBoundObject[nameof(PoolID)];
+
+        public ulong Reservation
+        {
+            get
+            {
+                if (LateBoundObject[nameof(Reservation)] == null)
+                {
+                    return Convert.ToUInt64(0);
+                }
+                return (ulong)LateBoundObject[nameof(Reservation)];
+            }
+        }
+
+        public string ResourceSubType => (string)LateBoundObject[nameof(ResourceSubType)];
+
+        public ushort ResourceType
+        {
+            get
+            {
+                if (LateBoundObject[nameof(ResourceType)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(ResourceType)];
+            }
+        }
+
+        /*
+         * Indicates a static MAC address.
+         * This is a read-only property, but it can be changed using the ModifyVirtualSystemResources method of the Msvm_VirtualSystemManagementService class.
+         */
+        public bool StaticMacAddress
+        {
+            get
+            {
+                if (LateBoundObject[nameof(StaticMacAddress)] == null)
+                {
+                    return Convert.ToBoolean(0);
+                }
+                return (bool)LateBoundObject[nameof(StaticMacAddress)];
+            }
+        }
+
+        public ulong VirtualQuantity
+        {
+            get
+            {
+                if (LateBoundObject[nameof(VirtualQuantity)] == null)
+                {
+                    return Convert.ToUInt64(0);
+                }
+                return (ulong)LateBoundObject[nameof(VirtualQuantity)];
+            }
+        }
+
+        public string VirtualQuantityUnits => (string)LateBoundObject[nameof(VirtualQuantityUnits)];
+
+        /*
+         * A free-form string array of identifiers of this resource presented to the virtual computer system's operating system.
+         * The indexes and values per index are defined on a per resource basis (that is, for each enumerated ResourceType value).
+         * This property is set to "GUID".
+         * This is a read-only property, but it can be changed using the ModifyVirtualSystemResources method of the sd class.
+         */
+        public string[] VirtualSystemIdentifiers => (string[])LateBoundObject[nameof(VirtualSystemIdentifiers)];
+
+        public uint Weight
+        {
+            get
+            {
+                if (LateBoundObject[nameof(Weight)] == null)
+                {
+                    return Convert.ToUInt32(0);
+                }
+                return (uint)LateBoundObject[nameof(Weight)];
+            }
+        }
+
+        // Different overloads of GetInstances() help in enumerating instances of the WMI class.
+        public static List<SyntheticEthernetPortSettingData> GetInstances() => GetInstances(null, null, null, ClassName).Cast<ManagementObject>().Select((mo) => new SyntheticEthernetPortSettingData(mo)).ToList();
+
+        public new static List<SyntheticEthernetPortSettingData> GetInstances(string condition) => GetInstances(null, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new SyntheticEthernetPortSettingData(mo)).ToList();
+
+        public static List<SyntheticEthernetPortSettingData> GetInstances(string[] selectedProperties) => GetInstances(null, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new SyntheticEthernetPortSettingData(mo)).ToList();
+
+        public static List<SyntheticEthernetPortSettingData> GetInstances(string condition, string[] selectedProperties) => GetInstances(null, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new SyntheticEthernetPortSettingData(mo)).ToList();
+
+        public static List<SyntheticEthernetPortSettingData> GetInstances(ManagementScope mgmtScope, EnumerationOptions enumOptions) => GetInstances(mgmtScope, enumOptions, ClassName).Cast<ManagementObject>().Select((mo) => new SyntheticEthernetPortSettingData(mo)).ToList();
+
+        public static List<SyntheticEthernetPortSettingData> GetInstances(ManagementScope mgmtScope, string condition) => GetInstances(mgmtScope, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new SyntheticEthernetPortSettingData(mo)).ToList();
+
+        public static List<SyntheticEthernetPortSettingData> GetInstances(ManagementScope mgmtScope, string[] selectedProperties) => GetInstances(mgmtScope, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new SyntheticEthernetPortSettingData(mo)).ToList();
+
+        public static List<SyntheticEthernetPortSettingData> GetInstances(ManagementScope mgmtScope, string condition, string[] selectedProperties) => GetInstances(mgmtScope, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new SyntheticEthernetPortSettingData(mo)).ToList();
+
+        public static SyntheticEthernetPortSettingData CreateInstance() => new SyntheticEthernetPortSettingData(CreateInstance(ClassName));
     }
 }

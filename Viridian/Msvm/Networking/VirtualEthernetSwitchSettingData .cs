@@ -2,120 +2,346 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Management;
-using Viridian.Scopes;
 
 namespace Viridian.Msvm.Networking
 {
-    public sealed class VirtualEthernetSwitchSettingData
+    public sealed class VirtualEthernetSwitchSettingData : MsvmBase
     {
-        private ManagementObject Msvm_VirtualEthernetSwitchSettingData = null;
-        private VirtualEthernetSwitch VirtualEthernetSwitch { set; get; }
-        public string VSSDAssociation { private set; get; }
-        private Dictionary<string, object> Attributes { set; get; }
+        public static string ClassName => $"Msvm_{nameof(VirtualEthernetSwitchSettingData)}";
 
-        public VirtualEthernetSwitchSettingData(Dictionary<string, object> Properties)
-        {
-            using (var vessd = new ManagementClass(nameof(Msvm_VirtualEthernetSwitchSettingData)))
-            {
-                vessd.Scope = Scope.Virtualization.ScopeObject;
+        // Below are different overloads of constructors to initialize an instance of the class with a WMI object.
+        public VirtualEthernetSwitchSettingData() : base(ClassName) { }
 
-                Msvm_VirtualEthernetSwitchSettingData = vessd.CreateInstance();
+        public VirtualEthernetSwitchSettingData(string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
 
-                ModifyProperties(Properties);
-            }
-        }
+        public VirtualEthernetSwitchSettingData(ManagementScope mgmtScope, string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(mgmtScope, keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
 
-        public VirtualEthernetSwitchSettingData(VirtualEthernetSwitch VirtualEthernetSwitch = null, string VSSDAssociation = null, Dictionary<string, object> Attributes = null)
-        {
-            this.VirtualEthernetSwitch = VirtualEthernetSwitch;
-            this.VSSDAssociation = VSSDAssociation;
-            this.Attributes = Attributes;
-        }
+        public VirtualEthernetSwitchSettingData(ManagementPath path, ObjectGetOptions getOptions) : base(path, getOptions, ClassName) { }
 
-        public ManagementObject MsvmVirtualEthernetSwitchSettingData
+        public VirtualEthernetSwitchSettingData(ManagementScope mgmtScope, ManagementPath path) : base(mgmtScope, path, ClassName) { }
+
+        public VirtualEthernetSwitchSettingData(ManagementPath path) : base(path, ClassName) { }
+
+        public VirtualEthernetSwitchSettingData(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions getOptions) : base(mgmtScope, path, getOptions, ClassName) { }
+
+        public VirtualEthernetSwitchSettingData(ManagementObject theObject) : base(theObject, ClassName) { }
+
+        public VirtualEthernetSwitchSettingData(ManagementBaseObject theObject) : base(theObject, ClassName) { }
+
+        public string[] AssociatedResourcePool => (string[])LateBoundObject[nameof(AssociatedResourcePool)];
+
+        public ushort AutomaticRecoveryAction
         {
             get
             {
-                if (VirtualEthernetSwitch == null && Msvm_VirtualEthernetSwitchSettingData == null)
-                    using (var serviceClass = new ManagementClass(Scope.Virtualization.ScopeObject, new ManagementPath(nameof(Msvm_VirtualEthernetSwitchSettingData)), null))
-                        Msvm_VirtualEthernetSwitchSettingData = serviceClass.GetInstances().Cast<ManagementObject>().First();
-                else if (Attributes == null)
-                    Msvm_VirtualEthernetSwitchSettingData = GetMsvmVirtualSystemSettingDataCollection(VSSDAssociation).First();
-                else
-                    Msvm_VirtualEthernetSwitchSettingData =
-                        GetMsvmVirtualSystemSettingDataCollection(VSSDAssociation)
-                            .Where((vssd) => Attributes.Where((pair) => vssd.Properties[pair.Key].Value.Equals(pair.Value)).ToList().Count == Attributes.Count)
-                            .First();
-
-                return Msvm_VirtualEthernetSwitchSettingData;
-            }
-
-            private set
-            {
-                Msvm_VirtualEthernetSwitchSettingData?.Dispose();
-                Msvm_VirtualEthernetSwitchSettingData = value;
+                if (LateBoundObject[nameof(AutomaticRecoveryAction)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(AutomaticRecoveryAction)];
             }
         }
 
-        public enum BandwidthReservationModeVESSD : uint
+        public ushort AutomaticShutdownAction
+        {
+            get
+            {
+                if (LateBoundObject[nameof(AutomaticShutdownAction)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(AutomaticShutdownAction)];
+            }
+        }
+
+        public ushort AutomaticStartupAction
+        {
+            get
+            {
+                if (LateBoundObject[nameof(AutomaticStartupAction)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(AutomaticStartupAction)];
+            }
+        }
+
+        public DateTime AutomaticStartupActionDelay
+        {
+            get
+            {
+                if (LateBoundObject[nameof(AutomaticStartupActionDelay)] != null)
+                {
+                    return ToDateTime((string)LateBoundObject[nameof(AutomaticStartupActionDelay)]);
+                }
+                else
+                {
+                    return DateTime.MinValue;
+                }
+            }
+        }
+
+        public ushort AutomaticStartupActionSequenceNumber
+        {
+            get
+            {
+                if (LateBoundObject[nameof(AutomaticStartupActionSequenceNumber)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(AutomaticStartupActionSequenceNumber)];
+            }
+        }
+
+        /*
+         * The bandwidth reservation mode.
+         */
+        public BandwidthReservationModeValues BandwidthReservationMode
+        {
+            get
+            {
+                if (LateBoundObject[nameof(BandwidthReservationMode)] == null)
+                {
+                    return (BandwidthReservationModeValues)Convert.ToInt32(4);
+                }
+                return (BandwidthReservationModeValues)Convert.ToInt32(LateBoundObject[nameof(BandwidthReservationMode)]);
+            }
+            set
+            {
+                if (BandwidthReservationModeValues.NULL_ENUM_VALUE == value)
+                {
+                    LateBoundObject[nameof(BandwidthReservationMode)] = null;
+                }
+                else
+                {
+                    LateBoundObject[nameof(BandwidthReservationMode)] = value;
+                }
+                if ((IsEmbedded == false) && (AutoCommit == true))
+                {
+                    PrivateLateBoundObject.Put();
+                }
+            }
+        }
+
+        public string Caption => (string)LateBoundObject[nameof(Caption)];
+
+        public string ConfigurationDataRoot => (string)LateBoundObject[nameof(ConfigurationDataRoot)];
+
+        public string ConfigurationFile => (string)LateBoundObject[nameof(ConfigurationFile)];
+
+        public string ConfigurationID => (string)LateBoundObject[nameof(ConfigurationID)];
+
+        public DateTime CreationTime
+        {
+            get
+            {
+                if (LateBoundObject[nameof(CreationTime)] != null)
+                {
+                    return ToDateTime((string)LateBoundObject[nameof(CreationTime)]);
+                }
+                else
+                {
+                    return DateTime.MinValue;
+                }
+            }
+        }
+
+        public string Description => (string)LateBoundObject[nameof(Description)];
+
+        public string ElementName => (string)LateBoundObject[nameof(ElementName)];
+
+        /*
+         * Contains references to the switch extensions bound to this switch, in the order in which they are applied.
+         * Each string should be the full path to an Msvm_EthernetSwitchExtension instance.
+         */
+        public string[] ExtensionOrder
+        {
+            get
+            {
+                return (string[])LateBoundObject[nameof(ExtensionOrder)];
+            }
+            set
+            {
+                LateBoundObject[nameof(ExtensionOrder)] = value;
+                if ((IsEmbedded == false) && (AutoCommit == true))
+                {
+                    PrivateLateBoundObject.Put();
+                }
+            }
+        }
+
+        public string InstanceID => (string)LateBoundObject[nameof(InstanceID)];
+
+        /*
+         * Specifies whether SR-IOV is preferred or not, if available on the underlying adapter.
+         */
+        public bool IOVPreferred
+        {
+            get
+            {
+                if (LateBoundObject[nameof(IOVPreferred)] == null)
+                {
+                    return Convert.ToBoolean(0);
+                }
+                return (bool)LateBoundObject[nameof(IOVPreferred)];
+            }
+            set
+            {
+                LateBoundObject[nameof(IOVPreferred)] = value;
+                if ((IsEmbedded == false) && (AutoCommit == true))
+                {
+                    PrivateLateBoundObject.Put();
+                }
+            }
+        }
+
+        public string LogDataRoot => (string)LateBoundObject[nameof(LogDataRoot)];
+
+        public uint MaxNumMACAddress
+        {
+            get
+            {
+                if (LateBoundObject[nameof(MaxNumMACAddress)] == null)
+                {
+                    return Convert.ToUInt32(0);
+                }
+                return (uint)LateBoundObject[nameof(MaxNumMACAddress)];
+            }
+        }
+
+        public string[] Notes => (string[])LateBoundObject[nameof(Notes)];
+
+        /*
+         * Specifies whether PacketDirect should be used, if available.
+         */
+        public bool PacketDirectEnabled
+        {
+            get
+            {
+                if (LateBoundObject[nameof(PacketDirectEnabled)] == null)
+                {
+                    return Convert.ToBoolean(0);
+                }
+                return (bool)LateBoundObject[nameof(PacketDirectEnabled)];
+            }
+            set
+            {
+                LateBoundObject[nameof(PacketDirectEnabled)] = value;
+                if ((IsEmbedded == false) && (AutoCommit == true))
+                {
+                    PrivateLateBoundObject.Put();
+                }
+            }
+        }
+
+        public string RecoveryFile => (string)LateBoundObject[nameof(RecoveryFile)];
+
+        public string SnapshotDataRoot => (string)LateBoundObject[nameof(SnapshotDataRoot)];
+
+        public string SuspendDataRoot => (string)LateBoundObject[nameof(SuspendDataRoot)];
+
+        public string SwapFileDataRoot => (string)LateBoundObject[nameof(SwapFileDataRoot)];
+
+        /*
+         * Specifies whether NIC Teaming should be used.
+         */
+        public bool TeamingEnabled
+        {
+            get
+            {
+                if (LateBoundObject[nameof(TeamingEnabled)] == null)
+                {
+                    return Convert.ToBoolean(0);
+                }
+                return (bool)LateBoundObject[nameof(TeamingEnabled)];
+            }
+            set
+            {
+                LateBoundObject[nameof(TeamingEnabled)] = value;
+                if ((IsEmbedded == false) && (AutoCommit == true))
+                {
+                    PrivateLateBoundObject.Put();
+                }
+            }
+        }
+
+        public string VirtualSystemIdentifier => (string)LateBoundObject[nameof(VirtualSystemIdentifier)];
+
+        public string VirtualSystemType => (string)LateBoundObject[nameof(VirtualSystemType)];
+
+        public string[] VLANConnection => (string[])LateBoundObject[nameof(VLANConnection)];
+        
+        private void ResetBandwidthReservationMode()
+        {
+            LateBoundObject[nameof(BandwidthReservationMode)] = null;
+            if ((IsEmbedded == false) && (AutoCommit == true))
+            {
+                PrivateLateBoundObject.Put();
+            }
+        }
+        
+        private void ResetExtensionOrder()
+        {
+            LateBoundObject[nameof(ExtensionOrder)] = null;
+            if ((IsEmbedded == false) && (AutoCommit == true))
+            {
+                PrivateLateBoundObject.Put();
+            }
+        }
+
+        private void ResetIOVPreferred()
+        {
+            LateBoundObject[nameof(IOVPreferred)] = null;
+            if ((IsEmbedded == false) && (AutoCommit == true))
+            {
+                PrivateLateBoundObject.Put();
+            }
+        }
+        
+        private void ResetPacketDirectEnabled()
+        {
+            LateBoundObject[nameof(PacketDirectEnabled)] = null;
+            if ((IsEmbedded == false) && (AutoCommit == true))
+            {
+                PrivateLateBoundObject.Put();
+            }
+        }
+
+        private void ResetTeamingEnabled()
+        {
+            LateBoundObject[nameof(TeamingEnabled)] = null;
+            if ((IsEmbedded == false) && (AutoCommit == true))
+            {
+                PrivateLateBoundObject.Put();
+            }
+        }
+
+        // Different overloads of GetInstances() help in enumerating instances of the WMI class.
+        public static List<VirtualEthernetSwitchSettingData> GetInstances() => GetInstances(null, null, null, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualEthernetSwitchSettingData(mo)).ToList();
+
+        public new static List<VirtualEthernetSwitchSettingData> GetInstances(string condition) => GetInstances(null, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualEthernetSwitchSettingData(mo)).ToList();
+
+        public static List<VirtualEthernetSwitchSettingData> GetInstances(string[] selectedProperties) => GetInstances(null, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualEthernetSwitchSettingData(mo)).ToList();
+
+        public static List<VirtualEthernetSwitchSettingData> GetInstances(string condition, string[] selectedProperties) => GetInstances(null, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualEthernetSwitchSettingData(mo)).ToList();
+
+        public static List<VirtualEthernetSwitchSettingData> GetInstances(ManagementScope mgmtScope, EnumerationOptions enumOptions) => GetInstances(mgmtScope, enumOptions, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualEthernetSwitchSettingData(mo)).ToList();
+
+        public static List<VirtualEthernetSwitchSettingData> GetInstances(ManagementScope mgmtScope, string condition) => GetInstances(mgmtScope, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualEthernetSwitchSettingData(mo)).ToList();
+
+        public static List<VirtualEthernetSwitchSettingData> GetInstances(ManagementScope mgmtScope, string[] selectedProperties) => GetInstances(mgmtScope, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualEthernetSwitchSettingData(mo)).ToList();
+
+        public static List<VirtualEthernetSwitchSettingData> GetInstances(ManagementScope mgmtScope, string condition, string[] selectedProperties) => GetInstances(mgmtScope, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new VirtualEthernetSwitchSettingData(mo)).ToList();
+
+        public static VirtualEthernetSwitchSettingData CreateInstance() => new VirtualEthernetSwitchSettingData(CreateInstance(ClassName));
+
+        public enum BandwidthReservationModeValues
         {
             Default = 0,
             Weight = 1,
             Absolute = 2,
-            None = 3
-        }
-
-        #region MsvmProperties
-
-        public string InstanceID => Msvm_VirtualEthernetSwitchSettingData[nameof(InstanceID)] as string;
-        public string Caption => Msvm_VirtualEthernetSwitchSettingData[nameof(Caption)] as string;
-        public string Description => Msvm_VirtualEthernetSwitchSettingData[nameof(Description)] as string;
-        public string ElementName => Msvm_VirtualEthernetSwitchSettingData[nameof(ElementName)] as string;
-        public string VirtualSystemIdentifier => Msvm_VirtualEthernetSwitchSettingData[nameof(VirtualSystemIdentifier)] as string;
-        public string VirtualSystemType => Msvm_VirtualEthernetSwitchSettingData[nameof(VirtualSystemType)] as string;
-        public string[] Notes => Msvm_VirtualEthernetSwitchSettingData[nameof(Notes)] as string[];
-        public DateTime CreationTime => ManagementDateTimeConverter.ToDateTime(Msvm_VirtualEthernetSwitchSettingData[nameof(CreationTime)] as string);
-        public string ConfigurationID => Msvm_VirtualEthernetSwitchSettingData[nameof(ConfigurationID)] as string;
-        public string ConfigurationDataRoot => Msvm_VirtualEthernetSwitchSettingData[nameof(ConfigurationDataRoot)] as string;
-        public string ConfigurationFile => Msvm_VirtualEthernetSwitchSettingData[nameof(ConfigurationFile)] as string;
-        public string SnapshotDataRoot => Msvm_VirtualEthernetSwitchSettingData[nameof(SnapshotDataRoot)] as string;
-        public string SuspendDataRoot => Msvm_VirtualEthernetSwitchSettingData[nameof(SuspendDataRoot)] as string;
-        public string SwapFileDataRoot => Msvm_VirtualEthernetSwitchSettingData[nameof(SwapFileDataRoot)] as string;
-        public string LogDataRoot => Msvm_VirtualEthernetSwitchSettingData[nameof(LogDataRoot)] as string;
-       // public AutomaticStartupActionVSSD AutomaticStartupAction => (AutomaticStartupActionVSSD)(ushort)Msvm_VirtualEthernetSwitchSettingData[nameof(AutomaticStartupAction)];
-        public DateTime AutomaticStartupActionDelay => ManagementDateTimeConverter.ToDateTime(Msvm_VirtualEthernetSwitchSettingData[nameof(AutomaticStartupActionDelay)] as string);
-        public ushort AutomaticStartupActionSequenceNumber => (ushort)Msvm_VirtualEthernetSwitchSettingData[nameof(AutomaticStartupActionSequenceNumber)];
-        //public AutomaticShutdownActionVSSD AutomaticShutdownAction => (AutomaticShutdownActionVSSD)(ushort)Msvm_VirtualEthernetSwitchSettingData[nameof(AutomaticShutdownAction)];
-       // public AutomaticRecoveryActionVSSD AutomaticRecoveryAction => (AutomaticRecoveryActionVSSD)(ushort)Msvm_VirtualEthernetSwitchSettingData[nameof(AutomaticRecoveryAction)];
-        public string RecoveryFile => Msvm_VirtualEthernetSwitchSettingData[nameof(RecoveryFile)] as string;
-        public string[] VLANConnection => Msvm_VirtualEthernetSwitchSettingData[nameof(VLANConnection)] as string[];
-        public string[] AssociatedResourcePool => Msvm_VirtualEthernetSwitchSettingData[nameof(AssociatedResourcePool)] as string[];
-        public uint MaxNumMACAddress => (uint)Msvm_VirtualEthernetSwitchSettingData[nameof(MaxNumMACAddress)];
-        public bool IOVPreferred => (bool)Msvm_VirtualEthernetSwitchSettingData[nameof(IOVPreferred)];
-        public string[] ExtensionOrder => Msvm_VirtualEthernetSwitchSettingData[nameof(ExtensionOrder)] as string[];
-        public BandwidthReservationModeVESSD BandwidthReservationMode => (BandwidthReservationModeVESSD)(uint)Msvm_VirtualEthernetSwitchSettingData[nameof(BandwidthReservationMode)];
-        public bool TeamingEnabled => (bool)Msvm_VirtualEthernetSwitchSettingData[nameof(TeamingEnabled)];
-        public bool PacketDirectEnabled => (bool)Msvm_VirtualEthernetSwitchSettingData[nameof(PacketDirectEnabled)];
-
-        #endregion
-
-        public ManagementObject ModifyProperties(Dictionary<string, object> Properties)
-        {
-            var modifiedMsvmVirtualEthernetSwitchSettingData = MsvmVirtualEthernetSwitchSettingData;
-
-            Properties
-                .ToList()
-                .ForEach((p) => modifiedMsvmVirtualEthernetSwitchSettingData[p.Key] = p.Value);
-
-            return modifiedMsvmVirtualEthernetSwitchSettingData;
-        }
-        public List<ManagementObject> GetMsvmVirtualSystemSettingDataCollection(string VSSDAssociation)
-        {
-            return
-                VirtualEthernetSwitch?
-                    .MsvmVirtualEthernetSwitch.GetRelated(nameof(Msvm_VirtualEthernetSwitchSettingData), VSSDAssociation, null, null, null, null, false, null)
-                    .Cast<ManagementObject>()
-                    .ToList();
+            None = 3,
+            NULL_ENUM_VALUE = 4,
         }
     }
 }
