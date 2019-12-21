@@ -1,6 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Management;
-using Viridian.Exceptions;
 using Viridian.Scopes;
 
 namespace Viridian.WindowsStorageManagement.MSFT
@@ -85,12 +85,12 @@ namespace Viridian.WindowsStorageManagement.MSFT
         {
             using (var ip = MSFT_Partition.GetMethodParameters(nameof(AddAccessPath)))
             {
-                ip[nameof(AccessPath)] = AccessPath ?? throw new ViridianException($"{nameof(AccessPath)} is null!");
+                ip[nameof(AccessPath)] = AccessPath ?? throw new ArgumentNullException(nameof(AccessPath));
                 ip[nameof(AssignDriveLetter)] = AssignDriveLetter;
 
                 using (var op = MSFT_Partition.InvokeMethod(nameof(AddAccessPath), ip, null))
                 {
-                    Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                    Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                     return op["ExtendedStatus"] as string;
                 }
@@ -102,7 +102,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
             using (var ip = MSFT_Partition.GetMethodParameters(nameof(DeleteObject)))
             using (var op = MSFT_Partition.InvokeMethod(nameof(DeleteObject), ip, null))
             {
-                Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                 return op["ExtendedStatus"] as string;
             }
@@ -113,7 +113,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
             using (var ip = MSFT_Partition.GetMethodParameters(nameof(GetAccessPaths)))
             using (var op = MSFT_Partition.InvokeMethod(nameof(GetAccessPaths), ip, null))
             {
-                Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                 return op["AccessPaths"] as string[];
             }
@@ -124,7 +124,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
             using (var ip = MSFT_Partition.GetMethodParameters(nameof(GetSupportedSize)))
             using (var op = MSFT_Partition.InvokeMethod(nameof(GetSupportedSize), ip, null))
             {
-                Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                 return new ulong[] { (ulong)op["SizeMin"], (ulong)op["SizeMax"] };
             }
@@ -135,7 +135,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
             using (var ip = MSFT_Partition.GetMethodParameters(nameof(Offline)))
             using (var op = MSFT_Partition.InvokeMethod(nameof(Offline), ip, null))
             {
-                Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                 return op["ExtendedStatus"] as string;
             }
@@ -146,7 +146,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
             using (var ip = MSFT_Partition.GetMethodParameters(nameof(Online)))
             using (var op = MSFT_Partition.InvokeMethod(nameof(Online), ip, null))
             {
-                Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                 return op["ExtendedStatus"] as string;
             }
@@ -156,11 +156,11 @@ namespace Viridian.WindowsStorageManagement.MSFT
         {
             using (var ip = MSFT_Partition.GetMethodParameters(nameof(RemoveAccessPath)))
             {
-                ip[nameof(AccessPath)] = AccessPath ?? throw new ViridianException($"{nameof(AccessPath)} is null!");
+                ip[nameof(AccessPath)] = AccessPath ?? throw new ArgumentNullException(nameof(AccessPath));
 
                 using (var op = MSFT_Partition.InvokeMethod(nameof(RemoveAccessPath), ip, null))
                 {
-                    Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                    Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                     return op["ExtendedStatus"] as string;
                 }
@@ -175,7 +175,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
 
                 using (var op = MSFT_Partition.InvokeMethod(nameof(Resize), ip, null))
                 {
-                    Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                    Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                     return op["ExtendedStatus"] as string;
                 }
@@ -193,7 +193,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
 
                 using (var op = MSFT_Partition.InvokeMethod(nameof(SetAttributes), ip, null))
                 {
-                    Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                    Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                     return op["ExtendedStatus"] as string;
                 }

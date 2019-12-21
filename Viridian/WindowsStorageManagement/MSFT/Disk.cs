@@ -1,6 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Management;
-using Viridian.Exceptions;
 using Viridian.Scopes;
 
 namespace Viridian.WindowsStorageManagement.MSFT
@@ -87,7 +87,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
 
         public Disk(string Location)
         {
-            using (var mos = new ManagementObjectSearcher(Scope.Storage.SpecificScope, new ObjectQuery("SELECT * FROM MSFT_Disk")))
+            using (var mos = new ManagementObjectSearcher(Scope.Storage.ScopeObject, new ObjectQuery("SELECT * FROM MSFT_Disk")))
                 MSFT_Disk = mos.Get().Cast<ManagementObject>().Where((c) => c[nameof(Location)]?.ToString() == Location).First();
         }
 
@@ -138,7 +138,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
 
                 using (var op = MSFT_Disk.InvokeMethod(nameof(Clear), ip, null))
                 {
-                    Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                    Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                     return op["ExtendedStatus"] as string;
                 }
@@ -153,7 +153,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
 
                 using (var op = MSFT_Disk.InvokeMethod(nameof(ConvertStyle), ip, null))
                 {
-                    Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                    Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                     return op["ExtendedStatus"] as string;
                 }
@@ -183,7 +183,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
 
                 using (var op = MSFT_Disk.InvokeMethod(nameof(CreatePartition), ip, null))
                 {
-                    Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                    Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
                     
                     return new ManagementObject(Properties.Environment.Default.Storage, ((ManagementBaseObject)op["CreatedPartition"])["__PATH"] as string, null);
                 }
@@ -198,7 +198,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
 
                 using (var op = MSFT_Disk.InvokeMethod(nameof(Initialize), ip, null))
                 {
-                    Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                    Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                     return op["ExtendedStatus"] as string;
                 }
@@ -210,7 +210,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
             using (var ip = MSFT_Disk.GetMethodParameters(nameof(Offline)))
             using (var op = MSFT_Disk.InvokeMethod(nameof(Offline), ip, null))
             {
-                Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                 return op["ExtendedStatus"] as string;
             }
@@ -221,7 +221,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
             using (var ip = MSFT_Disk.GetMethodParameters(nameof(Online)))
             using (var op = MSFT_Disk.InvokeMethod(nameof(Online), ip, null))
             {
-                Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                 return op["ExtendedStatus"] as string;
             }
@@ -232,7 +232,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
             using (var ip = MSFT_Disk.GetMethodParameters(nameof(Refresh)))
             using (var op = MSFT_Disk.InvokeMethod(nameof(Refresh), ip, null))
             {
-                Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                 return op["ExtendedStatus"] as string;
             }
@@ -244,11 +244,11 @@ namespace Viridian.WindowsStorageManagement.MSFT
             {
                 ip[nameof(IsReadOnly)] = IsReadOnly;
                 ip[nameof(Signature)] = Signature;
-                ip[nameof(Guid)] = Guid ?? throw new ViridianException($"{nameof(Guid)} is null!");
+                ip[nameof(Guid)] = Guid ?? throw new ArgumentNullException(nameof(Guid));
 
                 using (var op = MSFT_Disk.InvokeMethod(nameof(Refresh), ip, null))
                 {
-                    Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                    Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                     return op["ExtendedStatus"] as string;
                 }

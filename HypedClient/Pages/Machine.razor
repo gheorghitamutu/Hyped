@@ -1,0 +1,214 @@
+﻿@page "/machine"
+@inject HttpClient Http
+@attribute [Authorize]
+
+
+<!-- Modal for new machine -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col">
+                                <label for="email"><b>VMId : </b></label>
+                            </div>
+                            <div class="col">
+                                <fieldset>
+                                    <input type="text" placeholder=@_addMachine.RealID @bind="_addMachine.RealID">
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label for="text"><b>Name : </b></label>
+                            </div>
+                            <div class="col">
+                                <input type="text" placeholder=@_addMachine.Name @bind="_addMachine.Name">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label for="text"><b>Configuration : </b></label>
+                            </div>
+                            <div class="col">
+                                <input type="text" placeholder=@_addMachine.Configuration @bind="_addMachine.Configuration">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label for="psw"><b>LastSave : </b></label>
+                            </div>
+                            <div class="col">
+                                <fieldset disabled>
+                                    <input type="text" placeholder=@_addMachine.LastSave @bind="_addMachine.LastSave">
+                                </fieldset>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" @onclick="@AddItem">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div class="container-fluid border border-dark fill">
+    <div class="row h-100">
+        <div class="col-md-1 border border-dark ">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" @onclick="@(()=> LastItem())">
+                <span class="oi oi-calculator" aria-hidden="true"></span>New
+            </button>
+        </div>
+        <div class="col-md-1 border border-dark">
+            <button><span class="oi oi-calculator" aria-hidden="true"></span>Edit</button>
+        </div>
+        <div class="col-md-1 border border-dark">
+            <button><span class="oi oi-calculator" aria-hidden="true"></span>Delete</button>
+        </div>
+        <div class="col-md-1 border border-dark">
+            <button><span class="oi oi-calculator" aria-hidden="true"></span>Start</button>
+        </div>
+        <div class="col-md-8 border border-dark">
+
+        </div>
+    </div>
+    <div class="row h-100">
+        <div class="col-md-4 border border-dark h-100">
+            @if (machines == null)
+            {
+
+            }
+            else
+            {
+
+                <div class="list-group" id="list-tab" role="tablist">                    
+                    @foreach (var machine in machines) { 
+                    <a class="list-group-item list-group-item-action" role="tab" @onclick="@(() => GetVM(machine))">@machine.Name</a>
+                    }
+                </div>
+            }
+        </div>
+        <div class="col-xs-12 col-md-8 border border-dark h-100">
+            <div class="row">
+                @_editMachine.RealID
+            </div>
+            <div class="row">
+                @_editMachine.Name
+            </div>
+            <div class="row">
+                @_editMachine.Configuration
+            </div>
+            <div class="row">
+                @_editMachine.LastSave
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+
+    // TO BE MODIFIED, aici am testat cu back-end-ul rulat pe alt PC din retea
+    private string apiUrl = "https://localhost:5001/api/vms";
+
+    private MachineDetails _editMachine = new MachineDetails();
+
+    private MachineDetails _addMachine = new MachineDetails();
+
+    private MachineDetails[] machines;
+
+    protected override async Task OnInitializedAsync() => await GetMachines();
+
+    private void GetVM(MachineDetails vm)
+    {
+        _editMachine = vm;
+    }
+
+    private async Task GetMachines()
+    {
+        machines = await Http.GetJsonAsync<MachineDetails[]>(apiUrl);
+    }
+
+    private void EditItem(string id)
+    {
+        var editItem = machines.Single(i => i.VMId == id);
+        _editMachine = new MachineDetails
+        {
+            VMId = editItem.VMId,
+            RealID = editItem.RealID,
+            Name = editItem.Name,
+            Configuration = editItem.Configuration,
+            LastSave = editItem.LastSave,
+            UserId = editItem.UserId
+        };
+    }
+
+    private void LastItem()
+    {
+        GetMachines();
+        DateTime date = DateTime.Now;
+        var lastItem = machines.LastOrDefault();
+        if (lastItem == null)
+        {
+            _addMachine = new MachineDetails
+            {
+            VMId = _addMachine.VMId,
+            RealID = _addMachine.RealID,
+            Name = _addMachine.Name,
+            Configuration = _addMachine.Configuration,
+            LastSave = Convert.ToString(date),
+            UserId = Guid.Parse("bd189d4a-08b9-408f-a627-5c31551ef118")
+            };
+        }
+        else
+        {
+            _addMachine = new MachineDetails
+            {
+            VMId = lastItem.VMId,
+            RealID = Convert.ToString(Convert.ToInt32(lastItem.RealID)+1),
+            Name = lastItem.Name,
+            Configuration = lastItem.Configuration,
+            LastSave = Convert.ToString(date),
+            UserId = Guid.Parse("bd189d4a-08b9-408f-a627-5c31551ef118")
+            };
+        }
+        
+    }
+
+    private async Task SaveItem()
+    {
+        EditItem(_editMachine.VMId);
+        await Http.PutJsonAsync<MachineDetails>(apiUrl, _editMachine);
+        await GetMachines();
+    }
+
+    private async Task AddItem()
+    {
+        await Http.PostJsonAsync<MachineDetails>(apiUrl, _addMachine);
+        await GetMachines();
+    }
+
+    public class MachineDetails
+    {
+        public string VMId { get; set; }
+
+        public string RealID { get; set; }
+
+        public string Name { get; set; }
+
+        public string Configuration { get; set; }
+
+        public string LastSave { get; set; }
+
+        public Guid UserId { get; set; }
+    }
+}

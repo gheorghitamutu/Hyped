@@ -1,324 +1,639 @@
 ﻿using System;
+using System.Management;
 using System.Collections.Generic;
 using System.Linq;
-using System.Management;
-using Viridian.Exceptions;
-using Viridian.Job;
-using Viridian.Msvm.VirtualSystemManagement;
-using Viridian.Resources.Network;
-using Viridian.Scopes;
 
 namespace Viridian.Msvm.VirtualSystem
 {
-    public class ComputerSystem
+    public class ComputerSystem : MsvmBase
     {
-        private ManagementObject Msvm_ComputerSystem = null; // don't directly use it unless explicitly required (Name property)!
-        public VirtualSystemSettingData VirtualSystemSettingData { get; set; }
+        public static string ClassName => $"Msvm_{nameof(ComputerSystem)}";
 
-        private string elementName = null;
+        // Below are different overloads of constructors to initialize an instance of the class with a WMI object.
+        public ComputerSystem() : base(ClassName) { }
 
-        public ComputerSystem(string ElementName)
-        {
-            this.ElementName = ElementName;
+        public ComputerSystem(string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
 
-            Define();
+        public ComputerSystem(ManagementScope mgmtScope, string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(mgmtScope, keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
 
-            VirtualSystemSettingData = new VirtualSystemSettingData(this, Properties.VirtualSystemSettingData.Default.Msvm_SettingsDefineState);
-        }
+        public ComputerSystem(ManagementPath path, ObjectGetOptions getOptions) : base(path, getOptions, ClassName) { }
 
-        public ManagementObject MsvmComputerSystem
+        public ComputerSystem(ManagementScope mgmtScope, ManagementPath path) : base(mgmtScope, path, ClassName) { }
+
+        public ComputerSystem(ManagementPath path) : base(path, ClassName) { }
+
+        public ComputerSystem(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions getOptions) : base(mgmtScope, path, getOptions, ClassName) { }
+
+        public ComputerSystem(ManagementObject theObject) : base(theObject, ClassName) { }
+
+        public ComputerSystem(ManagementBaseObject theObject) : base(theObject, ClassName) { }
+
+        public ushort[] AvailableRequestedStates => (ushort[])LateBoundObject[nameof(AvailableRequestedStates)];
+
+        public string Caption => (string)LateBoundObject[nameof(Caption)];
+
+        public ushort CommunicationStatus
         {
             get
             {
-                if (Name == null && Msvm_ComputerSystem == null)
-                    return null;
-
-                if (Name == null)
-                    return QueryMsvmComputerSystem(nameof(ElementName), ElementName);
-
-                return QueryMsvmComputerSystem(nameof(Name), Name);
-            }
-
-            set
-            {
-                if (Msvm_ComputerSystem != null)
-                    Msvm_ComputerSystem.Dispose();
-
-                Msvm_ComputerSystem = value;
+                if (LateBoundObject[nameof(CommunicationStatus)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(CommunicationStatus)];
             }
         }
 
-        private void Define()
+        public string CreationClassName => (string)LateBoundObject[nameof(CreationClassName)];
+
+        public ushort[] Dedicated => (ushort[])LateBoundObject[nameof(Dedicated)];
+
+        public string Description => (string)LateBoundObject[nameof(Description)];
+
+        public ushort DetailedStatus
         {
-            if (MsvmComputerSystem == null)
+            get
             {
-                Msvm_ComputerSystem = QueryMsvmComputerSystem(nameof(ElementName), ElementName);
-
-                if (MsvmComputerSystem == null)
+                if (LateBoundObject[nameof(DetailedStatus)] == null)
                 {
-                    using (var vssd = GetMsvmObject("Msvm_VirtualSystemSettingData"))
-                    {
-                        vssd[nameof(ElementName)] = ElementName;
-                        vssd[nameof(Properties.Environment.Default.ConfigurationDataRoot)] = Properties.Environment.Default.ConfigurationDataRoot;
-                        vssd[nameof(Properties.Environment.Default.VirtualSystemSubtype)] = Properties.Environment.Default.VirtualSystemSubtype;
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(DetailedStatus)];
+            }
+        }
 
-                        MsvmComputerSystem = VirtualSystemManagementService.Instance.DefineSystem(vssd.GetText(TextFormat.WmiDtd20), null, null);
-                    }
+        public string ElementName => (string)LateBoundObject[nameof(ElementName)];
+
+        public ushort EnabledDefault
+        {
+            get
+            {
+                if (LateBoundObject[nameof(EnabledDefault)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(EnabledDefault)];
+            }
+        }
+
+        public ushort EnabledState
+        {
+            get
+            {
+                if (LateBoundObject[nameof(EnabledState)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(EnabledState)];
+            }
+        }
+
+        /* 
+         * Indicates whether or not enhanced mode connections are allowed by the host
+         * and if allowed, whether or not they are available to the virtual machine.
+         */
+        public EnhancedSessionModeStateValues EnhancedSessionModeState
+        {
+            get
+            {
+                if (LateBoundObject[nameof(EnhancedSessionModeState)] == null)
+                {
+                    return (EnhancedSessionModeStateValues)Convert.ToInt32(0);
+                }
+                return (EnhancedSessionModeStateValues)Convert.ToInt32(LateBoundObject[nameof(EnhancedSessionModeState)]);
+            }
+        }
+
+        /*
+         * Type of failover that was performed for the virtual machine.
+         */
+        public FailedOverReplicationTypeValues FailedOverReplicationType
+        {
+            get
+            {
+                if (LateBoundObject[nameof(FailedOverReplicationType)] == null)
+                {
+                    return (FailedOverReplicationTypeValues)Convert.ToInt32(4);
+                }
+                return (FailedOverReplicationTypeValues)Convert.ToInt32(LateBoundObject[nameof(FailedOverReplicationType)]);
+            }
+        }
+
+        public ushort HealthState
+        {
+            get
+            {
+                if (LateBoundObject[nameof(HealthState)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(HealthState)];
+            }
+        }
+
+        /*
+         * Indicates the number of SMT threads per core reported to the guest.  This reporting
+         * is independent of whether the hardware for SMT is present.
+         */
+        public uint HwThreadsPerCoreRealized
+        {
+            get
+            {
+                if (LateBoundObject[nameof(HwThreadsPerCoreRealized)] == null)
+                {
+                    return Convert.ToUInt32(0);
+                }
+                return (uint)LateBoundObject[nameof(HwThreadsPerCoreRealized)];
+            }
+        }
+
+        public string[] IdentifyingDescriptions => (string[])LateBoundObject[nameof(IdentifyingDescriptions)];
+
+        public DateTime InstallDate
+        {
+            get
+            {
+                if (LateBoundObject[nameof(InstallDate)] != null)
+                {
+                    return ToDateTime((string)LateBoundObject[nameof(InstallDate)]);
+                }
+                else
+                {
+                    return DateTime.MinValue;
                 }
             }
         }
 
-        #region Enums
+        public string InstanceID => (string)LateBoundObject[nameof(InstanceID)];
 
-        public enum EnabledStateVM : uint
+        /*
+         * The time at which the last application consistent replication is received on recovery for the virtual machine.
+         */
+        public DateTime LastApplicationConsistentReplicationTime
         {
-            Unknown = 0,
-            Other = 1,
-            Enabled = 2,
-            Disabled = 3,
-            ShuttingDown = 4,
-            NotApplicable = 5,
-            EnabledButOffline = 6,
-            InTest = 7,
-            Deferred = 8,
-            Quiesce = 9,
-            Starting = 10
+            get
+            {
+                if (LateBoundObject[nameof(LastApplicationConsistentReplicationTime)] != null)
+                {
+                    return ToDateTime((string)LateBoundObject[nameof(LastApplicationConsistentReplicationTime)]);
+                }
+                else
+                {
+                    return DateTime.MinValue;
+                }
+            }
         }
-        public enum EnabledDefaultVM : ushort
+
+        /*
+         * The time at which the last replication is received on recovery for the virtual machine.
+         */
+        public DateTime LastReplicationTime
         {
-            Enabled = 2,
-            Disabled = 3,
-            EnabledButOffline = 6
+            get
+            {
+                if (LateBoundObject[nameof(LastReplicationTime)] != null)
+                {
+                    return ToDateTime((string)LateBoundObject[nameof(LastReplicationTime)]);
+                }
+                else
+                {
+                    return DateTime.MinValue;
+                }
+            }
         }
-        public enum EnhancedSessionModeStateVM : ushort
+
+        /*
+         * Type of the last replication that was received for the virtual machine.
+         */
+        public LastReplicationTypeValues LastReplicationType
         {
-            AllowedAndAvailable = 2,
-            NotAllowed = 3,
-            AllowedButNotAvailable = 6
+            get
+            {
+                if (LateBoundObject[nameof(LastReplicationType)] == null)
+                {
+                    return (LastReplicationTypeValues)Convert.ToInt32(4);
+                }
+                return (LastReplicationTypeValues)Convert.ToInt32(LateBoundObject[nameof(LastReplicationType)]);
+            }
         }
-        public enum FailedOverReplicationTypeVM : ushort
+
+        /*
+         * The time at which the last successful backup has completed for the virtual machine.
+         */
+        public DateTime LastSuccessfulBackupTime
+        {
+            get
+            {
+                if (LateBoundObject[nameof(LastSuccessfulBackupTime)] != null)
+                {
+                    return ToDateTime((string)LateBoundObject[nameof(LastSuccessfulBackupTime)]);
+                }
+                else
+                {
+                    return DateTime.MinValue;
+                }
+            }
+        }
+
+        public string Name => (string)LateBoundObject[nameof(Name)];
+
+        public string NameFormat => (string)LateBoundObject[nameof(NameFormat)];
+
+        /*
+         * The number of non-uniform memory access (NUMA) nodes of the computer system. 
+         * When Msvm_ComputerSystem represents the hosting computer system, this property contains the count of physical NUMA nodes.
+         * When Msvm_ComputerSystem represents a virtual computer system, 
+         * this property contains the number of virtual NUMA nodes that are presented to the guest OS through the ACPI System Resource Affinity Table (SRAT).
+         */
+        public ushort NumberOfNumaNodes
+        {
+            get
+            {
+                if (LateBoundObject[nameof(NumberOfNumaNodes)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(NumberOfNumaNodes)];
+            }
+        }
+
+        /*
+         * For the virtual system, this property describes the total up time, in milliseconds, since the machine was last turned on, reset, or restored.
+         * This time excludes the time the virtual system was in the paused state. For the host system, this property is set to NULL.
+         */
+        public ulong OnTimeInMilliseconds
+        {
+            get
+            {
+                if (LateBoundObject[nameof(OnTimeInMilliseconds)] == null)
+                {
+                    return Convert.ToUInt64(0);
+                }
+                return (ulong)LateBoundObject[nameof(OnTimeInMilliseconds)];
+            }
+        }
+
+        public ushort OperatingStatus
+        {
+            get
+            {
+                if (LateBoundObject[nameof(OperatingStatus)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(OperatingStatus)];
+            }
+        }
+
+        public ushort[] OperationalStatus => (ushort[])LateBoundObject[nameof(OperationalStatus)];
+
+        public string[] OtherDedicatedDescriptions => (string[])LateBoundObject[nameof(OtherDedicatedDescriptions)];
+
+        public string OtherEnabledState => (string)LateBoundObject[nameof(OtherEnabledState)];
+
+        public string[] OtherIdentifyingInfo => (string[])LateBoundObject[nameof(OtherIdentifyingInfo)];
+
+        public ushort[] PowerManagementCapabilities => (ushort[])LateBoundObject[nameof(PowerManagementCapabilities)];
+
+        public string PrimaryOwnerContact => (string)LateBoundObject[nameof(PrimaryOwnerContact)];
+
+        public string PrimaryOwnerName => (string)LateBoundObject[nameof(PrimaryOwnerName)];
+
+        public ushort PrimaryStatus
+        {
+            get
+            {
+                if (LateBoundObject[nameof(PrimaryStatus)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(PrimaryStatus)];
+            }
+        }
+
+        /*
+         * The identifier of the process under which this virtual machine is running.
+         * This value can be used to uniquely identify the instance of Vmwp.exe on the system that is running the virtual machine.
+         */
+        public uint ProcessID
+        {
+            get
+            {
+                if (LateBoundObject[nameof(ProcessID)] == null)
+                {
+                    return Convert.ToUInt32(0);
+                }
+                return (uint)LateBoundObject[nameof(ProcessID)];
+            }
+        }
+
+        /*
+         * Replication health for the virtual machine.
+         */
+        public ReplicationHealthValues ReplicationHealth
+        {
+            get
+            {
+                if (LateBoundObject[nameof(ReplicationHealth)] == null)
+                {
+                    return (ReplicationHealthValues)Convert.ToInt32(4);
+                }
+                return (ReplicationHealthValues)Convert.ToInt32(LateBoundObject[nameof(ReplicationHealth)]);
+            }
+        }
+
+        /*
+         * Identifies replication type for the virtual machine.
+         */
+        public ReplicationModeValues ReplicationMode
+        {
+            get
+            {
+                if (LateBoundObject[nameof(ReplicationMode)] == null)
+                {
+                    return (ReplicationModeValues)Convert.ToInt32(5);
+                }
+                return (ReplicationModeValues)Convert.ToInt32(LateBoundObject[nameof(ReplicationMode)]);
+            }
+        }
+
+        /*
+         * Replication state for the virtual machine.
+         */
+        public ReplicationStateValues ReplicationState
+        {
+            get
+            {
+                if (LateBoundObject[nameof(ReplicationState)] == null)
+                {
+                    return (ReplicationStateValues)Convert.ToInt32(15);
+                }
+                return (ReplicationStateValues)Convert.ToInt32(LateBoundObject[nameof(ReplicationState)]);
+            }
+        }
+
+        public ushort RequestedState
+        {
+            get
+            {
+                if (LateBoundObject[nameof(RequestedState)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(RequestedState)];
+            }
+        }
+
+        public ushort ResetCapability
+        {
+            get
+            {
+                if (LateBoundObject[nameof(ResetCapability)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(ResetCapability)];
+            }
+        }
+
+        public string[] Roles => (string[])LateBoundObject[nameof(Roles)];
+
+        public string Status => (string)LateBoundObject[nameof(Status)];
+
+        public string[] StatusDescriptions => (string[])LateBoundObject[nameof(StatusDescriptions)];
+
+        /*
+         * The date and time when the virtual machine configuration file was last modified.
+         * The configuration file is modified during certain virtual machine operations,
+         * as well as when any of the virtual machine or device settings are added, modified, or removed.
+         */
+        public DateTime TimeOfLastConfigurationChange
+        {
+            get
+            {
+                if (LateBoundObject[nameof(TimeOfLastConfigurationChange)] != null)
+                {
+                    return ToDateTime((string)LateBoundObject[nameof(TimeOfLastConfigurationChange)]);
+                }
+                else
+                {
+                    return DateTime.MinValue;
+                }
+            }
+        }
+
+        public DateTime TimeOfLastStateChange
+        {
+            get
+            {
+                if (LateBoundObject[nameof(TimeOfLastStateChange)] != null)
+                {
+                    return ToDateTime((string)LateBoundObject[nameof(TimeOfLastStateChange)]);
+                }
+                else
+                {
+                    return DateTime.MinValue;
+                }
+            }
+        }
+
+        public ushort TransitioningToState
+        {
+            get
+            {
+                if (LateBoundObject[nameof(TransitioningToState)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(TransitioningToState)];
+            }
+        }
+
+        // Different overloads of GetInstances() help in enumerating instances of the WMI class.
+        public static List<ComputerSystem> GetInstances() => GetInstances(null, null, null, ClassName).Cast<ManagementObject>().Select((mo) => new ComputerSystem(mo)).ToList();
+
+        public new static List<ComputerSystem> GetInstances(string condition) => GetInstances(null, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new ComputerSystem(mo)).ToList();
+
+        public static List<ComputerSystem> GetInstances(string[] selectedProperties) => GetInstances(null, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new ComputerSystem(mo)).ToList();
+
+        public static List<ComputerSystem> GetInstances(string condition, string[] selectedProperties) => GetInstances(null, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new ComputerSystem(mo)).ToList();
+
+        public static List<ComputerSystem> GetInstances(ManagementScope mgmtScope, EnumerationOptions enumOptions) => GetInstances(mgmtScope, enumOptions, ClassName).Cast<ManagementObject>().Select((mo) => new ComputerSystem(mo)).ToList();
+
+        public static List<ComputerSystem> GetInstances(ManagementScope mgmtScope, string condition) => GetInstances(mgmtScope, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new ComputerSystem(mo)).ToList();
+
+        public static List<ComputerSystem> GetInstances(ManagementScope mgmtScope, string[] selectedProperties) => GetInstances(mgmtScope, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new ComputerSystem(mo)).ToList();
+
+        public static List<ComputerSystem> GetInstances(ManagementScope mgmtScope, string condition, string[] selectedProperties) => GetInstances(mgmtScope, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new ComputerSystem(mo)).ToList();
+
+        public static ComputerSystem CreateInstance() => new ComputerSystem(CreateInstance(ClassName));
+
+        public uint InjectNonMaskableInterrupt(out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = null;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("InjectNonMaskableInterrupt", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint RequestReplicationStateChange(ushort RequestedState, DateTime TimeoutPeriod, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RequestReplicationStateChange");
+                inParams[nameof(RequestedState)] = RequestedState;
+                inParams["TimeoutPeriod"] = ToDmtfDateTime(TimeoutPeriod);
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RequestReplicationStateChange", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint RequestReplicationStateChangeEx(string ReplicationRelationship, ushort RequestedState, DateTime TimeoutPeriod, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RequestReplicationStateChangeEx");
+                inParams["ReplicationRelationship"] = ReplicationRelationship;
+                inParams[nameof(RequestedState)] = RequestedState;
+                inParams["TimeoutPeriod"] = ToDmtfDateTime(TimeoutPeriod);
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RequestReplicationStateChangeEx", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint RequestStateChange(ushort RequestedState, DateTime? TimeoutPeriod, out ManagementPath Job)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RequestStateChange");
+                inParams[nameof(RequestedState)] = RequestedState;
+                inParams["TimeoutPeriod"] = TimeoutPeriod != null ? ToDmtfDateTime(TimeoutPeriod.Value) : null;
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RequestStateChange", inParams, null);
+                Job = null;
+                if (outParams.Properties["Job"] != null)
+                {
+                    Job = new ManagementPath(outParams["Job"] as string);
+                }
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                Job = null;
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public uint SetPowerState(uint PowerState, DateTime Time)
+        {
+            if (IsEmbedded == false)
+            {
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("SetPowerState");
+                inParams["PowerState"] = PowerState;
+                inParams["Time"] = ToDmtfDateTime(Time);
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("SetPowerState", inParams, null);
+                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
+            }
+            else
+            {
+                return Convert.ToUInt32(0);
+            }
+        }
+
+        public enum EnhancedSessionModeStateValues
+        {
+            Allowed_and_available = 2,
+            Not_allowed = 3,
+            Allowed_but_not_available = 6,
+            NULL_ENUM_VALUE = 0,
+        }
+
+        public enum FailedOverReplicationTypeValues
         {
             None = 0,
             Regular = 1,
-            ApplicationConsistent = 2,
-            Planned = 3
+            Application_consistent = 2,
+            Planned = 3,
+            NULL_ENUM_VALUE = 4,
         }
-        public enum HealthStateVM : ushort
-        {
-            OK = 5,
-            MajorFailure = 20,
-            CriticalFailure = 25
-        }
-        public enum LastReplicationTypeVM : ushort
+
+        public enum LastReplicationTypeValues
         {
             None = 0,
             Regular = 1,
-            ApplicationConsistent = 2,
-            Planned = 3
+            Application_consistent = 2,
+            Planned = 3,
+            NULL_ENUM_VALUE = 4,
         }
-        public enum OperationalStatusVM : ushort
+
+        public enum ReplicationHealthValues
         {
-            OK = 2,
-            Degraded = 3,
-            PredictiveFailure = 5,
-            Stopped = 10,
-            InService = 11,
-            Dormant = 15,
-            CreatingSnapshot = 32768, // values below are for OperationalStatus[1]
-            ApplyingSnapshot = 32769,
-            DeletingSnapshot = 32770,
-            WaitingToStart = 32771,
-            MergingDisks = 32772,
-            ExportingVirtualMachine = 32773,
-            MigratingVirtualMachine = 32774
-        }
-        public enum ReplicationHealthVM : ushort
-        {
-            NotApplicable = 0,
+            Not_applicable = 0,
             Ok = 1,
             Warning = 2,
-            Critical = 3
+            Critical = 3,
+            NULL_ENUM_VALUE = 4,
         }
-        public enum ReplicationModeVM : ushort
+
+        public enum ReplicationModeValues
         {
             None = 0,
             Primary = 1,
             Replica = 2,
-            TestReplica = 3,
-            ExtendedReplica = 4
+            Test_Replica = 3,
+            Extended_Replica = 4,
+            NULL_ENUM_VALUE = 5,
         }
-        public enum ReplicationStateVM : ushort
+
+        public enum ReplicationStateValues
         {
             Disabled = 0,
-            ReadyForReplication = 1,
-            WaitingToCompleteInitialReplication = 2,
+            Ready_for_replication = 1,
+            Waiting_to_complete_initial_replication = 2,
             Replicating = 3,
-            SyncedReplicationComplete = 4,
+            Synced_replication_complete = 4,
             Recovered = 5,
             Committed = 6,
             Suspended = 7,
             Critical = 8,
-            WaitingToStartResynchronization = 9,
+            Waiting_to_start_resynchronization = 9,
             Resynchronizing = 10,
-            ResynchronizationSuspended = 11,
-            FailoverInProgress = 12,
-            FailbackInProgress = 13,
-            FailbackComplete = 14
-        }
-
-        #endregion
-
-        #region MsvmProperties
-
-        public string InstanceID => MsvmComputerSystem[nameof(InstanceID)]?.ToString();
-        public string Caption => MsvmComputerSystem[nameof(Caption)].ToString();
-        public string Description => MsvmComputerSystem[nameof(Description)].ToString();
-        public string ElementName 
-        {
-            get { return Msvm_ComputerSystem != null ? MsvmComputerSystem[nameof(ElementName)].ToString() : elementName; }
-            private set { elementName = value; }
-        }
-        public DateTime InstallDate => ManagementDateTimeConverter.ToDateTime(MsvmComputerSystem[nameof(InstallDate)].ToString());
-        public OperationalStatusVM[] OperationalStatus => (OperationalStatusVM[])MsvmComputerSystem[nameof(OperationalStatus)];
-        public string[] StatusDescriptions => (string[])MsvmComputerSystem[nameof(StatusDescriptions)];
-        public string Status => MsvmComputerSystem[nameof(Status)].ToString();
-        public HealthStateVM HealthState => (HealthStateVM)MsvmComputerSystem[nameof(HealthState)];
-        public ushort CommunicationStatus => (ushort)MsvmComputerSystem[nameof(CommunicationStatus)];
-        public ushort DetailedStatus => (ushort)MsvmComputerSystem[nameof(DetailedStatus)];
-        public ushort OperatingStatus => (ushort)MsvmComputerSystem[nameof(OperatingStatus)];
-        public ushort PrimaryStatus => (ushort)MsvmComputerSystem[nameof(PrimaryStatus)];
-        public EnabledStateVM EnabledState => (EnabledStateVM)(ushort)MsvmComputerSystem[nameof(EnabledState)];
-        public string OtherEnabledState => MsvmComputerSystem[nameof(OtherEnabledState)].ToString();
-        public VirtualSystemManagementService.RequestedStateVSM RequestedState => (VirtualSystemManagementService.RequestedStateVSM)(ushort)MsvmComputerSystem[nameof(RequestedState)];
-        public EnabledDefaultVM EnabledDefault => (EnabledDefaultVM)MsvmComputerSystem[nameof(EnabledDefault)];
-        public DateTime TimeOfLastStateChange => ManagementDateTimeConverter.ToDateTime(MsvmComputerSystem[nameof(TimeOfLastStateChange)].ToString());
-        public VirtualSystemManagementService.RequestedStateVSM[] AvailableRequestedStates => (VirtualSystemManagementService.RequestedStateVSM[])MsvmComputerSystem[nameof(AvailableRequestedStates)];
-        public ushort TransitioningToState => (ushort)MsvmComputerSystem[nameof(TransitioningToState)];
-        public string CreationClassName => MsvmComputerSystem[nameof(CreationClassName)].ToString();
-        public string Name => Msvm_ComputerSystem?[nameof(Name)].ToString();
-        public string PrimaryOwnerName => MsvmComputerSystem[nameof(PrimaryOwnerName)].ToString();
-        public string PrimaryOwnerContact => MsvmComputerSystem[nameof(PrimaryOwnerContact)].ToString();
-        public string[] Roles => (string[])MsvmComputerSystem[nameof(Roles)];
-        public string NameFormat => MsvmComputerSystem[nameof(NameFormat)].ToString();
-        public string[] OtherIdentifyingInfo => (string[])MsvmComputerSystem[nameof(OtherIdentifyingInfo)];
-        public string[] IdentifyingDescriptions => (string[])MsvmComputerSystem[nameof(IdentifyingDescriptions)];
-        public ushort[] Dedicated => (ushort[])MsvmComputerSystem[nameof(Dedicated)];
-        public string[] OtherDedicatedDescriptions => (string[])MsvmComputerSystem[nameof(OtherDedicatedDescriptions)];
-        public ushort ResetCapability => (ushort)MsvmComputerSystem[nameof(ResetCapability)];
-        public ushort[] PowerManagementCapabilities => (ushort[])MsvmComputerSystem[nameof(PowerManagementCapabilities)];
-        public ulong OnTimeInMilliseconds => (ulong)MsvmComputerSystem[nameof(OnTimeInMilliseconds)];
-        public uint ProcessID => (uint)MsvmComputerSystem[nameof(ProcessID)];
-        public DateTime TimeOfLastConfigurationChange => ManagementDateTimeConverter.ToDateTime(MsvmComputerSystem[nameof(TimeOfLastConfigurationChange)].ToString());
-        public ushort NumberOfNumaNodes => (ushort)MsvmComputerSystem[nameof(NumberOfNumaNodes)];
-        public ReplicationStateVM ReplicationState => (ReplicationStateVM)MsvmComputerSystem[nameof(ReplicationState)];
-        public ReplicationHealthVM ReplicationHealth => (ReplicationHealthVM)MsvmComputerSystem[nameof(ReplicationHealth)];
-        public ReplicationModeVM ReplicationMode => (ReplicationModeVM)MsvmComputerSystem[nameof(ReplicationMode)];
-        public FailedOverReplicationTypeVM FailedOverReplicationType => (FailedOverReplicationTypeVM)MsvmComputerSystem[nameof(FailedOverReplicationType)];
-        public LastReplicationTypeVM LastReplicationType => (LastReplicationTypeVM)MsvmComputerSystem[nameof(LastReplicationType)];
-        public DateTime LastApplicationConsistentReplicationTime => ManagementDateTimeConverter.ToDateTime(MsvmComputerSystem[nameof(LastApplicationConsistentReplicationTime)].ToString());
-        public DateTime LastReplicationTime => ManagementDateTimeConverter.ToDateTime(MsvmComputerSystem[nameof(LastReplicationTime)].ToString());
-        public DateTime LastSuccessfulBackupTime => ManagementDateTimeConverter.ToDateTime(MsvmComputerSystem[nameof(LastSuccessfulBackupTime)].ToString());
-        public EnhancedSessionModeStateVM EnhancedSessionModeState => (EnhancedSessionModeStateVM)MsvmComputerSystem[nameof(EnhancedSessionModeState)];
-
-        #endregion
-
-        #region MsvmMethods
-
-        public void InjectNonMaskableInterrupt()
-        {
-            using (var ip = MsvmComputerSystem.GetMethodParameters(nameof(InjectNonMaskableInterrupt)))
-            {
-                using (var op = MsvmComputerSystem.InvokeMethod(nameof(InjectNonMaskableInterrupt), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
-            }
-        }
-        public void RequestReplicationStateChange(ReplicationStateVM RequestedState, ulong TimeoutPeriod = 0)
-        {
-            using (var ip = MsvmComputerSystem.GetMethodParameters(nameof(RequestReplicationStateChange)))
-            {
-                ip[nameof(RequestedState)] = (ushort)RequestedState;
-                ip[nameof(TimeoutPeriod)] = null; // CIM_DateTime
-
-                using (var op = MsvmComputerSystem.InvokeMethod(nameof(RequestReplicationStateChange), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
-            }
-        }
-        public void RequestReplicationStateChangeEx(string ReplicationRelationship, ReplicationStateVM RequestedState, ulong TimeoutPeriod = 0)
-        {
-            using (var ip = MsvmComputerSystem.GetMethodParameters(nameof(RequestReplicationStateChangeEx)))
-            {
-                ip[nameof(ReplicationRelationship)] = ReplicationRelationship ?? throw new ViridianException($"{nameof(ReplicationRelationship)} is null!"); ;
-                ip[nameof(RequestedState)] = (ushort)RequestedState;
-                ip[nameof(TimeoutPeriod)] = null; // CIM_DateTime
-
-                using (var op = MsvmComputerSystem.InvokeMethod(nameof(RequestReplicationStateChangeEx), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
-            }
-        }
-        public void RequestStateChange(VirtualSystemManagementService.RequestedStateVSM RequestedState, ulong TimeoutPeriod = 0)
-        {
-            using (var ip = MsvmComputerSystem.GetMethodParameters(nameof(RequestStateChange)))
-            {
-                ip[nameof(RequestedState)] = (ushort)RequestedState;
-                ip[nameof(TimeoutPeriod)] = null; // CIM_DateTime
-
-                using (var op = MsvmComputerSystem.InvokeMethod(nameof(RequestStateChange), ip, null))
-                    Validator.ValidateOutput(op, Scope.Virtualization.SpecificScope);
-            }
-        }
-
-        #endregion
-
-        public void DestroySystem()
-        {
-            VirtualSystemManagementService.Instance.DestroySystem(MsvmComputerSystem);
-            Msvm_ComputerSystem.Dispose();
-            Msvm_ComputerSystem = null;
-        }
-
-        public void DisconnectVmFromSwitch(string switchName)
-        {
-            using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope.Virtualization.SpecificScope, switchName))
-                foreach (var connection in NetSwitch.FindConnectionsToSwitch(this, ves))
-                {
-                    connection["EnabledState"] = 3;
-
-                    VirtualSystemManagementService.Instance.ModifyResourceSettings(new string[] { connection.GetText(TextFormat.WmiDtd20) });
-                }
-        }
-
-        public void ModifyConnection(string currentSwitchName, string newSwitchName)
-        {
-            using (var ves = NetSwitch.FindVirtualEthernetSwitch(Scope.Virtualization.SpecificScope, currentSwitchName))
-            using (var newVes = NetSwitch.FindVirtualEthernetSwitch(Scope.Virtualization.SpecificScope, newSwitchName))
-                foreach (var connection in NetSwitch.FindConnectionsToSwitch(this, ves))
-                {
-                    connection["HostResource"] = new string[] { newVes.Path.Path };
-
-                    VirtualSystemManagementService.Instance.ModifyResourceSettings(new string[] { connection.GetText(TextFormat.WmiDtd20) });
-                }
-        }
-
-        public List<ManagementObject> GetSyntheticAdapterCollection()
-        {
-            return MsvmComputerSystem.GetRelated("Msvm_SyntheticEthernetPort").Cast<ManagementObject>().ToList();
-        }
-
-        public static ManagementObject QueryMsvmComputerSystem(string name, string value)
-        {
-            using (var mos = new ManagementObjectSearcher(Scope.Virtualization.SpecificScope, new ObjectQuery($"SELECT * FROM {nameof(Msvm_ComputerSystem)}")))
-                return mos.Get().Cast<ManagementObject>().Where((c) => c[name]?.ToString() == value).FirstOrDefault();
-        }
-        private static ManagementObject GetMsvmObject(string serviceName)
-        {
-            using (var serviceClass = new ManagementClass(Scope.Virtualization.SpecificScope, new ManagementPath(serviceName), null))
-                return serviceClass.GetInstances().Cast<ManagementObject>().First();
-        }
-
-        ~ComputerSystem()
-        {
-            if (Msvm_ComputerSystem != null)
-                Msvm_ComputerSystem.Dispose();
+            Resynchronization_suspended = 11,
+            Failover_in_progress = 12,
+            Failback_in_progress = 13,
+            Failback_complete = 14,
+            NULL_ENUM_VALUE = 15,
         }
     }
 }

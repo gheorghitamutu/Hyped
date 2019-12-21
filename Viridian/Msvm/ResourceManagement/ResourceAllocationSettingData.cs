@@ -1,93 +1,195 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Management;
-using Viridian.Scopes;
 
 namespace Viridian.Msvm.ResourceManagement
 {
-    public sealed class ResourceAllocationSettingData
+    public class ResourceAllocationSettingData : MsvmBase
     {
-        private static ManagementObject Msvm_ResourceAllocationSettingData = null;
+        public static string ClassName => $"Msvm_{nameof(ResourceAllocationSettingData)}";
 
-        #region MsvmProperties
+        // Below are different overloads of constructors to initialize an instance of the class with a WMI object.
+        public ResourceAllocationSettingData() : base(ClassName) { }
 
-        string InstanceID => Msvm_ResourceAllocationSettingData[nameof(InstanceID)].ToString();
-        string Caption => Msvm_ResourceAllocationSettingData[nameof(Caption)].ToString();
-        string Description => Msvm_ResourceAllocationSettingData[nameof(Description)].ToString();
-        string ElementName => Msvm_ResourceAllocationSettingData[nameof(ElementName)].ToString();
-        ResourcePoolSettingData.PoolResourceType ResourceType => (ResourcePoolSettingData.PoolResourceType)(ushort)Msvm_ResourceAllocationSettingData[nameof(ResourceType)];
-        string OtherResourceType => Msvm_ResourceAllocationSettingData[nameof(OtherResourceType)].ToString();
-        string ResourceSubType => Msvm_ResourceAllocationSettingData[nameof(ResourceSubType)].ToString();
-        string PoolID => Msvm_ResourceAllocationSettingData[nameof(PoolID)].ToString();
-        ushort ConsumerVisibility => (ushort)Msvm_ResourceAllocationSettingData[nameof(ConsumerVisibility)];
-        string[] HostResource => Msvm_ResourceAllocationSettingData[nameof(HostResource)] as string[];
-        string AllocationUnits => Msvm_ResourceAllocationSettingData[nameof(AllocationUnits)].ToString();
-        ulong VirtualQuantity => (ulong)Msvm_ResourceAllocationSettingData[nameof(VirtualQuantity)];
-        ulong Reservation => (ulong)Msvm_ResourceAllocationSettingData[nameof(Reservation)];
-        ulong Limit => (ulong)Msvm_ResourceAllocationSettingData[nameof(Limit)];
-        uint Weight => (uint)Msvm_ResourceAllocationSettingData[nameof(Weight)];
-        bool AutomaticAllocation => (bool)Msvm_ResourceAllocationSettingData[nameof(AutomaticAllocation)];
-        bool AutomaticDeallocation => (bool)Msvm_ResourceAllocationSettingData[nameof(AutomaticDeallocation)];
-        string Parent => Msvm_ResourceAllocationSettingData[nameof(Parent)].ToString();
-        string[] Connection => Msvm_ResourceAllocationSettingData[nameof(Connection)] as string[];
-        string Address => Msvm_ResourceAllocationSettingData[nameof(Address)].ToString();
-        ResourcePoolSettingData.PoolMappingBehavior MappingBehavior => (ResourcePoolSettingData.PoolMappingBehavior)(ushort)Msvm_ResourceAllocationSettingData[nameof(MappingBehavior)];
-        string AddressOnParent => Msvm_ResourceAllocationSettingData[nameof(AddressOnParent)].ToString();
-        string VirtualQuantityUnits => Msvm_ResourceAllocationSettingData[nameof(VirtualQuantityUnits)].ToString();
-        string[] VirtualSystemIdentifiers => Msvm_ResourceAllocationSettingData[nameof(VirtualSystemIdentifiers)] as string[];
+        public ResourceAllocationSettingData(string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
 
-        #endregion
+        public ResourceAllocationSettingData(ManagementScope mgmtScope, string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(mgmtScope, keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
 
-        public ResourceAllocationSettingData(ushort ResourceType, string ResourceSubType, string PoolId, string[] HostResource)
+        public ResourceAllocationSettingData(ManagementPath path, ObjectGetOptions getOptions) : base(path, getOptions, ClassName) { }
+
+        public ResourceAllocationSettingData(ManagementScope mgmtScope, ManagementPath path) : base(mgmtScope, path, ClassName) { }
+
+        public ResourceAllocationSettingData(ManagementPath path) : base(path, ClassName) { }
+
+        public ResourceAllocationSettingData(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions getOptions) : base(mgmtScope, path, getOptions, ClassName) { }
+
+        public ResourceAllocationSettingData(ManagementObject theObject) : base(theObject, ClassName) { }
+
+        public ResourceAllocationSettingData(ManagementBaseObject theObject) : base(theObject, ClassName) { }
+
+        public string Address => (string)LateBoundObject[nameof(Address)];
+
+        public string AddressOnParent => (string)LateBoundObject[nameof(AddressOnParent)];
+
+        public string AllocationUnits => (string)LateBoundObject[nameof(AllocationUnits)];
+        
+        public bool AutomaticAllocation
         {
-            using (var rpsdClass = new ManagementClass(nameof(Msvm_ResourceAllocationSettingData)) { Scope = Scope.Virtualization.SpecificScope })
+            get
             {
-                Msvm_ResourceAllocationSettingData = rpsdClass.CreateInstance();
-
-                Msvm_ResourceAllocationSettingData[nameof(ResourceType)] = ResourceType;
-                Msvm_ResourceAllocationSettingData[nameof(ResourceSubType)] = ResourceType != 0 ? string.Empty : ResourceSubType;
-                Msvm_ResourceAllocationSettingData[nameof(OtherResourceType)] = ResourceType == 0 ? string.Empty : ResourceSubType;
-                Msvm_ResourceAllocationSettingData[nameof(PoolId)] = PoolId;
-                Msvm_ResourceAllocationSettingData[nameof(HostResource)] = HostResource;
+                if (LateBoundObject[nameof(AutomaticAllocation)] == null)
+                {
+                    return Convert.ToBoolean(0);
+                }
+                return (bool)LateBoundObject[nameof(AutomaticAllocation)];
             }
         }
 
-        public ResourceAllocationSettingData(ManagementObject ResourceAllocationSettingData)
+        public bool AutomaticDeallocation
         {
-            Msvm_ResourceAllocationSettingData = ResourceAllocationSettingData;
+            get
+            {
+                if (LateBoundObject[nameof(AutomaticDeallocation)] == null)
+                {
+                    return Convert.ToBoolean(0);
+                }
+                return (bool)LateBoundObject[nameof(AutomaticDeallocation)];
+            }
         }
 
-        #region Utils
+        public string Caption => (string)LateBoundObject[nameof(Caption)];
 
-        private static ManagementObject GetResourceAllocationSettingDataForPool(ManagementObject pool, ushort ValueRange, ushort ValueRole)
+        public string[] Connection => (string[])LateBoundObject[nameof(Connection)];
+
+        public ushort ConsumerVisibility
         {
-            return
-                new ManagementObject(
-                        pool.Scope,
-                        new ManagementPath(
-                            pool?.GetRelated("Msvm_AllocationCapabilities", "Msvm_ElementCapabilities", null, null, null, null, false, null)
-                                .Cast<ManagementObject>()
-                                .Where(
-                                    (c) =>
-                                        c.GetRelationships("Msvm_SettingsDefineCapabilities")
-                                            .Cast<ManagementObject>()
-                                            .Where((r) => (ushort)r[nameof(ValueRole)] == ValueRole && (ushort)r[nameof(ValueRange)] == ValueRange)
-                                                .Any())
-                            .First()
-                            .GetRelationships("Msvm_SettingsDefineCapabilities")
-                                .Cast<ManagementObject>()
-                                .Where((r) => (ushort)r[nameof(ValueRole)] == ValueRole && (ushort)r[nameof(ValueRange)] == ValueRange)
-                                .First()["PartComponent"].ToString()),
-                        null);
+            get
+            {
+                if (LateBoundObject[nameof(ConsumerVisibility)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(ConsumerVisibility)];
+            }
         }
 
-        public static ManagementObject GetDefaultResourceAllocationSettingDataForPool(ManagementObject pool) => GetResourceAllocationSettingDataForPool(pool, 0, 0);
+        public string Description => (string)LateBoundObject[nameof(Description)];
 
-        public static ManagementObject GetMinimumResourceAllocationSettingDataForPool(ManagementObject pool) => GetResourceAllocationSettingDataForPool(pool, 1, 3);
+        public string ElementName => (string)LateBoundObject[nameof(ElementName)];
 
-        public static ManagementObject GetMaximumResourceAllocationSettingDataForPool(ManagementObject pool) => GetResourceAllocationSettingDataForPool(pool, 2, 3);
+        public string[] HostResource => (string[])LateBoundObject[nameof(HostResource)];
 
-        public static ManagementObject GetIncrementalResourceAllocationSettingDataForPool(ManagementObject pool) => GetResourceAllocationSettingDataForPool(pool, 3, 3);
+        public string InstanceID => (string)LateBoundObject[nameof(InstanceID)];
 
-        #endregion
+        public ulong Limit
+        {
+            get
+            {
+                if (LateBoundObject[nameof(Limit)] == null)
+                {
+                    return Convert.ToUInt64(0);
+                }
+                return (ulong)LateBoundObject[nameof(Limit)];
+            }
+        }
+
+        public ushort MappingBehavior
+        {
+            get
+            {
+                if (LateBoundObject[nameof(MappingBehavior)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(MappingBehavior)];
+            }
+        }
+
+        public string OtherResourceType => (string)LateBoundObject[nameof(OtherResourceType)];
+
+        public string Parent => (string)LateBoundObject[nameof(Parent)];
+
+        public string PoolID => (string)LateBoundObject[nameof(PoolID)];
+
+        public ulong Reservation
+        {
+            get
+            {
+                if (LateBoundObject[nameof(Reservation)] == null)
+                {
+                    return Convert.ToUInt64(0);
+                }
+                return (ulong)LateBoundObject[nameof(Reservation)];
+            }
+        }
+
+        public string ResourceSubType => (string)LateBoundObject[nameof(ResourceSubType)];
+
+        public ushort ResourceType
+        {
+            get
+            {
+                if (LateBoundObject[nameof(ResourceType)] == null)
+                {
+                    return Convert.ToUInt16(0);
+                }
+                return (ushort)LateBoundObject[nameof(ResourceType)];
+            }
+        }
+
+        public ulong VirtualQuantity
+        {
+            get
+            {
+                if (LateBoundObject[nameof(VirtualQuantity)] == null)
+                {
+                    return Convert.ToUInt64(0);
+                }
+                return (ulong)LateBoundObject[nameof(VirtualQuantity)];
+            }
+        }
+
+        public string VirtualQuantityUnits => (string)LateBoundObject[nameof(VirtualQuantityUnits)];
+
+        /*
+         * A free-form string array of identifiers of this resource presented to the virtual computer system's operating system.
+         * These values are only used if the ResourceType property is set to 6 (Parallel SCSI HBA) and the ResourceSubType property is set to "Microsoft Synthetic SCSI Controller".
+         * This property is set to "GUID".
+         * This is a read-only property, but it can be changed using the ModifyVirtualSystemResources method of the Msvm_VirtualSystemManagementService class.
+         * Windows Server 2008:  The VirtualSystemIdentifiers property is not supported until Windows Server 2008 R2.
+         */
+        public string[] VirtualSystemIdentifiers => (string[])LateBoundObject[nameof(VirtualSystemIdentifiers)];
+
+        public uint Weight
+        {
+            get
+            {
+                if (LateBoundObject[nameof(Weight)] == null)
+                {
+                    return Convert.ToUInt32(0);
+                }
+                return (uint)LateBoundObject[nameof(Weight)];
+            }
+        }
+
+        // Different overloads of GetInstances() help in enumerating instances of the WMI class.
+        public static List<ResourceAllocationSettingData> GetInstances() => GetInstances(null, null, null, ClassName).Cast<ManagementObject>().Select((mo) => new ResourceAllocationSettingData(mo)).ToList();
+
+        public new static List<ResourceAllocationSettingData> GetInstances(string condition) => GetInstances(null, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new ResourceAllocationSettingData(mo)).ToList();
+
+        public static List<ResourceAllocationSettingData> GetInstances(string[] selectedProperties) => GetInstances(null, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new ResourceAllocationSettingData(mo)).ToList();
+
+        public static List<ResourceAllocationSettingData> GetInstances(string condition, string[] selectedProperties) => GetInstances(null, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new ResourceAllocationSettingData(mo)).ToList();
+
+        public static List<ResourceAllocationSettingData> GetInstances(ManagementScope mgmtScope, EnumerationOptions enumOptions) => GetInstances(mgmtScope, enumOptions, ClassName).Cast<ManagementObject>().Select((mo) => new ResourceAllocationSettingData(mo)).ToList();
+
+        public static List<ResourceAllocationSettingData> GetInstances(ManagementScope mgmtScope, string condition) => GetInstances(mgmtScope, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new ResourceAllocationSettingData(mo)).ToList();
+
+        public static List<ResourceAllocationSettingData> GetInstances(ManagementScope mgmtScope, string[] selectedProperties) => GetInstances(mgmtScope, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new ResourceAllocationSettingData(mo)).ToList();
+
+        public static List<ResourceAllocationSettingData> GetInstances(ManagementScope mgmtScope, string condition, string[] selectedProperties) => GetInstances(mgmtScope, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new ResourceAllocationSettingData(mo)).ToList();
+
+        public static ResourceAllocationSettingData CreateInstance() => new ResourceAllocationSettingData(CreateInstance(ClassName));
     }
 }

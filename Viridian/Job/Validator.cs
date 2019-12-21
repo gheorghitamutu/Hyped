@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Management;
 using System.Threading;
-using Viridian.Exceptions;
 
 namespace Viridian.Job
 {
@@ -49,13 +49,13 @@ namespace Viridian.Job
         {
             switch((uint)outputParameters?["ReturnValue"])
             {
-                case ReturnCode.InvalidParameter:       throw new ViridianException("Invalid parameter passed to function!");
-                case ReturnCode.NotSupportedVolume:     throw new ViridianException("Not Supported (MSFT_Volume)!");
-                case ReturnCode.NotEnoughFreeSpace:     throw new ViridianException("Not enough free space (MSFT_Partition)!");
-                case ReturnCode.InvalidPartitionParam:  throw new ViridianException("A parameter is not valid for this type of partition (MSFT_Partition)!");
-                case ReturnCode.InvalidAccessPath:      throw new ViridianException("The access path is not valid (MSFT_Partition)!");
-                case ReturnCode.InvalidPartionType:     throw new ViridianException("The partition type is not valid (MSFT_Partition)!");
-                case ReturnCode.InvalidClusterSize:     throw new ViridianException("The specified cluster size is invalid (MSFT_Volume)!");
+                case ReturnCode.InvalidParameter:       throw new InvalidOperationException("Invalid parameter passed to function!");
+                case ReturnCode.NotSupportedVolume:     throw new InvalidOperationException("Not Supported (MSFT_Volume)!");
+                case ReturnCode.NotEnoughFreeSpace:     throw new InvalidOperationException("Not enough free space (MSFT_Partition)!");
+                case ReturnCode.InvalidPartitionParam:  throw new InvalidOperationException("A parameter is not valid for this type of partition (MSFT_Partition)!");
+                case ReturnCode.InvalidAccessPath:      throw new InvalidOperationException("The access path is not valid (MSFT_Partition)!");
+                case ReturnCode.InvalidPartionType:     throw new InvalidOperationException("The partition type is not valid (MSFT_Partition)!");
+                case ReturnCode.InvalidClusterSize:     throw new InvalidOperationException("The specified cluster size is invalid (MSFT_Volume)!");
             }
 
             var errorMessage = "The method call failed!";
@@ -88,12 +88,13 @@ namespace Viridian.Job
                     var errors = GetMsvmErrorsList(job);
                     if (errors.Length > 0)
                     {
-                        throw new ViridianException(errorMessage, errors);
+                        Trace.WriteLine(errors);
+                        throw new InvalidOperationException(errorMessage);
                     }
                     else if ((uint)outputParameters["ReturnValue"] != ReturnCode.Completed)
                     {
                         errorMessage = $"The method call failed! Error code {(uint)outputParameters["ReturnValue"]}";
-                        throw new ViridianException(errorMessage);
+                        throw new InvalidOperationException(errorMessage);
                     }
                 }
             }
@@ -124,7 +125,7 @@ namespace Viridian.Job
             using (var op = job.InvokeMethod("GetErrorEx", ip, null))
             {
                 if ((uint)op?["ReturnValue"] != ReturnCode.Completed)
-                    throw new ViridianException("GetErrorEx() call on the job failed!", new ManagementException());
+                    throw new ManagementException("GetErrorEx() call on the job failed!");
 
                 if (op == null)
                     return Array.Empty<string>();

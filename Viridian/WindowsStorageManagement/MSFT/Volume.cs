@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Management;
-using Viridian.Exceptions;
 using Viridian.Scopes;
 
 namespace Viridian.WindowsStorageManagement.MSFT
@@ -96,7 +95,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
             using (var ip = MSFT_Volume.GetMethodParameters(nameof(DeleteObject)))
             using (var op = MSFT_Volume.InvokeMethod(nameof(DeleteObject), ip, null))
             {
-                Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                 return op["ExtendedStatus"] as string;
             }
@@ -107,7 +106,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
             using (var ip = MSFT_Volume.GetMethodParameters(nameof(Diagnose)))
             using (var op = MSFT_Volume.InvokeMethod(nameof(Diagnose), ip, null))
             {
-                Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                 return op["DiagnoseResults"] as string[];
             }
@@ -117,15 +116,15 @@ namespace Viridian.WindowsStorageManagement.MSFT
         {
             using (var ip = MSFT_Volume.GetMethodParameters(nameof(Flush)))
             using (var op = MSFT_Volume.InvokeMethod(nameof(Flush), ip, null))
-                Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
         }
 
         public string Format(string FileSystem, string FileSystemLabel, ulong AllocationUnitSize, bool Full, bool Force, bool Compress, bool ShortFileNameSupport, bool SetIntegrityStreams, bool UseLargeFRS, bool DisableHeatGathering)
         {
             using (var ip = MSFT_Volume.GetMethodParameters(nameof(Format)))
             {
-                ip[nameof(FileSystem)] = FileSystem ?? throw new ViridianException($"{nameof(FileSystem)} is null!");
-                ip[nameof(FileSystemLabel)] = FileSystemLabel ?? throw new ViridianException($"{nameof(FileSystemLabel)} is null!");
+                ip[nameof(FileSystem)] = FileSystem ?? throw new ArgumentNullException(nameof(FileSystem));
+                ip[nameof(FileSystemLabel)] = FileSystemLabel ?? throw new ArgumentNullException(nameof(FileSystemLabel));
                 ip[nameof(AllocationUnitSize)] = AllocationUnitSize;
                 ip[nameof(Full)] = Full;
                 ip[nameof(Force)] = Force;
@@ -135,14 +134,14 @@ namespace Viridian.WindowsStorageManagement.MSFT
                     ip[nameof(SetIntegrityStreams)] = SetIntegrityStreams;
                 if (FileSystem != VolumeFileSystem.ReFS.Value) // not supported in current tests; maybe has something to do with AllocationUnitSize?
                     if (UseLargeFRS)
-                        throw new ViridianException("Not supported UseLargeFRS!", new NotSupportedException());
+                        throw new NotSupportedException($"Not supported [{nameof(UseLargeFRS)}]!");
                     else
                         ip[nameof(UseLargeFRS)] = UseLargeFRS;
                 ip[nameof(DisableHeatGathering)] = DisableHeatGathering;
 
                 using (var op = MSFT_Volume.InvokeMethod(nameof(Format), ip, null))
                 {
-                    Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                    Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                     return op["FormattedVolume"].ToString();
                 }
@@ -154,7 +153,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
             using (var ip = MSFT_Volume.GetMethodParameters(nameof(GetAttributes)))
             using (var op = MSFT_Volume.InvokeMethod(nameof(GetAttributes), ip, null))
             {
-                Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                 return (bool)op["VolumeScrubEnabled"];
             }
@@ -165,7 +164,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
             using (var ip = MSFT_Volume.GetMethodParameters(nameof(GetCorruptionCount)))
             using (var op = MSFT_Volume.InvokeMethod(nameof(GetCorruptionCount), ip, null))
             {
-                Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                 return (uint)op["CorruptionCount"];
             }
@@ -176,7 +175,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
             using (var ip = MSFT_Volume.GetMethodParameters(nameof(GetDedupProperties)))
             using (var op = MSFT_Volume.InvokeMethod(nameof(GetDedupProperties), ip, null))
             {
-                Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                 return op["DedupProperties"].ToString();
             }
@@ -186,11 +185,11 @@ namespace Viridian.WindowsStorageManagement.MSFT
         {
             using (var ip = MSFT_Volume.GetMethodParameters(nameof(GetSupportedClusterSizes)))
             {
-                ip[nameof(FileSystem)] = FileSystem ?? throw new ViridianException($"{nameof(FileSystem)} is null!");
+                ip[nameof(FileSystem)] = FileSystem ?? throw new ArgumentNullException(nameof(FileSystem));
 
                 using (var op = MSFT_Volume.InvokeMethod(nameof(GetSupportedClusterSizes), ip, null))
                 {
-                    Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                    Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                     return op["SupportedClusterSizes"] as uint[];
                 }
@@ -202,7 +201,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
             using (var ip = MSFT_Volume.GetMethodParameters(nameof(GetSupportedFileSystems)))
             using (var op = MSFT_Volume.InvokeMethod(nameof(GetSupportedFileSystems), ip, null))
             {
-                Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                 return op["SupportedFileSystems"] as string[];
             }
@@ -221,7 +220,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
 
                 using (var op = MSFT_Volume.InvokeMethod(nameof(Optimize), ip, null))
                 {
-                    Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                    Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                     return op["ExtendedStatus"].ToString();
                 }
@@ -238,7 +237,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
 
                 using (var op = MSFT_Volume.InvokeMethod(nameof(Repair), ip, null))
                 {
-                    Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                    Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                     return (uint)op["Output"];
                 }
@@ -253,7 +252,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
 
                 using (var op = MSFT_Volume.InvokeMethod(nameof(Resize), ip, null))
                 {
-                    Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                    Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                     return op["ExtendedStatus"].ToString();
                 }
@@ -268,7 +267,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
 
                 using (var op = MSFT_Volume.InvokeMethod(nameof(SetAttributes), ip, null))
                 {
-                    Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                    Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                     return op["ExtendedStatus"].ToString();
                 }
@@ -283,7 +282,7 @@ namespace Viridian.WindowsStorageManagement.MSFT
 
                 using (var op = MSFT_Volume.InvokeMethod(nameof(SetDedupMode), ip, null))
                 {
-                    Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                    Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                     return op["ExtendedStatus"].ToString();
                 }
@@ -294,11 +293,11 @@ namespace Viridian.WindowsStorageManagement.MSFT
         {
             using (var ip = MSFT_Volume.GetMethodParameters(nameof(SetFileSystemLabel)))
             {
-                ip[nameof(FileSystemLabel)] = FileSystemLabel ?? throw new ViridianException($"{nameof(FileSystemLabel)} is null!"); ;
+                ip[nameof(FileSystemLabel)] = FileSystemLabel ?? throw new ArgumentNullException(nameof(FileSystemLabel));
 
                 using (var op = MSFT_Volume.InvokeMethod(nameof(SetFileSystemLabel), ip, null))
                 {
-                    Job.Validator.ValidateOutput(op, Scope.Storage.SpecificScope);
+                    Job.Validator.ValidateOutput(op, Scope.Storage.ScopeObject);
 
                     return op["ExtendedStatus"].ToString();
                 }

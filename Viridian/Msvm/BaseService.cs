@@ -14,7 +14,7 @@ namespace Viridian.Msvm
         {
             using (var vsms = new ManagementClass(MsvmServiceName))
             {
-                vsms.Scope = Scope.Virtualization.SpecificScope;
+                vsms.Scope = Scope.Virtualization.ScopeObject;
 
                 Service = vsms.GetInstances().Cast<ManagementObject>().First();
             }
@@ -66,8 +66,8 @@ namespace Viridian.Msvm
 
         #endregion
 
-        public virtual void StartService() => throw new NotSupportedException($"{nameof(StartService)} method is not supported!");
+        public virtual void StartService() => throw new NotSupportedException();
 
-        public virtual void StopService() => throw new NotSupportedException($"{nameof(StopService)} method is not supported!");
+        public virtual void StopService() => throw new NotSupportedException();
     }
 }
