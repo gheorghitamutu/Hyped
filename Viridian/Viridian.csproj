@@ -123,7 +123,6 @@
     <Compile Include="Msvm\Storage\MountedStorageImage.cs" />
     <Compile Include="Msvm\ResourceManagement\ResourcePool.cs" />
     <Compile Include="Msvm\VirtualSystem\VirtualSystemSettingData.cs" />
-    <Compile Include="Msvm\BaseService.cs" />
     <Compile Include="Msvm\Storage\ImageManagementService.cs" />
     <Compile Include="Msvm\Networking\VirtualEthernetSwitchManagementService.cs" />
     <Compile Include="Msvm\VirtualSystemManagement\VirtualSystemSnapshotService.cs" />

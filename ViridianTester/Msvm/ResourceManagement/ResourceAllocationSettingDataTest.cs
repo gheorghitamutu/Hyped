@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Management;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Viridian.Msvm.Networking;
 using Viridian.Msvm.ResourceManagement;
@@ -710,25 +711,60 @@ namespace ViridianTester.Msvm.ResourceManagement
                     var AssignDriveLetter = false;
                     var Path = vhdxName;
                     var ReadOnly = false;
+
                     ReturnValue = ims.AttachVirtualHardDisk(AssignDriveLetter, Path, ReadOnly, out Job);
 
-                    using (ManagementObject JobObject = new ManagementObject(Job))
+                    bool diskAttached = false;
+
+                    Disk msftDisk = null;
+
+                    while (diskAttached == false) // wait for the disk to be attached | CreateVirtualHardDisk may still keep a handle when calling AttachVirtualHardDisk
                     {
-                        var msftDisk = new Disk(vhdxName);
-                        msftDisk.Initialize(Disk.DiskPartitionStyle.GPT);
+                        try // TODO: replace this with an event/watcher
+                        {
+                            ReturnValue = ims.AttachVirtualHardDisk(AssignDriveLetter, Path, ReadOnly, out Job);
 
-                        var partition = new Partition(msftDisk.CreatePartition(0, true, 0, 0, ' ', false, Partition.PartitionMBRType.None, Partition.PartitionGPTType.BasicData.Value, false, true));
-                        var volume = new Volume(partition.GetMsftVolume(0));
+                            using (ManagementObject JobObject = new ManagementObject(Job))
+                            {
+                                Trace.WriteLine($"ReturnValue [{ReturnValue}]");
+                                Trace.WriteLine($"JobObject [{JobObject["ErrorCode"]}]");
+                                Trace.WriteLine($"JobObject [{JobObject["ErrorDescription"]}]");
+                                Trace.WriteLine($"JobObject [{JobObject["ErrorSummaryDescription"]}]");
 
-                        volume.Format(Volume.VolumeFileSystem.NTFS.Value, nameof(CreatingVirtualHardDisk_ExpectingOneRASDOfTypeVirtualHardDisk), 4096, true, true, true, true, true, false, false);
+                                if ((ushort)JobObject["ErrorCode"] != 32774)
+                                {
+                                    diskAttached = true;
+                                }
+                                else
+                                {
+                                    throw new InvalidOperationException();
+                                }
+                            }
 
-                        ushort CriterionType = 2;
-                        var SelectionCriterion = vhdxName;
-                        ims.FindMountedStorageImageInstance(CriterionType, SelectionCriterion, out ManagementPath Image);
+                            msftDisk = new Disk(vhdxName);
+                        }
+                        catch (InvalidOperationException ex) // Sequence contains no elements
+                        {
+                            Trace.WriteLine(ex.Message);
+                            Trace.WriteLine(ex.InnerException?.Message);
 
-                        var mountedStorageImage = new MountedStorageImage(Image);
-                        mountedStorageImage.DetachVirtualHardDisk();
+                            Thread.Sleep(1000);
+                        }
                     }
+
+                    msftDisk.Initialize(Disk.DiskPartitionStyle.GPT);
+
+                    var partition = new Partition(msftDisk.CreatePartition(0, true, 0, 0, ' ', false, Partition.PartitionMBRType.None, Partition.PartitionGPTType.BasicData.Value, false, true));
+                    var volume = new Volume(partition.GetMsftVolume(0));
+
+                    volume.Format(Volume.VolumeFileSystem.NTFS.Value, nameof(CreatingVirtualHardDisk_ExpectingOneRASDOfTypeVirtualHardDisk), 4096, true, true, true, true, true, false, false);
+
+                    ushort CriterionType = 2;
+                    var SelectionCriterion = vhdxName;
+                    ims.FindMountedStorageImageInstance(CriterionType, SelectionCriterion, out ManagementPath Image);
+
+                    var mountedStorageImage = new MountedStorageImage(Image);
+                    mountedStorageImage.DetachVirtualHardDisk();
                 }
                 // end operations on the host
 

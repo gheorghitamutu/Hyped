@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Management;
-using Viridian.Job;
-using Viridian.Scopes;
 
 namespace Viridian.Msvm.Storage
 {
