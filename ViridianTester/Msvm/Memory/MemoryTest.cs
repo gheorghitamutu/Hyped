@@ -12,13 +12,13 @@ namespace ViridianTester.Msvm.Memory
     public class MemoryTest
     {
         [TestMethod]
-        public void Constructor_ExpectingVirtualQuantityIs1024()
+        public void Constructor_ExpectingDefaultVirtualQuantity1024()
         {
             using (var sut = VirtualSystemManagementService.GetInstances().Cast<VirtualSystemManagementService>().ToList().First())
             {
                 var virtualSystemSettingData = VirtualSystemSettingData.CreateInstance();
 
-                virtualSystemSettingData.LateBoundObject["ElementName"] = nameof(Constructor_ExpectingVirtualQuantityIs1024);
+                virtualSystemSettingData.LateBoundObject["ElementName"] = nameof(Constructor_ExpectingDefaultVirtualQuantity1024);
                 virtualSystemSettingData.LateBoundObject["ConfigurationDataRoot"] = @"ConfigurationDataRoot";
                 virtualSystemSettingData.LateBoundObject["VirtualSystemSubtype"] = "Microsoft:Hyper-V:SubType:2";
 

@@ -384,9 +384,7 @@ namespace ViridianTester.Msvm.ResourceManagement
 
                     ResourceSettings = new string[] { resourceAllocationSettingVirtualCDDVD.LateBoundObject.GetText(TextFormat.WmiDtd20) };
                     ReturnValue = sut.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
-
-                    // TODO: search for ISO instead
-
+                    
                     var virtualCDDVDCollection =
                     VirtualSystemSettingDataComponent.GetInstances()
                         .Cast<VirtualSystemSettingDataComponent>()
@@ -405,8 +403,21 @@ namespace ViridianTester.Msvm.ResourceManagement
                     Assert.AreEqual(0U, ReturnValue);
                     Assert.AreEqual(1, ResultingResourceSettings.Length);
                     Assert.AreEqual(1, virtualCDDVDCollection.Count);
-                    sut.DestroySystem(ResultingSystem, out Job);
+
+                    // reverse resource removal
+
+                    var RemoveResourceSettings = new ManagementPath[] { virtualCDDVDCollection.First().Path };
+                    ReturnValue = sut.RemoveResourceSettings(RemoveResourceSettings, out Job);
+
                     File.Delete(isoName);
+
+                    RemoveResourceSettings = new ManagementPath[] { synthethicDVD.Path };
+                    ReturnValue = sut.RemoveResourceSettings(RemoveResourceSettings, out Job);
+
+                    RemoveResourceSettings = new ManagementPath[] { scsiController.Path };
+                    ReturnValue = sut.RemoveResourceSettings(RemoveResourceSettings, out Job);
+
+                    sut.DestroySystem(ResultingSystem, out Job);
                 }
             }
         }
