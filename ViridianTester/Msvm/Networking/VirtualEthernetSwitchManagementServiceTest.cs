@@ -38,6 +38,6 @@ namespace ViridianTester.Msvm.Networking
                     sut.DestroySystem(ResultingSystem, out Job);
                 }
             }
-        }
+        }        
     }
 }

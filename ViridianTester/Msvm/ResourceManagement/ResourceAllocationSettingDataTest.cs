@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Management;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Viridian.Msvm.Networking;
 using Viridian.Msvm.ResourceManagement;
 using Viridian.Msvm.Storage;
 using Viridian.Msvm.VirtualSystem;
@@ -759,6 +760,156 @@ namespace ViridianTester.Msvm.ResourceManagement
                 Assert.AreEqual(1, virtualHardDiskCollection.Count);
                 sut.DestroySystem(ResultingSystem, out Job);
                 File.Delete(vhdxName);
+            }
+        }
+
+        [TestMethod]
+        public void AddSynthethicEthernetPort_ExpectingOne()
+        {
+            using (var virtualEthernetSwitchManagementService = VirtualEthernetSwitchManagementService.GetInstances().First())
+            {
+                using (var virtualEthernetSwitchSettingData = VirtualEthernetSwitchSettingData.CreateInstance())
+                {
+                    virtualEthernetSwitchSettingData.LateBoundObject["ElementName"] = nameof(AddSynthethicEthernetPort_ExpectingOne);
+                    virtualEthernetSwitchSettingData.LateBoundObject["Notes"] = new string[] { nameof(AddSynthethicEthernetPort_ExpectingOne) };
+
+                    ManagementPath ReferenceConfiguration = null;
+                    var SystemSettings = virtualEthernetSwitchSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20);
+                    var ResourceSettings = System.Array.Empty<string>();
+
+                    virtualEthernetSwitchManagementService.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem);
+
+                    var virtualEthernetSwitch = new VirtualEthernetSwitch(ResultingSystem);
+
+                    using (var sut = VirtualSystemManagementService.GetInstances().Cast<VirtualSystemManagementService>().ToList().First())
+                    {
+                        var virtualSystemSettingData = VirtualSystemSettingData.CreateInstance();
+
+                        virtualSystemSettingData.LateBoundObject["ElementName"] = nameof(AddSynthethicEthernetPort_ExpectingOne);
+                        virtualSystemSettingData.LateBoundObject["ConfigurationDataRoot"] = @"ConfigurationDataRoot";
+                        virtualSystemSettingData.LateBoundObject["VirtualSystemSubtype"] = "Microsoft:Hyper-V:SubType:2";
+
+                        ReferenceConfiguration = null;
+                        ResourceSettings = null;
+                        SystemSettings = virtualSystemSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20);
+
+                        var ReturnValue = sut.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out Job, out ResultingSystem);
+
+                        var primordialResourcePool =
+                            ResourcePool.GetInstances()
+                                .Where((rp) =>
+                                    rp.Primordial == true &&
+                                    string.Compare(rp.ResourceSubType, "Microsoft:Hyper-V:Synthetic Ethernet Port", true, CultureInfo.InvariantCulture) == 0)
+                                .First();
+                        
+                        var allocationCapabilities =
+                            ElementCapabilities.GetInstances()
+                                .Cast<ElementCapabilities>()
+                                .Where((ec) => string.Compare(ec.ManagedElement.Path, primordialResourcePool.Path.Path, true, CultureInfo.InvariantCulture) == 0)
+                                .Select((ec) => new AllocationCapabilities(ec.Capabilities))
+                                .ToList()
+                                .First();
+
+                        var syntheticEthernetPortSettingData =
+                            SettingsDefineCapabilities.GetInstances()
+                                .Cast<SettingsDefineCapabilities>()
+                                .Where((sdc) =>
+                                    string.Compare(sdc.GroupComponent.Path, allocationCapabilities.Path.Path, true, CultureInfo.InvariantCulture) == 0 &&
+                                    sdc.ValueRange == 0 &&
+                                    sdc.ValueRole == 0)
+                                .Select((sdc) => new SyntheticEthernetPortSettingData(sdc.PartComponent))
+                                .ToList()
+                                .First();
+
+                        var computerSystem = new ComputerSystem(ResultingSystem);
+
+                        virtualSystemSettingData =
+                            SettingsDefineState.GetInstances()
+                                .Cast<SettingsDefineState>()
+                                .Where((sds) => string.Compare(sds.ManagedElement.Path, computerSystem.Path.Path, true, CultureInfo.InvariantCulture) == 0)
+                                .Select((sds) => new VirtualSystemSettingData(sds.SettingData))
+                                .ToList()
+                                .First();
+
+                        syntheticEthernetPortSettingData.LateBoundObject["VirtualSystemIdentifiers"] = new string[] { Guid.NewGuid().ToString("B") };
+                        syntheticEthernetPortSettingData.LateBoundObject["ElementName"] = nameof(AddSynthethicEthernetPort_ExpectingOne);
+                        syntheticEthernetPortSettingData.LateBoundObject["StaticMacAddress"] = false;
+
+                        var AffectedConfiguration = virtualSystemSettingData.Path;
+                        ResourceSettings = new string[] { syntheticEthernetPortSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20) };
+
+                        ReturnValue = sut.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ManagementPath[] ResultingResourceSettings);
+
+                        syntheticEthernetPortSettingData = new SyntheticEthernetPortSettingData(ResultingResourceSettings[0]);
+
+                        var ethernetConnectionPrimordialPool = 
+                            ResourcePool.GetInstances()
+                                .Where((rp) =>
+                                    rp.Primordial == true &&
+                                    string.Compare(rp.ResourceSubType, "Microsoft:Hyper-V:Ethernet Connection", true, CultureInfo.InvariantCulture) == 0)
+                                .First();
+
+                        allocationCapabilities =
+                            ElementCapabilities.GetInstances()
+                                .Cast<ElementCapabilities>()
+                                .Where((ec) => string.Compare(ec.ManagedElement.Path, ethernetConnectionPrimordialPool.Path.Path, true, CultureInfo.InvariantCulture) == 0)
+                                .Select((ec) => new AllocationCapabilities(ec.Capabilities))
+                                .ToList()
+                                .First();
+
+                        var ethernetPortAllocationSettingData =
+                            SettingsDefineCapabilities.GetInstances()
+                                .Cast<SettingsDefineCapabilities>()
+                                .Where((sdc) =>
+                                    string.Compare(sdc.GroupComponent.Path, allocationCapabilities.Path.Path, true, CultureInfo.InvariantCulture) == 0 &&
+                                    sdc.ValueRange == 0 &&
+                                    sdc.ValueRole == 0)
+                                .Select((sdc) => new EthernetPortAllocationSettingData(sdc.PartComponent))
+                                .ToList()
+                                .First();
+
+                        ethernetPortAllocationSettingData.LateBoundObject["Parent"] = syntheticEthernetPortSettingData.Path.Path;
+                        ethernetPortAllocationSettingData.LateBoundObject["HostResource"] = new string[] { virtualEthernetSwitch.Path.Path };
+
+                        AffectedConfiguration = virtualSystemSettingData.Path;
+                        ResourceSettings = new string[] { ethernetPortAllocationSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20) };
+
+                        ReturnValue = sut.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
+
+                        var sepsdCollection =
+                        VirtualSystemSettingDataComponent.GetInstances()
+                            .Cast<VirtualSystemSettingDataComponent>()
+                            .Where((sds) =>
+                                string.Compare(sds.GroupComponent.Path, virtualSystemSettingData.Path.Path, true, CultureInfo.InvariantCulture) == 0 &&
+                                string.Compare(sds.PartComponent.ClassName, $"Msvm_{nameof(SyntheticEthernetPortSettingData)}", true, CultureInfo.InvariantCulture) == 0)
+                            .Select((sds) => new SyntheticEthernetPortSettingData(sds.PartComponent))
+                            .ToList()
+                            .Where((rasd) =>
+                                rasd.ResourceType == 10 &&
+                                string.Compare(rasd.ResourceSubType, "Microsoft:Hyper-V:Synthetic Ethernet Port", true, CultureInfo.InvariantCulture) == 0)
+                            .ToList();
+
+                        /* 
+                         * TODO:
+                         * in order to get a Microsoft:Hyper-V:Ethernet Connection/EthernetPortAllocationSettingData instance
+                         * you need to associate an Msvm_VirtualEthernetSwitchSettingData (source) and Msvm_EthernetSwitchFeatureSettingData (target)
+                         * through Msvm_VirtualEthernetSwitchSettingDataComponent
+                         * and then use then resulted Msvm_EthernetSwitchFeatureSettingData (source) with Msvm_EthernetPortAllocationSettingData (FINAL target)
+                         * through Msvm_EthernetPortSettingDataComponent
+                         */
+
+                        Assert.IsNotNull(ResultingSystem);
+                        Assert.AreEqual(0U, ReturnValue);
+                        Assert.AreEqual(1, sepsdCollection.Count);
+                        Assert.AreEqual(1, ResultingResourceSettings.Length);
+
+                        sut.DestroySystem(ResultingSystem, out Job);
+                    }
+
+                    Assert.IsNotNull(virtualEthernetSwitch);
+
+                    virtualEthernetSwitchManagementService.DestroySystem(virtualEthernetSwitch.Path, out Job);
+                }
             }
         }
     }
