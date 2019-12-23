@@ -72,6 +72,8 @@
     <Compile Include="Msvm\Metrics\MetricServiceSettingData.cs" />
     <Compile Include="Msvm\MsvmBase.cs" />
     <Compile Include="Msvm\Networking\EthernetPortAllocationSettingData.cs" />
+    <Compile Include="Msvm\Networking\EthernetPortSettingDataComponent.cs" />
+    <Compile Include="Msvm\Networking\EthernetSwitchFeatureSettingData.cs" />
     <Compile Include="Msvm\Networking\ExternalEthernetPort.cs" />
     <Compile Include="Msvm\Networking\InternalEthernetPort.cs" />
     <Compile Include="Msvm\Networking\SyntheticEthernetPortSettingData.cs" />

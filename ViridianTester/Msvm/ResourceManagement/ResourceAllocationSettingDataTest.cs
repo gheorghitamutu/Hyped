@@ -764,14 +764,14 @@ namespace ViridianTester.Msvm.ResourceManagement
         }
 
         [TestMethod]
-        public void AddSynthethicEthernetPort_ExpectingOne()
+        public void AddEthernetConnectionToSyntheticEthernetPort_ExpectingOne()
         {
             using (var virtualEthernetSwitchManagementService = VirtualEthernetSwitchManagementService.GetInstances().First())
             {
                 using (var virtualEthernetSwitchSettingData = VirtualEthernetSwitchSettingData.CreateInstance())
                 {
-                    virtualEthernetSwitchSettingData.LateBoundObject["ElementName"] = nameof(AddSynthethicEthernetPort_ExpectingOne);
-                    virtualEthernetSwitchSettingData.LateBoundObject["Notes"] = new string[] { nameof(AddSynthethicEthernetPort_ExpectingOne) };
+                    virtualEthernetSwitchSettingData.LateBoundObject["ElementName"] = nameof(AddEthernetConnectionToSyntheticEthernetPort_ExpectingOne);
+                    virtualEthernetSwitchSettingData.LateBoundObject["Notes"] = new string[] { nameof(AddEthernetConnectionToSyntheticEthernetPort_ExpectingOne) };
 
                     ManagementPath ReferenceConfiguration = null;
                     var SystemSettings = virtualEthernetSwitchSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20);
@@ -785,7 +785,7 @@ namespace ViridianTester.Msvm.ResourceManagement
                     {
                         var virtualSystemSettingData = VirtualSystemSettingData.CreateInstance();
 
-                        virtualSystemSettingData.LateBoundObject["ElementName"] = nameof(AddSynthethicEthernetPort_ExpectingOne);
+                        virtualSystemSettingData.LateBoundObject["ElementName"] = nameof(AddEthernetConnectionToSyntheticEthernetPort_ExpectingOne);
                         virtualSystemSettingData.LateBoundObject["ConfigurationDataRoot"] = @"ConfigurationDataRoot";
                         virtualSystemSettingData.LateBoundObject["VirtualSystemSubtype"] = "Microsoft:Hyper-V:SubType:2";
 
@@ -832,7 +832,7 @@ namespace ViridianTester.Msvm.ResourceManagement
                                 .First();
 
                         syntheticEthernetPortSettingData.LateBoundObject["VirtualSystemIdentifiers"] = new string[] { Guid.NewGuid().ToString("B") };
-                        syntheticEthernetPortSettingData.LateBoundObject["ElementName"] = nameof(AddSynthethicEthernetPort_ExpectingOne);
+                        syntheticEthernetPortSettingData.LateBoundObject["ElementName"] = nameof(AddEthernetConnectionToSyntheticEthernetPort_ExpectingOne);
                         syntheticEthernetPortSettingData.LateBoundObject["StaticMacAddress"] = false;
 
                         var AffectedConfiguration = virtualSystemSettingData.Path;
@@ -889,18 +889,23 @@ namespace ViridianTester.Msvm.ResourceManagement
                                 string.Compare(rasd.ResourceSubType, "Microsoft:Hyper-V:Synthetic Ethernet Port", true, CultureInfo.InvariantCulture) == 0)
                             .ToList();
 
-                        /* 
-                         * TODO:
-                         * in order to get a Microsoft:Hyper-V:Ethernet Connection/EthernetPortAllocationSettingData instance
-                         * you need to associate an Msvm_VirtualEthernetSwitchSettingData (source) and Msvm_EthernetSwitchFeatureSettingData (target)
-                         * through Msvm_VirtualEthernetSwitchSettingDataComponent
-                         * and then use then resulted Msvm_EthernetSwitchFeatureSettingData (source) with Msvm_EthernetPortAllocationSettingData (FINAL target)
-                         * through Msvm_EthernetPortSettingDataComponent
-                         */
+                        var epsdCollection =
+                        VirtualSystemSettingDataComponent.GetInstances()
+                            .Cast<VirtualSystemSettingDataComponent>()
+                            .Where((sds) =>
+                                string.Compare(sds.GroupComponent.Path, virtualSystemSettingData.Path.Path, true, CultureInfo.InvariantCulture) == 0 &&
+                                string.Compare(sds.PartComponent.ClassName, $"Msvm_{nameof(EthernetPortAllocationSettingData)}", true, CultureInfo.InvariantCulture) == 0)
+                            .Select((sds) => new EthernetPortAllocationSettingData(sds.PartComponent))
+                            .ToList()
+                            .Where((rasd) =>
+                                rasd.ResourceType == 33 &&
+                                string.Compare(rasd.ResourceSubType, "Microsoft:Hyper-V:Ethernet Connection", true, CultureInfo.InvariantCulture) == 0)
+                            .ToList();
 
                         Assert.IsNotNull(ResultingSystem);
                         Assert.AreEqual(0U, ReturnValue);
                         Assert.AreEqual(1, sepsdCollection.Count);
+                        Assert.AreEqual(1, epsdCollection.Count);
                         Assert.AreEqual(1, ResultingResourceSettings.Length);
 
                         sut.DestroySystem(ResultingSystem, out Job);
