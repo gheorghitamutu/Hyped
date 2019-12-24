@@ -1,6 +1,6 @@
 ﻿using System.Management;
 
-namespace Viridian.Msvm
+namespace Viridian
 {
     // Embedded class to represent WMI system Properties.
     public class ManagementSystemProperties

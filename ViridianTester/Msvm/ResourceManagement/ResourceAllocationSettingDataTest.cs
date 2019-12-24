@@ -726,14 +726,121 @@ namespace ViridianTester.Msvm.ResourceManagement
 
                     ReturnValue = ims.AttachVirtualHardDisk(AssignDriveLetter, Path, ReadOnly, out Job);
 
-                    Disk msftDisk = new Disk(vhdxName);
+                    using (StorageJob storageJob = new StorageJob(Job))
+                    {
+                        while (
+                            storageJob.JobState != 7 &&     // Completed
+                            storageJob.JobState != 8 &&     // Terminated
+                            storageJob.JobState != 9 &&     // Killed
+                            storageJob.JobState != 10 &&    // Exception
+                            storageJob.JobState != 32768)   // CompletedWithWarnings
+                        {
+                            ((ManagementObject)storageJob.LateBoundObject).Get();
+                        }
+                    }
 
-                    msftDisk.Initialize(Disk.DiskPartitionStyle.GPT);
+                    Disk disk = 
+                        Disk.GetInstances()
+                            .Where((d) => string.Compare(d.Location, vhdxName, true, CultureInfo.InvariantCulture) == 0)
+                            .ToList()
+                            .First();
 
-                    var partition = new Partition(msftDisk.CreatePartition(0, true, 0, 0, ' ', false, Partition.PartitionMBRType.None, Partition.PartitionGPTType.BasicData.Value, false, true));
-                    var volume = new Volume(partition.GetMsftVolume(0));
+                    ushort PartitionStyle = (ushort)Disk.PartitionStyleValues.GPT;
+                    disk.Initialize(PartitionStyle, out ManagementBaseObject ExtendedStatus);
 
-                    volume.Format(Volume.VolumeFileSystem.NTFS.Value, nameof(CreatingVirtualHardDisk_ExpectingOneRASDOfTypeVirtualHardDisk), 4096, true, true, true, true, true, false, false);
+                    var Alignment = 0U;
+                    AssignDriveLetter = false;
+                    var DriveLetter = '\0';
+                    var GptType = "{EBD0A0A2-B9E5-4433-87C0-68B6B72699C7}"; // https://en.wikipedia.org/wiki/GUID_Partition_Table
+                    var IsActive = false;
+                    var IsHidden = false;
+                    var MbrType = (ushort)Partition.MbrTypeValues.Huge;
+                    var Offset = 0U;
+                    var Size = 0UL;
+                    var UseMaximumSize = true;
+
+                    ReturnValue = 
+                        disk.CreatePartition(
+                            Alignment,
+                            AssignDriveLetter,
+                            DriveLetter,
+                            GptType,
+                            IsActive,
+                            IsHidden,
+                            MbrType,
+                            Offset,
+                            Size,
+                            UseMaximumSize,
+                            out ManagementBaseObject CreatePartition,
+                            out ExtendedStatus);
+
+                    if (ExtendedStatus != null)
+                    {
+                        using (var storageExtendedStatus = new StorageExtendedStatus(ExtendedStatus))
+                        {
+                            Trace.WriteLine($"{nameof(storageExtendedStatus.CIMStatusCode)}[{storageExtendedStatus.CIMStatusCode}]");
+                            Trace.WriteLine($"{nameof(storageExtendedStatus.CIMStatusCodeDescription)}[{storageExtendedStatus.CIMStatusCodeDescription}]");
+                            Trace.WriteLine($"{nameof(storageExtendedStatus.ErrorSource)}[{storageExtendedStatus.ErrorSource}]");
+                            Trace.WriteLine($"{nameof(storageExtendedStatus.ErrorSourceFormat)}[{storageExtendedStatus.ErrorSourceFormat}]");
+                            Trace.WriteLine($"{nameof(storageExtendedStatus.Message)}[{storageExtendedStatus.Message}]");
+                            Trace.WriteLine($"{nameof(storageExtendedStatus.MessageArguments)}[{storageExtendedStatus.MessageArguments}]");
+                            Trace.WriteLine($"{nameof(storageExtendedStatus.PerceivedSeverity)}[{storageExtendedStatus.PerceivedSeverity}]");
+                            Trace.WriteLine($"{nameof(storageExtendedStatus.ProbableCause)}[{storageExtendedStatus.ProbableCause}]");
+                            Trace.WriteLine($"{nameof(storageExtendedStatus.ProbableCauseDescription)}[{storageExtendedStatus.ProbableCauseDescription}]");
+                            Trace.WriteLine($"{nameof(storageExtendedStatus.RecommendedActions)}[{storageExtendedStatus.RecommendedActions}]");
+                        }
+                    }
+
+                    // you could also use "out ManagementBaseObject CreatePartition" from CreatePartition call but this is used as example
+                    // filter Microsoft Reserved Partition (EBD0A0A2-B9E5-4433-87C0-68B6B72699C7) created when you call Disk.Initialize()
+                    // => get only Basic data partition (EBD0A0A2-B9E5-4433-87C0-68B6B72699C7)
+                    var partition =
+                        DiskToPartition.GetInstances()
+                            .Cast<DiskToPartition>()
+                            .Where((dtp) =>
+                            string.Compare(new Disk(dtp.Disk).ObjectId, disk.ObjectId, true, CultureInfo.InvariantCulture) == 0 &&
+                            string.Compare(new Partition(dtp.Partition).GptType, "{EBD0A0A2-B9E5-4433-87C0-68B6B72699C7}", true, CultureInfo.InvariantCulture) == 0)
+                            .Select((dtp) => new Partition(dtp.Partition))
+                            .ToList()
+                            .First();
+
+                    var volume =
+                        PartitionToVolume.GetInstances()
+                            .Cast<PartitionToVolume>()
+                            .Where((ptv) => string.Compare(new Partition(ptv.Partition).ObjectId, partition.ObjectId, true, CultureInfo.InvariantCulture) == 0)
+                            .Select((ptv) => new Volume(ptv.Volume))
+                            .ToList()
+                            .First();
+
+                    uint AllocationUnitSize = 4096;
+                    bool Compress = true;
+                    bool DisableHeatGathering = false;
+                    string FileSystem = "NTFS";
+                    string FileSystemLabel = nameof(CreatingVirtualHardDisk_ExpectingOneRASDOfTypeVirtualHardDisk);
+                    bool Force = true;
+                    bool Full = true;
+                    bool IsDAX = false;
+                    bool RunAsJob = false;
+                    bool SetIntegrityStreams = false;
+                    bool ShortFileNameSupport = true;
+                    bool UseLargeFRS = false;
+
+                    volume.Format(
+                        AllocationUnitSize,
+                        Compress,
+                        DisableHeatGathering,
+                        FileSystem,
+                        FileSystemLabel,
+                        Force,
+                        Full,
+                        IsDAX,
+                        RunAsJob,
+                        SetIntegrityStreams,
+                        ShortFileNameSupport,
+                        UseLargeFRS,
+                        out ManagementPath CreatedStorageJob,
+                        out ExtendedStatus,
+                        out ManagementBaseObject FormattedVolume);
 
                     ushort CriterionType = 2;
                     var SelectionCriterion = vhdxName;

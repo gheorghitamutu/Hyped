@@ -55,7 +55,7 @@
     <Compile Include="Msvm\Integration\CopyFileToGuestSettingData.cs" />
     <Compile Include="Msvm\Integration\GuestFileService.cs" />
     <Compile Include="Msvm\Integration\GuestService.cs" />
-    <Compile Include="Msvm\ManagementSystemProperties.cs" />
+    <Compile Include="ManagementSystemProperties.cs" />
     <Compile Include="Msvm\Memory\ElementAllocatedFromNumaNode.cs" />
     <Compile Include="Msvm\Memory\Memory.cs" />
     <Compile Include="Msvm\Memory\MemorySettingData.cs" />
@@ -125,7 +125,10 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>VirtualSystemSettingData.settings</DependentUpon>
     </Compile>
+    <Compile Include="WindowsStorageManagement\MsftBase.cs" />
+    <Compile Include="WindowsStorageManagement\MSFT\DiskToPartition.cs" />
     <Compile Include="WindowsStorageManagement\MSFT\Partition.cs" />
+    <Compile Include="WindowsStorageManagement\MSFT\StorageExtendedStatus.cs" />
     <Compile Include="WindowsStorageManagement\MSFT\Volume.cs" />
     <Compile Include="Msvm\Storage\MountedStorageImage.cs" />
     <Compile Include="Msvm\ResourceManagement\ResourcePool.cs" />
@@ -140,6 +143,7 @@
     <Compile Include="Msvm\ResourceManagement\ResourcePoolSettingData.cs" />
     <Compile Include="WindowsStorageManagement\MSFT\Disk.cs" />
     <Compile Include="Scope\Scope.cs" />
+    <Compile Include="WindowsStorageManagement\MSFT\PartitionToVolume.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
