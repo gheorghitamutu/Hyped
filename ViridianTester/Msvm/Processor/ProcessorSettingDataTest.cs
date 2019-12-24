@@ -1,10 +1,7 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Linq;
 using System.Management;
-using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Viridian.Job;
 using Viridian.Msvm.Processor;
 using Viridian.Msvm.VirtualSystem;
 using Viridian.Msvm.VirtualSystemManagement;
@@ -35,16 +32,20 @@ namespace ViridianTester.Msvm.Processor
 
                 ReturnValue = computerSystem.RequestStateChange(2, null, out Job);
 
-                using (ManagementObject JobObject = new ManagementObject(Job))
+                using (ConcreteJob concreteJob = new ConcreteJob(Job))
                 {
-                    while (Validator.IsJobEnded(JobObject?["JobState"]) == false) // TODO: maybe events cand be used here? -> https://wutils.com/wmi/root/virtualization/v2/msvm_computersystem
+                    while (
+                        concreteJob.JobState != 7 &&     // Completed
+                        concreteJob.JobState != 8 &&     // Terminated
+                        concreteJob.JobState != 9 &&     // Killed
+                        concreteJob.JobState != 10 &&    // Exception
+                        concreteJob.JobState != 32768)   // CompletedWithWarnings
                     {
-                        Thread.Sleep(TimeSpan.FromSeconds(1));
-                        JobObject.Get();
+                        ((ManagementObject)concreteJob.LateBoundObject).Get();
                     }
-
-                    computerSystem = ComputerSystem.GetInstances($"Name='{computerSystem.Name}'").Cast<ComputerSystem>().ToList().First();
                 }
+
+                computerSystem = ComputerSystem.GetInstances($"Name='{computerSystem.Name}'").Cast<ComputerSystem>().ToList().First();
 
                 var vssdCollection =
                         SettingsDefineState.GetInstances()
@@ -67,12 +68,16 @@ namespace ViridianTester.Msvm.Processor
 
                 ReturnValue = computerSystem.RequestStateChange(3, null, out Job);
 
-                using (ManagementObject JobObject = new ManagementObject(Job))
+                using (ConcreteJob concreteJob = new ConcreteJob(Job))
                 {
-                    while (Validator.IsJobEnded(JobObject?["JobState"]) == false) // TODO: maybe events cand be used here? -> https://wutils.com/wmi/root/virtualization/v2/msvm_computersystem
+                    while (
+                        concreteJob.JobState != 7 &&     // Completed
+                        concreteJob.JobState != 8 &&     // Terminated
+                        concreteJob.JobState != 9 &&     // Killed
+                        concreteJob.JobState != 10 &&    // Exception
+                        concreteJob.JobState != 32768)   // CompletedWithWarnings
                     {
-                        Thread.Sleep(TimeSpan.FromSeconds(1));
-                        JobObject.Get();
+                        ((ManagementObject)concreteJob.LateBoundObject).Get();
                     }
                 }
 
@@ -101,16 +106,20 @@ namespace ViridianTester.Msvm.Processor
 
                 ReturnValue = computerSystem.RequestStateChange(2, null, out Job);
 
-                using (ManagementObject JobObject = new ManagementObject(Job))
+                using (ConcreteJob concreteJob = new ConcreteJob(Job))
                 {
-                    while (Validator.IsJobEnded(JobObject?["JobState"]) == false) // TODO: maybe events cand be used here? -> https://wutils.com/wmi/root/virtualization/v2/msvm_computersystem
+                    while (
+                        concreteJob.JobState != 7 &&     // Completed
+                        concreteJob.JobState != 8 &&     // Terminated
+                        concreteJob.JobState != 9 &&     // Killed
+                        concreteJob.JobState != 10 &&    // Exception
+                        concreteJob.JobState != 32768)   // CompletedWithWarnings
                     {
-                        Thread.Sleep(TimeSpan.FromSeconds(1));
-                        JobObject.Get();
+                        ((ManagementObject)concreteJob.LateBoundObject).Get();
                     }
-
-                    computerSystem = ComputerSystem.GetInstances($"Name='{computerSystem.Name}'").Cast<ComputerSystem>().ToList().First();
                 }
+
+                computerSystem = ComputerSystem.GetInstances($"Name='{computerSystem.Name}'").Cast<ComputerSystem>().ToList().First();
 
                 var vssdCollection =
                         SettingsDefineState.GetInstances()
@@ -133,16 +142,20 @@ namespace ViridianTester.Msvm.Processor
 
                 ReturnValue = computerSystem.RequestStateChange(3, null, out Job);
 
-                using (ManagementObject JobObject = new ManagementObject(Job))
+                using (ConcreteJob concreteJob = new ConcreteJob(Job))
                 {
-                    while (Validator.IsJobEnded(JobObject?["JobState"]) == false) // TODO: maybe events cand be used here? -> https://wutils.com/wmi/root/virtualization/v2/msvm_computersystem
+                    while (
+                        concreteJob.JobState != 7 &&     // Completed
+                        concreteJob.JobState != 8 &&     // Terminated
+                        concreteJob.JobState != 9 &&     // Killed
+                        concreteJob.JobState != 10 &&    // Exception
+                        concreteJob.JobState != 32768)   // CompletedWithWarnings
                     {
-                        Thread.Sleep(TimeSpan.FromSeconds(1));
-                        JobObject.Get();
+                        ((ManagementObject)concreteJob.LateBoundObject).Get();
                     }
-
-                    computerSystem = ComputerSystem.GetInstances($"Name='{computerSystem.Name}'").Cast<ComputerSystem>().ToList().First();
                 }
+
+                computerSystem = ComputerSystem.GetInstances($"Name='{computerSystem.Name}'").Cast<ComputerSystem>().ToList().First();
 
                 ResourceSettings = new string[] { sut.LateBoundObject.GetText(TextFormat.WmiDtd20)};
                 virtualSystemManagementService.ModifyResourceSettings(ResourceSettings, out Job, out ManagementPath[] ResultingResourceSettins);

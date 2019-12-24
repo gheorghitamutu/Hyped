@@ -4,7 +4,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Management;
-using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Viridian.Msvm.Networking;
 using Viridian.Msvm.ResourceManagement;
@@ -706,7 +705,20 @@ namespace ViridianTester.Msvm.ResourceManagement
                 {
                     var VirtualDiskSettingData = vhdsd.LateBoundObject.GetText(TextFormat.WmiDtd20);
 
-                    ims.CreateVirtualHardDisk(VirtualDiskSettingData, out Job); // this may fail sometimes, failing the entire test (slow disk write) -> TODO: add Msvm_StorageJob and fix it
+                    ims.CreateVirtualHardDisk(VirtualDiskSettingData, out Job);
+
+                    using (StorageJob storageJob = new StorageJob(Job))
+                    {
+                        while (
+                            storageJob.JobState != 7 &&     // Completed
+                            storageJob.JobState != 8 &&     // Terminated
+                            storageJob.JobState != 9 &&     // Killed
+                            storageJob.JobState != 10 &&    // Exception
+                            storageJob.JobState != 32768)   // CompletedWithWarnings
+                        {
+                            ((ManagementObject)storageJob.LateBoundObject).Get();
+                        }
+                    }
 
                     var AssignDriveLetter = false;
                     var Path = vhdxName;
@@ -714,43 +726,7 @@ namespace ViridianTester.Msvm.ResourceManagement
 
                     ReturnValue = ims.AttachVirtualHardDisk(AssignDriveLetter, Path, ReadOnly, out Job);
 
-                    bool diskAttached = false;
-
-                    Disk msftDisk = null;
-
-                    while (diskAttached == false) // wait for the disk to be attached | CreateVirtualHardDisk may still keep a handle when calling AttachVirtualHardDisk
-                    {
-                        try // TODO: replace this with an event/watcher
-                        {
-                            ReturnValue = ims.AttachVirtualHardDisk(AssignDriveLetter, Path, ReadOnly, out Job);
-
-                            using (ManagementObject JobObject = new ManagementObject(Job))
-                            {
-                                Trace.WriteLine($"ReturnValue [{ReturnValue}]");
-                                Trace.WriteLine($"JobObject [{JobObject["ErrorCode"]}]");
-                                Trace.WriteLine($"JobObject [{JobObject["ErrorDescription"]}]");
-                                Trace.WriteLine($"JobObject [{JobObject["ErrorSummaryDescription"]}]");
-
-                                if ((ushort)JobObject["ErrorCode"] != 32774)
-                                {
-                                    diskAttached = true;
-                                }
-                                else
-                                {
-                                    throw new InvalidOperationException();
-                                }
-                            }
-
-                            msftDisk = new Disk(vhdxName);
-                        }
-                        catch (InvalidOperationException ex) // Sequence contains no elements
-                        {
-                            Trace.WriteLine(ex.Message);
-                            Trace.WriteLine(ex.InnerException?.Message);
-
-                            Thread.Sleep(1000);
-                        }
-                    }
+                    Disk msftDisk = new Disk(vhdxName);
 
                     msftDisk.Initialize(Disk.DiskPartitionStyle.GPT);
 

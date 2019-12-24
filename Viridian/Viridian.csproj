@@ -85,9 +85,16 @@
     <Compile Include="Msvm\ResourceManagement\AllocationCapabilities.cs" />
     <Compile Include="Msvm\ResourceManagement\ElementCapabilities.cs" />
     <Compile Include="Msvm\ResourceManagement\SettingsDefineCapabilities.cs" />
+    <Compile Include="Msvm\Storage\AffectedStorageJobElement.cs" />
     <Compile Include="Msvm\Storage\StorageAllocationSettingData.cs" />
+    <Compile Include="Msvm\Storage\StorageJob.cs" />
     <Compile Include="Msvm\Storage\VirtualHardDiskSettingData.cs" />
     <Compile Include="Msvm\Threshold\VirtualSystemSnapshotSettingData.cs" />
+    <Compile Include="Msvm\VirtualSystemManagement\AffectedJobElement.cs" />
+    <Compile Include="Msvm\VirtualSystemManagement\ConcreteJob.cs" />
+    <Compile Include="Msvm\VirtualSystemManagement\Error.cs" />
+    <Compile Include="Msvm\VirtualSystemManagement\OwningJobElement.cs" />
+    <Compile Include="Msvm\VirtualSystemManagement\ServiceAffectsElement.cs" />
     <Compile Include="Msvm\VirtualSystemManagement\SettingsDefineState.cs" />
     <Compile Include="Msvm\VirtualSystemManagement\VirtualSystemManagementService.cs" />
     <Compile Include="Msvm\VirtualSystem\ComputerSystem.cs" />
