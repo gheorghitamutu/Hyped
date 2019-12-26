@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Event\WMI\EventWatcherFactory.cs" />
     <Compile Include="Job\Validator.cs" />
     <Compile Include="Msvm\Integration\CopyFileToGuestJob.cs" />
     <Compile Include="Msvm\Integration\CopyFileToGuestSettingData.cs" />
