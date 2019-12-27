@@ -12,7 +12,7 @@ namespace Viridian.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.3.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.4.0.0")]
     internal sealed partial class Environment : global::System.Configuration.ApplicationSettingsBase {
         
         private static Environment defaultInstance = ((Environment)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Environment())));
@@ -80,6 +80,18 @@ namespace Viridian.Properties {
             }
             set {
                 this["Storage"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\Root\\Microsoft")]
+        public string Microsoft {
+            get {
+                return ((string)(this["Microsoft"]));
+            }
+            set {
+                this["Microsoft"] = value;
             }
         }
     }

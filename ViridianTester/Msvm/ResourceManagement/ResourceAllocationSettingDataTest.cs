@@ -5,12 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Management;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Viridian.Msvm.Networking;
-using Viridian.Msvm.ResourceManagement;
-using Viridian.Msvm.Storage;
-using Viridian.Msvm.VirtualSystem;
-using Viridian.Msvm.VirtualSystemManagement;
-using Viridian.WindowsStorageManagement.MSFT;
+using Viridian.Root.Microsoft.Windows.Storage.MSFT;
+using Viridian.Root.Virtualization.v2.Msvm.Networking;
+using Viridian.Root.Virtualization.v2.Msvm.ResourceManagement;
+using Viridian.Root.Virtualization.v2.Msvm.Storage;
+using Viridian.Root.Virtualization.v2.Msvm.VirtualSystem;
+using Viridian.Root.Virtualization.v2.Msvm.VirtualSystemManagement;
 
 namespace ViridianTester.Msvm.ResourceManagement
 {
@@ -385,7 +385,7 @@ namespace ViridianTester.Msvm.ResourceManagement
 
                     ResourceSettings = new string[] { resourceAllocationSettingVirtualCDDVD.LateBoundObject.GetText(TextFormat.WmiDtd20) };
                     ReturnValue = sut.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
-                    
+
                     var virtualCDDVDCollection =
                     VirtualSystemSettingDataComponent.GetInstances()
                         .Cast<VirtualSystemSettingDataComponent>()
@@ -739,7 +739,7 @@ namespace ViridianTester.Msvm.ResourceManagement
                         }
                     }
 
-                    Disk disk = 
+                    Disk disk =
                         Disk.GetInstances()
                             .Where((d) => string.Compare(d.Location, vhdxName, true, CultureInfo.InvariantCulture) == 0)
                             .ToList()
@@ -759,7 +759,7 @@ namespace ViridianTester.Msvm.ResourceManagement
                     var Size = 0UL;
                     var UseMaximumSize = true;
 
-                    ReturnValue = 
+                    ReturnValue =
                         disk.CreatePartition(
                             Alignment,
                             AssignDriveLetter,
@@ -920,7 +920,7 @@ namespace ViridianTester.Msvm.ResourceManagement
                                     rp.Primordial == true &&
                                     string.Compare(rp.ResourceSubType, "Microsoft:Hyper-V:Synthetic Ethernet Port", true, CultureInfo.InvariantCulture) == 0)
                                 .First();
-                        
+
                         var allocationCapabilities =
                             ElementCapabilities.GetInstances()
                                 .Cast<ElementCapabilities>()
@@ -961,7 +961,7 @@ namespace ViridianTester.Msvm.ResourceManagement
 
                         syntheticEthernetPortSettingData = new SyntheticEthernetPortSettingData(ResultingResourceSettings[0]);
 
-                        var ethernetConnectionPrimordialPool = 
+                        var ethernetConnectionPrimordialPool =
                             ResourcePool.GetInstances()
                                 .Where((rp) =>
                                     rp.Primordial == true &&

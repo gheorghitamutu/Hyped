@@ -4,11 +4,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Viridian.Scopes;
 using System.Diagnostics;
 using System.Management;
-using Viridian.Msvm.VirtualSystemManagement;
+using Viridian.Root.Virtualization.v2.Msvm.VirtualSystemManagement;
 using System.Linq;
-using Viridian.Msvm.VirtualSystem;
+using Viridian.Root.Virtualization.v2.Msvm.VirtualSystem;
 using System.Threading.Tasks;
 using System.Globalization;
+using Viridian.Root.Microsoft.Windows.System.Event;
 
 namespace ViridianTester.Event.WMI
 {
@@ -26,7 +27,7 @@ namespace ViridianTester.Event.WMI
         }
 
         [TestMethod]
-        public void GetAllWMIEventClassForStorageManagement_Expect21()
+        public void GetAllWMIEventClassesForStorageManagement_Expect21()
         {
             var windowsStorageManagementEventClasses = EventWatcherFactory.GetEventClassesFromNamespacePath(Scope.Storage.NamespacePath);
 
@@ -40,16 +41,16 @@ namespace ViridianTester.Event.WMI
         {
             var watcherTask = Task.Run(() =>
             {
-                var watcher = EventWatcherFactory.GetWatcher(Scope.Virtualization.ScopeObject, "__InstanceCreationEvent", new TimeSpan(0, 0, 100), "Msvm_VirtualSystemSettingData");
+                var sut = EventWatcherFactory.GetWatcher(Scope.Virtualization.ScopeObject, "__InstanceCreationEvent", new TimeSpan(0, 0, 100), "Msvm_VirtualSystemSettingData");
 
-                var objectCreated =  watcher.WaitForNextEvent();
+                var moInstanceCreationEvent =  sut.WaitForNextEvent();
 
-                watcher.Stop();
+                sut.Stop();
 
-                return objectCreated;
+                return moInstanceCreationEvent;
             }).ConfigureAwait(true);
 
-            using (var sut = VirtualSystemManagementService.GetInstances().Cast<VirtualSystemManagementService>().ToList().First())
+            using (var virtualSystemManagementService = VirtualSystemManagementService.GetInstances().Cast<VirtualSystemManagementService>().ToList().First())
             {
                 var virtualSystemSettingData = VirtualSystemSettingData.CreateInstance();
 
@@ -61,13 +62,13 @@ namespace ViridianTester.Event.WMI
                 string[] ResourceSettings = null;
                 string SystemSettings = virtualSystemSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20);
 
-                var ReturnValue = sut.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem);
+                var ReturnValue = virtualSystemManagementService.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem);
 
-                var objectCreated = await watcherTask;
-                objectCreated.Properties.Cast<PropertyData>().ToList().ForEach((p) => Trace.WriteLine($"{p.Name} [{p.Value}] {p.Name} [{p.Value}]"));
-                Trace.WriteLine(objectCreated.ClassPath);
+                var instanceCreationEvent = new InstanceCreationEvent(await watcherTask);
+                instanceCreationEvent.LateBoundObject.Properties.Cast<PropertyData>().ToList().ForEach((p) => Trace.WriteLine($"{p.Name} [{p.Value}] {p.Name} [{p.Value}]"));
+                Trace.WriteLine(instanceCreationEvent.LateBoundObject.ClassPath);
 
-                var virtualSystemSettingDataFromEvent = new VirtualSystemSettingData((ManagementBaseObject)objectCreated["TargetInstance"]);
+                var virtualSystemSettingDataFromEvent = new VirtualSystemSettingData(instanceCreationEvent.TargetInstance);
                 virtualSystemSettingDataFromEvent.LateBoundObject.Properties.Cast<PropertyData>().ToList().ForEach((p) => Trace.WriteLine($"{p.Name} [{p.Value}] {p.Name} [{p.Value}]"));
 
                 var computerSystemAsDefineSystemResult = new ComputerSystem(ResultingSystem);
@@ -85,7 +86,7 @@ namespace ViridianTester.Event.WMI
                 Assert.IsTrue(string.Compare(virtualSystemSettingDataFromResultingSystem.ConfigurationID, virtualSystemSettingDataFromEvent.ConfigurationID, false, CultureInfo.InvariantCulture) == 0);
                 Assert.AreEqual(0U, ReturnValue);
 
-                sut.DestroySystem(ResultingSystem, out Job);
+                virtualSystemManagementService.DestroySystem(ResultingSystem, out Job);
             }
         }
     }

@@ -10,8 +10,8 @@ using System.Management;
 using System.Threading;
 using System.Threading.Tasks;
 using Viridian.Job;
-using Viridian.Msvm.VirtualSystem;
-using Viridian.Msvm.VirtualSystemManagement;
+using Viridian.Root.Virtualization.v2.Msvm.VirtualSystem;
+using Viridian.Root.Virtualization.v2.Msvm.VirtualSystemManagement;
 
 namespace BackEndAPI.Business.VMHandlers
 {

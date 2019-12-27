@@ -2,9 +2,9 @@
 using System.Linq;
 using System.Management;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Viridian.Msvm.Memory;
-using Viridian.Msvm.VirtualSystem;
-using Viridian.Msvm.VirtualSystemManagement;
+using Viridian.Root.Virtualization.v2.Msvm.Memory;
+using Viridian.Root.Virtualization.v2.Msvm.VirtualSystem;
+using Viridian.Root.Virtualization.v2.Msvm.VirtualSystemManagement;
 
 namespace ViridianTester.Msvm.Memory
 {
