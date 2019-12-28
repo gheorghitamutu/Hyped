@@ -1,12 +1,9 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Linq;
 using System.Management;
-using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Viridian.Job;
-using Viridian.Msvm.VirtualSystem;
-using Viridian.Msvm.VirtualSystemManagement;
+using Viridian.Root.Virtualization.v2.Msvm.VirtualSystem;
+using Viridian.Root.Virtualization.v2.Msvm.VirtualSystemManagement;
 
 namespace ViridianTester.Msvm.VirtualSystemManagement
 {
@@ -44,30 +41,33 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                     ushort SnapshotType = 2;
                     ReturnValue = sut.CreateSnapshot(AffectedSystem, ref ResultingSnapshot, SnapshotSettings, SnapshotType, out Job);
 
-                    using (ManagementObject JobObject = new ManagementObject(Job))
+                    using (ConcreteJob concreteJob = new ConcreteJob(Job))
                     {
-                        while (Validator.IsJobEnded(JobObject?["JobState"]) == false) // TODO: maybe events cand be used here?
+                        while (
+                            concreteJob.JobState != 7 &&     // Completed
+                            concreteJob.JobState != 8 &&     // Terminated
+                            concreteJob.JobState != 9 &&     // Killed
+                            concreteJob.JobState != 10 &&    // Exception
+                            concreteJob.JobState != 32768)   // CompletedWithWarnings
                         {
-                            Thread.Sleep(TimeSpan.FromSeconds(1));
-                            JobObject.Get();
+                            ((ManagementObject)concreteJob.LateBoundObject).Get();
                         }
-
-                        ComputerSystem computerSystem = new ComputerSystem(AffectedSystem);
-
-                        var sovsCollection = SnapshotOfVirtualSystem.GetInstances()
-                            .Cast<SnapshotOfVirtualSystem>()
-                            .Where((sovs) => string.Compare(sovs.Antecedent.Path, computerSystem.Path.Path, true, CultureInfo.InvariantCulture) == 0)
-                            .ToList();
-
-                        var mcsibCollection = MostCurrentSnapshotInBranch.GetInstances()
-                            .Cast<MostCurrentSnapshotInBranch>()
-                            .Where((sovs) => string.Compare(sovs.Antecedent.Path, computerSystem.Path.Path, true, CultureInfo.InvariantCulture) == 0)
-                            .ToList();
-
-                        Assert.IsTrue(Validator.IsJobSuccessful(JobObject?["JobState"]));
-                        Assert.AreEqual(1, sovsCollection.Count);
-                        Assert.AreEqual(1, mcsibCollection.Count);
                     }
+
+                    ComputerSystem computerSystem = new ComputerSystem(AffectedSystem);
+
+                    var sovsCollection = SnapshotOfVirtualSystem.GetInstances()
+                        .Cast<SnapshotOfVirtualSystem>()
+                        .Where((sovs) => string.Compare(sovs.Antecedent.Path, computerSystem.Path.Path, true, CultureInfo.InvariantCulture) == 0)
+                        .ToList();
+
+                    var mcsibCollection = MostCurrentSnapshotInBranch.GetInstances()
+                        .Cast<MostCurrentSnapshotInBranch>()
+                        .Where((sovs) => string.Compare(sovs.Antecedent.Path, computerSystem.Path.Path, true, CultureInfo.InvariantCulture) == 0)
+                        .ToList();
+
+                    Assert.AreEqual(1, sovsCollection.Count);
+                    Assert.AreEqual(1, mcsibCollection.Count);
 
                     vsms.DestroySystem(ResultingSystem, out Job);
                 }
@@ -104,42 +104,49 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                     ushort SnapshotType = 2;
                     ReturnValue = sut.CreateSnapshot(AffectedSystem, ref ResultingSnapshot, SnapshotSettings, SnapshotType, out Job);
 
-                    using (ManagementObject JobObject = new ManagementObject(Job))
+                    using (ConcreteJob concreteJob = new ConcreteJob(Job))
                     {
-                        while (Validator.IsJobEnded(JobObject?["JobState"]) == false) // TODO: maybe events cand be used here?
+                        while (
+                            concreteJob.JobState != 7 &&     // Completed
+                            concreteJob.JobState != 8 &&     // Terminated
+                            concreteJob.JobState != 9 &&     // Killed
+                            concreteJob.JobState != 10 &&    // Exception
+                            concreteJob.JobState != 32768)   // CompletedWithWarnings
                         {
-                            Thread.Sleep(TimeSpan.FromSeconds(1));
-                            JobObject.Get();
+                            ((ManagementObject)concreteJob.LateBoundObject).Get();
                         }
+                    }
 
-                        ComputerSystem cs = new ComputerSystem(AffectedSystem);
+                    ComputerSystem cs = new ComputerSystem(AffectedSystem);
 
-                        var vssdCollection = SnapshotOfVirtualSystem.GetInstances()
-                            .Cast<SnapshotOfVirtualSystem>()
-                            .Where((sovs) => string.Compare(sovs.Antecedent.Path, cs.Path.Path, true, CultureInfo.InvariantCulture) == 0)
-                            .Select((sovs) => new VirtualSystemSettingData(sovs.Dependent))
-                            .ToList();
+                    var vssdCollection = SnapshotOfVirtualSystem.GetInstances()
+                        .Cast<SnapshotOfVirtualSystem>()
+                        .Where((sovs) => string.Compare(sovs.Antecedent.Path, cs.Path.Path, true, CultureInfo.InvariantCulture) == 0)
+                        .Select((sovs) => new VirtualSystemSettingData(sovs.Dependent))
+                        .ToList();
 
-                        ReturnValue = sut.ApplySnapshot(vssdCollection.First().Path, out Job);
+                    ReturnValue = sut.ApplySnapshot(vssdCollection.First().Path, out Job);
 
-                        using (ManagementObject JobObjectApplySnapshot = new ManagementObject(Job))
+                    using (ConcreteJob concreteJob = new ConcreteJob(Job))
+                    {
+                        while (
+                            concreteJob.JobState != 7 &&     // Completed
+                            concreteJob.JobState != 8 &&     // Terminated
+                            concreteJob.JobState != 9 &&     // Killed
+                            concreteJob.JobState != 10 &&    // Exception
+                            concreteJob.JobState != 32768)   // CompletedWithWarnings
                         {
-                            while (Validator.IsJobEnded(JobObjectApplySnapshot?["JobState"]) == false) // TODO: maybe events cand be used here?
-                            {
-                                Thread.Sleep(TimeSpan.FromSeconds(1));
-                                JobObjectApplySnapshot.Get();
-                            }
+                            ((ManagementObject)concreteJob.LateBoundObject).Get();
+                        }
+                    }
 
-                            var lasCollection = LastAppliedSnapshot.GetInstances()
+                    var lasCollection = LastAppliedSnapshot.GetInstances()
                                 .Cast<LastAppliedSnapshot>()
                                 .Where((las) => string.Compare(las.Antecedent.Path, cs.Path.Path, true, CultureInfo.InvariantCulture) == 0)
                                 .ToList();
 
-                            Assert.IsTrue(Validator.IsJobSuccessful(JobObjectApplySnapshot?["JobState"]));
-                            Assert.AreEqual(1, vssdCollection.Count);
-                            Assert.AreEqual(4096U, ReturnValue);
-                        }
-                    }
+                    Assert.AreEqual(1, vssdCollection.Count);
+                    Assert.AreEqual(4096U, ReturnValue);
 
                     vsms.DestroySystem(ResultingSystem, out Job);
                 }

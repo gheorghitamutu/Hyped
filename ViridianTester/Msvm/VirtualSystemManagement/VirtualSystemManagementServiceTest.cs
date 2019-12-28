@@ -3,10 +3,8 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Management;
-using System.Threading;
-using Viridian.Job;
-using Viridian.Msvm.VirtualSystem;
-using Viridian.Msvm.VirtualSystemManagement;
+using Viridian.Root.Virtualization.v2.Msvm.VirtualSystem;
+using Viridian.Root.Virtualization.v2.Msvm.VirtualSystemManagement;
 
 namespace ViridianTester.Msvm.VirtualSystemManagement
 {
@@ -111,33 +109,41 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
 
                 var computerSystem = new ComputerSystem(ResultingSystem);
                 ReturnValue = computerSystem.RequestStateChange(2, null, out Job);
-
-                using (ManagementObject JobObject = new ManagementObject(Job))
+                
+                using (ConcreteJob concreteJob = new ConcreteJob(Job))
                 {
-                    while (Validator.IsJobEnded(JobObject?["JobState"]) == false) // TODO: maybe events cand be used here? -> https://wutils.com/wmi/root/virtualization/v2/msvm_computersystem
+                    while (
+                        concreteJob.JobState != 7 &&     // Completed
+                        concreteJob.JobState != 8 &&     // Terminated
+                        concreteJob.JobState != 9 &&     // Killed
+                        concreteJob.JobState != 10 &&    // Exception
+                        concreteJob.JobState != 32768)   // CompletedWithWarnings
                     {
-                        Thread.Sleep(TimeSpan.FromSeconds(1));
-                        JobObject.Get();
-                    }
-
-                    computerSystem = ComputerSystem.GetInstances($"Name='{computerSystem.Name}'").Cast<ComputerSystem>().ToList().First();
-
-                    Assert.IsNotNull(ResultingSystem);
-                    Assert.AreEqual(4096U, ReturnValue);
-                    Assert.AreEqual(2U, computerSystem.EnabledState);
-                }
-
-                ReturnValue = computerSystem.RequestStateChange(3, null, out Job); 
-
-                using (ManagementObject JobObject = new ManagementObject(Job))
-                {
-                    while (Validator.IsJobEnded(JobObject?["JobState"]) == false) // TODO: maybe events cand be used here? -> https://wutils.com/wmi/root/virtualization/v2/msvm_computersystem
-                    {
-                        Thread.Sleep(TimeSpan.FromSeconds(1));
-                        JobObject.Get();
+                        ((ManagementObject)concreteJob.LateBoundObject).Get();
                     }
                 }
-                    
+
+                computerSystem = ComputerSystem.GetInstances($"Name='{computerSystem.Name}'").Cast<ComputerSystem>().ToList().First();
+
+                Assert.IsNotNull(ResultingSystem);
+                Assert.AreEqual(4096U, ReturnValue);
+                Assert.AreEqual(2U, computerSystem.EnabledState);
+
+                ReturnValue = computerSystem.RequestStateChange(3, null, out Job);
+
+                using (ConcreteJob concreteJob = new ConcreteJob(Job))
+                {
+                    while (
+                        concreteJob.JobState != 7 &&     // Completed
+                        concreteJob.JobState != 8 &&     // Terminated
+                        concreteJob.JobState != 9 &&     // Killed
+                        concreteJob.JobState != 10 &&    // Exception
+                        concreteJob.JobState != 32768)   // CompletedWithWarnings
+                    {
+                        ((ManagementObject)concreteJob.LateBoundObject).Get();
+                    }
+                }
+
                 sut.DestroySystem(ResultingSystem, out Job);
             }
         }
@@ -162,29 +168,37 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                 var computerSystem = new ComputerSystem(ResultingSystem);
                 ReturnValue = computerSystem.RequestStateChange(2, null, out Job);
 
-                using (ManagementObject JobObject = new ManagementObject(Job))
+                using (ConcreteJob concreteJob = new ConcreteJob(Job))
                 {
-                    while (Validator.IsJobEnded(JobObject?["JobState"]) == false) // maybe events cand be used here?
+                    while (
+                        concreteJob.JobState != 7 &&     // Completed
+                        concreteJob.JobState != 8 &&     // Terminated
+                        concreteJob.JobState != 9 &&     // Killed
+                        concreteJob.JobState != 10 &&    // Exception
+                        concreteJob.JobState != 32768)   // CompletedWithWarnings
                     {
-                        Thread.Sleep(TimeSpan.FromSeconds(1));
-                        JobObject.Get();
+                        ((ManagementObject)concreteJob.LateBoundObject).Get();
                     }
-
-                    ReturnValue = sut.GetVirtualSystemThumbnailImage(1000, ResultingSystem, 1000, out byte[] ImageData);
-
-                    Assert.IsNotNull(ResultingSystem);
-                    Assert.AreEqual(0U, ReturnValue);
-                    Assert.IsNotNull(ImageData);
                 }
+
+                ReturnValue = sut.GetVirtualSystemThumbnailImage(1000, ResultingSystem, 1000, out byte[] ImageData);
+
+                Assert.IsNotNull(ResultingSystem);
+                Assert.AreEqual(0U, ReturnValue);
+                Assert.IsNotNull(ImageData);                
 
                 ReturnValue = computerSystem.RequestStateChange(3, null, out Job);
 
-                using (ManagementObject JobObject = new ManagementObject(Job))
+                using (ConcreteJob concreteJob = new ConcreteJob(Job))
                 {
-                    while (Validator.IsJobEnded(JobObject?["JobState"]) == false) // maybe events cand be used here?
+                    while (
+                        concreteJob.JobState != 7 &&     // Completed
+                        concreteJob.JobState != 8 &&     // Terminated
+                        concreteJob.JobState != 9 &&     // Killed
+                        concreteJob.JobState != 10 &&    // Exception
+                        concreteJob.JobState != 32768)   // CompletedWithWarnings
                     {
-                        Thread.Sleep(TimeSpan.FromSeconds(1));
-                        JobObject.Get();
+                        ((ManagementObject)concreteJob.LateBoundObject).Get();
                     }
                 }
 

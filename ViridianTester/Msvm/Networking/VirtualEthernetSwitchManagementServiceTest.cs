@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 using System.Management;
-using Viridian.Msvm.Networking;
+using Viridian.Root.Virtualization.v2.Msvm.Networking;
 
 namespace ViridianTester.Msvm.Networking
 {
@@ -38,6 +38,6 @@ namespace ViridianTester.Msvm.Networking
                     sut.DestroySystem(ResultingSystem, out Job);
                 }
             }
-        }
+        }        
     }
 }

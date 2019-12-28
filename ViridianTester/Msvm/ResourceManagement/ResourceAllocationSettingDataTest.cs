@@ -5,11 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Management;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Viridian.Msvm.ResourceManagement;
-using Viridian.Msvm.Storage;
-using Viridian.Msvm.VirtualSystem;
-using Viridian.Msvm.VirtualSystemManagement;
-using Viridian.WindowsStorageManagement.MSFT;
+using Viridian.Root.Microsoft.Windows.Storage.MSFT;
+using Viridian.Root.Virtualization.v2.Msvm.Networking;
+using Viridian.Root.Virtualization.v2.Msvm.ResourceManagement;
+using Viridian.Root.Virtualization.v2.Msvm.Storage;
+using Viridian.Root.Virtualization.v2.Msvm.VirtualSystem;
+using Viridian.Root.Virtualization.v2.Msvm.VirtualSystemManagement;
 
 namespace ViridianTester.Msvm.ResourceManagement
 {
@@ -385,8 +386,6 @@ namespace ViridianTester.Msvm.ResourceManagement
                     ResourceSettings = new string[] { resourceAllocationSettingVirtualCDDVD.LateBoundObject.GetText(TextFormat.WmiDtd20) };
                     ReturnValue = sut.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
 
-                    // TODO: search for ISO instead
-
                     var virtualCDDVDCollection =
                     VirtualSystemSettingDataComponent.GetInstances()
                         .Cast<VirtualSystemSettingDataComponent>()
@@ -405,8 +404,21 @@ namespace ViridianTester.Msvm.ResourceManagement
                     Assert.AreEqual(0U, ReturnValue);
                     Assert.AreEqual(1, ResultingResourceSettings.Length);
                     Assert.AreEqual(1, virtualCDDVDCollection.Count);
-                    sut.DestroySystem(ResultingSystem, out Job);
+
+                    // reverse resource removal
+
+                    var RemoveResourceSettings = new ManagementPath[] { virtualCDDVDCollection.First().Path };
+                    ReturnValue = sut.RemoveResourceSettings(RemoveResourceSettings, out Job);
+
                     File.Delete(isoName);
+
+                    RemoveResourceSettings = new ManagementPath[] { synthethicDVD.Path };
+                    ReturnValue = sut.RemoveResourceSettings(RemoveResourceSettings, out Job);
+
+                    RemoveResourceSettings = new ManagementPath[] { scsiController.Path };
+                    ReturnValue = sut.RemoveResourceSettings(RemoveResourceSettings, out Job);
+
+                    sut.DestroySystem(ResultingSystem, out Job);
                 }
             }
         }
@@ -693,30 +705,149 @@ namespace ViridianTester.Msvm.ResourceManagement
                 {
                     var VirtualDiskSettingData = vhdsd.LateBoundObject.GetText(TextFormat.WmiDtd20);
 
-                    ims.CreateVirtualHardDisk(VirtualDiskSettingData, out Job); // this may fail sometimes, failing the entire test (slow disk write) -> TODO: add Msvm_StorageJob and fix it
+                    ims.CreateVirtualHardDisk(VirtualDiskSettingData, out Job);
+
+                    using (StorageJob storageJob = new StorageJob(Job))
+                    {
+                        while (
+                            storageJob.JobState != 7 &&     // Completed
+                            storageJob.JobState != 8 &&     // Terminated
+                            storageJob.JobState != 9 &&     // Killed
+                            storageJob.JobState != 10 &&    // Exception
+                            storageJob.JobState != 32768)   // CompletedWithWarnings
+                        {
+                            ((ManagementObject)storageJob.LateBoundObject).Get();
+                        }
+                    }
 
                     var AssignDriveLetter = false;
                     var Path = vhdxName;
                     var ReadOnly = false;
+
                     ReturnValue = ims.AttachVirtualHardDisk(AssignDriveLetter, Path, ReadOnly, out Job);
 
-                    using (ManagementObject JobObject = new ManagementObject(Job))
+                    using (StorageJob storageJob = new StorageJob(Job))
                     {
-                        var msftDisk = new Disk(vhdxName);
-                        msftDisk.Initialize(Disk.DiskPartitionStyle.GPT);
-
-                        var partition = new Partition(msftDisk.CreatePartition(0, true, 0, 0, ' ', false, Partition.PartitionMBRType.None, Partition.PartitionGPTType.BasicData.Value, false, true));
-                        var volume = new Volume(partition.GetMsftVolume(0));
-
-                        volume.Format(Volume.VolumeFileSystem.NTFS.Value, nameof(CreatingVirtualHardDisk_ExpectingOneRASDOfTypeVirtualHardDisk), 4096, true, true, true, true, true, false, false);
-
-                        ushort CriterionType = 2;
-                        var SelectionCriterion = vhdxName;
-                        ims.FindMountedStorageImageInstance(CriterionType, SelectionCriterion, out ManagementPath Image);
-
-                        var mountedStorageImage = new MountedStorageImage(Image);
-                        mountedStorageImage.DetachVirtualHardDisk();
+                        while (
+                            storageJob.JobState != 7 &&     // Completed
+                            storageJob.JobState != 8 &&     // Terminated
+                            storageJob.JobState != 9 &&     // Killed
+                            storageJob.JobState != 10 &&    // Exception
+                            storageJob.JobState != 32768)   // CompletedWithWarnings
+                        {
+                            ((ManagementObject)storageJob.LateBoundObject).Get();
+                        }
                     }
+
+                    Disk disk =
+                        Disk.GetInstances()
+                            .Where((d) => string.Compare(d.Location, vhdxName, true, CultureInfo.InvariantCulture) == 0)
+                            .ToList()
+                            .First();
+
+                    ushort PartitionStyle = (ushort)Disk.PartitionStyleValues.GPT;
+                    disk.Initialize(PartitionStyle, out ManagementBaseObject ExtendedStatus);
+
+                    var Alignment = 0U;
+                    AssignDriveLetter = false;
+                    var DriveLetter = '\0';
+                    var GptType = "{EBD0A0A2-B9E5-4433-87C0-68B6B72699C7}"; // https://en.wikipedia.org/wiki/GUID_Partition_Table
+                    var IsActive = false;
+                    var IsHidden = false;
+                    var MbrType = (ushort)Partition.MbrTypeValues.Huge;
+                    var Offset = 0U;
+                    var Size = 0UL;
+                    var UseMaximumSize = true;
+
+                    ReturnValue =
+                        disk.CreatePartition(
+                            Alignment,
+                            AssignDriveLetter,
+                            DriveLetter,
+                            GptType,
+                            IsActive,
+                            IsHidden,
+                            MbrType,
+                            Offset,
+                            Size,
+                            UseMaximumSize,
+                            out ManagementBaseObject CreatePartition,
+                            out ExtendedStatus);
+
+                    if (ExtendedStatus != null)
+                    {
+                        using (var storageExtendedStatus = new StorageExtendedStatus(ExtendedStatus))
+                        {
+                            Trace.WriteLine($"{nameof(storageExtendedStatus.CIMStatusCode)}[{storageExtendedStatus.CIMStatusCode}]");
+                            Trace.WriteLine($"{nameof(storageExtendedStatus.CIMStatusCodeDescription)}[{storageExtendedStatus.CIMStatusCodeDescription}]");
+                            Trace.WriteLine($"{nameof(storageExtendedStatus.ErrorSource)}[{storageExtendedStatus.ErrorSource}]");
+                            Trace.WriteLine($"{nameof(storageExtendedStatus.ErrorSourceFormat)}[{storageExtendedStatus.ErrorSourceFormat}]");
+                            Trace.WriteLine($"{nameof(storageExtendedStatus.Message)}[{storageExtendedStatus.Message}]");
+                            Trace.WriteLine($"{nameof(storageExtendedStatus.MessageArguments)}[{storageExtendedStatus.MessageArguments}]");
+                            Trace.WriteLine($"{nameof(storageExtendedStatus.PerceivedSeverity)}[{storageExtendedStatus.PerceivedSeverity}]");
+                            Trace.WriteLine($"{nameof(storageExtendedStatus.ProbableCause)}[{storageExtendedStatus.ProbableCause}]");
+                            Trace.WriteLine($"{nameof(storageExtendedStatus.ProbableCauseDescription)}[{storageExtendedStatus.ProbableCauseDescription}]");
+                            Trace.WriteLine($"{nameof(storageExtendedStatus.RecommendedActions)}[{storageExtendedStatus.RecommendedActions}]");
+                        }
+                    }
+
+                    // you could also use "out ManagementBaseObject CreatePartition" from CreatePartition call but this is used as example
+                    // filter Microsoft Reserved Partition (EBD0A0A2-B9E5-4433-87C0-68B6B72699C7) created when you call Disk.Initialize()
+                    // => get only Basic data partition (EBD0A0A2-B9E5-4433-87C0-68B6B72699C7)
+                    var partition =
+                        DiskToPartition.GetInstances()
+                            .Cast<DiskToPartition>()
+                            .Where((dtp) =>
+                            string.Compare(new Disk(dtp.Disk).ObjectId, disk.ObjectId, true, CultureInfo.InvariantCulture) == 0 &&
+                            string.Compare(new Partition(dtp.Partition).GptType, "{EBD0A0A2-B9E5-4433-87C0-68B6B72699C7}", true, CultureInfo.InvariantCulture) == 0)
+                            .Select((dtp) => new Partition(dtp.Partition))
+                            .ToList()
+                            .First();
+
+                    var volume =
+                        PartitionToVolume.GetInstances()
+                            .Cast<PartitionToVolume>()
+                            .Where((ptv) => string.Compare(new Partition(ptv.Partition).ObjectId, partition.ObjectId, true, CultureInfo.InvariantCulture) == 0)
+                            .Select((ptv) => new Volume(ptv.Volume))
+                            .ToList()
+                            .First();
+
+                    uint AllocationUnitSize = 4096;
+                    bool Compress = true;
+                    bool DisableHeatGathering = false;
+                    string FileSystem = "NTFS";
+                    string FileSystemLabel = nameof(CreatingVirtualHardDisk_ExpectingOneRASDOfTypeVirtualHardDisk);
+                    bool Force = true;
+                    bool Full = true;
+                    bool IsDAX = false;
+                    bool RunAsJob = false;
+                    bool SetIntegrityStreams = false;
+                    bool ShortFileNameSupport = true;
+                    bool UseLargeFRS = false;
+
+                    volume.Format(
+                        AllocationUnitSize,
+                        Compress,
+                        DisableHeatGathering,
+                        FileSystem,
+                        FileSystemLabel,
+                        Force,
+                        Full,
+                        IsDAX,
+                        RunAsJob,
+                        SetIntegrityStreams,
+                        ShortFileNameSupport,
+                        UseLargeFRS,
+                        out ManagementPath CreatedStorageJob,
+                        out ExtendedStatus,
+                        out ManagementBaseObject FormattedVolume);
+
+                    ushort CriterionType = 2;
+                    var SelectionCriterion = vhdxName;
+                    ims.FindMountedStorageImageInstance(CriterionType, SelectionCriterion, out ManagementPath Image);
+
+                    var mountedStorageImage = new MountedStorageImage(Image);
+                    mountedStorageImage.DetachVirtualHardDisk();
                 }
                 // end operations on the host
 
@@ -748,6 +879,161 @@ namespace ViridianTester.Msvm.ResourceManagement
                 Assert.AreEqual(1, virtualHardDiskCollection.Count);
                 sut.DestroySystem(ResultingSystem, out Job);
                 File.Delete(vhdxName);
+            }
+        }
+
+        [TestMethod]
+        public void AddEthernetConnectionToSyntheticEthernetPort_ExpectingOne()
+        {
+            using (var virtualEthernetSwitchManagementService = VirtualEthernetSwitchManagementService.GetInstances().First())
+            {
+                using (var virtualEthernetSwitchSettingData = VirtualEthernetSwitchSettingData.CreateInstance())
+                {
+                    virtualEthernetSwitchSettingData.LateBoundObject["ElementName"] = nameof(AddEthernetConnectionToSyntheticEthernetPort_ExpectingOne);
+                    virtualEthernetSwitchSettingData.LateBoundObject["Notes"] = new string[] { nameof(AddEthernetConnectionToSyntheticEthernetPort_ExpectingOne) };
+
+                    ManagementPath ReferenceConfiguration = null;
+                    var SystemSettings = virtualEthernetSwitchSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20);
+                    var ResourceSettings = System.Array.Empty<string>();
+
+                    virtualEthernetSwitchManagementService.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem);
+
+                    var virtualEthernetSwitch = new VirtualEthernetSwitch(ResultingSystem);
+
+                    using (var sut = VirtualSystemManagementService.GetInstances().Cast<VirtualSystemManagementService>().ToList().First())
+                    {
+                        var virtualSystemSettingData = VirtualSystemSettingData.CreateInstance();
+
+                        virtualSystemSettingData.LateBoundObject["ElementName"] = nameof(AddEthernetConnectionToSyntheticEthernetPort_ExpectingOne);
+                        virtualSystemSettingData.LateBoundObject["ConfigurationDataRoot"] = @"ConfigurationDataRoot";
+                        virtualSystemSettingData.LateBoundObject["VirtualSystemSubtype"] = "Microsoft:Hyper-V:SubType:2";
+
+                        ReferenceConfiguration = null;
+                        ResourceSettings = null;
+                        SystemSettings = virtualSystemSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20);
+
+                        var ReturnValue = sut.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out Job, out ResultingSystem);
+
+                        var primordialResourcePool =
+                            ResourcePool.GetInstances()
+                                .Where((rp) =>
+                                    rp.Primordial == true &&
+                                    string.Compare(rp.ResourceSubType, "Microsoft:Hyper-V:Synthetic Ethernet Port", true, CultureInfo.InvariantCulture) == 0)
+                                .First();
+
+                        var allocationCapabilities =
+                            ElementCapabilities.GetInstances()
+                                .Cast<ElementCapabilities>()
+                                .Where((ec) => string.Compare(ec.ManagedElement.Path, primordialResourcePool.Path.Path, true, CultureInfo.InvariantCulture) == 0)
+                                .Select((ec) => new AllocationCapabilities(ec.Capabilities))
+                                .ToList()
+                                .First();
+
+                        var syntheticEthernetPortSettingData =
+                            SettingsDefineCapabilities.GetInstances()
+                                .Cast<SettingsDefineCapabilities>()
+                                .Where((sdc) =>
+                                    string.Compare(sdc.GroupComponent.Path, allocationCapabilities.Path.Path, true, CultureInfo.InvariantCulture) == 0 &&
+                                    sdc.ValueRange == 0 &&
+                                    sdc.ValueRole == 0)
+                                .Select((sdc) => new SyntheticEthernetPortSettingData(sdc.PartComponent))
+                                .ToList()
+                                .First();
+
+                        var computerSystem = new ComputerSystem(ResultingSystem);
+
+                        virtualSystemSettingData =
+                            SettingsDefineState.GetInstances()
+                                .Cast<SettingsDefineState>()
+                                .Where((sds) => string.Compare(sds.ManagedElement.Path, computerSystem.Path.Path, true, CultureInfo.InvariantCulture) == 0)
+                                .Select((sds) => new VirtualSystemSettingData(sds.SettingData))
+                                .ToList()
+                                .First();
+
+                        syntheticEthernetPortSettingData.LateBoundObject["VirtualSystemIdentifiers"] = new string[] { Guid.NewGuid().ToString("B") };
+                        syntheticEthernetPortSettingData.LateBoundObject["ElementName"] = nameof(AddEthernetConnectionToSyntheticEthernetPort_ExpectingOne);
+                        syntheticEthernetPortSettingData.LateBoundObject["StaticMacAddress"] = false;
+
+                        var AffectedConfiguration = virtualSystemSettingData.Path;
+                        ResourceSettings = new string[] { syntheticEthernetPortSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20) };
+
+                        ReturnValue = sut.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ManagementPath[] ResultingResourceSettings);
+
+                        syntheticEthernetPortSettingData = new SyntheticEthernetPortSettingData(ResultingResourceSettings[0]);
+
+                        var ethernetConnectionPrimordialPool =
+                            ResourcePool.GetInstances()
+                                .Where((rp) =>
+                                    rp.Primordial == true &&
+                                    string.Compare(rp.ResourceSubType, "Microsoft:Hyper-V:Ethernet Connection", true, CultureInfo.InvariantCulture) == 0)
+                                .First();
+
+                        allocationCapabilities =
+                            ElementCapabilities.GetInstances()
+                                .Cast<ElementCapabilities>()
+                                .Where((ec) => string.Compare(ec.ManagedElement.Path, ethernetConnectionPrimordialPool.Path.Path, true, CultureInfo.InvariantCulture) == 0)
+                                .Select((ec) => new AllocationCapabilities(ec.Capabilities))
+                                .ToList()
+                                .First();
+
+                        var ethernetPortAllocationSettingData =
+                            SettingsDefineCapabilities.GetInstances()
+                                .Cast<SettingsDefineCapabilities>()
+                                .Where((sdc) =>
+                                    string.Compare(sdc.GroupComponent.Path, allocationCapabilities.Path.Path, true, CultureInfo.InvariantCulture) == 0 &&
+                                    sdc.ValueRange == 0 &&
+                                    sdc.ValueRole == 0)
+                                .Select((sdc) => new EthernetPortAllocationSettingData(sdc.PartComponent))
+                                .ToList()
+                                .First();
+
+                        ethernetPortAllocationSettingData.LateBoundObject["Parent"] = syntheticEthernetPortSettingData.Path.Path;
+                        ethernetPortAllocationSettingData.LateBoundObject["HostResource"] = new string[] { virtualEthernetSwitch.Path.Path };
+
+                        AffectedConfiguration = virtualSystemSettingData.Path;
+                        ResourceSettings = new string[] { ethernetPortAllocationSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20) };
+
+                        ReturnValue = sut.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
+
+                        var sepsdCollection =
+                        VirtualSystemSettingDataComponent.GetInstances()
+                            .Cast<VirtualSystemSettingDataComponent>()
+                            .Where((sds) =>
+                                string.Compare(sds.GroupComponent.Path, virtualSystemSettingData.Path.Path, true, CultureInfo.InvariantCulture) == 0 &&
+                                string.Compare(sds.PartComponent.ClassName, $"Msvm_{nameof(SyntheticEthernetPortSettingData)}", true, CultureInfo.InvariantCulture) == 0)
+                            .Select((sds) => new SyntheticEthernetPortSettingData(sds.PartComponent))
+                            .ToList()
+                            .Where((rasd) =>
+                                rasd.ResourceType == 10 &&
+                                string.Compare(rasd.ResourceSubType, "Microsoft:Hyper-V:Synthetic Ethernet Port", true, CultureInfo.InvariantCulture) == 0)
+                            .ToList();
+
+                        var epsdCollection =
+                        VirtualSystemSettingDataComponent.GetInstances()
+                            .Cast<VirtualSystemSettingDataComponent>()
+                            .Where((sds) =>
+                                string.Compare(sds.GroupComponent.Path, virtualSystemSettingData.Path.Path, true, CultureInfo.InvariantCulture) == 0 &&
+                                string.Compare(sds.PartComponent.ClassName, $"Msvm_{nameof(EthernetPortAllocationSettingData)}", true, CultureInfo.InvariantCulture) == 0)
+                            .Select((sds) => new EthernetPortAllocationSettingData(sds.PartComponent))
+                            .ToList()
+                            .Where((rasd) =>
+                                rasd.ResourceType == 33 &&
+                                string.Compare(rasd.ResourceSubType, "Microsoft:Hyper-V:Ethernet Connection", true, CultureInfo.InvariantCulture) == 0)
+                            .ToList();
+
+                        Assert.IsNotNull(ResultingSystem);
+                        Assert.AreEqual(0U, ReturnValue);
+                        Assert.AreEqual(1, sepsdCollection.Count);
+                        Assert.AreEqual(1, epsdCollection.Count);
+                        Assert.AreEqual(1, ResultingResourceSettings.Length);
+
+                        sut.DestroySystem(ResultingSystem, out Job);
+                    }
+
+                    Assert.IsNotNull(virtualEthernetSwitch);
+
+                    virtualEthernetSwitchManagementService.DestroySystem(virtualEthernetSwitch.Path, out Job);
+                }
             }
         }
     }
