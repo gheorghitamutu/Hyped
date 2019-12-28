@@ -65,7 +65,7 @@ namespace ViridianTester.Event.WMI
                 var ReturnValue = virtualSystemManagementService.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem);
 
                 var instanceCreationEvent = new InstanceCreationEvent(await watcherTask);
-                instanceCreationEvent.LateBoundObject.Properties.Cast<PropertyData>().ToList().ForEach((p) => Trace.WriteLine($"{p.Name} [{p.Value}] {p.Name} [{p.Value}]"));
+                instanceCreationEvent.LateBoundObject.Properties.Cast<PropertyData>().ToList().ForEach((p) => Trace.WriteLine($"{p.Name} [{p.Value}]"));
                 Trace.WriteLine(instanceCreationEvent.LateBoundObject.ClassPath);
 
                 var virtualSystemSettingDataFromEvent = new VirtualSystemSettingData(instanceCreationEvent.TargetInstance);
