@@ -69,7 +69,7 @@ namespace ViridianTester.Event.WMI
                 Trace.WriteLine(instanceCreationEvent.LateBoundObject.ClassPath);
 
                 var virtualSystemSettingDataFromEvent = new VirtualSystemSettingData(instanceCreationEvent.TargetInstance);
-                virtualSystemSettingDataFromEvent.LateBoundObject.Properties.Cast<PropertyData>().ToList().ForEach((p) => Trace.WriteLine($"{p.Name} [{p.Value}] {p.Name} [{p.Value}]"));
+                virtualSystemSettingDataFromEvent.LateBoundObject.Properties.Cast<PropertyData>().ToList().ForEach((p) => Trace.WriteLine($"{p.Name} [{p.Value}]"));
 
                 var computerSystemAsDefineSystemResult = new ComputerSystem(ResultingSystem);
 

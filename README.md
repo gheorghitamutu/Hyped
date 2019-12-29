@@ -21,6 +21,7 @@
 	https://www.virtualizationhowto.com/2019/05/automated-windows-10-installation-with-autounattend-and-packer
 	https://unix.stackexchange.com/questions/122119/unattended-linux-installation-debian-ubuntu
 	https://en.wikipedia.org/wiki/GUID_Partition_Table (Partition type GUIDs)
+	https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/oscdimg-command-line-options
 
 ## Examples (snapshots of code/repositories)
 	https://blogs.msdn.microsoft.com/sergeim/2008/06/03/prepare-vm-create-vm-programmatically-hyper-v-api-c-version - API v1

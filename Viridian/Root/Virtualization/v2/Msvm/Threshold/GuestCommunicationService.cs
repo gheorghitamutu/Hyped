@@ -2,31 +2,33 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Management;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Viridian.Root.Virtualization.v2.Msvm.Integration
+namespace Viridian.Root.Virtualization.v2.Msvm.Threshold
 {
-    public class GuestFileService : MsvmBase
+    public class GuestCommunicationService : MsvmBase
     {
-        public static string ClassName => $"Msvm_{nameof(GuestFileService)}";
+        public static string ClassName => $"Msvm_{nameof(GuestCommunicationService)}";
 
         // Below are different overloads of constructors to initialize an instance of the class with a WMI object.
-        public GuestFileService() : base(ClassName) { }
+        public GuestCommunicationService() : base(ClassName) { }
 
-        public GuestFileService(string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
+        public GuestCommunicationService(string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
 
-        public GuestFileService(ManagementScope mgmtScope, string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(mgmtScope, keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
+        public GuestCommunicationService(ManagementScope mgmtScope, string keyCreationClassName, string keyName, string keySystemCreationClassName, string keySystemName) : base(mgmtScope, keyCreationClassName, keyName, keySystemCreationClassName, keySystemName, ClassName) { }
 
-        public GuestFileService(ManagementPath path, ObjectGetOptions getOptions) : base(path, getOptions, ClassName) { }
+        public GuestCommunicationService(ManagementPath path, ObjectGetOptions getOptions) : base(path, getOptions, ClassName) { }
 
-        public GuestFileService(ManagementScope mgmtScope, ManagementPath path) : base(mgmtScope, path, ClassName) { }
+        public GuestCommunicationService(ManagementScope mgmtScope, ManagementPath path) : base(mgmtScope, path, ClassName) { }
 
-        public GuestFileService(ManagementPath path) : base(path, ClassName) { }
+        public GuestCommunicationService(ManagementPath path) : base(path, ClassName) { }
 
-        public GuestFileService(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions getOptions) : base(mgmtScope, path, getOptions, ClassName) { }
+        public GuestCommunicationService(ManagementScope mgmtScope, ManagementPath path, ObjectGetOptions getOptions) : base(mgmtScope, path, getOptions, ClassName) { }
 
-        public GuestFileService(ManagementObject theObject) : base(theObject, ClassName) { }
+        public GuestCommunicationService(ManagementObject theObject) : base(theObject, ClassName) { }
 
-        public GuestFileService(ManagementBaseObject theObject) : base(theObject, ClassName) { }
+        public GuestCommunicationService(ManagementBaseObject theObject) : base(theObject, ClassName) { }
 
         public ushort[] AvailableRequestedStates => (ushort[])LateBoundObject[nameof(AvailableRequestedStates)];
 
@@ -197,7 +199,7 @@ namespace Viridian.Root.Virtualization.v2.Msvm.Integration
                 }
             }
         }
-
+        
         public ushort TransitioningToState
         {
             get
@@ -211,44 +213,24 @@ namespace Viridian.Root.Virtualization.v2.Msvm.Integration
         }
 
         // Different overloads of GetInstances() help in enumerating instances of the WMI class.
-        public static List<GuestFileService> GetInstances() => GetInstances(null, null, null, ClassName).Cast<ManagementObject>().Select((mo) => new GuestFileService(mo)).ToList();
+        public static List<GuestCommunicationService> GetInstances() => GetInstances(null, null, null, ClassName).Cast<ManagementObject>().Select((mo) => new GuestCommunicationService(mo)).ToList();
 
-        public new static List<GuestFileService> GetInstances(string condition) => GetInstances(null, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new GuestFileService(mo)).ToList();
+        public new static List<GuestCommunicationService> GetInstances(string condition) => GetInstances(null, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new GuestCommunicationService(mo)).ToList();
 
-        public static List<GuestFileService> GetInstances(string[] selectedProperties) => GetInstances(null, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new GuestFileService(mo)).ToList();
+        public static List<GuestCommunicationService> GetInstances(string[] selectedProperties) => GetInstances(null, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new GuestCommunicationService(mo)).ToList();
 
-        public static List<GuestFileService> GetInstances(string condition, string[] selectedProperties) => GetInstances(null, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new GuestFileService(mo)).ToList();
+        public static List<GuestCommunicationService> GetInstances(string condition, string[] selectedProperties) => GetInstances(null, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new GuestCommunicationService(mo)).ToList();
 
-        public static List<GuestFileService> GetInstances(ManagementScope mgmtScope, EnumerationOptions enumOptions) => GetInstances(mgmtScope, enumOptions, ClassName).Cast<ManagementObject>().Select((mo) => new GuestFileService(mo)).ToList();
+        public static List<GuestCommunicationService> GetInstances(ManagementScope mgmtScope, EnumerationOptions enumOptions) => GetInstances(mgmtScope, enumOptions, ClassName).Cast<ManagementObject>().Select((mo) => new GuestCommunicationService(mo)).ToList();
 
-        public static List<GuestFileService> GetInstances(ManagementScope mgmtScope, string condition) => GetInstances(mgmtScope, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new GuestFileService(mo)).ToList();
+        public static List<GuestCommunicationService> GetInstances(ManagementScope mgmtScope, string condition) => GetInstances(mgmtScope, condition, null, ClassName).Cast<ManagementObject>().Select((mo) => new GuestCommunicationService(mo)).ToList();
 
-        public static List<GuestFileService> GetInstances(ManagementScope mgmtScope, string[] selectedProperties) => GetInstances(mgmtScope, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new GuestFileService(mo)).ToList();
+        public static List<GuestCommunicationService> GetInstances(ManagementScope mgmtScope, string[] selectedProperties) => GetInstances(mgmtScope, null, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new GuestCommunicationService(mo)).ToList();
 
-        public static List<GuestFileService> GetInstances(ManagementScope mgmtScope, string condition, string[] selectedProperties) => GetInstances(mgmtScope, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new GuestFileService(mo)).ToList();
+        public static List<GuestCommunicationService> GetInstances(ManagementScope mgmtScope, string condition, string[] selectedProperties) => GetInstances(mgmtScope, condition, selectedProperties, ClassName).Cast<ManagementObject>().Select((mo) => new GuestCommunicationService(mo)).ToList();
 
-        public static GuestFileService CreateInstance() => new GuestFileService(CreateInstance(ClassName));
+        public static GuestCommunicationService CreateInstance() => new GuestCommunicationService(CreateInstance(ClassName));
 
-        public uint CopyFilesToGuest(string[] CopyFileToGuestSettings, out ManagementPath Job)
-        {
-            if (IsEmbedded == false)
-            {
-                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("CopyFilesToGuest");
-                inParams["CopyFileToGuestSettings"] = CopyFileToGuestSettings;
-                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("CopyFilesToGuest", inParams, null);
-                Job = null;
-                if (outParams.Properties["Job"] != null)
-                {
-                    Job = new ManagementPath(outParams.Properties["Job"].Value as string);
-                }
-                return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
-            }
-            else
-            {
-                Job = null;
-                return Convert.ToUInt32(0);
-            }
-        }
 
         public uint RequestStateChange(ushort RequestedState, DateTime TimeoutPeriod, out ManagementPath Job)
         {

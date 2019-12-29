@@ -5,8 +5,11 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Management;
+using System.Threading;
+using Viridian.Root.Virtualization.v2.Msvm.Integration;
 using Viridian.Root.Virtualization.v2.Msvm.ResourceManagement;
 using Viridian.Root.Virtualization.v2.Msvm.Storage;
+using Viridian.Root.Virtualization.v2.Msvm.Threshold;
 using Viridian.Root.Virtualization.v2.Msvm.VirtualSystem;
 using Viridian.Root.Virtualization.v2.Msvm.VirtualSystemManagement;
 
@@ -255,6 +258,7 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
         }
 
         [TestMethod]
+        [Timeout(TestTimeout.Infinite)]
         public void SetBootOrderFromISOFile()
         {
             var isoName = @"C:\Documents and Settings\gmutu\AppData\Local\VirtualStore\winpeamd64.iso"; // TODO: download this 
@@ -531,8 +535,136 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
 
                 // TODO: start the machine, wait for the installation to finish, destroy the machine
 
-                //sut.DestroySystem(ResultingSystem, out Job);
-                //File.Delete(vhdxName);
+                ReturnValue = computerSystem.RequestStateChange(2, null, out Job);
+
+                using (ConcreteJob concreteJob = new ConcreteJob(Job))
+                {
+                    while (
+                        concreteJob.JobState != 7 &&     // Completed
+                        concreteJob.JobState != 8 &&     // Terminated
+                        concreteJob.JobState != 9 &&     // Killed
+                        concreteJob.JobState != 10 &&    // Exception
+                        concreteJob.JobState != 32768)   // CompletedWithWarnings
+                    {
+                        ((ManagementObject)concreteJob.LateBoundObject).Get();
+                    }
+                }
+
+                var guestServiceInterfaceComponentSettingData = VirtualSystemSettingDataComponent.GetInstances()
+                        .Cast<VirtualSystemSettingDataComponent>()
+                        .Where((sds) =>
+                            string.Compare(sds.GroupComponent.Path, virtualSystemSettingData.Path.Path, true, CultureInfo.InvariantCulture) == 0 &&
+                            string.Compare(sds.PartComponent.ClassName, $"Msvm_{nameof(GuestServiceInterfaceComponentSettingData)}", true, CultureInfo.InvariantCulture) == 0)
+                        .Select((sds) => new GuestServiceInterfaceComponentSettingData(sds.PartComponent))
+                        .ToList()
+                        .First();
+
+                guestServiceInterfaceComponentSettingData.LateBoundObject["EnabledState"] = GuestServiceInterfaceComponentSettingData.EnabledStateValues.Enabled;
+
+                var virtualSystemManagementService = VirtualSystemManagementService.GetInstances().Cast<VirtualSystemManagementService>().ToList().First();
+
+                var GuestServiceSettings = new string[1] { guestServiceInterfaceComponentSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20) };
+                ReturnValue = virtualSystemManagementService.ModifyGuestServiceSettings(GuestServiceSettings, out Job, out ManagementPath[] ResultingGuestServices);
+
+                if (string.IsNullOrEmpty(Job.ClassName) == false)
+                {
+                    using (ConcreteJob concreteJob = new ConcreteJob(Job))
+                    {
+                        while (
+                            concreteJob.JobState != 7 &&     // Completed
+                            concreteJob.JobState != 8 &&     // Terminated
+                            concreteJob.JobState != 9 &&     // Killed
+                            concreteJob.JobState != 10 &&    // Exception
+                            concreteJob.JobState != 32768)   // CompletedWithWarnings
+                        {
+                            ((ManagementObject)concreteJob.LateBoundObject).Get();
+                        }
+                    }
+                }
+
+                var guestServiceInterfaceComponent =
+                SystemDevice.GetInstances()
+                    .Cast<SystemDevice>()
+                    .Where((sd) =>
+                        string.Compare(sd.GroupComponent.Path, computerSystem.Path.Path, true, CultureInfo.InvariantCulture) == 0 &&
+                        string.Compare(sd.PartComponent.ClassName, $"Msvm_{nameof(GuestServiceInterfaceComponent)}", true, CultureInfo.InvariantCulture) == 0)
+                    .Select((sds) => new GuestServiceInterfaceComponent(sds.PartComponent))
+                    .ToList()
+                    .First();
+
+                var guestFileService =
+                    RegisteredGuestService.GetInstances()
+                        .Cast<RegisteredGuestService>()
+                        .Where((rgs) =>
+                            string.Compare(rgs.Antecedent.Path, guestServiceInterfaceComponent.Path.Path, true, CultureInfo.InvariantCulture) == 0 &&
+                            string.Compare(rgs.Dependent.ClassName, $"Msvm_{nameof(GuestFileService)}", true, CultureInfo.InvariantCulture) == 0)
+                        .Select((sds) => new GuestFileService(sds.Dependent))
+                        .ToList()
+                        .First();
+
+                var copyFileToGuestSettingData = CopyFileToGuestSettingData.CreateInstance();
+                copyFileToGuestSettingData.DestinationPath = @"C:\finished";
+                copyFileToGuestSettingData.OverwriteExisting = false;
+                copyFileToGuestSettingData.SourcePath = @"C:\copyme";
+                copyFileToGuestSettingData.CreateFullPath = true;
+
+                var retries = 4;
+                var retryWaitTime = 10; // minutes
+                var lastErrorcode = 0;
+                var fileExists = false;
+
+                for (int i = 0; i < retries; i++)
+                {
+
+                    var CopyFileToGuestSettings = new string[1] { copyFileToGuestSettingData.LateBoundObject.GetText(TextFormat.CimDtd20) };
+                    ReturnValue = guestFileService.CopyFilesToGuest(CopyFileToGuestSettings, out Job);
+
+                    using (CopyFileToGuestJob copyFileToGuestJob = new CopyFileToGuestJob(Job))
+                    {
+                        while (
+                            copyFileToGuestJob.JobState != 7 &&     // Completed
+                            copyFileToGuestJob.JobState != 8 &&     // Terminated
+                            copyFileToGuestJob.JobState != 9 &&     // Killed
+                            copyFileToGuestJob.JobState != 10 &&    // Exception
+                            copyFileToGuestJob.JobState != 32768)   // CompletedWithWarnings
+                        {
+                            ((ManagementObject)copyFileToGuestJob.LateBoundObject).Get();
+                        }
+
+                        copyFileToGuestJob.LateBoundObject.Properties.Cast<PropertyData>().ToList().ForEach((p) => Trace.WriteLine($"{p.Name} [{p.Value?.ToString()}]"));
+
+                        lastErrorcode = copyFileToGuestJob.ErrorCode;
+                        fileExists = copyFileToGuestJob.ErrorDescription.Contains("The file exists. (0x80070050)");
+
+                        if (fileExists)
+                        {
+                            break;
+                        }
+
+                        Thread.Sleep(new TimeSpan(0, retryWaitTime, 0));
+                    }
+                }
+
+                Assert.AreEqual(32768, lastErrorcode);
+                Assert.IsTrue(fileExists);
+
+                ReturnValue = computerSystem.RequestStateChange(3, null, out Job);
+
+                using (ConcreteJob concreteJob = new ConcreteJob(Job))
+                {
+                    while (
+                        concreteJob.JobState != 7 &&     // Completed
+                        concreteJob.JobState != 8 &&     // Terminated
+                        concreteJob.JobState != 9 &&     // Killed
+                        concreteJob.JobState != 10 &&    // Exception
+                        concreteJob.JobState != 32768)   // CompletedWithWarnings
+                    {
+                        ((ManagementObject)concreteJob.LateBoundObject).Get();
+                    }
+                }
+
+                sut.DestroySystem(ResultingSystem, out Job);
+                File.Delete(vhdxName);
             }
         }
     }

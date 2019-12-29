@@ -123,27 +123,39 @@
                             <Value>dABlAHMAdABQAGEAcwBzAHcAbwByAGQA</Value>
                             <PlainText>false</PlainText>
                         </Password>
-                        <Description>My primary local account</Description>
-                        <DisplayName>admin</DisplayName>
+                        <Description>Local Administrator</Description>
+                        <DisplayName>Local Administrator</DisplayName>
                         <Group>Administrators</Group>
-                        <Name>Test</Name>
+                        <Name>test</Name>
                     </LocalAccount>
                 </LocalAccounts>
+                <AdministratorPassword>
+                    <Value>dABlAHMAdABBAGQAbQBpAG4AaQBzAHQAcgBhAHQAbwByAFAAYQBzAHMAdwBvAHIAZAA=</Value>
+                    <PlainText>false</PlainText>
+                </AdministratorPassword>
             </UserAccounts>
             <AutoLogon>
                 <Password>
                     <Value>dABlAHMAdABQAGEAcwBzAHcAbwByAGQA</Value>
                     <PlainText>false</PlainText>
                 </Password>
-                <Username>test</Username>
+                <Username>Administrator</Username>
+                <Domain>.</Domain>
+                <Enabled>true</Enabled>
+                <LogonCount>999</LogonCount>
             </AutoLogon>
-        </component>
-        <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="wow64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <FirstLogonCommands>
                 <SynchronousCommand wcm:action="add">
-                    <CommandLine>copy /b NUL C:\finished</CommandLine>
                     <RequiresUserInput>false</RequiresUserInput>
+                    <Order>2</Order>
+                    <CommandLine>CMD /c copy /b NUL C:\finished</CommandLine>
+                    <Description>Create end installation file</Description>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
                     <Order>1</Order>
+                    <RequiresUserInput>false</RequiresUserInput>
+                    <Description>Activate Builtin Administrator</Description>
+                    <CommandLine>net user administrator /active:yes</CommandLine>
                 </SynchronousCommand>
             </FirstLogonCommands>
         </component>
