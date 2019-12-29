@@ -5,11 +5,12 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Management;
+using System.Net;
+using System.Security.Cryptography;
 using System.Threading;
 using Viridian.Root.Virtualization.v2.Msvm.Integration;
 using Viridian.Root.Virtualization.v2.Msvm.ResourceManagement;
 using Viridian.Root.Virtualization.v2.Msvm.Storage;
-using Viridian.Root.Virtualization.v2.Msvm.Threshold;
 using Viridian.Root.Virtualization.v2.Msvm.VirtualSystem;
 using Viridian.Root.Virtualization.v2.Msvm.VirtualSystemManagement;
 
@@ -257,17 +258,95 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
             }
         }
 
+        // use it in download async handler event below
+        private static int LastFileProgressMet { get; set; } = -1;
+
         [TestMethod]
         [Timeout(TestTimeout.Infinite)]
-        public void SetBootOrderFromISOFile()
+        public void AutomatedOSInstallationWindows10Version1903x64_ExpectingFileThatMarksTheJobAsFinishedInVM()
         {
-            var isoName = @"C:\Documents and Settings\gmutu\AppData\Local\VirtualStore\winpeamd64.iso"; // TODO: download this 
+            var isoName = $"{AppDomain.CurrentDomain.BaseDirectory}\\{nameof(AutomatedOSInstallationWindows10Version1903x64_ExpectingFileThatMarksTheJobAsFinishedInVM)}.iso";
+            var uri = "https://filetransfer.io/data-package/AwILWW3y?do=download";
+            var expectedSHA256 = "4bc7170baa665f4d92ba379843b47e83b384313fb6edf3fae09bc9dd42cd8426";
+            var fileHashMatches = false;
+
+            if (File.Exists(isoName))
+            {
+                using (var sha256 = SHA256.Create())
+                {
+                    using (FileStream fileStream = File.OpenRead(isoName))
+                    {
+                        var computedSHA256 = BitConverter.ToString(sha256.ComputeHash(fileStream)).Replace("-", string.Empty).ToLower();
+
+                        Trace.WriteLine($"Expected SHA256 [{expectedSHA256}] Computed SHA256 [{computedSHA256}]");
+
+                        fileHashMatches = (computedSHA256 == expectedSHA256);
+                    }
+                }
+            }
+
+            if (fileHashMatches == false)
+            {
+                using (var client = new WebClient())
+                {
+                    client.DownloadProgressChanged += (sender, e) =>
+                    {
+                        if (e.ProgressPercentage % 5 == 0 && e.ProgressPercentage > LastFileProgressMet)
+                        {
+                            LastFileProgressMet = e.ProgressPercentage;
+
+                            Trace.WriteLine($"Percentage percentage [{e.ProgressPercentage}%] Bytes received [{e.BytesReceived}] out of [{e.TotalBytesToReceive}]");
+                        }
+                    };
+
+                    client.DownloadFileCompleted += (sender, e) =>
+                    {
+                        if (e.Cancelled)
+                        {
+                            Trace.WriteLine("The download has been cancelled!");
+                            return;
+                        }
+
+                        if (e.Error != null)
+                        {
+                            Trace.WriteLine("An error ocurred while trying to download file!");
+                            return;
+                        }
+
+                        Trace.WriteLine($"Finished downloading [{isoName}] from [{uri}]");
+                    };
+
+                    client.DownloadFileAsync(new Uri(uri), isoName);
+
+                    while (client.IsBusy)
+                    {
+                        Thread.Sleep(1000);
+                    }
+                }
+
+                using (var sha256 = SHA256.Create())
+                {
+                    using (FileStream fileStream = File.OpenRead(isoName))
+                    {
+                        var computedSHA256 = BitConverter.ToString(sha256.ComputeHash(fileStream)).Replace("-", string.Empty).ToLower();
+
+                        Trace.WriteLine($"Expected SHA256 [{expectedSHA256}] Computed SHA256 [{computedSHA256}]");
+
+                        fileHashMatches = (computedSHA256 == expectedSHA256);
+                    }
+                }
+            }
+
+            if (fileHashMatches == false)
+            {
+                throw new Exception($"Invalid SHA256 for file [{isoName}]!");
+            }
 
             using (var sut = VirtualSystemManagementService.GetInstances().Cast<VirtualSystemManagementService>().ToList().First())
             {
                 var virtualSystemSettingData = VirtualSystemSettingData.CreateInstance();
 
-                virtualSystemSettingData.LateBoundObject["ElementName"] = nameof(SetBootOrderFromISOFile);
+                virtualSystemSettingData.LateBoundObject["ElementName"] = nameof(AutomatedOSInstallationWindows10Version1903x64_ExpectingFileThatMarksTheJobAsFinishedInVM);
                 virtualSystemSettingData.LateBoundObject["ConfigurationDataRoot"] = @"ConfigurationDataRoot";
                 virtualSystemSettingData.LateBoundObject["VirtualSystemSubtype"] = "Microsoft:Hyper-V:SubType:2";
 
@@ -495,7 +574,7 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                         .ToList()
                         .First();
 
-                var vhdxName = $"{AppDomain.CurrentDomain.BaseDirectory}\\{nameof(SetBootOrderFromISOFile)}.vhdx";
+                var vhdxName = $"{AppDomain.CurrentDomain.BaseDirectory}\\{nameof(AutomatedOSInstallationWindows10Version1903x64_ExpectingFileThatMarksTheJobAsFinishedInVM)}.vhdx";
 
                 // operations on the host
                 var vhdsd = VirtualHardDiskSettingData.CreateInstance();
@@ -532,9 +611,7 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
 
                 ResourceSettings = new string[] { resourceAllocationSettingVirtualHardDisk.LateBoundObject.GetText(TextFormat.WmiDtd20) };
                 ReturnValue = sut.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
-
-                // TODO: start the machine, wait for the installation to finish, destroy the machine
-
+                
                 ReturnValue = computerSystem.RequestStateChange(2, null, out Job);
 
                 using (ConcreteJob concreteJob = new ConcreteJob(Job))
@@ -608,6 +685,8 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                 copyFileToGuestSettingData.SourcePath = @"C:\copyme";
                 copyFileToGuestSettingData.CreateFullPath = true;
 
+                // this check might still be a bit too early but.. heh
+                // right now I do not know a decent way to check if account set up finished
                 var retries = 4;
                 var retryWaitTime = 10; // minutes
                 var lastErrorcode = 0;
@@ -665,6 +744,7 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
 
                 sut.DestroySystem(ResultingSystem, out Job);
                 File.Delete(vhdxName);
+                File.Delete(isoName);
             }
         }
     }
