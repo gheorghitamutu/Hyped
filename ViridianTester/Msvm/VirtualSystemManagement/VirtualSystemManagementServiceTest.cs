@@ -743,7 +743,14 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                 }
 
                 sut.DestroySystem(ResultingSystem, out Job);
-                File.Delete(vhdxName);
+                try // the vhdx might still be under a merge operation that keeps on handle on it
+                {   // could try to check all "merge jobs" and pick the one that handles this and wait for it to finish
+                    File.Delete(vhdxName);
+                }
+                catch(IOException e)
+                {
+                    Trace.WriteLine($"Deleting .vhdx file [{vhdxName}] failed: [{e.Message}]!");
+                }
                 File.Delete(isoName);
             }
         }
