@@ -51,9 +51,9 @@ namespace Viridian.Root.Virtualization.v2.Msvm.VirtualSystemManagement
             }
         }
 
-        public ushort[] ElementEffects => (ushort[])(LateBoundObject[nameof(ElementEffects)]);
+        public ushort[] ElementEffects => (ushort[])LateBoundObject[nameof(ElementEffects)];
 
-        public string[] OtherElementEffectsDescriptions => (string[])(LateBoundObject[nameof(OtherElementEffectsDescriptions)]);
+        public string[] OtherElementEffectsDescriptions => (string[])LateBoundObject[nameof(OtherElementEffectsDescriptions)];
 
         // Different overloads of GetInstances() help in enumerating instances of the WMI class.
         public static List<ServiceAffectsElement> GetInstances() => GetInstances(null, null, null, ClassName).Cast<ManagementObject>().Select((mo) => new ServiceAffectsElement(mo)).ToList();

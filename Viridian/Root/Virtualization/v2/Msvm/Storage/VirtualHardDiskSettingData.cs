@@ -293,7 +293,7 @@ namespace Viridian.Root.Virtualization.v2.Msvm.Storage
             }
             set
             {
-                LateBoundObject[nameof(ParentTimestamp)] = ToDmtfDateTime((System.DateTime)value);
+                LateBoundObject[nameof(ParentTimestamp)] = ToDmtfDateTime(value);
                 if ((IsEmbedded == false) && (AutoCommit == true))
                 {
                     PrivateLateBoundObject.Put();

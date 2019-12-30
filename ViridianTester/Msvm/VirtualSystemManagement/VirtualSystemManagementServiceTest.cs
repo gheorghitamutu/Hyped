@@ -295,7 +295,7 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                         {
                             LastFileProgressMet = e.ProgressPercentage;
 
-                            Trace.WriteLine($"Percentage percentage [{e.ProgressPercentage}%] Bytes received [{e.BytesReceived}] out of [{e.TotalBytesToReceive}]");
+                            Trace.WriteLine($"[{DateTime.Now}] Percentage percentage [{e.ProgressPercentage}%] Bytes received [{e.BytesReceived}] out of [{e.TotalBytesToReceive}]");
                         }
                     };
 
@@ -303,17 +303,17 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                     {
                         if (e.Cancelled)
                         {
-                            Trace.WriteLine("The download has been cancelled!");
+                            Trace.WriteLine($"[{DateTime.Now}] The download has been cancelled!");
                             return;
                         }
 
                         if (e.Error != null)
                         {
-                            Trace.WriteLine("An error ocurred while trying to download file!");
+                            Trace.WriteLine($"[{DateTime.Now}] An error ocurred while trying to download file!");
                             return;
                         }
 
-                        Trace.WriteLine($"Finished downloading [{isoName}] from [{uri}]");
+                        Trace.WriteLine($"[{DateTime.Now}] Finished downloading [{isoName}] from [{uri}]");
                     };
 
                     client.DownloadFileAsync(new Uri(uri), isoName);
