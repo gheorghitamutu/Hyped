@@ -68,6 +68,7 @@
     <Compile Include="Msvm\VirtualSystemManagement\VirtualSystemManagementServiceTest.cs" />
     <Compile Include="Msvm\VirtualSystem\ComputerSystemTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViridianUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />

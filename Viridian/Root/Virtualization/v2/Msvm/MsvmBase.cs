@@ -133,6 +133,13 @@ namespace Viridian.Root.Virtualization.v2.Msvm
             LateBoundObject = PrivateLateBoundObject;
         }
 
+        public void UpdateObject()
+        {
+            PrivateLateBoundObject.Get();
+            SystemProperties = new ManagementSystemProperties(PrivateLateBoundObject);
+            LateBoundObject = PrivateLateBoundObject;
+        }
+
         // ManagementScope of the object.
         public ManagementScope Scope
         {
@@ -590,7 +597,7 @@ namespace Viridian.Root.Virtualization.v2.Msvm
         {
             if (disposing)
             {
-                PrivateLateBoundObject.Dispose();
+                PrivateLateBoundObject?.Dispose();
             }
         }
 

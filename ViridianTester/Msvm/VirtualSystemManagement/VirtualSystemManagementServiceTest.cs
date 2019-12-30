@@ -39,61 +39,41 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
         [TestMethod]
         public void DefineSystem_ExpectingNotNullResultingSystemAndReturnValueIsZero()
         {
-            using (var sut = VirtualSystemManagementService.GetInstances().Cast<VirtualSystemManagementService>().ToList().First())
+            using (var viridianUtils = new ViridianUtils())
             {
-                var virtualSystemSettingData = VirtualSystemSettingData.CreateInstance();
+                viridianUtils.SUT_ComputerSystemMO(
+                ViridianUtils.GetCurrentMethod(),
+                out uint ReturnValue,
+                out ManagementPath Job,
+                out ManagementPath ResultingSystem);
 
-                virtualSystemSettingData.LateBoundObject["ElementName"] = nameof(DefineSystem_ExpectingNotNullResultingSystemAndReturnValueIsZero);
-                virtualSystemSettingData.LateBoundObject["ConfigurationDataRoot"] = @"ConfigurationDataRoot";
-                virtualSystemSettingData.LateBoundObject["VirtualSystemSubtype"] = "Microsoft:Hyper-V:SubType:2";
-
-                ManagementPath ReferenceConfiguration = null;
-                string[] ResourceSettings = null;
-                string SystemSettings = virtualSystemSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20);
-
-                var ReturnValue = sut.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem);
-
-                using (ManagementObject JobObject = new ManagementObject(Job))
-                {
-                    Assert.IsNotNull(ResultingSystem);
-                    Assert.AreEqual(0U, ReturnValue);
-                }
-
-                sut.DestroySystem(ResultingSystem, out Job);
+                Assert.IsNotNull(ResultingSystem);
+                Assert.AreEqual(0U, ReturnValue);
             }
         }
 
         [TestMethod]
         public void DestroySystem_ExpectingGetInstancesWithElementNameConditionCountZero()
         {
-            using (var sut = VirtualSystemManagementService.GetInstances().Cast<VirtualSystemManagementService>().ToList().First())
+            using (var viridianUtils = new ViridianUtils())
             {
-                var virtualSystemSettingData = VirtualSystemSettingData.CreateInstance();
-
-                virtualSystemSettingData.LateBoundObject["ElementName"] = nameof(DestroySystem_ExpectingGetInstancesWithElementNameConditionCountZero);
-                virtualSystemSettingData.LateBoundObject["ConfigurationDataRoot"] = @"ConfigurationDataRoot";
-                virtualSystemSettingData.LateBoundObject["VirtualSystemSubtype"] = "Microsoft:Hyper-V:SubType:2";
-
-                ManagementPath ReferenceConfiguration = null;
-                string[] ResourceSettings = null;
-                string SystemSettings = virtualSystemSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20);
-
-                var ReturnValue = sut.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem);
+                viridianUtils.SUT_ComputerSystemMO(
+                ViridianUtils.GetCurrentMethod(),
+                out uint ReturnValue,
+                out ManagementPath Job,
+                out ManagementPath ResultingSystem);
 
                 using (var computerSystem = new ComputerSystem(ResultingSystem))
                 {
                     var name = computerSystem.Name;
 
-                    sut.DestroySystem(ResultingSystem, out Job);
+                    viridianUtils.Dispose();
 
-                    var ReferenceConfigurationInstances = ComputerSystem.GetInstances($"Name='{name}'");
+                    var ReferenceConfigurationInstances = ComputerSystem.GetInstances().Where((cs) => cs.Name == name).ToList();
 
-                    using (ManagementObject JobObject = new ManagementObject(Job))
-                    {
-                        Assert.IsNotNull(ResultingSystem);
-                        Assert.AreEqual(0U, ReturnValue);
-                        Assert.AreEqual(0, ReferenceConfigurationInstances.Count);
-                    }
+                    Assert.IsNotNull(ResultingSystem);
+                    Assert.AreEqual(0U, ReturnValue);
+                    Assert.AreEqual(0, ReferenceConfigurationInstances.Count);
                 }
             }
         }
@@ -101,160 +81,98 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
         [TestMethod]
         public void RequestStateChange_ExpectingEnabledStateIsTwo()
         {
-            using (var sut = VirtualSystemManagementService.GetInstances().Cast<VirtualSystemManagementService>().ToList().First())
+            using (var viridianUtils = new ViridianUtils())
             {
-                var virtualSystemSettingData = VirtualSystemSettingData.CreateInstance();
+                viridianUtils.SUT_ComputerSystemMO(
+                    ViridianUtils.GetCurrentMethod(),
+                    out uint ReturnValue,
+                    out ManagementPath Job,
+                    out ManagementPath ResultingSystem);
 
-                virtualSystemSettingData.LateBoundObject["ElementName"] = nameof(RequestStateChange_ExpectingEnabledStateIsTwo);
-                virtualSystemSettingData.LateBoundObject["ConfigurationDataRoot"] = @"ConfigurationDataRoot";
-                virtualSystemSettingData.LateBoundObject["VirtualSystemSubtype"] = "Microsoft:Hyper-V:SubType:2";
-
-                ManagementPath ReferenceConfiguration = null;
-                string[] ResourceSettings = null;
-                string SystemSettings = virtualSystemSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20);
-
-                var ReturnValue = sut.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem);
-
-                var computerSystem = new ComputerSystem(ResultingSystem);
-                ReturnValue = computerSystem.RequestStateChange(2, null, out Job);
-                
-                using (ConcreteJob concreteJob = new ConcreteJob(Job))
+                using (var computerSystem = new ComputerSystem(ResultingSystem))
                 {
-                    while (
-                        concreteJob.JobState != 7 &&     // Completed
-                        concreteJob.JobState != 8 &&     // Terminated
-                        concreteJob.JobState != 9 &&     // Killed
-                        concreteJob.JobState != 10 &&    // Exception
-                        concreteJob.JobState != 32768)   // CompletedWithWarnings
-                    {
-                        ((ManagementObject)concreteJob.LateBoundObject).Get();
-                    }
+                    ReturnValue = computerSystem.RequestStateChange(2, null, out Job);
+
+                    ViridianUtils.WaitForConcreteJobToEnd(Job);
+
+                    computerSystem.UpdateObject();
+
+                    Assert.IsNotNull(ResultingSystem);
+                    Assert.AreEqual(4096U, ReturnValue);
+                    Assert.AreEqual(2U, computerSystem.EnabledState);
+
+                    ReturnValue = computerSystem.RequestStateChange(3, null, out Job);
+
+                    ViridianUtils.WaitForConcreteJobToEnd(Job);
                 }
-
-                computerSystem = ComputerSystem.GetInstances($"Name='{computerSystem.Name}'").Cast<ComputerSystem>().ToList().First();
-
-                Assert.IsNotNull(ResultingSystem);
-                Assert.AreEqual(4096U, ReturnValue);
-                Assert.AreEqual(2U, computerSystem.EnabledState);
-
-                ReturnValue = computerSystem.RequestStateChange(3, null, out Job);
-
-                using (ConcreteJob concreteJob = new ConcreteJob(Job))
-                {
-                    while (
-                        concreteJob.JobState != 7 &&     // Completed
-                        concreteJob.JobState != 8 &&     // Terminated
-                        concreteJob.JobState != 9 &&     // Killed
-                        concreteJob.JobState != 10 &&    // Exception
-                        concreteJob.JobState != 32768)   // CompletedWithWarnings
-                    {
-                        ((ManagementObject)concreteJob.LateBoundObject).Get();
-                    }
-                }
-
-                sut.DestroySystem(ResultingSystem, out Job);
             }
         }
 
         [TestMethod]
         public void GetVirtualSystemThumbnailImage_ExpectingNotNullImage()
         {
-            using (var sut = VirtualSystemManagementService.GetInstances().Cast<VirtualSystemManagementService>().ToList().First())
+            using (var viridianUtils = new ViridianUtils())
             {
-                var virtualSystemSettingData = VirtualSystemSettingData.CreateInstance();
+                viridianUtils.SUT_ComputerSystemMO(
+                    ViridianUtils.GetCurrentMethod(),
+                    out uint ReturnValue,
+                    out ManagementPath Job,
+                    out ManagementPath ResultingSystem);
 
-                virtualSystemSettingData.LateBoundObject["ElementName"] = nameof(GetVirtualSystemThumbnailImage_ExpectingNotNullImage);
-                virtualSystemSettingData.LateBoundObject["ConfigurationDataRoot"] = @"ConfigurationDataRoot";
-                virtualSystemSettingData.LateBoundObject["VirtualSystemSubtype"] = "Microsoft:Hyper-V:SubType:2";
-
-                ManagementPath ReferenceConfiguration = null;
-                string[] ResourceSettings = null;
-                string SystemSettings = virtualSystemSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20);
-
-                var ReturnValue = sut.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem);
-
-                var computerSystem = new ComputerSystem(ResultingSystem);
-                ReturnValue = computerSystem.RequestStateChange(2, null, out Job);
-
-                using (ConcreteJob concreteJob = new ConcreteJob(Job))
+                using (var computerSystem = new ComputerSystem(ResultingSystem))
                 {
-                    while (
-                        concreteJob.JobState != 7 &&     // Completed
-                        concreteJob.JobState != 8 &&     // Terminated
-                        concreteJob.JobState != 9 &&     // Killed
-                        concreteJob.JobState != 10 &&    // Exception
-                        concreteJob.JobState != 32768)   // CompletedWithWarnings
-                    {
-                        ((ManagementObject)concreteJob.LateBoundObject).Get();
-                    }
+                    ReturnValue = computerSystem.RequestStateChange(2, null, out Job);
+
+                    ViridianUtils.WaitForConcreteJobToEnd(Job);
+
+                    ReturnValue = viridianUtils.VSMS.GetVirtualSystemThumbnailImage(1000, ResultingSystem, 1000, out byte[] ImageData);
+
+                    Assert.IsNotNull(ResultingSystem);
+                    Assert.AreEqual(0U, ReturnValue);
+                    Assert.IsNotNull(ImageData);
+
+                    ReturnValue = computerSystem.RequestStateChange(3, null, out Job);
                 }
 
-                ReturnValue = sut.GetVirtualSystemThumbnailImage(1000, ResultingSystem, 1000, out byte[] ImageData);
-
-                Assert.IsNotNull(ResultingSystem);
-                Assert.AreEqual(0U, ReturnValue);
-                Assert.IsNotNull(ImageData);                
-
-                ReturnValue = computerSystem.RequestStateChange(3, null, out Job);
-
-                using (ConcreteJob concreteJob = new ConcreteJob(Job))
-                {
-                    while (
-                        concreteJob.JobState != 7 &&     // Completed
-                        concreteJob.JobState != 8 &&     // Terminated
-                        concreteJob.JobState != 9 &&     // Killed
-                        concreteJob.JobState != 10 &&    // Exception
-                        concreteJob.JobState != 32768)   // CompletedWithWarnings
-                    {
-                        ((ManagementObject)concreteJob.LateBoundObject).Get();
-                    }
-                }
-
-                sut.DestroySystem(ResultingSystem, out Job);
+                ViridianUtils.WaitForConcreteJobToEnd(Job);
             }
         }
 
         [TestMethod]
         public void GetSummaryInformation_ExpectingMemoryAvailable1024()
         {
-            using (var sut = VirtualSystemManagementService.GetInstances().Cast<VirtualSystemManagementService>().ToList().First())
+            using (var viridianUtils = new ViridianUtils())
             {
-                var virtualSystemSettingData = VirtualSystemSettingData.CreateInstance();
+                viridianUtils.SUT_ComputerSystemMO(
+                    ViridianUtils.GetCurrentMethod(),
+                    out uint ReturnValue,
+                    out ManagementPath Job,
+                    out ManagementPath ResultingSystem);
 
-                virtualSystemSettingData.LateBoundObject["ElementName"] = nameof(GetSummaryInformation_ExpectingMemoryAvailable1024);
-                virtualSystemSettingData.LateBoundObject["ConfigurationDataRoot"] = @"ConfigurationDataRoot";
-                virtualSystemSettingData.LateBoundObject["VirtualSystemSubtype"] = "Microsoft:Hyper-V:SubType:2";
+                using (var computerSystem = new ComputerSystem(ResultingSystem))
+                {
+                    var vssdCollection =
+                        SettingsDefineState.GetInstances()
+                            .Cast<SettingsDefineState>()
+                            .Where((sds) => string.Compare(sds.ManagedElement.Path, computerSystem.Path.Path, true, CultureInfo.InvariantCulture) == 0)
+                            .Select((sds) => new VirtualSystemSettingData(sds.SettingData))
+                            .ToList();
 
-                ManagementPath ReferenceConfiguration = null;
-                string[] ResourceSettings = null;
-                string SystemSettings = virtualSystemSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20);
+                    var RequestedInformation = (uint[])Enum.GetValues(typeof(SummaryInformation.RequestedInformation));
+                    var SettingData = new ManagementPath[] { vssdCollection.First().Path };
 
-                var ReturnValue = sut.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem);
+                    ReturnValue = viridianUtils.VSMS.GetSummaryInformation(RequestedInformation, SettingData, out ManagementBaseObject[] SummaryInformation);
 
-                var computerSystem = new ComputerSystem(ResultingSystem);
-
-                var vssdCollection =
-                    SettingsDefineState.GetInstances()
-                        .Cast<SettingsDefineState>()
-                        .Where((sds) => string.Compare(sds.ManagedElement.Path, computerSystem.Path.Path, true, CultureInfo.InvariantCulture) == 0)
-                        .Select((sds) => new VirtualSystemSettingData(sds.SettingData))
-                        .ToList();
-
-                uint[] RequestedInformation = (uint[])Enum.GetValues(typeof(SummaryInformation.RequestedInformation));
-                ManagementPath[] SettingData = new ManagementPath[] { vssdCollection.First().Path };
-
-                ReturnValue = sut.GetSummaryInformation(RequestedInformation, SettingData, out ManagementBaseObject[] SummaryInformation);
-
-                SummaryInformation summaryInformation = new SummaryInformation(SummaryInformation.First());
-
-                Assert.IsNotNull(ResultingSystem);
-                Assert.AreEqual(0U, ReturnValue);
-                Assert.AreEqual(1, vssdCollection.Count);
-                Assert.AreEqual(1, SummaryInformation.Length);
-                Assert.IsNotNull(SummaryInformation);
-                Assert.AreEqual(0U, summaryInformation.MemoryUsage);
-
-                sut.DestroySystem(ResultingSystem, out Job);
+                    using (SummaryInformation summaryInformation = new SummaryInformation(SummaryInformation.First()))
+                    {
+                        Assert.IsNotNull(ResultingSystem);
+                        Assert.AreEqual(0U, ReturnValue);
+                        Assert.AreEqual(1, vssdCollection.Count);
+                        Assert.AreEqual(1, SummaryInformation.Length);
+                        Assert.IsNotNull(SummaryInformation);
+                        Assert.AreEqual(0U, summaryInformation.MemoryUsage);
+                    }
+                }
             }
         }
 
@@ -342,19 +260,13 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                 throw new Exception($"Invalid SHA256 for file [{isoName}]!");
             }
 
-            using (var sut = VirtualSystemManagementService.GetInstances().Cast<VirtualSystemManagementService>().ToList().First())
+            using (var viridianUtils = new ViridianUtils())
             {
-                var virtualSystemSettingData = VirtualSystemSettingData.CreateInstance();
-
-                virtualSystemSettingData.LateBoundObject["ElementName"] = nameof(AutomatedOSInstallationWindows10Version1903x64_ExpectingFileThatMarksTheJobAsFinishedInVM);
-                virtualSystemSettingData.LateBoundObject["ConfigurationDataRoot"] = @"ConfigurationDataRoot";
-                virtualSystemSettingData.LateBoundObject["VirtualSystemSubtype"] = "Microsoft:Hyper-V:SubType:2";
-
-                ManagementPath ReferenceConfiguration = null;
-                string[] ResourceSettings = null;
-                string SystemSettings = virtualSystemSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20);
-
-                var ReturnValue = sut.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem);
+                viridianUtils.SUT_ComputerSystemMO(
+                    ViridianUtils.GetCurrentMethod(),
+                    out uint ReturnValue,
+                    out ManagementPath Job,
+                    out ManagementPath ResultingSystem);
 
                 var primordialResourcePoolSCSI =
                     ResourcePool.GetInstances()
@@ -384,7 +296,7 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
 
                 var computerSystem = new ComputerSystem(ResultingSystem);
 
-                virtualSystemSettingData =
+                var virtualSystemSettingData =
                     SettingsDefineState.GetInstances()
                         .Cast<SettingsDefineState>()
                         .Where((sds) => string.Compare(sds.ManagedElement.Path, computerSystem.Path.Path, true, CultureInfo.InvariantCulture) == 0)
@@ -393,9 +305,9 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                         .First();
 
                 var AffectedConfiguration = virtualSystemSettingData.Path;
-                ResourceSettings = new string[] { resourceAllocationSettingDataSCSIController.LateBoundObject.GetText(TextFormat.WmiDtd20) };
+                var ResourceSettings = new string[] { resourceAllocationSettingDataSCSIController.LateBoundObject.GetText(TextFormat.WmiDtd20) };
 
-                ReturnValue = sut.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ManagementPath[] ResultingResourceSettings);
+                ReturnValue = viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ManagementPath[] ResultingResourceSettings);
 
                 var scsiController =
                 VirtualSystemSettingDataComponent.GetInstances()
@@ -441,7 +353,7 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                 resourceAllocationSettingDataDVDDrive.LateBoundObject["AddressOnParent"] = 0;
 
                 ResourceSettings = new string[] { resourceAllocationSettingDataDVDDrive.LateBoundObject.GetText(TextFormat.WmiDtd20) };
-                ReturnValue = sut.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
+                ReturnValue = viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
 
                 var synthethicDVD =
                 VirtualSystemSettingDataComponent.GetInstances()
@@ -487,7 +399,7 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                 resourceAllocationSettingVirtualCDDVD.LateBoundObject["HostResource"] = new[] { isoName };
 
                 ResourceSettings = new string[] { resourceAllocationSettingVirtualCDDVD.LateBoundObject.GetText(TextFormat.WmiDtd20) };
-                ReturnValue = sut.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
+                ReturnValue = viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
 
                 var virtualCDDVDCollection =
                 VirtualSystemSettingDataComponent.GetInstances()
@@ -533,7 +445,7 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                 resourceAllocationSettingDataDiskDrive.LateBoundObject["AddressOnParent"] = 1;
 
                 ResourceSettings = new string[] { resourceAllocationSettingDataDiskDrive.LateBoundObject.GetText(TextFormat.WmiDtd20) };
-                ReturnValue = sut.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
+                ReturnValue = viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
 
                 var synthethicDiskDrive =
                 VirtualSystemSettingDataComponent.GetInstances()
@@ -590,18 +502,7 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
 
                     ims.CreateVirtualHardDisk(VirtualDiskSettingData, out Job);
 
-                    using (StorageJob storageJob = new StorageJob(Job))
-                    {
-                        while (
-                            storageJob.JobState != 7 &&     // Completed
-                            storageJob.JobState != 8 &&     // Terminated
-                            storageJob.JobState != 9 &&     // Killed
-                            storageJob.JobState != 10 &&    // Exception
-                            storageJob.JobState != 32768)   // CompletedWithWarnings
-                        {
-                            ((ManagementObject)storageJob.LateBoundObject).Get();
-                        }
-                    }
+                    ViridianUtils.WaitForStorageJobToEnd(Job);
                 }
 
                 resourceAllocationSettingVirtualHardDisk.LateBoundObject["Access"] = 3; // read/write
@@ -610,22 +511,11 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                 resourceAllocationSettingVirtualHardDisk.LateBoundObject["HostResource"] = new[] { vhdxName };
 
                 ResourceSettings = new string[] { resourceAllocationSettingVirtualHardDisk.LateBoundObject.GetText(TextFormat.WmiDtd20) };
-                ReturnValue = sut.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
+                ReturnValue = viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
                 
                 ReturnValue = computerSystem.RequestStateChange(2, null, out Job);
 
-                using (ConcreteJob concreteJob = new ConcreteJob(Job))
-                {
-                    while (
-                        concreteJob.JobState != 7 &&     // Completed
-                        concreteJob.JobState != 8 &&     // Terminated
-                        concreteJob.JobState != 9 &&     // Killed
-                        concreteJob.JobState != 10 &&    // Exception
-                        concreteJob.JobState != 32768)   // CompletedWithWarnings
-                    {
-                        ((ManagementObject)concreteJob.LateBoundObject).Get();
-                    }
-                }
+                ViridianUtils.WaitForConcreteJobToEnd(Job);
 
                 var guestServiceInterfaceComponentSettingData = VirtualSystemSettingDataComponent.GetInstances()
                         .Cast<VirtualSystemSettingDataComponent>()
@@ -643,21 +533,7 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                 var GuestServiceSettings = new string[1] { guestServiceInterfaceComponentSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20) };
                 ReturnValue = virtualSystemManagementService.ModifyGuestServiceSettings(GuestServiceSettings, out Job, out ManagementPath[] ResultingGuestServices);
 
-                if (string.IsNullOrEmpty(Job.ClassName) == false)
-                {
-                    using (ConcreteJob concreteJob = new ConcreteJob(Job))
-                    {
-                        while (
-                            concreteJob.JobState != 7 &&     // Completed
-                            concreteJob.JobState != 8 &&     // Terminated
-                            concreteJob.JobState != 9 &&     // Killed
-                            concreteJob.JobState != 10 &&    // Exception
-                            concreteJob.JobState != 32768)   // CompletedWithWarnings
-                        {
-                            ((ManagementObject)concreteJob.LateBoundObject).Get();
-                        }
-                    }
-                }
+                ViridianUtils.WaitForConcreteJobToEnd(Job);
 
                 var guestServiceInterfaceComponent =
                 SystemDevice.GetInstances()
@@ -694,21 +570,12 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
 
                 for (int i = 0; i < retries; i++)
                 {
-
                     var CopyFileToGuestSettings = new string[1] { copyFileToGuestSettingData.LateBoundObject.GetText(TextFormat.CimDtd20) };
                     ReturnValue = guestFileService.CopyFilesToGuest(CopyFileToGuestSettings, out Job);
 
-                    using (CopyFileToGuestJob copyFileToGuestJob = new CopyFileToGuestJob(Job))
+                    using (var copyFileToGuestJob = new CopyFileToGuestJob(Job))
                     {
-                        while (
-                            copyFileToGuestJob.JobState != 7 &&     // Completed
-                            copyFileToGuestJob.JobState != 8 &&     // Terminated
-                            copyFileToGuestJob.JobState != 9 &&     // Killed
-                            copyFileToGuestJob.JobState != 10 &&    // Exception
-                            copyFileToGuestJob.JobState != 32768)   // CompletedWithWarnings
-                        {
-                            ((ManagementObject)copyFileToGuestJob.LateBoundObject).Get();
-                        }
+                        ViridianUtils.WaitForCopyFileToGuestJobToEnd(Job);
 
                         copyFileToGuestJob.LateBoundObject.Properties.Cast<PropertyData>().ToList().ForEach((p) => Trace.WriteLine($"{p.Name} [{p.Value?.ToString()}]"));
 
@@ -729,28 +596,20 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
 
                 ReturnValue = computerSystem.RequestStateChange(3, null, out Job);
 
-                using (ConcreteJob concreteJob = new ConcreteJob(Job))
-                {
-                    while (
-                        concreteJob.JobState != 7 &&     // Completed
-                        concreteJob.JobState != 8 &&     // Terminated
-                        concreteJob.JobState != 9 &&     // Killed
-                        concreteJob.JobState != 10 &&    // Exception
-                        concreteJob.JobState != 32768)   // CompletedWithWarnings
-                    {
-                        ((ManagementObject)concreteJob.LateBoundObject).Get();
-                    }
-                }
+                ViridianUtils.WaitForConcreteJobToEnd(Job);
 
-                sut.DestroySystem(ResultingSystem, out Job);
+                viridianUtils.Dispose(); // force destroy system
+
                 try // the vhdx might still be under a merge operation that keeps on handle on it
                 {   // could try to check all "merge jobs" and pick the one that handles this and wait for it to finish
                     File.Delete(vhdxName);
                 }
+
                 catch(IOException e)
                 {
                     Trace.WriteLine($"Deleting .vhdx file [{vhdxName}] failed: [{e.Message}]!");
                 }
+
                 File.Delete(isoName);
             }
         }
