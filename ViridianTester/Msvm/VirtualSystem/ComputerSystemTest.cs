@@ -16,6 +16,7 @@ namespace ViridianTester.Msvm.VirtualSystem
                 Assert.IsNotNull(sut.LateBoundObject);
             }
         }
+
         [TestMethod]
         public void GetInstances_ExpectingAtLeastOneElementBeingHostMachine()
         {
@@ -24,6 +25,7 @@ namespace ViridianTester.Msvm.VirtualSystem
             Assert.IsTrue(sut.Count > 0);
             Assert.AreEqual(sut.Cast<ComputerSystem>().ToList().FirstOrDefault()?.Name, Environment.MachineName);
         }
+
         [TestMethod]
         public void GetInstancesWithCondition_ExpectingOneElementBeingHostMachine()
         {

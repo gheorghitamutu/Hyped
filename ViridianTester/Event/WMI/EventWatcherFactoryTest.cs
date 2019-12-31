@@ -4,7 +4,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Viridian.Scopes;
 using System.Diagnostics;
 using System.Management;
-using Viridian.Root.Virtualization.v2.Msvm.VirtualSystemManagement;
 using System.Linq;
 using Viridian.Root.Virtualization.v2.Msvm.VirtualSystem;
 using System.Threading.Tasks;
@@ -41,7 +40,7 @@ namespace ViridianTester.Event.WMI
         {
             var watcherTask = Task.Run(() =>
             {
-                var sut = EventWatcherFactory.GetWatcher(Scope.Virtualization.ScopeObject, "__InstanceCreationEvent", new TimeSpan(0, 0, 100), "Msvm_VirtualSystemSettingData");
+                var sut = EventWatcherFactory.GetWatcher(Scope.Virtualization.ScopeObject, InstanceCreationEvent.ClassName, new TimeSpan(0, 0, 100), VirtualSystemSettingData.ClassName);
 
                 var moInstanceCreationEvent =  sut.WaitForNextEvent();
 
@@ -50,43 +49,24 @@ namespace ViridianTester.Event.WMI
                 return moInstanceCreationEvent;
             }).ConfigureAwait(true);
 
-            using (var virtualSystemManagementService = VirtualSystemManagementService.GetInstances().Cast<VirtualSystemManagementService>().ToList().First())
+            using (var viridianUtils = new ViridianUtils())
             {
-                var virtualSystemSettingData = VirtualSystemSettingData.CreateInstance();
+                viridianUtils.SUT_ComputerSystemMO(
+                    ViridianUtils.GetCurrentMethod(),
+                    out uint ReturnValue,
+                    out ManagementPath Job,
+                    out ManagementPath ResultingSystem);
 
-                virtualSystemSettingData.LateBoundObject["ElementName"] = nameof(WatchVirtualSystemSettingDataCreation_ExpectTheSameConfigurationIDInObjectResultedAsTheOneDefined);
-                virtualSystemSettingData.LateBoundObject["ConfigurationDataRoot"] = @"ConfigurationDataRoot";
-                virtualSystemSettingData.LateBoundObject["VirtualSystemSubtype"] = "Microsoft:Hyper-V:SubType:2";
+                using (var instanceCreationEvent = new InstanceCreationEvent(await watcherTask))
+                using (var virtualSystemSettingDataFromEvent = new VirtualSystemSettingData(instanceCreationEvent.TargetInstance))
+                using (var computerSystemAsDefineSystemResult = new ComputerSystem(ResultingSystem))
+                using (var virtualSystemSettingDataFromResultingSystem = ViridianUtils.GetVirtualSystemSettingDataListThroughSettingsDefineState(computerSystemAsDefineSystemResult).First())
+                {
+                    Assert.IsNotNull(virtualSystemSettingDataFromEvent);
+                    Assert.IsTrue(string.Compare(virtualSystemSettingDataFromResultingSystem.ConfigurationID, virtualSystemSettingDataFromEvent.ConfigurationID, false, CultureInfo.InvariantCulture) == 0);
+                }
 
-                ManagementPath ReferenceConfiguration = null;
-                string[] ResourceSettings = null;
-                string SystemSettings = virtualSystemSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20);
-
-                var ReturnValue = virtualSystemManagementService.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem);
-
-                var instanceCreationEvent = new InstanceCreationEvent(await watcherTask);
-                instanceCreationEvent.LateBoundObject.Properties.Cast<PropertyData>().ToList().ForEach((p) => Trace.WriteLine($"{p.Name} [{p.Value}]"));
-                Trace.WriteLine(instanceCreationEvent.LateBoundObject.ClassPath);
-
-                var virtualSystemSettingDataFromEvent = new VirtualSystemSettingData(instanceCreationEvent.TargetInstance);
-                virtualSystemSettingDataFromEvent.LateBoundObject.Properties.Cast<PropertyData>().ToList().ForEach((p) => Trace.WriteLine($"{p.Name} [{p.Value}]"));
-
-                var computerSystemAsDefineSystemResult = new ComputerSystem(ResultingSystem);
-
-                var virtualSystemSettingDataFromResultingSystem =
-                   SettingsDefineState.GetInstances()
-                       .Cast<SettingsDefineState>()
-                       .Where((sds) => string.Compare(sds.ManagedElement.Path, computerSystemAsDefineSystemResult.Path.Path, true, CultureInfo.InvariantCulture) == 0)
-                       .Select((sds) => new VirtualSystemSettingData(sds.SettingData))
-                       .ToList()
-                       .First();
-
-                Assert.IsNotNull(ResultingSystem);
-                Assert.IsNotNull(virtualSystemSettingDataFromEvent);
-                Assert.IsTrue(string.Compare(virtualSystemSettingDataFromResultingSystem.ConfigurationID, virtualSystemSettingDataFromEvent.ConfigurationID, false, CultureInfo.InvariantCulture) == 0);
                 Assert.AreEqual(0U, ReturnValue);
-
-                virtualSystemManagementService.DestroySystem(ResultingSystem, out Job);
             }
         }
     }

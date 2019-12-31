@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq;
 using System.Management;
 using Viridian.Root.Virtualization.v2.Msvm.Networking;
 
@@ -20,23 +19,15 @@ namespace ViridianTester.Msvm.Networking
         [TestMethod]
         public void CreateVirtualEthernetSwitch_ExpectingNotNullResultingSystem()
         {
-            using (var sut = VirtualEthernetSwitchManagementService.GetInstances().First())
+            using (var viridianUtils = new ViridianUtils())
             {
-                using (var virtualEthernetSwitchSettingData = VirtualEthernetSwitchSettingData.CreateInstance())
-                {
-                    virtualEthernetSwitchSettingData.LateBoundObject["ElementName"] = nameof(CreateVirtualEthernetSwitch_ExpectingNotNullResultingSystem);
-                    virtualEthernetSwitchSettingData.LateBoundObject["Notes"] = new string[] { nameof(CreateVirtualEthernetSwitch_ExpectingNotNullResultingSystem) };
+                viridianUtils.SUT_VirtualEthernetSwitchSettingDataMO(
+                    ViridianUtils.GetCurrentMethod(),
+                    out uint ReturnValue,
+                    out ManagementPath Job,
+                    out ManagementPath ResultingSystem);
 
-                    ManagementPath ReferenceConfiguration = null;
-                    var SystemSettings = virtualEthernetSwitchSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20);
-                    var ResourceSettings = System.Array.Empty<string>();
-
-                    sut.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem);
-
-                    Assert.IsNotNull(ResultingSystem);
-
-                    sut.DestroySystem(ResultingSystem, out Job);
-                }
+                Assert.IsNotNull(ResultingSystem);
             }
         }        
     }

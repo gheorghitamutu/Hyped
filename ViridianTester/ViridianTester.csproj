@@ -58,7 +58,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Event\WMI\EventWatcherFactoryTest.cs" />
-    <Compile Include="Msvm\Memory\MemoryTest.cs" />
     <Compile Include="Msvm\Memory\MemorySettingDataTest.cs" />
     <Compile Include="Msvm\Networking\VirtualEthernetSwitchManagementServiceTest.cs" />
     <Compile Include="Msvm\Processor\ProcessorSettingDataTest.cs" />
