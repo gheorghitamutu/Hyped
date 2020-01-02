@@ -15,6 +15,13 @@
 	https://docs.microsoft.com/en-us/windows/win32/hyperv_v2/images/msvm-computersystem-enabledstate-win2008r2.png (The following illustration shows the EnabledState values)
 	https://docs.microsoft.com/en-us/windows/win32/wmisdk/monitoring-events (Monitoring WMI Events)
 	https://docs.microfocus.com/itom/Universal_Discovery_Content_Pack:28/HYP-V_R_dscvry_mech_root_v2 (Discovery Mechanism for root\virtualization\v2 Namespace)
+	https://www.windowscentral.com/how-create-unattended-media-do-automated-installation-windows-10
+	https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/automate-windows-setup
+	https://sites.google.com/site/ntliteautomatedwindows10
+	https://www.virtualizationhowto.com/2019/05/automated-windows-10-installation-with-autounattend-and-packer
+	https://unix.stackexchange.com/questions/122119/unattended-linux-installation-debian-ubuntu
+	https://en.wikipedia.org/wiki/GUID_Partition_Table (Partition type GUIDs)
+	https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/oscdimg-command-line-options
 
 ## Examples (snapshots of code/repositories)
 	https://blogs.msdn.microsoft.com/sergeim/2008/06/03/prepare-vm-create-vm-programmatically-hyper-v-api-c-version - API v1

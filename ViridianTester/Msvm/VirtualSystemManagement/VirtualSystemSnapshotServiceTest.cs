@@ -1,12 +1,7 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
+﻿using System.Linq;
 using System.Management;
-using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Viridian.Job;
-using Viridian.Msvm.VirtualSystem;
-using Viridian.Msvm.VirtualSystemManagement;
+using Viridian.Root.Virtualization.v2.Msvm.VirtualSystem;
 
 namespace ViridianTester.Msvm.VirtualSystemManagement
 {
@@ -16,133 +11,68 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
         [TestMethod]
         public void CreateSnapshot_ExpectingOneSnapshot()
         {
-            using (var vsms = VirtualSystemManagementService.GetInstances().Cast<VirtualSystemManagementService>().ToList().First())
+            using (var viridianUtils = new ViridianUtils())
             {
-                var virtualSystemSettingData = VirtualSystemSettingData.CreateInstance();
+                viridianUtils.SUT_ComputerSystemMO(
+                    ViridianUtils.GetCurrentMethod(),
+                    out uint ReturnValue,
+                    out ManagementPath Job,
+                    out ManagementPath ResultingSystem);
 
-                virtualSystemSettingData.LateBoundObject["ElementName"] = nameof(CreateSnapshot_ExpectingOneSnapshot);
-                virtualSystemSettingData.LateBoundObject["ConfigurationDataRoot"] = @"ConfigurationDataRoot";
-                virtualSystemSettingData.LateBoundObject["VirtualSystemSubtype"] = "Microsoft:Hyper-V:SubType:2";
+                viridianUtils.SUT_VirtualSystemSettingDataMO(
+                    ViridianUtils.GetCurrentMethod(),
+                    ResultingSystem,
+                    out ReturnValue,
+                    out Job,
+                    out ManagementPath ResultingSnapshot);
 
-                ManagementPath ReferenceConfiguration = null;
-                string[] ResourceSettings = null;
-                string SystemSettings = virtualSystemSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20);
+                ViridianUtils.WaitForConcreteJobToEnd(Job);
 
-                var ReturnValue = vsms.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem);
-
-                using (var sut = VirtualSystemSnapshotService.GetInstances().Cast<VirtualSystemSnapshotService>().ToList().First())
+                using (var computerSystem = new ComputerSystem(ResultingSystem))
                 {
-                    var SnapshotSettingsInstance = VirtualSystemSettingData.CreateInstance();
+                    var sovsCollection = ViridianUtils.GetSnapshotOfVirtualSystemList(computerSystem);
+                    var mcsibCollection = ViridianUtils.GetMostCurrentSnapshotInBranchList(computerSystem);
 
-                    SnapshotSettingsInstance.LateBoundObject["ElementName"] = $"{nameof(CreateSnapshot_ExpectingOneSnapshot)}";
-                    SnapshotSettingsInstance.LateBoundObject["SnapshotDataRoot"] = @"SnapshotDataRoot";
-                    SnapshotSettingsInstance.LateBoundObject["VirtualSystemType"] = 5;
-
-                    ManagementPath AffectedSystem = ResultingSystem;
-                    ManagementPath ResultingSnapshot = null;
-                    string SnapshotSettings = SnapshotSettingsInstance.LateBoundObject.GetText(TextFormat.CimDtd20);
-                    ushort SnapshotType = 2;
-                    ReturnValue = sut.CreateSnapshot(AffectedSystem, ref ResultingSnapshot, SnapshotSettings, SnapshotType, out Job);
-
-                    using (ManagementObject JobObject = new ManagementObject(Job))
-                    {
-                        while (Validator.IsJobEnded(JobObject?["JobState"]) == false) // TODO: maybe events cand be used here?
-                        {
-                            Thread.Sleep(TimeSpan.FromSeconds(1));
-                            JobObject.Get();
-                        }
-
-                        ComputerSystem computerSystem = new ComputerSystem(AffectedSystem);
-
-                        var sovsCollection = SnapshotOfVirtualSystem.GetInstances()
-                            .Cast<SnapshotOfVirtualSystem>()
-                            .Where((sovs) => string.Compare(sovs.Antecedent.Path, computerSystem.Path.Path, true, CultureInfo.InvariantCulture) == 0)
-                            .ToList();
-
-                        var mcsibCollection = MostCurrentSnapshotInBranch.GetInstances()
-                            .Cast<MostCurrentSnapshotInBranch>()
-                            .Where((sovs) => string.Compare(sovs.Antecedent.Path, computerSystem.Path.Path, true, CultureInfo.InvariantCulture) == 0)
-                            .ToList();
-
-                        Assert.IsTrue(Validator.IsJobSuccessful(JobObject?["JobState"]));
-                        Assert.AreEqual(1, sovsCollection.Count);
-                        Assert.AreEqual(1, mcsibCollection.Count);
-                    }
-
-                    vsms.DestroySystem(ResultingSystem, out Job);
+                    Assert.AreEqual(1, sovsCollection.Count);
+                    Assert.AreEqual(1, mcsibCollection.Count);
                 }
             }
         }
+
         [TestMethod]
         public void ApplySnapshot_ExpectingReturnLastSnapshotApplied()
         {
-            using (var vsms = VirtualSystemManagementService.GetInstances().Cast<VirtualSystemManagementService>().ToList().First())
+            using (var viridianUtils = new ViridianUtils())
             {
-                var SystemSettingsObject = VirtualSystemSettingData.CreateInstance();
+                viridianUtils.SUT_ComputerSystemMO(
+                    ViridianUtils.GetCurrentMethod(),
+                    out uint ReturnValue,
+                    out ManagementPath Job,
+                    out ManagementPath ResultingSystem);
 
-                SystemSettingsObject.LateBoundObject["ElementName"] = nameof(ApplySnapshot_ExpectingReturnLastSnapshotApplied);
-                SystemSettingsObject.LateBoundObject["ConfigurationDataRoot"] = @"ConfigurationDataRoot";
-                SystemSettingsObject.LateBoundObject["VirtualSystemSubtype"] = "Microsoft:Hyper-V:SubType:2";
+                viridianUtils.SUT_VirtualSystemSettingDataMO(
+                    ViridianUtils.GetCurrentMethod(),
+                    ResultingSystem,
+                    out ReturnValue,
+                    out Job,
+                    out ManagementPath ResultingSnapshot);
 
-                ManagementPath ReferenceConfiguration = null;
-                string[] ResourceSettings = null;
-                string SystemSettings = SystemSettingsObject.LateBoundObject.GetText(TextFormat.WmiDtd20);
+                ViridianUtils.WaitForConcreteJobToEnd(Job);
 
-                var ReturnValue = vsms.DefineSystem(ReferenceConfiguration, ResourceSettings, SystemSettings, out ManagementPath Job, out ManagementPath ResultingSystem);
-
-                using (var sut = VirtualSystemSnapshotService.GetInstances().Cast<VirtualSystemSnapshotService>().ToList().First())
+                using (var computerSystem = new ComputerSystem(ResultingSystem))
                 {
-                    var SnapshotSettingsInstance = VirtualSystemSettingData.CreateInstance();
+                    var vssdCollection = ViridianUtils.GetVirtualSystemSettingDataListThroughSnapshotOfVirtualSystem(computerSystem);
 
-                    SnapshotSettingsInstance.LateBoundObject["ElementName"] = $"{nameof(ApplySnapshot_ExpectingReturnLastSnapshotApplied)}";
-                    SnapshotSettingsInstance.LateBoundObject["SnapshotDataRoot"] = @"SnapshotDataRoot";
-                    SnapshotSettingsInstance.LateBoundObject["VirtualSystemType"] = 5;
+                    ReturnValue = viridianUtils.VSSS.ApplySnapshot(vssdCollection.First().Path, out Job);
 
-                    ManagementPath AffectedSystem = ResultingSystem;
-                    ManagementPath ResultingSnapshot = null;
-                    string SnapshotSettings = SnapshotSettingsInstance.LateBoundObject.GetText(TextFormat.CimDtd20);
-                    ushort SnapshotType = 2;
-                    ReturnValue = sut.CreateSnapshot(AffectedSystem, ref ResultingSnapshot, SnapshotSettings, SnapshotType, out Job);
+                    ViridianUtils.WaitForConcreteJobToEnd(Job);
 
-                    using (ManagementObject JobObject = new ManagementObject(Job))
-                    {
-                        while (Validator.IsJobEnded(JobObject?["JobState"]) == false) // TODO: maybe events cand be used here?
-                        {
-                            Thread.Sleep(TimeSpan.FromSeconds(1));
-                            JobObject.Get();
-                        }
+                    var lasCollection = ViridianUtils.GetLastAppliedSnapshotList(computerSystem);
 
-                        ComputerSystem cs = new ComputerSystem(AffectedSystem);
-
-                        var vssdCollection = SnapshotOfVirtualSystem.GetInstances()
-                            .Cast<SnapshotOfVirtualSystem>()
-                            .Where((sovs) => string.Compare(sovs.Antecedent.Path, cs.Path.Path, true, CultureInfo.InvariantCulture) == 0)
-                            .Select((sovs) => new VirtualSystemSettingData(sovs.Dependent))
-                            .ToList();
-
-                        ReturnValue = sut.ApplySnapshot(vssdCollection.First().Path, out Job);
-
-                        using (ManagementObject JobObjectApplySnapshot = new ManagementObject(Job))
-                        {
-                            while (Validator.IsJobEnded(JobObjectApplySnapshot?["JobState"]) == false) // TODO: maybe events cand be used here?
-                            {
-                                Thread.Sleep(TimeSpan.FromSeconds(1));
-                                JobObjectApplySnapshot.Get();
-                            }
-
-                            var lasCollection = LastAppliedSnapshot.GetInstances()
-                                .Cast<LastAppliedSnapshot>()
-                                .Where((las) => string.Compare(las.Antecedent.Path, cs.Path.Path, true, CultureInfo.InvariantCulture) == 0)
-                                .ToList();
-
-                            Assert.IsTrue(Validator.IsJobSuccessful(JobObjectApplySnapshot?["JobState"]));
-                            Assert.AreEqual(1, vssdCollection.Count);
-                            Assert.AreEqual(4096U, ReturnValue);
-                        }
-                    }
-
-                    vsms.DestroySystem(ResultingSystem, out Job);
+                    Assert.AreEqual(1, vssdCollection.Count);
                 }
+
+                Assert.AreEqual(4096U, ReturnValue);
             }
         }
     }

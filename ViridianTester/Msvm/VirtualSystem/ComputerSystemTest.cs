@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
-using Viridian.Msvm.VirtualSystem;
+using Viridian.Root.Virtualization.v2.Msvm.VirtualSystem;
 
 namespace ViridianTester.Msvm.VirtualSystem
 {
@@ -16,6 +16,7 @@ namespace ViridianTester.Msvm.VirtualSystem
                 Assert.IsNotNull(sut.LateBoundObject);
             }
         }
+
         [TestMethod]
         public void GetInstances_ExpectingAtLeastOneElementBeingHostMachine()
         {
@@ -24,6 +25,7 @@ namespace ViridianTester.Msvm.VirtualSystem
             Assert.IsTrue(sut.Count > 0);
             Assert.AreEqual(sut.Cast<ComputerSystem>().ToList().FirstOrDefault()?.Name, Environment.MachineName);
         }
+
         [TestMethod]
         public void GetInstancesWithCondition_ExpectingOneElementBeingHostMachine()
         {

@@ -1,0 +1,9 @@
+In order to create an autoinstall Windows 10 version:
+	- copy the files from its ISO
+	- create unattend.xml and copy it to flat folder
+	- use Oscdimg to set boot device to efisys_noprompt.bin (UEFI stuff) <Oscdimg -bsource\efisys_noprompt.bin -pEF -u1 -udfver102 sourceFlatWindowsISO isoDestination>
+	- enjoy
+
+OS Automatic Installation.pdf
+	- describes the minimum installation steps taken for a Windows 10 x64 1903 installation 
+	- uses a custom ISO modified with Oscdimg along with unattend.xml

@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.2.9.8\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props" Condition="Exists('..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.2.9.8\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props')" />
+  <Import Project="..\packages\Microsoft.NetFramework.Analyzers.2.9.8\build\Microsoft.NetFramework.Analyzers.props" Condition="Exists('..\packages\Microsoft.NetFramework.Analyzers.2.9.8\build\Microsoft.NetFramework.Analyzers.props')" />
+  <Import Project="..\packages\Microsoft.NetCore.Analyzers.2.9.8\build\Microsoft.NetCore.Analyzers.props" Condition="Exists('..\packages\Microsoft.NetCore.Analyzers.2.9.8\build\Microsoft.NetCore.Analyzers.props')" />
+  <Import Project="..\packages\Microsoft.CodeQuality.Analyzers.2.9.8\build\Microsoft.CodeQuality.Analyzers.props" Condition="Exists('..\packages\Microsoft.CodeQuality.Analyzers.2.9.8\build\Microsoft.CodeQuality.Analyzers.props')" />
+  <Import Project="..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.2.9.8\build\Microsoft.CodeAnalysis.VersionCheckAnalyzer.props" Condition="Exists('..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.2.9.8\build\Microsoft.CodeAnalysis.VersionCheckAnalyzer.props')" />
   <Import Project="..\packages\Microsoft.CodeAnalysis.Analyzers.2.9.7\build\Microsoft.CodeAnalysis.Analyzers.props" Condition="Exists('..\packages\Microsoft.CodeAnalysis.Analyzers.2.9.7\build\Microsoft.CodeAnalysis.Analyzers.props')" />
-  <Import Project="..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.2.9.7\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props" Condition="Exists('..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.2.9.7\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props')" />
-  <Import Project="..\packages\Microsoft.NetFramework.Analyzers.2.9.7\build\Microsoft.NetFramework.Analyzers.props" Condition="Exists('..\packages\Microsoft.NetFramework.Analyzers.2.9.7\build\Microsoft.NetFramework.Analyzers.props')" />
-  <Import Project="..\packages\Microsoft.NetCore.Analyzers.2.9.7\build\Microsoft.NetCore.Analyzers.props" Condition="Exists('..\packages\Microsoft.NetCore.Analyzers.2.9.7\build\Microsoft.NetCore.Analyzers.props')" />
-  <Import Project="..\packages\Microsoft.CodeQuality.Analyzers.2.9.7\build\Microsoft.CodeQuality.Analyzers.props" Condition="Exists('..\packages\Microsoft.CodeQuality.Analyzers.2.9.7\build\Microsoft.CodeQuality.Analyzers.props')" />
-  <Import Project="..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.2.9.7\build\Microsoft.CodeAnalysis.VersionCheckAnalyzer.props" Condition="Exists('..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.2.9.7\build\Microsoft.CodeAnalysis.VersionCheckAnalyzer.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -50,43 +50,86 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Event\WMI\EventWatcherFactory.cs" />
     <Compile Include="Job\Validator.cs" />
-    <Compile Include="Msvm\ManagementSystemProperties.cs" />
-    <Compile Include="Msvm\Memory\Memory.cs" />
-    <Compile Include="Msvm\Memory\MemorySettingData.cs" />
-    <Compile Include="Msvm\Metrics\AggregationMetricDefinition.cs" />
-    <Compile Include="Msvm\Metrics\AggregationMetricValue.cs" />
-    <Compile Include="Msvm\Metrics\BaseMetricDefinition.cs" />
-    <Compile Include="Msvm\Metrics\BaseMetricValue.cs" />
-    <Compile Include="Msvm\Metrics\MetricCollectionDependency.cs" />
-    <Compile Include="Msvm\Metrics\MetricDefForME.cs" />
-    <Compile Include="Msvm\Metrics\MetricForME.cs" />
-    <Compile Include="Msvm\Metrics\MetricInstance.cs" />
-    <Compile Include="Msvm\Metrics\MetricServiceCapabilities.cs" />
-    <Compile Include="Msvm\Metrics\MetricServiceSettingData.cs" />
-    <Compile Include="Msvm\MsvmBase.cs" />
-    <Compile Include="Msvm\Networking\ExternalEthernetPort.cs" />
-    <Compile Include="Msvm\Networking\InternalEthernetPort.cs" />
-    <Compile Include="Msvm\Networking\SyntheticEthernetPortSettingData.cs" />
-    <Compile Include="Msvm\Networking\VirtualEthernetSwitch.cs" />
-    <Compile Include="Msvm\Networking\VirtualEthernetSwitchSettingData .cs" />
-    <Compile Include="Msvm\Processor\ProcessorSettingData.cs" />
-    <Compile Include="Msvm\ResourceManagement\AllocationCapabilities.cs" />
-    <Compile Include="Msvm\ResourceManagement\ElementCapabilities.cs" />
-    <Compile Include="Msvm\ResourceManagement\SettingsDefineCapabilities.cs" />
-    <Compile Include="Msvm\Storage\StorageAllocationSettingData.cs" />
-    <Compile Include="Msvm\Storage\VirtualHardDiskSettingData.cs" />
-    <Compile Include="Msvm\Threshold\VirtualSystemSnapshotSettingData.cs" />
-    <Compile Include="Msvm\VirtualSystemManagement\SettingsDefineState.cs" />
-    <Compile Include="Msvm\VirtualSystemManagement\VirtualSystemManagementService.cs" />
-    <Compile Include="Msvm\VirtualSystem\ComputerSystem.cs" />
-    <Compile Include="Msvm\VirtualSystemManagement\LastAppliedSnapshot.cs" />
-    <Compile Include="Msvm\VirtualSystem\ConcreteComponent.cs" />
-    <Compile Include="Msvm\VirtualSystem\MostCurrentSnapshotInBranch.cs" />
-    <Compile Include="Msvm\VirtualSystem\SnapshotOfVirtualSystem.cs" />
-    <Compile Include="Msvm\VirtualSystem\SummaryInformation.cs" />
-    <Compile Include="Msvm\VirtualSystem\SystemComponent .cs" />
-    <Compile Include="Msvm\VirtualSystem\VirtualSystemSettingDataComponent.cs" />
+    <Compile Include="Root\Microsoft\Windows\System\SystemBase.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Integration\CopyFileToGuestJob.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Integration\CopyFileToGuestSettingData.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Integration\GuestFileService.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Integration\GuestService.cs" />
+    <Compile Include="ManagementSystemProperties.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Integration\GuestServiceInterfaceComponent.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Integration\GuestServiceInterfaceComponentSettingData.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Integration\RegisteredGuestService.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Memory\ElementAllocatedFromNumaNode.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Memory\Memory.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Memory\MemorySettingData.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Memory\NumaNode.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Metrics\AggregationMetricDefinition.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Metrics\AggregationMetricValue.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Metrics\BaseMetricDefinition.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Metrics\BaseMetricValue.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Metrics\MetricCollectionDependency.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Metrics\MetricDefForME.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Metrics\MetricForME.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Metrics\MetricInstance.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Metrics\MetricServiceCapabilities.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Metrics\MetricServiceSettingData.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\MsvmBase.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Networking\EmulatedEthernetPortSettingData.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Networking\EthernetPortAllocationSettingData.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Networking\EthernetPortSettingDataComponent.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Networking\EthernetSwitchExtension.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Networking\EthernetSwitchFeatureCapabilities.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Networking\EthernetSwitchFeatureSettingData.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Networking\EthernetSwitchPort.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Networking\EthernetSwitchPortAclSettingData.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Networking\EthernetSwitchPortBandwidthSettingData.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Networking\EthernetSwitchPortFeatureSettingData.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Networking\EthernetSwitchPortOffloadSettingData.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Networking\EthernetSwitchPortProfileSettingData.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Networking\EthernetSwitchPortSecuritySettingData.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Networking\ExternalEthernetPort.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Networking\InternalEthernetPort.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Networking\EthernetSwitchPortVlanSettingData.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Networking\LanEndpoint.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Networking\SyntheticEthernetPortSettingData.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Networking\VirtualEthernetSwitch.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Networking\VirtualEthernetSwitchBandwidthSettingData.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Networking\VirtualEthernetSwitchSettingData .cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Networking\VLANEndpoint.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Processor\Processor.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Processor\ProcessorPool.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Processor\ProcessorSettingData.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\ResourceManagement\AllocationCapabilities.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\ResourceManagement\ElementCapabilities.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\ResourceManagement\SettingsDefineCapabilities.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Storage\AffectedStorageJobElement.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Storage\StorageAllocationSettingData.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Storage\StorageJob.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Storage\VirtualHardDiskSettingData.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Threshold\GuestCommunicationService.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Threshold\GuestCommunicationServiceSettingData.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Threshold\GuestServiceInterfaceSettingDataComponent.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Threshold\VirtualSystemSnapshotSettingData.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\VirtualSystemManagement\AffectedJobElement.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\VirtualSystemManagement\ConcreteJob.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\VirtualSystemManagement\Error.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\VirtualSystemManagement\OwningJobElement.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\VirtualSystemManagement\ServiceAffectsElement.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\VirtualSystemManagement\SettingsDefineState.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\VirtualSystemManagement\VirtualSystemManagementService.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\VirtualSystem\BootSourceComponent.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\VirtualSystem\BootSourceSettingData.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\VirtualSystem\ComputerSystem.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\VirtualSystemManagement\LastAppliedSnapshot.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\VirtualSystem\ConcreteComponent.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\VirtualSystem\MostCurrentSnapshotInBranch.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\VirtualSystem\SnapshotOfVirtualSystem.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\VirtualSystem\SummaryInformation.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\VirtualSystem\SystemComponent .cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\VirtualSystem\SystemDevice.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\VirtualSystem\VirtualSystemSettingDataComponent.cs" />
     <Compile Include="Properties\ComputerSystem.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -107,23 +150,26 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>VirtualSystemSettingData.settings</DependentUpon>
     </Compile>
-    <Compile Include="WindowsStorageManagement\MSFT\Partition.cs" />
-    <Compile Include="WindowsStorageManagement\MSFT\Volume.cs" />
-    <Compile Include="Msvm\Storage\MountedStorageImage.cs" />
-    <Compile Include="Msvm\ResourceManagement\ResourcePool.cs" />
-    <Compile Include="Msvm\VirtualSystem\VirtualSystemSettingData.cs" />
-    <Compile Include="Resources\Network\NetSwitch.cs" />
-    <Compile Include="Msvm\BaseService.cs" />
-    <Compile Include="Msvm\Storage\ImageManagementService.cs" />
-    <Compile Include="Msvm\Networking\VirtualEthernetSwitchManagementService.cs" />
-    <Compile Include="Msvm\VirtualSystemManagement\VirtualSystemSnapshotService.cs" />
-    <Compile Include="Msvm\Metrics\MetricService.cs" />
+    <Compile Include="Root\Microsoft\Windows\Storage\MsftBase.cs" />
+    <Compile Include="Root\Microsoft\Windows\Storage\MSFT\DiskToPartition.cs" />
+    <Compile Include="Root\Microsoft\Windows\Storage\MSFT\Partition.cs" />
+    <Compile Include="Root\Microsoft\Windows\Storage\MSFT\StorageExtendedStatus.cs" />
+    <Compile Include="Root\Microsoft\Windows\Storage\MSFT\Volume.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Storage\MountedStorageImage.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\ResourceManagement\ResourcePool.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\VirtualSystem\VirtualSystemSettingData.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Storage\ImageManagementService.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Networking\VirtualEthernetSwitchManagementService.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\VirtualSystemManagement\VirtualSystemSnapshotService.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\Metrics\MetricService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Msvm\ResourceManagement\ResourceAllocationSettingData.cs" />
-    <Compile Include="Msvm\ResourceManagement\ResourcePoolConfigurationService.cs" />
-    <Compile Include="Msvm\ResourceManagement\ResourcePoolSettingData.cs" />
-    <Compile Include="WindowsStorageManagement\MSFT\Disk.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\ResourceManagement\ResourceAllocationSettingData.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\ResourceManagement\ResourcePoolConfigurationService.cs" />
+    <Compile Include="Root\Virtualization\v2\Msvm\ResourceManagement\ResourcePoolSettingData.cs" />
+    <Compile Include="Root\Microsoft\Windows\Storage\MSFT\Disk.cs" />
     <Compile Include="Scope\Scope.cs" />
+    <Compile Include="Root\Microsoft\Windows\Storage\MSFT\PartitionToVolume.cs" />
+    <Compile Include="Root\Microsoft\Windows\System\Event\InstanceCreationEvent.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -149,26 +195,29 @@
   <ItemGroup>
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.2.9.7\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.2.9.7\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
-    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.2.9.7\analyzers\dotnet\cs\Microsoft.CodeAnalysis.VersionCheckAnalyzer.resources.dll" />
-    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.2.9.7\analyzers\dotnet\Microsoft.CodeAnalysis.VersionCheckAnalyzer.dll" />
-    <Analyzer Include="..\packages\Microsoft.CodeQuality.Analyzers.2.9.7\analyzers\dotnet\cs\Humanizer.dll" />
-    <Analyzer Include="..\packages\Microsoft.CodeQuality.Analyzers.2.9.7\analyzers\dotnet\cs\Microsoft.CodeQuality.Analyzers.dll" />
-    <Analyzer Include="..\packages\Microsoft.CodeQuality.Analyzers.2.9.7\analyzers\dotnet\cs\Microsoft.CodeQuality.CSharp.Analyzers.dll" />
-    <Analyzer Include="..\packages\Microsoft.NetCore.Analyzers.2.9.7\analyzers\dotnet\cs\Microsoft.NetCore.Analyzers.dll" />
-    <Analyzer Include="..\packages\Microsoft.NetCore.Analyzers.2.9.7\analyzers\dotnet\cs\Microsoft.NetCore.CSharp.Analyzers.dll" />
-    <Analyzer Include="..\packages\Microsoft.NetFramework.Analyzers.2.9.7\analyzers\dotnet\cs\Microsoft.NetFramework.Analyzers.dll" />
-    <Analyzer Include="..\packages\Microsoft.NetFramework.Analyzers.2.9.7\analyzers\dotnet\cs\Microsoft.NetFramework.CSharp.Analyzers.dll" />
+    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.2.9.8\analyzers\dotnet\cs\Microsoft.CodeAnalysis.VersionCheckAnalyzer.resources.dll" />
+    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.2.9.8\analyzers\dotnet\Microsoft.CodeAnalysis.VersionCheckAnalyzer.dll" />
+    <Analyzer Include="..\packages\Microsoft.CodeQuality.Analyzers.2.9.8\analyzers\dotnet\cs\Humanizer.dll" />
+    <Analyzer Include="..\packages\Microsoft.CodeQuality.Analyzers.2.9.8\analyzers\dotnet\cs\Microsoft.CodeQuality.Analyzers.dll" />
+    <Analyzer Include="..\packages\Microsoft.CodeQuality.Analyzers.2.9.8\analyzers\dotnet\cs\Microsoft.CodeQuality.CSharp.Analyzers.dll" />
+    <Analyzer Include="..\packages\Microsoft.NetCore.Analyzers.2.9.8\analyzers\dotnet\cs\Microsoft.NetCore.Analyzers.dll" />
+    <Analyzer Include="..\packages\Microsoft.NetCore.Analyzers.2.9.8\analyzers\dotnet\cs\Microsoft.NetCore.CSharp.Analyzers.dll" />
+    <Analyzer Include="..\packages\Microsoft.NetFramework.Analyzers.2.9.8\analyzers\dotnet\cs\Microsoft.NetFramework.Analyzers.dll" />
+    <Analyzer Include="..\packages\Microsoft.NetFramework.Analyzers.2.9.8\analyzers\dotnet\cs\Microsoft.NetFramework.CSharp.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\autounattend.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.2.9.7\build\Microsoft.CodeAnalysis.VersionCheckAnalyzer.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.2.9.7\build\Microsoft.CodeAnalysis.VersionCheckAnalyzer.props'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.CodeQuality.Analyzers.2.9.7\build\Microsoft.CodeQuality.Analyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeQuality.Analyzers.2.9.7\build\Microsoft.CodeQuality.Analyzers.props'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.NetCore.Analyzers.2.9.7\build\Microsoft.NetCore.Analyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.NetCore.Analyzers.2.9.7\build\Microsoft.NetCore.Analyzers.props'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.NetFramework.Analyzers.2.9.7\build\Microsoft.NetFramework.Analyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.NetFramework.Analyzers.2.9.7\build\Microsoft.NetFramework.Analyzers.props'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.2.9.7\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.2.9.7\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.CodeAnalysis.Analyzers.2.9.7\build\Microsoft.CodeAnalysis.Analyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeAnalysis.Analyzers.2.9.7\build\Microsoft.CodeAnalysis.Analyzers.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.2.9.8\build\Microsoft.CodeAnalysis.VersionCheckAnalyzer.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.2.9.8\build\Microsoft.CodeAnalysis.VersionCheckAnalyzer.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.CodeQuality.Analyzers.2.9.8\build\Microsoft.CodeQuality.Analyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeQuality.Analyzers.2.9.8\build\Microsoft.CodeQuality.Analyzers.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.NetCore.Analyzers.2.9.8\build\Microsoft.NetCore.Analyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.NetCore.Analyzers.2.9.8\build\Microsoft.NetCore.Analyzers.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.NetFramework.Analyzers.2.9.8\build\Microsoft.NetFramework.Analyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.NetFramework.Analyzers.2.9.8\build\Microsoft.NetFramework.Analyzers.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.2.9.8\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.2.9.8\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props'))" />
   </Target>
 </Project>
