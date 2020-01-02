@@ -34,6 +34,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FrontEnd", "FrontEnd", "{E8
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Viridian", "Viridian", "{FDE01B7A-1B31-4A40-AE84-84ADBF054455}"
 	ProjectSection(SolutionItems) = preProject
+		Documentation\Viridian\Automatic OS Installation ISO Creation.pdf = Documentation\Viridian\Automatic OS Installation ISO Creation.pdf
 		Documentation\Viridian\OS Automatic Installation.pdf = Documentation\Viridian\OS Automatic Installation.pdf
 		Documentation\Viridian\Viridian = Documentation\Viridian\Viridian
 	EndProjectSection
