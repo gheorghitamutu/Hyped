@@ -35,6 +35,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Viridian", "Viridian", "{FDE01B7A-1B31-4A40-AE84-84ADBF054455}"
 	ProjectSection(SolutionItems) = preProject
 		Documentation\Viridian\Automatic OS Installation ISO Creation.pdf = Documentation\Viridian\Automatic OS Installation ISO Creation.pdf
+		Documentation\Viridian\Base & Aggregation Metrics for Processor Setting Data.pdf = Documentation\Viridian\Base & Aggregation Metrics for Processor Setting Data.pdf
+		Documentation\Viridian\msvm-computersystem-enabledstate-win2008.png = Documentation\Viridian\msvm-computersystem-enabledstate-win2008.png
+		Documentation\Viridian\msvm-computersystem-enabledstate-win2008r2.png = Documentation\Viridian\msvm-computersystem-enabledstate-win2008r2.png
 		Documentation\Viridian\OS Automatic Installation.pdf = Documentation\Viridian\OS Automatic Installation.pdf
 		Documentation\Viridian\Viridian = Documentation\Viridian\Viridian
 	EndProjectSection

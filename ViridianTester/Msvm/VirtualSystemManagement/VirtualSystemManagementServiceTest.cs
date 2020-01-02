@@ -149,7 +149,6 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
 
                     var RequestedInformation = (uint[])Enum.GetValues(typeof(SummaryInformation.RequestedInformation));
                     var SettingData = new ManagementPath[] { vssdCollection.First().Path };
-
                     ReturnValue = viridianUtils.VSMS.GetSummaryInformation(RequestedInformation, SettingData, out ManagementBaseObject[] SummaryInformation);
 
                     using (var summaryInformation = new SummaryInformation(SummaryInformation.First()))
@@ -216,87 +215,89 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                         var ResourceSettings = new string[] { resourceAllocationSettingDataSCSIController.LateBoundObject.GetText(TextFormat.WmiDtd20) };
                         ReturnValue = viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ManagementPath[] ResultingResourceSettings);
 
-                        var scsiController = ViridianUtils.GetResourceAllocationgSettingData(virtualSystemSettingData, 6, "Microsoft:Hyper-V:Synthetic SCSI Controller").First();
-
-                        var primordialResourcePoolDVDDrive = ViridianUtils.GetPrimordialResourcePool("Microsoft:Hyper-V:Synthetic DVD Drive");
-                        var allocationCapabilitiesDVDDrive = ViridianUtils.GetAllocationCapabilities(primordialResourcePoolDVDDrive);
-                        var resourceAllocationSettingDataDVDDrive = ViridianUtils.GetDefaultResourceAllocationSettingData(allocationCapabilitiesDVDDrive);
-
-                        resourceAllocationSettingDataDVDDrive.LateBoundObject["Parent"] = scsiController.Path;
-                        resourceAllocationSettingDataDVDDrive.LateBoundObject["AddressOnParent"] = 0;
-
-                        ResourceSettings = new string[] { resourceAllocationSettingDataDVDDrive.LateBoundObject.GetText(TextFormat.WmiDtd20) };
-                        ReturnValue = viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
-
-                        var synthethicDVD = ViridianUtils.GetResourceAllocationgSettingData(virtualSystemSettingData, 16, "Microsoft:Hyper-V:Synthetic DVD Drive").First();
-
-                        var primordialResourcePoolVirtualCDDVD = ViridianUtils.GetPrimordialResourcePool("Microsoft:Hyper-V:Virtual CD/DVD Disk");
-                        var allocationCapabilitiesVirtualCDDVD = ViridianUtils.GetAllocationCapabilities(primordialResourcePoolVirtualCDDVD);
-                        var resourceAllocationSettingVirtualCDDVD = ViridianUtils.GetDefaultStorageAllocationSettingData(allocationCapabilitiesVirtualCDDVD);
-
-                        resourceAllocationSettingVirtualCDDVD.LateBoundObject["Address"] = 0;
-                        resourceAllocationSettingVirtualCDDVD.LateBoundObject["Parent"] = synthethicDVD.Path;
-                        resourceAllocationSettingVirtualCDDVD.LateBoundObject["HostResource"] = new[] { isoName };
-
-                        ResourceSettings = new string[] { resourceAllocationSettingVirtualCDDVD.LateBoundObject.GetText(TextFormat.WmiDtd20) };
-                        ReturnValue = viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
-
-                        var primordialResourcePoolDiskDrive = ViridianUtils.GetPrimordialResourcePool("Microsoft:Hyper-V:Synthetic Disk Drive");
-                        var allocationCapabilitiesDiskDrive = ViridianUtils.GetAllocationCapabilities(primordialResourcePoolDiskDrive);
-                        var resourceAllocationSettingDataDiskDrive = ViridianUtils.GetDefaultResourceAllocationSettingData(allocationCapabilitiesDiskDrive);
-
-                        resourceAllocationSettingDataDiskDrive.LateBoundObject["Parent"] = scsiController.Path;
-                        resourceAllocationSettingDataDiskDrive.LateBoundObject["AddressOnParent"] = 1;
-
-                        ResourceSettings = new string[] { resourceAllocationSettingDataDiskDrive.LateBoundObject.GetText(TextFormat.WmiDtd20) };
-                        ReturnValue = viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
-
-                        var synthethicDiskDrive = ViridianUtils.GetResourceAllocationgSettingData(virtualSystemSettingData, 17, "Microsoft:Hyper-V:Synthetic Disk Drive").First();
-
-                        var primordialResourcePoolVirtualHardDisk = ViridianUtils.GetPrimordialResourcePool("Microsoft:Hyper-V:Virtual Hard Disk");
-                        var allocationCapabilitiesVirtualHardDisk = ViridianUtils.GetAllocationCapabilities(primordialResourcePoolVirtualHardDisk);
-                        var resourceAllocationSettingVirtualHardDisk = ViridianUtils.GetDefaultStorageAllocationSettingData(allocationCapabilitiesVirtualHardDisk);
-
-                        using (var vhdsd = VirtualHardDiskSettingData.CreateInstance())
+                        using (var scsiController = ViridianUtils.GetResourceAllocationgSettingData(virtualSystemSettingData, 6, "Microsoft:Hyper-V:Synthetic SCSI Controller").First())
                         {
-                            vhdsd.LateBoundObject["Type"] = VirtualHardDiskSettingData.TypeValues.Dynamic;
-                            vhdsd.LateBoundObject["Format"] = VirtualHardDiskSettingData.FormatValues.VHDX;
-                            vhdsd.LateBoundObject["Path"] = vhdxName;
-                            vhdsd.LateBoundObject["ParentPath"] = null;
-                            vhdsd.LateBoundObject["MaxInternalSize"] = 1024UL * 1024 * 1024 * 100;
+                            using (var primordialResourcePoolDVDDrive = ViridianUtils.GetPrimordialResourcePool("Microsoft:Hyper-V:Synthetic DVD Drive"))
+                            using (var allocationCapabilitiesDVDDrive = ViridianUtils.GetAllocationCapabilities(primordialResourcePoolDVDDrive))
+                            using (var resourceAllocationSettingDataDVDDrive = ViridianUtils.GetDefaultResourceAllocationSettingData(allocationCapabilitiesDVDDrive))
+                            {
+                                resourceAllocationSettingDataDVDDrive.LateBoundObject["Parent"] = scsiController.Path;
+                                resourceAllocationSettingDataDVDDrive.LateBoundObject["AddressOnParent"] = 0;
 
-                            var VirtualDiskSettingData = vhdsd.LateBoundObject.GetText(TextFormat.WmiDtd20);
-                            viridianUtils.IMS.CreateVirtualHardDisk(VirtualDiskSettingData, out Job);
+                                ResourceSettings = new string[] { resourceAllocationSettingDataDVDDrive.LateBoundObject.GetText(TextFormat.WmiDtd20) };
+                            }
+                            ReturnValue = viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
 
-                            ViridianUtils.WaitForStorageJobToEnd(Job);
+                            using (var synthethicDVD = ViridianUtils.GetResourceAllocationgSettingData(virtualSystemSettingData, 16, "Microsoft:Hyper-V:Synthetic DVD Drive").First())
+                            using (var primordialResourcePoolVirtualCDDVD = ViridianUtils.GetPrimordialResourcePool("Microsoft:Hyper-V:Virtual CD/DVD Disk"))
+                            using (var allocationCapabilitiesVirtualCDDVD = ViridianUtils.GetAllocationCapabilities(primordialResourcePoolVirtualCDDVD))
+                            using (var resourceAllocationSettingVirtualCDDVD = ViridianUtils.GetDefaultStorageAllocationSettingData(allocationCapabilitiesVirtualCDDVD))
+                            {
+                                resourceAllocationSettingVirtualCDDVD.LateBoundObject["Address"] = 0;
+                                resourceAllocationSettingVirtualCDDVD.LateBoundObject["Parent"] = synthethicDVD.Path;
+                                resourceAllocationSettingVirtualCDDVD.LateBoundObject["HostResource"] = new[] { isoName };
+
+                                ResourceSettings = new string[] { resourceAllocationSettingVirtualCDDVD.LateBoundObject.GetText(TextFormat.WmiDtd20) };
+                            }
+                            ReturnValue = viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
+
+                            using (var primordialResourcePoolDiskDrive = ViridianUtils.GetPrimordialResourcePool("Microsoft:Hyper-V:Synthetic Disk Drive"))
+                            using (var allocationCapabilitiesDiskDrive = ViridianUtils.GetAllocationCapabilities(primordialResourcePoolDiskDrive))
+                            using (var resourceAllocationSettingDataDiskDrive = ViridianUtils.GetDefaultResourceAllocationSettingData(allocationCapabilitiesDiskDrive))
+                            {
+                                resourceAllocationSettingDataDiskDrive.LateBoundObject["Parent"] = scsiController.Path;
+                                resourceAllocationSettingDataDiskDrive.LateBoundObject["AddressOnParent"] = 1;
+
+                                ResourceSettings = new string[] { resourceAllocationSettingDataDiskDrive.LateBoundObject.GetText(TextFormat.WmiDtd20) };
+                            }
                         }
+                        ReturnValue = viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
 
-                        resourceAllocationSettingVirtualHardDisk.LateBoundObject["Access"] = 3; // read/write
-                        resourceAllocationSettingVirtualHardDisk.LateBoundObject["Address"] = 0;
-                        resourceAllocationSettingVirtualHardDisk.LateBoundObject["Parent"] = synthethicDiskDrive.Path.Path;
-                        resourceAllocationSettingVirtualHardDisk.LateBoundObject["HostResource"] = new[] { vhdxName };
+                        using (var synthethicDiskDrive = ViridianUtils.GetResourceAllocationgSettingData(virtualSystemSettingData, 17, "Microsoft:Hyper-V:Synthetic Disk Drive").First())
+                        using (var primordialResourcePoolVirtualHardDisk = ViridianUtils.GetPrimordialResourcePool("Microsoft:Hyper-V:Virtual Hard Disk"))
+                        using (var allocationCapabilitiesVirtualHardDisk = ViridianUtils.GetAllocationCapabilities(primordialResourcePoolVirtualHardDisk))
+                        using (var resourceAllocationSettingVirtualHardDisk = ViridianUtils.GetDefaultStorageAllocationSettingData(allocationCapabilitiesVirtualHardDisk))
+                        {
+                            using (var vhdsd = VirtualHardDiskSettingData.CreateInstance())
+                            {
+                                vhdsd.LateBoundObject["Type"] = VirtualHardDiskSettingData.TypeValues.Dynamic;
+                                vhdsd.LateBoundObject["Format"] = VirtualHardDiskSettingData.FormatValues.VHDX;
+                                vhdsd.LateBoundObject["Path"] = vhdxName;
+                                vhdsd.LateBoundObject["ParentPath"] = null;
+                                vhdsd.LateBoundObject["MaxInternalSize"] = 1024UL * 1024 * 1024 * 100;
 
-                        ResourceSettings = new string[] { resourceAllocationSettingVirtualHardDisk.LateBoundObject.GetText(TextFormat.WmiDtd20) };
+                                var VirtualDiskSettingData = vhdsd.LateBoundObject.GetText(TextFormat.WmiDtd20);
+                                viridianUtils.IMS.CreateVirtualHardDisk(VirtualDiskSettingData, out Job);
+
+                                ViridianUtils.WaitForStorageJobToEnd(Job);
+                            }
+
+                            resourceAllocationSettingVirtualHardDisk.LateBoundObject["Access"] = 3; // read/write
+                            resourceAllocationSettingVirtualHardDisk.LateBoundObject["Address"] = 0;
+                            resourceAllocationSettingVirtualHardDisk.LateBoundObject["Parent"] = synthethicDiskDrive.Path.Path;
+                            resourceAllocationSettingVirtualHardDisk.LateBoundObject["HostResource"] = new[] { vhdxName };
+
+                            ResourceSettings = new string[] { resourceAllocationSettingVirtualHardDisk.LateBoundObject.GetText(TextFormat.WmiDtd20) };
+                        }
                         ReturnValue = viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
 
                         ReturnValue = computerSystem.RequestStateChange(2, null, out Job);
 
                         ViridianUtils.WaitForConcreteJobToEnd(Job);
 
-                        var guestServiceInterfaceComponentSettingData = ViridianUtils.GetGuestServiceInterfaceComponentSettingData(virtualSystemSettingData);
+                        using (var guestServiceInterfaceComponentSettingData = ViridianUtils.GetGuestServiceInterfaceComponentSettingData(virtualSystemSettingData))
+                        {
+                            guestServiceInterfaceComponentSettingData.LateBoundObject["EnabledState"] = GuestServiceInterfaceComponentSettingData.EnabledStateValues.Enabled;
 
-                        guestServiceInterfaceComponentSettingData.LateBoundObject["EnabledState"] = GuestServiceInterfaceComponentSettingData.EnabledStateValues.Enabled;
-
-                        var GuestServiceSettings = new string[1] { guestServiceInterfaceComponentSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20) };
-                        ReturnValue = viridianUtils.VSMS.ModifyGuestServiceSettings(GuestServiceSettings, out Job, out ManagementPath[] ResultingGuestServices);
+                            var GuestServiceSettings = new string[1] { guestServiceInterfaceComponentSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20) };
+                            ReturnValue = viridianUtils.VSMS.ModifyGuestServiceSettings(GuestServiceSettings, out Job, out ManagementPath[] ResultingGuestServices);
+                        }
                     }
 
                     ViridianUtils.WaitForConcreteJobToEnd(Job);
 
-                    var guestServiceInterfaceComponent = ViridianUtils.GetGuestServiceInterfaceComponent(computerSystem);
-
-                    var guestFileService = ViridianUtils.GetGuestFileService(guestServiceInterfaceComponent);
-
+                    using (var guestServiceInterfaceComponent = ViridianUtils.GetGuestServiceInterfaceComponent(computerSystem))
+                    using (var guestFileService = ViridianUtils.GetGuestFileService(guestServiceInterfaceComponent))
                     using (var copyFileToGuestSettingData = CopyFileToGuestSettingData.CreateInstance())
                     {
                         copyFileToGuestSettingData.DestinationPath = @"C:\finished";
