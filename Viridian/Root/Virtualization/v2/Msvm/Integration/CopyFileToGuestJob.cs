@@ -7,7 +7,7 @@ namespace Viridian.Root.Virtualization.v2.Msvm.Integration
 {
     public class CopyFileToGuestJob : MsvmBase
     {
-        public static string ClassName => $"Msvm_{nameof(GuestService)}";
+        public static string ClassName => $"Msvm_{nameof(CopyFileToGuestJob)}";
 
         // Below are different overloads of constructors to initialize an instance of the class with a WMI object.
         public CopyFileToGuestJob() : base(ClassName) { }

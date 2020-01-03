@@ -769,13 +769,13 @@ namespace Viridian.Root.Virtualization.v2.Msvm.VirtualSystemManagement
             }
         }
 
-        public uint Modify__DiskMergeSettings(string SettingData, out ManagementPath Job)
+        public uint ModifyDiskMergeSettings(string SettingData, out ManagementPath Job)
         {
             if (IsEmbedded == false)
             {
-                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("Modify__DiskMergeSettings");
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("ModifyDiskMergeSettings");
                 inParams["SettingData"] = SettingData;
-                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("Modify__DiskMergeSettings", inParams, null);
+                ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("ModifyDiskMergeSettings", inParams, null);
                 Job = null;
                 if (outParams.Properties["Job"] != null)
                 {

@@ -28,29 +28,11 @@ namespace Viridian.Root.Virtualization.v2.Msvm.Processor
 
         public ProcessorSettingData(ManagementBaseObject theObject) : base(theObject, ClassName) { }
 
-        public string Address
-        {
-            get
-            {
-                return (string)LateBoundObject[nameof(Address)];
-            }
-        }
+        public string Address => (string)LateBoundObject[nameof(Address)];
 
-        public string AddressOnParent
-        {
-            get
-            {
-                return (string)LateBoundObject[nameof(AddressOnParent)];
-            }
-        }
+        public string AddressOnParent => (string)LateBoundObject[nameof(AddressOnParent)];
 
-        public string AllocationUnits
-        {
-            get
-            {
-                return (string)LateBoundObject[nameof(AllocationUnits)];
-            }
-        }
+        public string AllocationUnits => (string)LateBoundObject[nameof(AllocationUnits)];
 
         public bool AutomaticAllocation
         {
@@ -76,21 +58,9 @@ namespace Viridian.Root.Virtualization.v2.Msvm.Processor
             }
         }
 
-        public string Caption
-        {
-            get
-            {
-                return (string)LateBoundObject[nameof(Caption)];
-            }
-        }
+        public string Caption => (string)LateBoundObject[nameof(Caption)];
 
-        public string[] Connection
-        {
-            get
-            {
-                return (string[])LateBoundObject[nameof(Connection)];
-            }
-        }
+        public string[] Connection => (string[])LateBoundObject[nameof(Connection)];
 
         public ushort ConsumerVisibility
         {
@@ -108,21 +78,9 @@ namespace Viridian.Root.Virtualization.v2.Msvm.Processor
          * The Cpu Group Id this VM is bound to.
          * When value is 0 it means is not bound to a specific cpu group. 
          */
-        public string CpuGroupId
-        {
-            get
-            {
-                return (string)LateBoundObject[nameof(CpuGroupId)];
-            }
-        }
+        public string CpuGroupId => (string)LateBoundObject[nameof(CpuGroupId)];
 
-        public string Description
-        {
-            get
-            {
-                return (string)LateBoundObject[nameof(Description)];
-            }
-        }
+        public string Description => (string)LateBoundObject[nameof(Description)];
 
         /*
          * Indicates whether the protections for speculative execution should be disabled for the virtual processors.

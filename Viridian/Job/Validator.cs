@@ -102,7 +102,7 @@ namespace Viridian.Job
 
         public static bool IsJobEnded(object jobStateObj)
         {
-            var jobState = (JobState)((ushort)jobStateObj);
+            var jobState = (JobState)(ushort)jobStateObj;
 
             return
                 jobState == JobState.Completed ||
@@ -114,7 +114,7 @@ namespace Viridian.Job
 
         public static bool IsJobSuccessful(object jobStateObj)
         {
-            var jobState = (JobState)((ushort)jobStateObj);
+            var jobState = (JobState)(ushort)jobStateObj;
 
             return (jobState == JobState.Completed) || (jobState == JobState.CompletedWithWarnings);
         }

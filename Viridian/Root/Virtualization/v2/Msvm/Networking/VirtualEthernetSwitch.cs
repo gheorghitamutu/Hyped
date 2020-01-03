@@ -278,10 +278,9 @@ namespace Viridian.Root.Virtualization.v2.Msvm.Networking
         {
             if (IsEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("RequestStateChange");
-                inParams[nameof(RequestedState)] = (ushort)RequestedState;
-                inParams["TimeoutPeriod"] = ToDmtfDateTime((DateTime)TimeoutPeriod);
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("RequestStateChange");
+                inParams[nameof(RequestedState)] = RequestedState;
+                inParams["TimeoutPeriod"] = ToDmtfDateTime(TimeoutPeriod);
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("RequestStateChange", inParams, null);
                 Job = null;
                 if (outParams.Properties["Job"] != null)
@@ -301,10 +300,9 @@ namespace Viridian.Root.Virtualization.v2.Msvm.Networking
         {
             if (IsEmbedded == false)
             {
-                ManagementBaseObject inParams = null;
-                inParams = PrivateLateBoundObject.GetMethodParameters("SetPowerState");
-                inParams["PowerState"] = (uint)PowerState;
-                inParams["Time"] = ToDmtfDateTime((DateTime)Time);
+                ManagementBaseObject inParams = PrivateLateBoundObject.GetMethodParameters("SetPowerState");
+                inParams["PowerState"] = PowerState;
+                inParams["Time"] = ToDmtfDateTime(Time);
                 ManagementBaseObject outParams = PrivateLateBoundObject.InvokeMethod("SetPowerState", inParams, null);
                 return Convert.ToUInt32(outParams.Properties["ReturnValue"].Value);
             }

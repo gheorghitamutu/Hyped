@@ -574,7 +574,7 @@ namespace Viridian.Root.Microsoft.Windows.System
         {
             if (disposing)
             {
-                PrivateLateBoundObject.Dispose();
+                PrivateLateBoundObject?.Dispose();
             }
         }
 

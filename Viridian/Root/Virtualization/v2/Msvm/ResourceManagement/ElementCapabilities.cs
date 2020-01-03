@@ -39,7 +39,7 @@ namespace Viridian.Root.Virtualization.v2.Msvm.ResourceManagement
             }
         }
 
-        public ushort[] Characteristics => ((ushort[])(LateBoundObject[nameof(Characteristics)]));
+        public ushort[] Characteristics => (ushort[])LateBoundObject[nameof(Characteristics)];
 
         public ManagementPath ManagedElement
         {
