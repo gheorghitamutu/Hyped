@@ -21,10 +21,25 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackEndAPI", "BackEnd\BackEndAPI\BackEndAPI.csproj", "{678D9448-B56D-40CA-B21B-34B38EF42290}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{AA315399-0D78-406D-8EC7-9F7C9473765F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Backend", "Backend", "{DB13622D-5B08-463E-A8B6-5E5B5F3DABE4}"
 	ProjectSection(SolutionItems) = preProject
-		Documentation\BackEnd = Documentation\BackEnd
-		Documentation\FrontEnd = Documentation\FrontEnd
-		Documentation\Viridian = Documentation\Viridian
+		Documentation\Backend\BackEnd = Documentation\Backend\BackEnd
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FrontEnd", "FrontEnd", "{E8FEDB6F-5C0F-44DE-B1F6-72FBDC22D74A}"
+	ProjectSection(SolutionItems) = preProject
+		Documentation\FrontEnd\FrontEnd = Documentation\FrontEnd\FrontEnd
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Viridian", "Viridian", "{FDE01B7A-1B31-4A40-AE84-84ADBF054455}"
+	ProjectSection(SolutionItems) = preProject
+		Documentation\Viridian\Automatic OS Installation ISO Creation.pdf = Documentation\Viridian\Automatic OS Installation ISO Creation.pdf
+		Documentation\Viridian\Base & Aggregation Metrics for Processor Setting Data.pdf = Documentation\Viridian\Base & Aggregation Metrics for Processor Setting Data.pdf
+		Documentation\Viridian\msvm-computersystem-enabledstate-win2008.png = Documentation\Viridian\msvm-computersystem-enabledstate-win2008.png
+		Documentation\Viridian\msvm-computersystem-enabledstate-win2008r2.png = Documentation\Viridian\msvm-computersystem-enabledstate-win2008r2.png
+		Documentation\Viridian\OS Automatic Installation.pdf = Documentation\Viridian\OS Automatic Installation.pdf
+		Documentation\Viridian\Viridian = Documentation\Viridian\Viridian
 	EndProjectSection
 EndProject
 Global
@@ -52,6 +67,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DB13622D-5B08-463E-A8B6-5E5B5F3DABE4} = {AA315399-0D78-406D-8EC7-9F7C9473765F}
+		{E8FEDB6F-5C0F-44DE-B1F6-72FBDC22D74A} = {AA315399-0D78-406D-8EC7-9F7C9473765F}
+		{FDE01B7A-1B31-4A40-AE84-84ADBF054455} = {AA315399-0D78-406D-8EC7-9F7C9473765F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D5662AB2-6F18-4CA8-AB41-9A9400DA7E41}
