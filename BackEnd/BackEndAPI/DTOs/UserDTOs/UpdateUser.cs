@@ -18,7 +18,6 @@ namespace BackEndAPI.DTOs.UserDTOs
         public string PositionTitle { get; set; }
         public string ContactNumber { get; set; }
 
-        public virtual ICollection<VM> VMS { get; set; }
 
     }
 }

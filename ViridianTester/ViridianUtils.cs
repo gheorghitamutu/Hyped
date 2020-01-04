@@ -253,12 +253,12 @@ namespace ViridianTester
                     .ToList();
         }
 
-        public void SUT_VirtualEthernetSwitchSettingDataMO(string ElementName, out uint ReturnValue, out ManagementPath Job, out ManagementPath ResultingSystem)
+        public void SUT_VirtualEthernetSwitchSettingDataMO(string ElementName,string Notes, out uint ReturnValue, out ManagementPath Job, out ManagementPath ResultingSystem)
         {
             using (var virtualEthernetSwitchSettingData = VirtualEthernetSwitchSettingData.CreateInstance())
             {
                 virtualEthernetSwitchSettingData.LateBoundObject["ElementName"] = ElementName;
-                virtualEthernetSwitchSettingData.LateBoundObject["Notes"] = new string[] { ElementName };
+                virtualEthernetSwitchSettingData.LateBoundObject["Notes"] = new string[] { Notes };
 
                 ManagementPath ReferenceConfiguration = null;
                 var SystemSettings = virtualEthernetSwitchSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20);

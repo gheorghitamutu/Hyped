@@ -23,6 +23,7 @@ namespace ViridianTester.Msvm.Networking
             {
                 viridianUtils.SUT_VirtualEthernetSwitchSettingDataMO(
                     ViridianUtils.GetCurrentMethod(),
+                    "notes",
                     out uint ReturnValue,
                     out ManagementPath Job,
                     out ManagementPath ResultingSystem);

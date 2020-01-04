@@ -1,6 +1,7 @@
 ﻿using BackEndAPI.Data;
 using BackEndAPI.DTOs.UserDTOs;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ namespace BackEndAPI.Controllers
 {
     [Route("api/users")]
     [ApiController]
+    //[Authorize]
     public class UsersController : ControllerBase
     {
         private readonly IMediator mediator;
@@ -62,6 +64,7 @@ namespace BackEndAPI.Controllers
         }
 
         [HttpPost("login")]
+        [AllowAnonymous]
         public async Task<ActionResult<User>> Get([FromBody]ValidateUserLogin request)
         {
             var user = await mediator.Send(request);
