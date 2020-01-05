@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BackEndAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20191229123632_initial_migration")]
+    [Migration("20200105102946_initial_migration")]
     partial class initial_migration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -171,17 +171,11 @@ namespace BackEndAPI.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Processors")
-                        .HasColumnType("int");
-
                     b.Property<int>("RAM")
                         .HasColumnType("int");
 
                     b.Property<string>("RealID")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Threads")
-                        .HasColumnType("int");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");

@@ -42,7 +42,7 @@ namespace BackEndAPI.Business.VMHandlers
             }
             
 
-            reqVm.Update(reqVm.RealID, reqVm.Name, reqVm.Configuration, reqVm.LastSave, reqVM_networks, reqVm.RAM, reqVm.Cores, reqVm.Threads, reqVm.Processors,reqVM_scs);
+            reqVm.Update(reqVm.RealID, reqVm.Name, reqVm.Configuration, reqVm.LastSave, reqVM_networks, reqVm.RAM, reqVm.Cores,reqVM_scs);
             await context.SaveChangesAsync(cancellationToken);
 
             return reqVm;   

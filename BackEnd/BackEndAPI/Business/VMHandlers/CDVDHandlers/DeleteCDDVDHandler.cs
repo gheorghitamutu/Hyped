@@ -3,7 +3,6 @@ using BackEndAPI.DTOs.VMDTOs.CDVDDTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -27,11 +26,7 @@ namespace BackEndAPI.Business.VMHandlers.CDVDHandlers
         public async Task<Unit> Handle(DeleteCDVD request, CancellationToken cancellationToken)
         {
             //sterge un CDDVD dupa cddvd.InstanceID
-            var vm = await context.VMs.SingleOrDefaultAsync(v => v.VMId == request.VMId);
-            if(vm==null)
-            {
-                throw new Exception("Requested virtual machine could not be found!");
-            }
+            
             var cddvd = await context.CDVDs.SingleOrDefaultAsync(c => c.CDDVDId == request.CDDVDId);
             if (cddvd == null)
             {
@@ -41,6 +36,11 @@ namespace BackEndAPI.Business.VMHandlers.CDVDHandlers
             if(sc==null)
             {
                 throw new Exception("Could not find the SCSI Controller of this CDDVD!");
+            }
+            var vm = await context.VMs.SingleOrDefaultAsync(v => v.VMId == sc.VMId);
+            if(vm==null)
+            {
+                throw new Exception("Requested virtual machine could not be found!");
             }
 
             var viridianUtils = new ViridianUtils();

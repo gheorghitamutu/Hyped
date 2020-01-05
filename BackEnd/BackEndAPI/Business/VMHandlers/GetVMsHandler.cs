@@ -39,7 +39,7 @@ namespace BackEndAPI.Business.VMHandlers
                     await context.SaveChangesAsync(cancellationToken);
                 }                
 
-                vm.Update(vm.RealID, vm.Name, vm.Configuration, vm.LastSave, vm_networks, vm.RAM, vm.Cores, vm.Threads, vm.Processors, vm_scs);
+                vm.Update(vm.RealID, vm.Name, vm.Configuration, vm.LastSave, vm_networks, vm.RAM, vm.Cores,vm_scs);
                 await context.SaveChangesAsync(cancellationToken);
             }
             return vms;

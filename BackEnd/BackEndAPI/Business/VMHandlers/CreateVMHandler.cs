@@ -4,7 +4,6 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
-using System.Globalization;
 using System.Linq;
 using System.Management;
 using System.Threading;
@@ -12,7 +11,6 @@ using System.Threading.Tasks;
 using Viridian.Root.Virtualization.v2.Msvm.Memory;
 using Viridian.Root.Virtualization.v2.Msvm.Processor;
 using Viridian.Root.Virtualization.v2.Msvm.VirtualSystem;
-using Viridian.Root.Virtualization.v2.Msvm.VirtualSystemManagement;
 using ViridianTester;
 
 namespace BackEndAPI.Business.VMHandlers
@@ -123,20 +121,16 @@ namespace BackEndAPI.Business.VMHandlers
 
 
             //create snapshot file
-            //fisierul snapshot.json e gol!!!!???
             ViridianUtils.WaitForConcreteJobToEnd(Job);
             var sovsCollection = ViridianUtils.GetSnapshotOfVirtualSystemList(computerSystem);
             var mcsibCollection = ViridianUtils.GetMostCurrentSnapshotInBranchList(computerSystem);
-
+           
             var snapshot_file = JsonConvert.SerializeObject(mcsibCollection);//convert the snapshot properties to json
             string this_snapshot_filename = System.IO.Path.Combine(this_vm_directory, "snapshot.json");
             System.IO.File.WriteAllText(this_snapshot_filename, snapshot_file);
 
 
-
-
-
-            var vm = VM.Create(computerSystem.Name, computerSystem.ElementName, this_configuration_filename, this_snapshot_filename, vmRAM,request.Processors,vmCores,request.Threads, user.UserId);
+            var vm = VM.Create(computerSystem.Name, computerSystem.ElementName, this_configuration_filename, this_snapshot_filename, vmRAM,vmCores, user.UserId);
             context.VMs.Add(vm);
 
             await context.SaveChangesAsync(cancellationToken);

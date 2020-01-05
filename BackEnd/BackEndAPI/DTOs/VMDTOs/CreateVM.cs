@@ -9,8 +9,6 @@ namespace BackEndAPI.DTOs.VMDTOs
         public Guid UserId { get; set; }
         public string Name { get; set; }
         public int RAM { get; set; }
-        public int Processors { get; set; }
         public int Cores { get; set; }
-        public int Threads { get; set; }
     }
 }

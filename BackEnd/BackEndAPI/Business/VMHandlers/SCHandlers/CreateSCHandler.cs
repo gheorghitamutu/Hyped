@@ -3,14 +3,11 @@ using BackEndAPI.DTOs.VMDTOs.SCDTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Management;
 using System.Threading;
 using System.Threading.Tasks;
-using Viridian.Root.Virtualization.v2.Msvm.ResourceManagement;
 using Viridian.Root.Virtualization.v2.Msvm.VirtualSystem;
 using Viridian.Root.Virtualization.v2.Msvm.VirtualSystemManagement;
 using ViridianTester;
@@ -55,7 +52,7 @@ namespace BackEndAPI.Business.VMHandlers.SCHandlers
 
             var rasdCollection = ViridianUtils.GetResourceAllocationgSettingData(virtualSystemSettingData, 6, "Microsoft:Hyper-V:Synthetic SCSI Controller");
             
-            var sc = SC.Create("SCSI Controller",rasdCollection.LastOrDefault().InstanceID,request.VMId);
+            var sc = SC.Create(rasdCollection.LastOrDefault().ElementName,rasdCollection.LastOrDefault().InstanceID,request.VMId);
             context.SCs.Add(sc);
 
             await context.SaveChangesAsync(cancellationToken);

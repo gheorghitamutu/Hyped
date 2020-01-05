@@ -38,8 +38,6 @@ namespace BackEndAPI.Migrations
                     LastSave = table.Column<string>(nullable: true),
                     RAM = table.Column<int>(nullable: false),
                     Cores = table.Column<int>(nullable: false),
-                    Threads = table.Column<int>(nullable: false),
-                    Processors = table.Column<int>(nullable: false),
                     UserId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace BackEndAPI.Data
-{//TODO: get rid of threads and cores
+{
     public class VM
     {
         [Key]
@@ -15,12 +15,10 @@ namespace BackEndAPI.Data
         public virtual ICollection<Network> Networks { get; private set; }
         public int RAM { get; private set; }
         public int Cores { get; private set; }
-        public int Threads { get; private set; }
-        public int Processors { get; private set; }
         public virtual ICollection<SC> SCs { get; private set; }
         public Guid UserId { get; private set; }
 
-        public static VM Create(string realid,string name,string configuration,string lastsave,int ram, int processors,int cores,int threads, Guid userId)
+        public static VM Create(string realid,string name,string configuration,string lastsave,int ram, int cores, Guid userId)
         {
             return new VM
             {
@@ -31,13 +29,11 @@ namespace BackEndAPI.Data
                 LastSave = lastsave,
                 RAM = ram,
                 Cores=cores,
-                Threads=threads,
-                Processors=processors,
                 UserId = userId
             };
         }
 
-        public void Update(string realid, string name, string configuration, string lastsave,ICollection<Network> networks,int ram,int cores,int threads,int processors,ICollection<SC> scs)
+        public void Update(string realid, string name, string configuration, string lastsave,ICollection<Network> networks,int ram,int cores,ICollection<SC> scs)
         {
             RealID = realid;
             Name = name;
@@ -46,8 +42,6 @@ namespace BackEndAPI.Data
             Networks = networks;
             RAM = ram;
             Cores = cores;
-            Threads = threads;
-            Processors = processors;
             SCs = scs;
         }
     }

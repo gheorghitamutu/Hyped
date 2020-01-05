@@ -169,17 +169,11 @@ namespace BackEndAPI.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Processors")
-                        .HasColumnType("int");
-
                     b.Property<int>("RAM")
                         .HasColumnType("int");
 
                     b.Property<string>("RealID")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Threads")
-                        .HasColumnType("int");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");

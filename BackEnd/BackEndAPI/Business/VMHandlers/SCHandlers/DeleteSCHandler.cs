@@ -3,7 +3,6 @@ using BackEndAPI.DTOs.VMDTOs.SCDTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Management;
@@ -27,15 +26,16 @@ namespace BackEndAPI.Business.VMHandlers.SCHandlers
         public async Task<Unit> Handle(DeleteSC request, CancellationToken cancellationToken)
         {
             //sterge un SCSI Controller care se poate gasi dupa sc.InstanceID
-            var vm = await context.VMs.SingleOrDefaultAsync(v => v.VMId == request.VMId);
-            if(vm==null)
-            {
-                throw new Exception("Requested virtual machine doesn't exist!");
-            }
+            
             var sc = await context.SCs.SingleOrDefaultAsync(u => u.SCId == request.SCId);
             if (sc == null)
             {
                 throw new Exception("This SCSI Contorller doesn't exist!");
+            }
+            var vm = await context.VMs.SingleOrDefaultAsync(v => v.VMId == sc.VMId);
+            if(vm==null)
+            {
+                throw new Exception("Requested virtual machine doesn't exist!");
             }
 
             var vhds = await context.VHDs.ToListAsync();

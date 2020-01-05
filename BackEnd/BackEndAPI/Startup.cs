@@ -44,8 +44,8 @@ namespace BackEndAPI
             });
             /*
             var appSettingsSection = Configuration.GetSection("AppSettings");
-            services.Configure < KeySettings > (appSettingsSection);
-            var appSettings = appSettingsSection.Get<KeySettings>();
+            services.Configure < AppSettings > (appSettingsSection);
+            var appSettings = appSettingsSection.Get<AppSettings>();
             var key = Encoding.ASCII.GetBytes(appSettings.SecretKey);
             services.AddAuthentication(x=>
             {
@@ -62,7 +62,7 @@ namespace BackEndAPI
                           ValidateAudience=false
                         };
                      });
-            services.AddScoped<IUserService, UserService>();
+            
             */
             services.AddControllers();
             services.AddSwaggerGen(c =>

@@ -1,7 +1,6 @@
 ﻿using BackEndAPI.Data;
 using MediatR;
 using System;
-using System.Collections.Generic;
 
 namespace BackEndAPI.DTOs.UserDTOs
 {
