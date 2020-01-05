@@ -3,6 +3,7 @@ using BackEndAPI.DTOs.VMDTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -26,7 +27,7 @@ namespace BackEndAPI.Business.VMHandlers.CDVDHandlers
         public async Task<CDDVD> Handle(CreateCDVD request, CancellationToken cancellationToken)
         {
             //creeaza un CDDVD si il ataseaza unui SCSI Controller deja existent care se poate gasi dupa sc.InstanceID
-            //linia 70 eroare
+       
             
             var sc = await context.SCs.SingleOrDefaultAsync(u => u.SCId == request.SCId);
             if (sc == null)
@@ -48,17 +49,9 @@ namespace BackEndAPI.Business.VMHandlers.CDVDHandlers
                         .First();
 
             var isoName = $"{"Resources"}\\{vm.RealID}\\{vm.RealID}.iso";
-            /*var primordialResourcePoolSCSI = ViridianUtils.GetPrimordialResourcePool("Microsoft:Hyper-V:Synthetic SCSI Controller");
-            var allocationCapabilitiesSCSIController = ViridianUtils.GetAllocationCapabilities(primordialResourcePoolSCSI);
-            var resourceAllocationSettingDataSCSIController = ViridianUtils.GetDefaultResourceAllocationSettingData(allocationCapabilitiesSCSIController);
-
-            
-            var ResourceSettings = new string[] { resourceAllocationSettingDataSCSIController.LateBoundObject.GetText(TextFormat.WmiDtd20) };
-            var ReturnValue = viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out ManagementPath Job, out ManagementPath[] ResultingResourceSettings);
-            */
-            
+        
             var AffectedConfiguration = virtualSystemSettingData.Path;
-            var scsiController = ViridianUtils.GetResourceAllocationgSettingData(virtualSystemSettingData, 6, "Microsoft:Hyper-V:Synthetic SCSI Controller").Where(s => s.InstanceID == sc.InstanceId).FirstOrDefault();
+            var scsiController = ViridianUtils.GetResourceAllocationgSettingData(virtualSystemSettingData, 6, "Microsoft:Hyper-V:Synthetic SCSI Controller").Where(s => s.InstanceID == sc.InstanceId).First(); 
             var primordialResourcePoolDVDDrive = ViridianUtils.GetPrimordialResourcePool("Microsoft:Hyper-V:Synthetic DVD Drive");
             var allocationCapabilitiesDVDDrive = ViridianUtils.GetAllocationCapabilities(primordialResourcePoolDVDDrive);
             var resourceAllocationSettingDataDVDDrive = ViridianUtils.GetDefaultResourceAllocationSettingData(allocationCapabilitiesDVDDrive);
@@ -68,23 +61,25 @@ namespace BackEndAPI.Business.VMHandlers.CDVDHandlers
 
             var ResourceSettings = new string[] { resourceAllocationSettingDataDVDDrive.LateBoundObject.GetText(TextFormat.WmiDtd20) };
 
-            var ReturnValue=viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out ManagementPath Job, out ManagementPath[] ResultingResourceSettings);//Object reference not set to an instance of an object!!!.
+            var ReturnValue=viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out ManagementPath Job, out ManagementPath[] ResultingResourceSettings);
 
             var synthethicDVD = ViridianUtils.GetResourceAllocationgSettingData(virtualSystemSettingData, 16, "Microsoft:Hyper-V:Synthetic DVD Drive").First();
             var primordialResourcePoolVirtualCDDVD = ViridianUtils.GetPrimordialResourcePool("Microsoft:Hyper-V:Virtual CD/DVD Disk");
             var allocationCapabilitiesVirtualCDDVD = ViridianUtils.GetAllocationCapabilities(primordialResourcePoolVirtualCDDVD);
             var resourceAllocationSettingVirtualCDDVD = ViridianUtils.GetDefaultStorageAllocationSettingData(allocationCapabilitiesVirtualCDDVD);
+
+            Directory.CreateDirectory(Path.GetDirectoryName(isoName)); // make sure you create the directory if it's missing
             var isoFile = File.Create(isoName);
 
             isoFile.Close();
 
             resourceAllocationSettingVirtualCDDVD.LateBoundObject["Address"] = 0;
             resourceAllocationSettingVirtualCDDVD.LateBoundObject["Parent"] = synthethicDVD.Path;
-            resourceAllocationSettingVirtualCDDVD.LateBoundObject["HostResource"] = new[] { isoName };
+            resourceAllocationSettingVirtualCDDVD.LateBoundObject["HostResource"] = new[] { Path.GetFullPath(isoName) };
 
             ResourceSettings = new string[] { resourceAllocationSettingVirtualCDDVD.LateBoundObject.GetText(TextFormat.WmiDtd20) };
-            ReturnValue=viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);//!!!object reference not set to an instance of an object
-
+            ReturnValue = viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
+            
             var virtualCDDVDCollection =
                               ViridianUtils.GetStorageAllocationSettingDataList(virtualSystemSettingData, 31, "Microsoft:Hyper-V:Virtual CD/DVD Disk")
                                   .Where((sasd) => string.Compare(sasd.Caption, "ISO Disk Image", true, CultureInfo.InvariantCulture) == 0)

@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Linq;
 using System.Management;
 using System.Threading;
+using System.IO;
 using System.Threading.Tasks;
 using Viridian.Root.Microsoft.Windows.Storage.MSFT;
 using Viridian.Root.Virtualization.v2.Msvm.Storage;
@@ -29,7 +30,7 @@ namespace BackEndAPI.Business.VMHandlers
         public async Task<VHD> Handle(CreateVHD request, CancellationToken cancellationToken)
         {
             //creeaza un VHD folosind request.Name, request.Size atasandu-l unui SCSI Controller deja existent care se poate gasi dupa sc.InstanceID
-            //linia 73 eroare
+            
             var sc = await context.SCs.SingleOrDefaultAsync(u => u.SCId == request.SCId);//SCSI Controller
             if (sc== null)
             {
@@ -70,18 +71,20 @@ namespace BackEndAPI.Business.VMHandlers
             resourceAllocationSettingDataDiskDrive.LateBoundObject["AddressOnParent"] = 0;
 
             var ResourceSettings = new string[] { resourceAllocationSettingDataDiskDrive.LateBoundObject.GetText(TextFormat.WmiDtd20) };
-            var ReturnValue = viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out ManagementPath Job, out ManagementPath[] ResultingResourceSettings); //Object reference not set to an instance of an object!!!!!!!!!!!!!!
+            var ReturnValue = viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out ManagementPath Job, out ManagementPath[] ResultingResourceSettings);
 
             var synthethicDiskDrive = ViridianUtils.GetResourceAllocationgSettingData(virtualSystemSettingData, 17, "Microsoft:Hyper-V:Synthetic Disk Drive").First();
             var primordialResourcePoolVirtualHardDisk = ViridianUtils.GetPrimordialResourcePool("Microsoft:Hyper-V:Virtual Hard Disk");
             var allocationCapabilitiesVirtualHardDisk = ViridianUtils.GetAllocationCapabilities(primordialResourcePoolVirtualHardDisk);
             var resourceAllocationSettingVirtualHardDisk = ViridianUtils.GetDefaultStorageAllocationSettingData(allocationCapabilitiesVirtualHardDisk);
-
+            
             using (var vhdsd = VirtualHardDiskSettingData.CreateInstance()) // operations on the host
             {
+                vhdxName = System.IO.Path.GetFullPath(vhdxName);
+
                 vhdsd.LateBoundObject["Type"] = VirtualHardDiskSettingData.TypeValues.Dynamic;
                 vhdsd.LateBoundObject["Format"] = VirtualHardDiskSettingData.FormatValues.VHDX;
-                vhdsd.LateBoundObject["Path"] = vhdxName;
+                vhdsd.LateBoundObject["Path"] = vhdxName; 
                 vhdsd.LateBoundObject["ParentPath"] = null;
                 vhdsd.LateBoundObject["MaxInternalSize"] = 1024 * 1024 * 1024;
 
@@ -89,6 +92,13 @@ namespace BackEndAPI.Business.VMHandlers
                 viridianUtils.IMS.CreateVirtualHardDisk(VirtualDiskSettingData, out Job);
 
                 ViridianUtils.WaitForStorageJobToEnd(Job);
+
+                using(var StorageJob = new StorageJob(Job))
+                {
+                    var a = StorageJob.ErrorCode;
+                    var b = StorageJob.ErrorDescription;
+                    var c = StorageJob.ErrorSummaryDescription;
+                }
 
                 var AssignDriveLetter = false;
                 var Path = vhdxName;
@@ -166,7 +176,7 @@ namespace BackEndAPI.Business.VMHandlers
                             .ToList()
                             .First())
                     {
-                        uint AllocationUnitSize = Convert.ToUInt32(request.Size);//4096
+                        uint AllocationUnitSize = 4096;
                         bool Compress = true;
                         bool DisableHeatGathering = false;
                         string FileSystem = "NTFS";
@@ -212,7 +222,7 @@ namespace BackEndAPI.Business.VMHandlers
                 resourceAllocationSettingVirtualHardDisk.LateBoundObject["Access"] = 3; // read/write
                 resourceAllocationSettingVirtualHardDisk.LateBoundObject["Address"] = 0;
                 resourceAllocationSettingVirtualHardDisk.LateBoundObject["Parent"] = synthethicDiskDrive.Path.Path;
-                resourceAllocationSettingVirtualHardDisk.LateBoundObject["HostResource"] = new[] { vhdxName };
+                resourceAllocationSettingVirtualHardDisk.LateBoundObject["HostResource"] = new[] { System.IO.Path.GetFullPath(vhdxName) };
 
                 ResourceSettings = new string[] { resourceAllocationSettingVirtualHardDisk.LateBoundObject.GetText(TextFormat.WmiDtd20) };
             }
@@ -224,7 +234,7 @@ namespace BackEndAPI.Business.VMHandlers
                                     .Where((sasd) => string.Compare(sasd.Caption, "Hard Disk Image", true, CultureInfo.InvariantCulture) == 0)
                                     .ToList();
             var latestVHD = virtualHardDiskCollection.LastOrDefault();
-            var vhd = VHD.Create(sc.SCId,latestVHD.ElementName,latestVHD.InstanceID,vhdxName, Convert.ToInt32(latestVHD.VirtualQuantity));
+            var vhd = VHD.Create(sc.SCId,latestVHD.ElementName,latestVHD.InstanceID,vhdxName, request.Size);
             context.VHDs.Add(vhd);
 
             await context.SaveChangesAsync(cancellationToken);

@@ -44,7 +44,6 @@ namespace BackEndAPI.Business.VMHandlers.SCHandlers
             var allocationCapabilities = ViridianUtils.GetAllocationCapabilities(primordialResourcePool);
             var resourceAllocationSettingData = ViridianUtils.GetDefaultResourceAllocationSettingData(allocationCapabilities);
 
-           //var virtualSystemSettingData = ViridianUtils.GetVirtualSystemSettingDataListThroughSettingsDefineState(computerSystem).First();
             
                 var AffectedConfiguration = virtualSystemSettingData.Path;
                 var ResourceSettings = new string[] { resourceAllocationSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20) };

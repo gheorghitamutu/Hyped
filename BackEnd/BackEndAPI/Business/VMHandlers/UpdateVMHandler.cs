@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Management;
@@ -25,7 +26,7 @@ namespace BackEndAPI.Business.VMHandlers
         }
 
         public async Task<VM> Handle(UpdateVM request, CancellationToken cancellationToken)
-        {//TODO: update virtual machine name
+        {
             var vm = await context.VMs.SingleOrDefaultAsync(u => u.VMId == request.VMId);
             if (vm == null)
             {
@@ -55,7 +56,7 @@ namespace BackEndAPI.Business.VMHandlers
                     .Where((cs) => cs.Name == vm.RealID)
                     .ToList()
                     .First();
-
+            
             var virtualSystemSettingData =
                     SettingsDefineState.GetInstances()
                         .Cast<SettingsDefineState>()
@@ -84,6 +85,26 @@ namespace BackEndAPI.Business.VMHandlers
 
             computerSystem.UpdateObject();
 
+
+            virtualSystemSettingData.LateBoundObject["ElementName"] = request.Name;//virtualSystemSettingData.LateBoundObject["Notes"] = new string[]{ "notes"}; for notes
+            var ResourceSettings2 = virtualSystemSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20);
+            try
+            {
+                viridianUtils.VSMS.ModifySystemSettings(ResourceSettings2, out Job);
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine(e.Message);
+
+                using (var ConcreteJob = new ConcreteJob(Job))
+                {
+                    var a = ConcreteJob.ErrorCode;
+                    var b = ConcreteJob.ErrorDescription;
+                    var c = ConcreteJob.ErrorSummaryDescription;
+                }
+            }
+
+
             var ResourceSettings = new string[] { processorSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20) };
             viridianUtils.VSMS.ModifyResourceSettings(ResourceSettings, out Job, out ManagementPath[] ResultingResourceSettingsProcessor);
             //change ram quantity
@@ -108,7 +129,7 @@ namespace BackEndAPI.Business.VMHandlers
                 computerSystem.UpdateObject();
 
                 ResourceSettings = new string[] { memorySettingData.LateBoundObject.GetText(TextFormat.WmiDtd20) };
-                viridianUtils.VSMS.ModifyResourceSettings(ResourceSettings, out Job, out ManagementPath[] ResultingResourceSettingsMemory);
+                viridianUtils.VSMS.ModifyResourceSettings(ResourceSettings, out Job, out ManagementPath[] ResultingResourceSettings2);
 
             //get summary information
             vssdCollection = ViridianUtils.GetVirtualSystemSettingDataListThroughSettingsDefineState(computerSystem);
