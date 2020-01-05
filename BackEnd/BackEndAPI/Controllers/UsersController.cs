@@ -10,7 +10,7 @@ namespace BackEndAPI.Controllers
 {
     [Route("api/users")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly IMediator mediator;
@@ -67,12 +67,12 @@ namespace BackEndAPI.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<User>> Get([FromBody]ValidateUserLogin request)
         {
-            var user = await mediator.Send(request);
-            if(user==null)
+            var tokenString = await mediator.Send(request);
+            if(tokenString==null)
             {
-                return NotFound();
+                return BadRequest();
             }
-            return Ok(user);
+            return Ok(new { token=tokenString });
         }
          
     }

@@ -42,11 +42,8 @@ namespace BackEndAPI
                            .AllowAnyOrigin();
                 });
             });
-            /*
-            var appSettingsSection = Configuration.GetSection("AppSettings");
-            services.Configure < AppSettings > (appSettingsSection);
-            var appSettings = appSettingsSection.Get<AppSettings>();
-            var key = Encoding.ASCII.GetBytes(appSettings.SecretKey);
+  
+            var key = Encoding.UTF8.GetBytes(Configuration["AppSettings:SecretKey"]);
             services.AddAuthentication(x=>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -63,7 +60,7 @@ namespace BackEndAPI
                         };
                      });
             
-            */
+            
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -81,8 +78,6 @@ namespace BackEndAPI
                 app.UseDeveloperExceptionPage();
             }
 
-            //app.UseHttpsRedirection();
-
             app.UseRouting();
             
             app.UseSwagger();
@@ -96,6 +91,7 @@ namespace BackEndAPI
 
            
             app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

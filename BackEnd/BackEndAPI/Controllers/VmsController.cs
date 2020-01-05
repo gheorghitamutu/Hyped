@@ -13,7 +13,7 @@ namespace BackEndAPI.Controllers
 {
     [Route("api/vms")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class VmsController:ControllerBase
     {
         private readonly IMediator mediator;

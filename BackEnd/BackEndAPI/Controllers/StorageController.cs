@@ -11,7 +11,7 @@ namespace BackEndAPI.Controllers
 {
     [Route("api/upload")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class StorageController:ControllerBase
     {
         private readonly IMediator mediator;
