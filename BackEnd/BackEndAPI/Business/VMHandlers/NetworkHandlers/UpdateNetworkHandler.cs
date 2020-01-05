@@ -26,7 +26,7 @@ namespace BackEndAPI.Business.VMHandlers.NetworkHandlers
                 throw new Exception("Requested network could not be found");
             }
 
-            network.Update(request.Name, request.Notes, network.VMId);
+            network.Update(request.Name, request.Notes, "instanceid",network.VMId);
             await context.SaveChangesAsync(cancellationToken);
 
             return network;

@@ -58,6 +58,7 @@ namespace BackEndAPI.Migrations
                     NetId = table.Column<Guid>(nullable: false),
                     Name = table.Column<string>(nullable: true),
                     Notes = table.Column<string>(nullable: true),
+                    InstanceID = table.Column<string>(nullable: true),
                     VMId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>

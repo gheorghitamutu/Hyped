@@ -462,7 +462,7 @@ namespace ViridianTester.Msvm.ResourceManagement
 
                             var sepsdCollection = ViridianUtils.GetSyntheticEthernetPortSettingData(virtualSystemSettingData, 10, "Microsoft:Hyper-V:Synthetic Ethernet Port");
                             var epsdCollection = ViridianUtils.GetEthernetPortAllocationSettingData(virtualSystemSettingData, 33, "Microsoft:Hyper-V:Ethernet Connection");
-
+                            
                             Assert.AreEqual(0U, ReturnValue);
                             Assert.AreEqual(1, sepsdCollection.Count);
                             Assert.AreEqual(1, epsdCollection.Count);

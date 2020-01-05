@@ -63,8 +63,23 @@ namespace BackEndAPI.Business.VMHandlers.NetworkHandlers
             var ResourceSettings = new string[] { syntheticEthernetPortSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20) };
             ReturnValue = viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ManagementPath[] ResultingResourceSettings);
 
+            var syntheticEthernetPortSettingDataResulted = new SyntheticEthernetPortSettingData(ResultingResourceSettings[0]);
+            var ethernetConnectionPrimordialPool = ViridianUtils.GetPrimordialResourcePool("Microsoft:Hyper-V:Ethernet Connection");
+            var allocationCapabilitiesEthernetConnection = ViridianUtils.GetAllocationCapabilities(ethernetConnectionPrimordialPool);
+            var ethernetPortAllocationSettingData = ViridianUtils.GetDefaultEthernetPortAllocationSettingData(allocationCapabilitiesEthernetConnection);
 
-            var network = Network.Create(request.Name,request.Notes,request.VMId);
+            ethernetPortAllocationSettingData.LateBoundObject["Parent"] = syntheticEthernetPortSettingDataResulted.Path.Path;
+            ethernetPortAllocationSettingData.LateBoundObject["HostResource"] = new string[] { virtualEthernetSwitch.Path.Path };
+
+            AffectedConfiguration = virtualSystemSettingData.Path;
+            ResourceSettings = new string[] { ethernetPortAllocationSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20) };
+            ReturnValue = viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
+
+            var sepsdCollection = ViridianUtils.GetSyntheticEthernetPortSettingData(virtualSystemSettingData, 10, "Microsoft:Hyper-V:Synthetic Ethernet Port");
+            var epsdCollection = ViridianUtils.GetEthernetPortAllocationSettingData(virtualSystemSettingData, 33, "Microsoft:Hyper-V:Ethernet Connection");
+
+            var this_networkAdapter = epsdCollection.LastOrDefault();
+            var network = Network.Create(request.Name,request.Notes,this_networkAdapter.InstanceID,request.VMId);
             context.Networks.Add(network);
 
             await context.SaveChangesAsync(cancellationToken);
