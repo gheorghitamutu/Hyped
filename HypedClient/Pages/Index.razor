@@ -1,6 +1,7 @@
 ﻿@page "/"
 @inject NavigationManager NavigationManager
 @using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <AuthorizeView>
     <Authorized>
@@ -30,6 +31,7 @@
 </AuthorizeView>
 
 @code{
+
     private void NavToLogin()
     {
         NavigationManager.NavigateTo("login");

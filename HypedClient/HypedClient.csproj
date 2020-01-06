@@ -10,6 +10,7 @@
     <!--<PackageReference Include="Blazorise.Bootstrap" Version="0.8.6.4" />-->
     <!--<PackageReference Include="Blazorise.Icons.FontAwesome" Version="0.8.6.4" />-->
     <PackageReference Include="Blazored.SessionStorage" Version="1.0.11" />
+    <PackageReference Include="JWT" Version="6.0.0-beta3" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor" Version="3.1.0-preview3.19555.2" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="3.1.0-preview4.19579.2" PrivateAssets="all" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor.HttpClient" Version="3.1.0-preview3.19555.2" />
@@ -19,6 +20,9 @@
     <!--<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.0-preview3.19555.2" />-->
     <!--<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.0-preview3.19554.8" />-->
     <PackageReference Include="BlazorInputFile" Version="0.1.0-preview" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="5.6.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.6.0" />
   </ItemGroup>
 
 </Project>

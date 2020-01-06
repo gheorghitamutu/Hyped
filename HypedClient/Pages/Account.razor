@@ -1,5 +1,6 @@
 ﻿@page "/account"
 @inject HttpClient Http
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @attribute [Authorize]
 
 
@@ -8,98 +9,98 @@
 <div class="container">
     <div class="row">
         <div class="col">
-        @if (accounts == null)
-        {
+            @if (accounts == null)
+            {
 
-        }
-        else
-        {
-            <select class="custom-select" multiple>
-                @foreach (var account in accounts)
-                {
-                    <option @onclick="@(() => GetAccount(account))">@account.FirstName @account.LastName</option>
-                }
-            </select>
-        }
+            }
+            else
+            {
+                <select class="custom-select" multiple>
+                    @foreach (var account in accounts)
+                    {
+                        <option @onclick="@(() => GetAccount(account))">@account.FirstName @account.LastName</option>
+                    }
+                </select>
+            }
         </div>
         <div class="col">
-        <table class="table">
-            <tbody>
+            <table class="table">
+                <tbody>
 
-                @if (accounts == null)
-                {
-                    <tr>Loading...</tr>
-                }
-                else
-                {
-                    @if (_editAccount.LastName == null)
+                    @if (accounts == null)
                     {
-
+                        <tr>Loading...</tr>
                     }
                     else
                     {
-                        <tr>
-                            <td><label for="email"><b>First name : </b></label></td>
-                            <td><input type="text" placeholder=@_editAccount.FirstName @bind="_editAccount.FirstName"></td>
-                        </tr>
-                        <tr>
-                            <td><label for="text"><b>Last name : </b></label></td>
-                            <td><input type="text" placeholder=@_editAccount.LastName @bind="_editAccount.LastName"></td>
-                        </tr>
-                        <tr>
-                            <td><label for="text"><b>Email : </b></label></td>
-                            <td><input type="text" placeholder=@_editAccount.Email @bind="_editAccount.Email"></td>
-                        </tr>
-                        <tr>
-                            <td><label for="psw"><b>Country : </b></label></td>
-                            <td><input type="text" placeholder=@_editAccount.Country @bind="_editAccount.Country"></td>
-                        </tr>
-                        <tr>
-                            <td><label for="txt"><b>Password : </b></label></td>
-                            @if (showPassword)
-                            {
-                                <td><input type="password" placeholder=@_editAccount.Password @bind="_editAccount.Password"></td>
-                            }
-                            else
-                            {
-                                <td><input type="text" placeholder=@_editAccount.Password @bind="_editAccount.Password"></td>
-                            }
-                            <td><button @onclick="@(() => InputPasswordVisible())">Show password</button></td>
-                        </tr>
-                        <tr>
-                            <td> <label for="txt"><b>Rights : </b></label></td>
-                            <td><input type="text" placeholder=@_editAccount.Rights @bind="_editAccount.Rights"></td>
-                        </tr>
-                        <tr>
-                            <td><label for="no"><b>Workplace : </b></label></td>
-                            <td><input type="text" placeholder=@_editAccount.Workplace @bind="_editAccount.Workplace"></td>
-                        </tr>
-                        <tr>
-                            <td><label for="no"><b>Position title : </b></label></td>
-                            <td><input type="text" placeholder=@_editAccount.PositionTitle @bind="_editAccount.PositionTitle"></td>
-                        </tr>
-                        <tr>
-                            <td><label for="no"><b>Contact no. : </b></label></td>
-                            <td><input type="text" placeholder=@_editAccount.ContactNumber @bind="_editAccount.ContactNumber"></td>
-                        </tr>
-                        /*<tr>
-                            <td><label for="no"><b>VMS : </b></label></td>
-                            <td><input type="text" placeholder=@_editAccount.VMS @bind="_editAccount.VMS"></td>
-                        </tr>*/
-                        <tr>
-                            <td>
-                                <div class="container signin">
-                                    <p>Edit account details? <button @onclick="@SaveItem">Modify</button></p>
-                                </div>
-                            </td>
-                        </tr>
+                        @if (_editAccount.LastName == null)
+                        {
+
+                        }
+                        else
+                        {
+                            <tr>
+                                <td><label for="email"><b>First name : </b></label></td>
+                                <td><input type="text" placeholder=@_editAccount.FirstName @bind="_editAccount.FirstName"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="text"><b>Last name : </b></label></td>
+                                <td><input type="text" placeholder=@_editAccount.LastName @bind="_editAccount.LastName"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="text"><b>Email : </b></label></td>
+                                <td><input type="text" placeholder=@_editAccount.Email @bind="_editAccount.Email"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="psw"><b>Country : </b></label></td>
+                                <td><input type="text" placeholder=@_editAccount.Country @bind="_editAccount.Country"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="txt"><b>Password : </b></label></td>
+                                @if (showPassword)
+                                {
+                                    <td><input type="password" placeholder=@_editAccount.Password @bind="_editAccount.Password"></td>
+                                }
+                                else
+                                {
+                                    <td><input type="text" placeholder=@_editAccount.Password @bind="_editAccount.Password"></td>
+                                }
+                                <td><button @onclick="@(() => InputPasswordVisible())">Show password</button></td>
+                            </tr>
+                            <tr>
+                                <td> <label for="txt"><b>Rights : </b></label></td>
+                                <td><input type="text" placeholder=@_editAccount.Rights @bind="_editAccount.Rights"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="no"><b>Workplace : </b></label></td>
+                                <td><input type="text" placeholder=@_editAccount.Workplace @bind="_editAccount.Workplace"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="no"><b>Position title : </b></label></td>
+                                <td><input type="text" placeholder=@_editAccount.PositionTitle @bind="_editAccount.PositionTitle"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="no"><b>Contact no. : </b></label></td>
+                                <td><input type="text" placeholder=@_editAccount.ContactNumber @bind="_editAccount.ContactNumber"></td>
+                            </tr>
+                            /*<tr>
+                                <td><label for="no"><b>VMS : </b></label></td>
+                                <td><input type="text" placeholder=@_editAccount.VMS @bind="_editAccount.VMS"></td>
+                            </tr>*/
+                            <tr>
+                                <td>
+                                    <div class="container signin">
+                                        <p>Edit account details? <button @onclick="@SaveItem">Modify</button></p>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
                     }
-                }
-            </tbody>
-        </table>
+                </tbody>
+            </table>
         </div>
     </div>
-    
+
 </div>
 
 
@@ -108,7 +109,7 @@
     private bool showPassword = true;
 
     // TO BE MODIFIED, aici am testat cu back-end-ul rulat pe alt PC din retea
-    private string apiUrl = "https://localhost:44386/api/users";
+    private string apiUrl = "https://localhost:5001/api/users";
 
 
     private AccountDetails _editAccount = new AccountDetails();
@@ -119,6 +120,9 @@
 
     private async Task GetTodoItems()
     {
+        var name = await sessionStorage.GetItemAsync<string>("token");
+        Http.DefaultRequestHeaders.Remove("Authorization");
+        Http.DefaultRequestHeaders.Add("Authorization","Bearer "+name);
         accounts = await Http.GetJsonAsync<AccountDetails[]>(apiUrl);
     }
 
@@ -193,6 +197,47 @@
         public string Name { get; set; }
         public string Configuration { get; set; }
         public string LastSave { get; set; }
+        public ICollection<Networks> Networks { get; set; }
+        public int RAM { get; private set; }
+        public int Cores { get; private set; }
+        public virtual ICollection<SC> SCs { get; private set; }
         public Guid UserId { get; set; }
+    }
+
+    public class Networks
+    {
+        public Guid NetId { get; private set; }
+        public string Name { get; private set; }
+        public string Notes { get; private set; }
+        public string InstanceID { get; private set; }
+        public Guid VMId { get; private set; }
+    }
+
+    public class SC
+    {
+        public Guid SCId { get; private set; }
+        public string Name { get; private set; }
+        public string InstanceId { get; private set; }
+        public virtual ICollection<VHD> VHDs { get; private set; }
+        public virtual ICollection<CDDVD> CDDVDs { get; private set; }
+        public Guid VMId { get; private set; }
+    }
+
+    public class VHD
+    {
+        public Guid VHDId { get; private set; }
+        public Guid SCId { get; private set; }
+        public string Name { get; private set; }
+        public string InstanceId { get; private set; }
+        public string Path { get; private set; }
+        public int Size { get; private set; }
+    }
+
+    public class CDDVD
+    {
+        public Guid CDDVDId { get; private set; }
+        public string InstanceId { get; private set; }
+        public string Name { get; private set; }
+        public Guid SCId { get; private set; }
     }
 }
