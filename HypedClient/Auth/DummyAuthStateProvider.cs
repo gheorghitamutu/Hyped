@@ -9,13 +9,13 @@ namespace HypedClient.Auth
 {
     public class DummyAuthStateProvider : AuthenticationStateProvider
     {
-        public static bool Authenticated { get; set; }
+        public string token { get; set; }
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var claimsIdentity = Authenticated ? new ClaimsIdentity(new List<Claim>
+            var claimsIdentity = (token != null) ? new ClaimsIdentity(new List<Claim>
             {
-                new Claim(ClaimTypes.Name, "test_user")
-            }, "server_auth")
+                new Claim(ClaimTypes.Name, token)
+            }, "token")
             :
             new ClaimsIdentity();
             return new AuthenticationState(new ClaimsPrincipal(claimsIdentity));

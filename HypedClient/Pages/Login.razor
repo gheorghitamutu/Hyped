@@ -2,8 +2,11 @@
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 @using Microsoft.AspNetCore.Components.Authorization
-@using Auth;
 @inject DummyAuthStateProvider DummyAuthStateProvider
+@using Newtonsoft.Json.Linq
+@using Auth;
+@using Microsoft.IdentityModel.Tokens;
+@using System.IdentityModel.Tokens.Jwt;
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 <h1>Sign in</h1>
 
@@ -48,44 +51,33 @@
 
 @code {
 
-    private string apiUrl = "https://localhost:44386/api/users";
+    private string apiUrl = "https://localhost:5001/api/users/login";
+    Response response;
 
     [CascadingParameter]
     private Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
-    private async Task UpdateAuthentication(bool isAuthenticated)
+    private Request the_account = new Request();
+
+    private async Task SendCredentials()
     {
-        DummyAuthStateProvider.Authenticated = isAuthenticated;
-        await DummyAuthStateProvider.NotifyStateChange();
+        response = await Http.PostJsonAsync<Response>(apiUrl, the_account);
+        System.Console.WriteLine(response.token);
     }
 
-
-    private AccountDetails _editAccount = new AccountDetails();
-
-    private AccountDetails[] accounts;
-    private AccountDetails the_account = new AccountDetails();
-
-    protected override async Task OnInitializedAsync() => await GetItems();
-
-    private async Task GetItems()
+    private async Task UpdateAuthentication(string token)
     {
-        accounts = await Http.GetJsonAsync<AccountDetails[]>(apiUrl);
+        DummyAuthStateProvider.token = token;
+        await DummyAuthStateProvider.NotifyStateChange();
     }
 
     private async Task Sign_in()
     {
-        await GetItems();
-        foreach (var account in accounts)
-        {
-            if (account.Email == the_account.Email && account.Password == the_account.Password)
-            {
-                UpdateAuthentication(true);
-                await sessionStorage.SetItemAsync("id", account.UserId);
-                var name = await sessionStorage.GetItemAsync<string>("id");
-                NavigationManager.NavigateTo("");
-            }
-
-        }
+        await SendCredentials();
+        await UpdateAuthentication(response.token);
+        await sessionStorage.SetItemAsync("token", response.token);
+        var name = await sessionStorage.GetItemAsync<string>("token");
+        NavigationManager.NavigateTo("");
     }
 
     private void Back()
@@ -98,29 +90,17 @@
         NavigationManager.NavigateTo("/register");
     }
 
-    public class AccountDetails
+    public class Request
     {
-        public string UserId { get; set; }
-
-        public string FirstName { get; set; }
-
-        public string LastName { get; set; }
 
         public string Email { get; set; }
 
-        public string Country { get; set; }
-
         public string Password { get; set; }
+    }
 
-        public string Rights { get; set; }
-
-        public string Workplace { get; set; }
-
-        public string PositionTitle { get; set; }
-
-        public string ContactNumber { get; set; }
-
-        public ICollection<VM> VMS { get; set; }
+    public class Response
+    {
+        public string token { get; set; }
     }
 
     public class VM

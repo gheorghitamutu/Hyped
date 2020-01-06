@@ -1,6 +1,7 @@
 @page "/register"
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 
 <h1>Register</h1>
 
@@ -121,26 +122,30 @@
     private bool inputErr = false;
     private string errMsg = "";
 
-    private string repeatPass="";
+    private string repeatPass = "";
 
-    private string apiUrl = "https://localhost:44386/api/users";
+    private string apiUrl = "https://localhost:5001/api/users";
 
     private AccountDetails Account = new AccountDetails();
     private AccountDetails _editAccount = new AccountDetails();
 
     private AccountDetails[] accounts;
 
-    protected override async Task OnInitializedAsync() => await GetTodoItems();
+    //protected override async Task OnInitializedAsync() => await GetTodoItems();
 
     private async Task GetTodoItems()
     {
+        var name = await sessionStorage.GetItemAsync<string>("token");
+        Http.DefaultRequestHeaders.Add("Authorization", "Bearer " + name);
         accounts = await Http.GetJsonAsync<AccountDetails[]>(apiUrl);
     }
 
     private void InsertUser()
     {
-        var editItem = accounts.FirstOrDefault(i => i.Email == Account.Email);
-        if (editItem == null) {
+        // TODO: find another way to check FE input validation data
+        //var editItem = accounts.FirstOrDefault(i => i.Email == Account.Email);
+        //if (editItem == null)
+        //{
             if (Account.Password == repeatPass)
             {
                 _editAccount = new AccountDetails
@@ -162,25 +167,28 @@
                 inputErrMsg(2);
             }
 
-        }
-        else
-        {
-            inputErrMsg(1);
-        }
+        //}
+        //else
+        //{
+        //    inputErrMsg(1);
+        //}
 
     }
 
 
     private void inputErrMsg(int code)
     {
-        
+
         switch (code)
         {
-            case 1: errMsg = "E-mail already in use!";
+            case 1:
+                errMsg = "E-mail already in use!";
                 break;
-            case 2: errMsg = "Passwords do not match!";
+            case 2:
+                errMsg = "Passwords do not match!";
                 break;
-            default: errMsg = "";
+            default:
+                errMsg = "";
                 break;
         }
         inputErr = true;
@@ -206,7 +214,7 @@
 
     public class AccountDetails
     {
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
 
         public string FirstName { get; set; }
 
@@ -236,6 +244,47 @@
         public string Name { get; set; }
         public string Configuration { get; set; }
         public string LastSave { get; set; }
+        public ICollection<Networks> Networks { get; set; }
+        public int RAM { get; private set; }
+        public int Cores { get; private set; }
+        public virtual ICollection<SC> SCs { get; private set; }
         public Guid UserId { get; set; }
+    }
+
+    public class Networks
+    {
+        public Guid NetId { get; private set; }
+        public string Name { get; private set; }
+        public string Notes { get; private set; }
+        public string InstanceID { get; private set; }
+        public Guid VMId { get; private set; }
+    }
+
+    public class SC
+    {
+        public Guid SCId { get; private set; }
+        public string Name { get; private set; }
+        public string InstanceId { get; private set; }
+        public virtual ICollection<VHD> VHDs { get; private set; }
+        public virtual ICollection<CDDVD> CDDVDs { get; private set; }
+        public Guid VMId { get; private set; }
+    }
+
+    public class VHD
+    {
+        public Guid VHDId { get; private set; }
+        public Guid SCId { get; private set; }
+        public string Name { get; private set; }
+        public string InstanceId { get; private set; }
+        public string Path { get; private set; }
+        public int Size { get; private set; }
+    }
+
+    public class CDDVD
+    {
+        public Guid CDDVDId { get; private set; }
+        public string InstanceId { get; private set; }
+        public string Name { get; private set; }
+        public Guid SCId { get; private set; }
     }
 }
