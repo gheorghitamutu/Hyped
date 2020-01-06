@@ -1,5 +1,42 @@
 ﻿@page "/"
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.Components.Authorization
 
-<h1>Hyped</h1>
+<AuthorizeView>
+    <Authorized>
+        <h1>Hyped</h1>
 
-A .NET based Hyper-V machine management system.
+        A .NET based Hyper-V machine management system.
+    </Authorized>
+    <NotAuthorized>
+        <div class="jumbotron">
+            <div class="container h-100">
+                <div class="row h-100 justify-content-center align-items-center">
+                    <h1>Welcome to Hyped!</h1>
+                </div>
+                <div class="row h-100 justify-content-center align-items-center">
+                    <div class="col-4"></div>
+                    <div class="col-2 align-self-center">
+                        <button @onclick="@(()=>NavToLogin())"><span class="oi oi-account-login "></span>Login</button>
+                    </div>
+                    <div class="col-2 align-self-center">
+                        <button @onclick="@(()=>NavToRegister())"><span class="oi oi-medical-cross"></span>Register</button>
+                    </div>
+                    <div class="col-4"></div>
+                </div>
+            </div>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code{
+    private void NavToLogin()
+    {
+        NavigationManager.NavigateTo("login");
+    }
+
+    private void NavToRegister()
+    {
+        NavigationManager.NavigateTo("register");
+    }
+}

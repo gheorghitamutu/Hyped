@@ -1,27 +1,46 @@
 @page "/login"
 @inject HttpClient Http
-
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.Components.Authorization
+@using Auth;
+@inject DummyAuthStateProvider DummyAuthStateProvider
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 <h1>Sign in</h1>
 
 
 <div class="container">
-    <br />
-    <p>Please fill in this form to sign in into account.</p>
-    <hr>
-
-    <label for="email"><b>Email</b></label>
-    <input type="text" placeholder="Enter Email" @bind="email" name="email" required><br /><br />
-
-
-    <label for="psw"><b>Password</b></label>
-    <input type="password" placeholder="Enter Password" @bind="psw" name="@psw" required><br /><br />
-
-    <p><button @onclick="Sign_in">Sign in</button></p>
+    <div class="row">
+        <p>Please fill in this form to sign in into account.</p>
+    </div>
+    <div class="row">
+        <div class="col">
+            <label for="email"><b>Email</b></label>
+        </div>
+        <div class="col">
+            <input type="text" placeholder="Enter Email" @bind="the_account.Email" name="email" required><br /><br />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <label for="psw"><b>Password</b></label>
+        </div>
+        <div class="col">
+            <input type="password" placeholder="Enter Password" @bind="the_account.Password" name="psw" required><br /><br />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <p><button @onclick="@(()=>Sign_in())">Sign in</button></p>
+        </div>
+        <div class="col">
+            <p><button @onclick="Back">Back</button></p>
+        </div>
+    </div>
 
 
 
     <div class="container signin">
-        <p> Create an account? <a href="#">Register</a>.</p><br />
+        <p> Create an account? <a role="button" @onclick="Register">Register</a>.</p><br />
     </div>
 </div>
 
@@ -29,53 +48,89 @@
 
 @code {
 
-    static string email = @email;
-    static string psw = @psw;
+    private string apiUrl = "https://localhost:44386/api/users";
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationStateTask { get; set; }
+
+    private async Task UpdateAuthentication(bool isAuthenticated)
+    {
+        DummyAuthStateProvider.Authenticated = isAuthenticated;
+        await DummyAuthStateProvider.NotifyStateChange();
+    }
 
 
     private AccountDetails _editAccount = new AccountDetails();
 
     private AccountDetails[] accounts;
-    private AccountDetails the_account;
+    private AccountDetails the_account = new AccountDetails();
 
     protected override async Task OnInitializedAsync() => await GetItems();
 
     private async Task GetItems()
     {
-        accounts = await Http.GetJsonAsync<AccountDetails[]>("sample-data/account.json");
+        accounts = await Http.GetJsonAsync<AccountDetails[]>(apiUrl);
     }
 
-    private void Sign_in()
+    private async Task Sign_in()
     {
-        Boolean client_found = false;
-        foreach (AccountDetails account in accounts)
+        await GetItems();
+        foreach (var account in accounts)
         {
-            if (account.Email == email && account.Password == psw)
+            if (account.Email == the_account.Email && account.Password == the_account.Password)
             {
-                client_found = true;
-                the_account = account;
+                UpdateAuthentication(true);
+                await sessionStorage.SetItemAsync("id", account.UserId);
+                var name = await sessionStorage.GetItemAsync<string>("id");
+                NavigationManager.NavigateTo("");
             }
 
         }
     }
 
+    private void Back()
+    {
+        NavigationManager.NavigateTo("");
+    }
+
+    private void Register()
+    {
+        NavigationManager.NavigateTo("/register");
+    }
+
     public class AccountDetails
     {
-        public int AccountId { get; set; }
-
-        public string Email { get; set; }
+        public string UserId { get; set; }
 
         public string FirstName { get; set; }
 
         public string LastName { get; set; }
 
+        public string Email { get; set; }
+
+        public string Country { get; set; }
+
         public string Password { get; set; }
+
+        public string Rights { get; set; }
 
         public string Workplace { get; set; }
 
         public string PositionTitle { get; set; }
 
         public string ContactNumber { get; set; }
+
+        public ICollection<VM> VMS { get; set; }
+    }
+
+    public class VM
+    {
+        public Guid VMId { get; set; }
+        public string RealID { get; set; }
+        public string Name { get; set; }
+        public string Configuration { get; set; }
+        public string LastSave { get; set; }
+        public Guid UserId { get; set; }
     }
 
 }
