@@ -7,6 +7,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using MediatR;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BackEndAPI
 {
@@ -38,7 +42,25 @@ namespace BackEndAPI
                            .AllowAnyOrigin();
                 });
             });
-
+  
+            var key = Encoding.UTF8.GetBytes(Configuration["AppSettings:SecretKey"]);
+            services.AddAuthentication(x=>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(x=>
+                    {
+                        x.RequireHttpsMetadata = false;
+                        x.SaveToken = true;
+                        x.TokenValidationParameters = new TokenValidationParameters { 
+                          ValidateIssuerSigningKey=true,
+                          IssuerSigningKey=new SymmetricSecurityKey(key),
+                          ValidateIssuer=false,
+                          ValidateAudience=false
+                        };
+                     });
+            
+            
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -56,8 +78,6 @@ namespace BackEndAPI
                 app.UseDeveloperExceptionPage();
             }
 
-            //app.UseHttpsRedirection();
-
             app.UseRouting();
             
             app.UseSwagger();
@@ -69,6 +89,8 @@ namespace BackEndAPI
             
             app.UseCors(MyAllowSpecificOrigins);
 
+           
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

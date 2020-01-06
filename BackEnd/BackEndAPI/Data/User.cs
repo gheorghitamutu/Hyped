@@ -1,20 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace BackEndAPI.Data
 {
     public class User
     {
-        public Guid UserId { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Email { get; set; }
-        public string Country { get; set; }
-        public string Password { get; set; }
-        public string Rights { get; set; }
-        public string Workplace { get; set; }
-        public string PositionTitle { get; set; }
-        public string ContactNumber { get; set; }
+        [Key]
+        public Guid UserId { get; private set; }
+        public string FirstName { get; private set; }
+        public string LastName { get; private set; }
+        public string Email { get; private set; }
+        public string Country { get; private set; }
+        public string Password { get; private set; }
+        public string Rights { get; private set; }
+        public string Workplace { get; private set; }
+        public string PositionTitle { get; private set; }
+        public string ContactNumber { get; private set; }
 
         public virtual ICollection<VM> VMS { get; set; }
 

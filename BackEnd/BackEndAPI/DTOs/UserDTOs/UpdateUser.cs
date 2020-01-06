@@ -1,7 +1,6 @@
 ﻿using BackEndAPI.Data;
 using MediatR;
 using System;
-using System.Collections.Generic;
 
 namespace BackEndAPI.DTOs.UserDTOs
 {
@@ -18,7 +17,6 @@ namespace BackEndAPI.DTOs.UserDTOs
         public string PositionTitle { get; set; }
         public string ContactNumber { get; set; }
 
-        public virtual ICollection<VM> VMS { get; set; }
 
     }
 }
