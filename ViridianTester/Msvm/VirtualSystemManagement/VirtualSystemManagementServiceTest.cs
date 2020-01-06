@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Management;
@@ -292,67 +293,71 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
                             var GuestServiceSettings = new string[1] { guestServiceInterfaceComponentSettingData.LateBoundObject.GetText(TextFormat.WmiDtd20) };
                             ReturnValue = viridianUtils.VSMS.ModifyGuestServiceSettings(GuestServiceSettings, out Job, out ManagementPath[] ResultingGuestServices);
                         }
-                    }
 
-                    ViridianUtils.WaitForConcreteJobToEnd(Job);
+                        ViridianUtils.WaitForConcreteJobToEnd(Job);
 
-                    using (var guestServiceInterfaceComponent = ViridianUtils.GetGuestServiceInterfaceComponent(computerSystem))
-                    using (var guestFileService = ViridianUtils.GetGuestFileService(guestServiceInterfaceComponent))
-                    using (var copyFileToGuestSettingData = CopyFileToGuestSettingData.CreateInstance())
-                    {
-                        copyFileToGuestSettingData.DestinationPath = @"C:\finished";
-                        copyFileToGuestSettingData.OverwriteExisting = false;
-                        copyFileToGuestSettingData.SourcePath = @"C:\copyme";
-                        copyFileToGuestSettingData.CreateFullPath = true;
-
-                        // this check might still be a bit too early but.. heh
-                        // right now I do not know a decent way to check if account set up finished
-                        var retries = 20;
-                        var retryWaitTime = 1; // minutes
-                        var lastErrorcode = 0;
-                        var fileExists = false;
-
-                        for (int i = 0; i < retries; i++)
+                        using (var guestServiceInterfaceComponent = ViridianUtils.GetGuestServiceInterfaceComponent(computerSystem))
+                        using (var guestFileService = ViridianUtils.GetGuestFileService(guestServiceInterfaceComponent))
+                        using (var copyFileToGuestSettingData = CopyFileToGuestSettingData.CreateInstance())
                         {
-                            var CopyFileToGuestSettings = new string[1] { copyFileToGuestSettingData.LateBoundObject.GetText(TextFormat.CimDtd20) };
-                            ReturnValue = guestFileService.CopyFilesToGuest(CopyFileToGuestSettings, out Job);
+                            copyFileToGuestSettingData.DestinationPath = @"C:\finished";
+                            copyFileToGuestSettingData.OverwriteExisting = false;
+                            copyFileToGuestSettingData.SourcePath = @"C:\copyme";
+                            copyFileToGuestSettingData.CreateFullPath = true;
 
-                            using (var copyFileToGuestJob = new CopyFileToGuestJob(Job))
+                            // this check might still be a bit too early but.. heh
+                            // right now I do not know a decent way to check if account set up finished
+                            var retries = 20;
+                            var retryWaitTime = 1; // minutes
+                            var lastErrorcode = 0;
+                            var fileExists = false;
+
+                            for (int i = 0; i < retries; i++)
                             {
-                                ViridianUtils.WaitForCopyFileToGuestJobToEnd(Job);
+                                var CopyFileToGuestSettings = new string[1] { copyFileToGuestSettingData.LateBoundObject.GetText(TextFormat.CimDtd20) };
+                                ReturnValue = guestFileService.CopyFilesToGuest(CopyFileToGuestSettings, out Job);
 
-                                copyFileToGuestJob.LateBoundObject.Properties.Cast<PropertyData>().ToList().ForEach((p) => Trace.WriteLine($"{p.Name} [{p.Value?.ToString()}]"));
-
-                                lastErrorcode = copyFileToGuestJob.ErrorCode;
-                                fileExists = copyFileToGuestJob.ErrorDescription.Contains("The file exists. (0x80070050)");
-
-                                if (fileExists)
+                                using (var copyFileToGuestJob = new CopyFileToGuestJob(Job))
                                 {
-                                    break;
-                                }
+                                    ViridianUtils.WaitForCopyFileToGuestJobToEnd(Job);
 
-                                Thread.Sleep(new TimeSpan(0, retryWaitTime, 0));
+                                    copyFileToGuestJob.LateBoundObject.Properties.Cast<PropertyData>().ToList().ForEach((p) => Trace.WriteLine($"{p.Name} [{p.Value?.ToString()}]"));
+
+                                    lastErrorcode = copyFileToGuestJob.ErrorCode;
+                                    fileExists = copyFileToGuestJob.ErrorDescription.Contains("The file exists. (0x80070050)");
+
+                                    if (fileExists)
+                                    {
+                                        break;
+                                    }
+
+                                    Thread.Sleep(new TimeSpan(0, retryWaitTime, 0));
+                                }
                             }
+
+                            Assert.AreEqual(32768, lastErrorcode);
+                            Assert.IsTrue(fileExists);
                         }
 
-                        Assert.AreEqual(32768, lastErrorcode);
-                        Assert.IsTrue(fileExists);
+                        ReturnValue = computerSystem.RequestStateChange(3, null, out Job);
+
+                        ViridianUtils.WaitForConcreteJobToEnd(Job);
+
+                        viridianUtils.Dispose(); // force destroy system
+
+                        var vhdxMO = ResultingResourceSettings[0];
+
+                        var jobsAffectingVHDX = 
+                            AffectedJobElement.GetInstances()
+                                .Where((aje) => string.Compare(aje.AffectedElement.Path, vhdxMO.Path, true, CultureInfo.InvariantCulture) == 0)
+                                .Select((aje) => aje.AffectingElement)
+                                .ToList();
+
+                        jobsAffectingVHDX.ForEach((job) => ViridianUtils.WaitForConcreteJobToEnd(Job));
+
+                        File.Delete(vhdxName);
                     }
 
-                    ReturnValue = computerSystem.RequestStateChange(3, null, out Job);
-                }
-
-                ViridianUtils.WaitForConcreteJobToEnd(Job);
-
-                viridianUtils.Dispose(); // force destroy system
-
-                try // the vhdx might still be under a merge operation that keeps a handle on it
-                {   // could try to check all "merge jobs" and pick the one that handles this and wait for it to finish
-                    File.Delete(vhdxName);
-                }
-                catch (IOException e)
-                {
-                    Trace.WriteLine($"Deleting .vhdx file [{vhdxName}] failed: [{e.Message}]!");
                 }
 
                 File.Delete(isoName);
