@@ -76,6 +76,7 @@
         await SendCredentials();
         await UpdateAuthentication(response.token);
         await sessionStorage.SetItemAsync("token", response.token);
+
         var name = await sessionStorage.GetItemAsync<string>("token");
         NavigationManager.NavigateTo("");
     }

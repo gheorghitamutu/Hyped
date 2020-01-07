@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using HypedClient.Auth;
 using Microsoft.AspNetCore.Components.Authorization;
 using Blazored.SessionStorage;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace HypedClient
 {
