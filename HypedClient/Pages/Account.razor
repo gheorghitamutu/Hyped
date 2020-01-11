@@ -1,6 +1,6 @@
 ﻿@page "/account"
 @inject HttpClient Http
-@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject Blazored.LocalStorage.ILocalStorageService sessionStorage
 @attribute [Authorize]
 
 
@@ -122,7 +122,7 @@
     {
         var name = await sessionStorage.GetItemAsync<string>("token");
         Http.DefaultRequestHeaders.Remove("Authorization");
-        Http.DefaultRequestHeaders.Add("Authorization","Bearer "+name);
+        Http.DefaultRequestHeaders.Add("Authorization", "Bearer " + name);
         accounts = await Http.GetJsonAsync<AccountDetails[]>(apiUrl);
     }
 

@@ -3,7 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using HypedClient.Auth;
 using Microsoft.AspNetCore.Components.Authorization;
 using Blazored.SessionStorage;
+using Blazored.LocalStorage;
 using System.IdentityModel.Tokens.Jwt;
+using Blazored.Modal;
 
 namespace HypedClient
 {
@@ -11,8 +13,10 @@ namespace HypedClient
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddBlazoredSessionStorage();
+            //services.AddBlazoredSessionStorage();
+            services.AddBlazoredLocalStorage();
             services.AddAuthorizationCore();
+            services.AddBlazoredModal();
             services.AddScoped<DummyAuthStateProvider>();
             services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<DummyAuthStateProvider>());
         }
