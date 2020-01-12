@@ -5,6 +5,7 @@
 @inject DummyAuthStateProvider DummyAuthStateProvider
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
+@using Microsoft.AspNetCore.Components.Authorization
 @using System.IdentityModel.Tokens.Jwt;
 @using Serilog;
 @using System.Text.Json;
@@ -130,67 +131,145 @@
     </div>
 </div>
 
-<div class="container-fluid border border-dark fill">
-    <div class="row h-100">
-        <div class="col-md-1 border border-dark ">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" @onclick="@(()=> LastItem())">
-                <span class="oi oi-calculator" aria-hidden="true"></span>New
-            </button>
-        </div>
-        <div class="col-md-1 border border-dark">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleEdit" @onclick="@(()=> LastItem())">
-                <span class="oi oi-calculator" aria-hidden="true"></span>Edit
-            </button>
-        </div>
-        <div class="col-md-1 border border-dark">
-            <button>
-                <span class="oi oi-calculator" aria-hidden="true"></span>Delete
-            </button>
-        </div>
-        <div class="col-md-1 border border-dark">
-            <button>
-                <span class="oi oi-calculator" aria-hidden="true"></span>Start
-            </button>
-        </div>
-        <div class="col-md-8 border border-dark">
+<!-- the main body-->
 
-        </div>
-    </div>
+<div class="container-fluid fill">
+    <main role="main" class="container">
+        <div class="my-3 p-3 bg-white rounded box-shadow">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light" style="">
+                <button type="button" class="btn btn-primary" style="" data-toggle="modal" data-target="#exampleModal" @onclick="@(()=> LastItem())">New Machine</button>		  		  
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">			
+                    <span class="navbar-toggler-icon"></span>		  
+                </button>				  
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">			
+                    <ul class="navbar-nav mr-auto">			  
+                        <li class="nav-item active"></li>			  
+                        <li class="nav-item"></li>			  
+                        <li class="nav-item"></li>			
+                    </ul>			
+                    <form class="form-inline my-2 my-lg-0">			  
+                    <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">			  
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>			
+                        </form>		  
+                </div>		
+            </nav>
 
+            <small class="d-block text-right mt-3">
 
-
-    <div class="row h-100">
-        <div class="col-md-4 border border-dark h-100">
-            @if (machines == null)
-            {
-
-            }
-            else
-            {
-
-                <div class="list-group" id="list-tab" role="tablist">
-                    @foreach (var machine in machines)
+            </small>
+            <div class="row" style="text-align: center;">
+                <div class=" col-6">
+                    @if (machines == null)
                     {
-                        <a class="list-group-item list-group-item-action" role="tab" @onclick="@(() => GetVM(machine))">@machine.Name</a>
+
+                    }
+                    else
+                    {
+
+                    <div class="list-group" id="list-tab" role="tablist">
+                        @foreach (var machine in machines)
+                        {
+                            <a class="list-group-item list-group-item-action" role="tab" @onclick="@(() => GetVM(machine))">@machine.Name</a>
+                        }
+                    </div>
                     }
                 </div>
-            }
+                <div class="  col-6">
+                    <h4 style="text-align: center;">@_editMachine.Name<br><hr style=""></h4>
+                <div class="btn-group" role="group" aria-label="Basic example" style="">
+                    <button type="button" class="btn btn-secondary">Start</button>
+                    <button type="button" class="btn btn-secondary">Stop</button> 
+                    <button type="button" class="btn btn-secondary">Delete</button>
+                </div>
+                <hr style="">
+                <div class="row" style="text-align: center;">
+                    <div class=" col-4">
+                        <h5>General config:<br></h5>
+                    </div>
+                    <div class="  col-8">
+                        <div class="row" style="text-align: center;">
+                            <div class="col-4">
+                                <h6>RAM:</h6>
+                            </div>
+                            <div class="col-8">
+                                <div class="form-group" style="display: block; float: none; text-align: center;">@_editMachine.RAM</div>
+                            </div>
+                        </div>
+                        <hr style="">
+                        <div class="row" style="">
+                            <div class=" col-4">
+                                <h6>Cores:<br></h6>
+                            </div>
+                            <div class="  col-8">
+                                <div class="form-group" style="display: block; float: none; text-align: center;">@_editMachine.Cores</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="text-align: center;">
+                </div><hr style="">
+                <div class="row" style="">
+                    <div class=" col-4">
+                        <h5>Network:</h5>
+                    </div>
+                    <div class="  col-8">
+                        <div class="row" style="">
+                            <div class=" col-8">
+                                <div class="form-group" style="">
+                                    <label>Join a network</label>
+                                    <select class="form-control">
+                                    <option value="value1">Text 1</option>
+                                    <option value="value2">Text 2</option>
+                                    <option value="value3">Text 3</option>
+                                    </select>
+                                 </div>
+                            </div>
+                            <div class="  col-4">
+                            </div>
+                        </div>
+                    <div class="row" style="">
+                        <div class=" col-4">
+                        </div>
+                        <div class="  col-8">
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                <hr style="">
+                <div class="row" style="">
+                    <div class=" col-4">
+                        <h5>Virtual HD:<br></h5>
+                    </div>
+                    <div class="  col-8">
+                    </div>
+                </div>
+                <hr style="">
+                <div class="row" style="text-align: center;">
+                    <div class=" col-4">
+                        <h5>Image file:<br></h5>
+                    </div>
+                    <div class="  col-8">
+                        <div class="row" style="">
+                            <div class=" col-8">
+                                <div class="form-group" style="">
+                                    <label>Select an installation image</label>
+                                    <select class="form-control">
+                                        <option value="value1">Text 1</option>
+                                        <option value="value2">Text 2</option>
+                                        <option value="value3">Text 3</option>
+                                        </select>
+                                </div>
+                            </div>
+                            <div class="  col-4">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr style="">
+                </div>
+            </div>
         </div>
-        <div class="col-xs-12 col-md-8 border border-dark h-100">
-            <div class="row">
-                @_editMachine.RealID
-            </div>
-            <div class="row">
-                @_editMachine.Name
-            </div>
-            <div class="row">
-                @_editMachine.Configuration
-            </div>
-            <div class="row">
-                @_editMachine.LastSave
-            </div>
-        </div>
-    </div>
+    </main>
 </div>
 
 
@@ -349,7 +428,7 @@
         Http.DefaultRequestHeaders.Add("Authorization", "Bearer " + name);
         await Http.PutJsonAsync<MachineDetails>(apiUrl, _editMachine);
         await GetMachines();
-        this.StateHasChanged();
+        NavigationManager.NavigateTo("/machine");
 
     }
 
