@@ -1,0 +1,330 @@
+@page "/network"
+@inject HttpClient Http
+@attribute [Authorize]
+@inject Blazored.LocalStorage.ILocalStorageService sessionStorage
+@inject DummyAuthStateProvider DummyAuthStateProvider
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.IdentityModel.Tokens.Jwt;
+@using Serilog;
+@using System.Text.Json;
+@using System.Security.Claims;
+@using System.IO;
+
+<!-- Modal for new machine -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Ce faceti ma title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row">
+                        <div class="col">
+                            <label for="email"><b>Name: </b></label>
+                        </div>
+                        <div class="col">
+                            <fieldset>
+                                <input type="text" placeholder=@_addNetwork.Name @bind="_addNetwork.Name">
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label for="text"><b>Notes: </b></label>
+                        </div>
+                        <div class="col">
+                            <input type="text" placeholder=@_addNetwork.Notes @bind="_addNetwork.Notes">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" @onclick="@AddItem">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<!-- the main body-->
+<main role="main" class="container">
+    <div class="my-3 p-3 bg-white rounded box-shadow" style="position: static; min-width: 100%; width: 100%; height: 100%;">
+        <div class="row" style=""><div class="col-sm-4"><h3>Select a machine<br></h3></div><div class="col-sm-4 col-5"><h3>Select a network<br></h3></div><div class="col-sm-4"><h3>Network Details:<br></h3></div></div>
+        <small class="d-block text-right mt-3">
+        </small>
+        <hr style="">
+        <div class="row" style="">
+            @if (machines == null)
+            {
+
+            }
+            else
+            {
+                <div class="col-sm-4">
+
+                    <div class="list-group" id="list-tab" role="tablist">
+                        @foreach (var machine in machines)
+                        {
+                            <a class="list-group-item list-group-item-action" role="tab" @onclick="@(() => GetVM(machine))">@machine.Name</a>
+                        }
+                    </div>
+
+                </div>
+                @if (String.IsNullOrEmpty(_editMachine.Name) == false)
+                {
+                    <div class="col-sm-4 col-5">
+
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" style="width: 10rem;" @onclick="@(() => LastItem())">New</button>
+                        <select class="form-control">
+                            @if (_editMachine.Networkx == null)
+                            {
+
+                            }
+                            else
+                            {
+                                @foreach (var retea in _editMachine.Networkx)
+                                {
+                                    <a class="list-group-item list-group-item-action" role="tab" @onclick="@(() => GetNetwork())">@retea.Name</a>
+                                }
+                            }
+                            </select>
+                        
+                        </div>
+                 }
+                    <div class="col-sm-4">
+                        @if (_editMachine.Networkx == null)
+                        {
+
+                        }
+                        else
+                        {
+                            @foreach (var retea in _editMachine.Networkx)
+                            {
+                                <h3>@retea.Name</h3>
+                                <h3>@retea.Notes</h3>
+                            }
+                        }
+                    </div>
+                    }
+            </div><hr style="">
+    </div>
+</main>
+
+
+
+@code {
+
+
+    // TO BE MODIFIED, aici am testat cu back-end-ul rulat pe alt PC din retea
+    private string apiUrl = "https://localhost:44386/api/vms";
+    private string apiUrlNet = "https://localhost:44386/api/vms/network";
+    private string name = "";
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationStateTask { get; set; }
+
+    // machine related properties
+    private MachineDetails _editMachine = new MachineDetails();
+
+    private MachineDetails _addMachine = new MachineDetails();
+
+    private MachineDetails[] machines;
+    // network related properties
+    private Networks _editNetwork = new Networks();
+
+    private Networks _addNetwork = new Networks();
+
+    private Networks[] networks;
+
+    protected override async Task OnInitializedAsync() => await GetMachines();
+
+
+    /*private void GetNetwork(Networks net)
+    {
+        _editNetwork = net;
+    }*/
+
+    private void GetVM(MachineDetails vm)
+    {
+        _editMachine = vm;
+    }
+
+    private async Task GetNetwork()
+    {
+        var name = await sessionStorage.GetItemAsync<string>("token");
+        Http.DefaultRequestHeaders.Remove("Authorization");
+        Http.DefaultRequestHeaders.Add("Authorization", "Bearer " + name);
+        _editNetwork = await Http.GetJsonAsync<Networks>(apiUrlNet + "/" + _editMachine.VMId);
+    }
+
+    private async Task GetMachines()
+    {
+        var name = await sessionStorage.GetItemAsync<string>("token");
+        Http.DefaultRequestHeaders.Remove("Authorization");
+        Http.DefaultRequestHeaders.Add("Authorization", "Bearer " + name);
+        machines = await Http.GetJsonAsync<MachineDetails[]>(apiUrl);
+    }
+
+    private void EditItem(Guid id, Networks net)
+    {
+        var editItem = machines.Single(i => i.VMId == id);
+        List<Networks> retele = new List<Networks>();
+        retele.Add(net);
+        _editMachine = new MachineDetails
+        {
+            VMId = editItem.VMId,
+            RealID = editItem.RealID,
+            Name = editItem.Name,
+            Configuration = editItem.Configuration,
+            LastSave = editItem.LastSave,
+            UserId = editItem.UserId,
+            Networkx = retele
+        };
+    }
+
+    private async Task DecodeJWT()
+    {
+        string storagedToken = await sessionStorage.GetItemAsync<string>("token");
+        var claims = new List<Claim>();
+        var payload = storagedToken.Split('.')[1];
+        var jsonBytes = ParseBase64WithoutPadding(payload);
+        var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
+        keyValuePairs.TryGetValue(ClaimTypes.Role, out object roles);
+
+        if (roles != null)
+        {
+            if (roles.ToString().Trim().StartsWith("["))
+            {
+                var parsedRoles = JsonSerializer.Deserialize<string[]>(roles.ToString());
+
+                foreach (var parsedRole in parsedRoles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, parsedRole));
+                }
+            }
+            else
+            {
+                claims.Add(new Claim(ClaimTypes.Role, roles.ToString()));
+            }
+
+            keyValuePairs.Remove(ClaimTypes.Role);
+        }
+
+        claims.AddRange(keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString())));
+        Log.Information($"{claims}");
+        foreach (Claim claim in claims)
+        {
+            Log.Information($"{claim.Type} and {claim.Value}");
+            name = claim.Value;
+            break;
+        }
+        Log.Information($"{name}");
+
+    }
+
+    private byte[] ParseBase64WithoutPadding(string base64)
+    {
+        switch (base64.Length % 4)
+        {
+            case 2: base64 += "=="; break;
+            case 3: base64 += "="; break;
+        }
+        return Convert.FromBase64String(base64);
+    }
+
+    private async Task LastItem()
+    {
+        _addNetwork = new Networks
+        {
+            NetId = Guid.NewGuid(),
+            Name = _addNetwork.Name,
+            Notes = _addNetwork.Notes,
+            InstanceID = Convert.ToString(Guid.NewGuid()),
+            VMId = _editMachine.VMId,
+        };
+
+    }
+
+    /*
+    private async Task SaveItem()
+    {
+        EditItem(_editMachine.VMId, _addNetwork);
+        var name = await sessionStorage.GetItemAsync<string>("token");
+        Http.DefaultRequestHeaders.Remove("Authorization");
+        Http.DefaultRequestHeaders.Add("Authorization", "Bearer " + name);
+        await Http.PutJsonAsync<MachineDetails>(apiUrl, _editMachine);
+        await GetMachines();
+    }*/
+
+    private async Task AddItem()
+    {
+        var name = await sessionStorage.GetItemAsync<string>("token");
+        Http.DefaultRequestHeaders.Remove("Authorization");
+        Http.DefaultRequestHeaders.Add("Authorization", "Bearer " + name);
+        await Http.PostJsonAsync<MachineDetails>(apiUrlNet, _addNetwork);
+        //await SaveItem();
+    }
+
+    public class MachineDetails
+    {
+        public Guid VMId { get; set; }
+        public string RealID { get; set; }
+        public string Name { get; set; }
+        public string Configuration { get; set; }
+        public string LastSave { get; set; }
+        public ICollection<Networks> Networkx { get; set; }
+        public int RAM { get; set; }
+        public int Cores { get; set; }
+        public virtual ICollection<SC> SCs { get; set; }
+        public Guid UserId { get; set; }
+    }
+
+    public class Networks
+    {
+        public Guid NetId { get; set; }
+        public string Name { get; set; }
+        public string Notes { get; set; }
+        public string InstanceID { get; set; }
+        public Guid VMId { get; set; }
+    }
+
+    public class SC
+    {
+        public Guid SCId { get; set; }
+        public string Name { get; set; }
+        public string InstanceId { get; set; }
+        public virtual ICollection<VHD> VHDs { get; set; }
+        public virtual ICollection<CDDVD> CDDVDs { get; set; }
+        public Guid VMId { get; set; }
+    }
+
+    public class VHD
+    {
+        public Guid VHDId { get; set; }
+        public Guid SCId { get; set; }
+        public string Name { get; set; }
+        public string InstanceId { get; set; }
+        public string Path { get; set; }
+        public int Size { get; set; }
+    }
+
+    public class CDDVD
+    {
+        public Guid CDDVDId { get; set; }
+        public string InstanceId { get; set; }
+        public string Name { get; set; }
+        public Guid SCId { get; set; }
+    }
+
+
+
+}

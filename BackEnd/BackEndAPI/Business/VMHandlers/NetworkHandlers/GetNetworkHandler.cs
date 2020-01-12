@@ -20,10 +20,10 @@ namespace BackEndAPI.Business.VMHandlers.NetworkHandlers
         public async Task<Network> Handle(GetNetworkDetail request, CancellationToken cancellationToken)
         {
             var network = await context.Networks.SingleOrDefaultAsync(n => n.NetId == request.NetId);
-            if(network==null)
+            /*if(network==null)
             {
                 throw new Exception("Requested network could not be found");
-            }
+            }*/
 
             return network;
         }

@@ -3,103 +3,110 @@
 @inject NavigationManager NavigationManager
 @inject Blazored.LocalStorage.ILocalStorageService sessionStorage
 
-<h1>Register</h1>
 
-
-<div class="container">
-    <div class="row">
-        <p>Please fill in this form to create an account.</p>
-    </div>
-
-    <div class="row">
-        <div class="col">
-            <label for="text"><b>First name</b></label>
+<div class="jumbotron" style="width: 100%; height: 100%; position: fixed; display: block; top: 0px; left: 0px; float: none; text-align: center; padding: 0 0 0 0">
+    <h4 class="display-3">Sign Up!<br></h4>
+    <p class="lead">Please fill in this form to create an account.<br></p>
+    <hr class="my-4">
+    <div class="row" style="height: 30px;">
+        <div class=" col-6" style="height: 30px;">
+            <h5>First name</h5>
         </div>
-        <div class="col">
-            <input type="text" placeholder="First name" name="name" @bind="Account.FirstName" required>
+        <div class=" col-6" style="height: 30px;">
+            <input type="text" placeholder="First name" name="name" @bind="Account.FirstName" required><br /><br />
         </div>
     </div>
-
-    <div class="row">
-        <div class="col">
-            <label for="text"><b>Last name</b></label>
+    <hr style="">
+    <div class="row" style="height: 30px;">
+        <div class=" col-6" style="height: 30px;">
+            <h5>Last name</h5>
         </div>
-        <div class="col">
-            <input type="text" placeholder="Last name" name="name" @bind="Account.LastName" required>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col">
-            <label for="email"><b>Email</b></label>
-        </div>
-        <div class="col">
-            <input type="text" placeholder="Enter Email" name="email" @bind="Account.Email" required>
+        <div class="  col-6">
+            <input type="text" placeholder="Last name" name="name" @bind="Account.LastName" required><br /><br />
         </div>
     </div>
-
-    <div class="row">
-        <div class="col">
-            <label for="psw"><b>Password</b></label>
+    <hr style="">
+    <div class="row" style="height: 30px;">
+        <div class=" col-6" style="height: 30px;">
+            <h5>Email</h5>
         </div>
-        <div class="col">
-            <input type="password" placeholder="Enter Password" name="psw" @bind="Account.Password" required>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col">
-            <label for="psw-repeat"><b>Repeat Password</b></label>
-        </div>
-        <div class="col">
-            <input type="password" placeholder="Repeat Password" name="psw-repeat" @bind="repeatPass" required>
+        <div class="  col-6">
+            <input type="text" placeholder="Enter Email" name="email" @bind="Account.Email" required><br /><br />
         </div>
     </div>
-
-    <div class="row">
-        <div class="col">
-            <label for="txt"><b>Work Place</b></label>
+    <hr style="">
+    <div class="row" style="height: 30px;">
+        <div class=" col-6" style="height: 30px;">
+            <h5>Password</h5>
         </div>
-        <div class="col">
-            <input type="text" placeholder="Work Place" name="work" @bind="Account.Workplace" required>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col">
-            <label for="txt"><b>Position title</b></label>
-        </div>
-        <div class="col">
-            <input type="text" placeholder="Position title" name="group" @bind="Account.PositionTitle" required>
+        <div class="  col-6">
+            <input type="password" placeholder="Enter Password" name="psw" @bind="Account.Password" required><br /><br />
         </div>
     </div>
-
-    <div class="row">
-        <div class="col">
-            <label for="no"><b>country</b></label>
+    <hr style="">
+    <div class="row" style="height: 30px;">
+        <div class=" col-6" style="height: 30px;">
+            <h5>Repeat Password</h5>
         </div>
-        <div class="col">
-            <input type="text" placeholder="Contact no." name="co-no" @bind="Account.Country" required>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col">
-            <label for="no"><b>Contact no.</b></label>
-        </div>
-        <div class="col">
-            <input type="number" placeholder="Contact no." name="co-no" @bind="Account.ContactNumber" required>
+        <div class="  col-6">
+            <input type="password" placeholder="Repeat Password" name="psw-repeat" @bind="repeatPass" required><br /><br />
         </div>
     </div>
-
-    <div class="row">
-        <div class="col">
-            <p><button @onclick="@SaveItem">Register</button></p>
+    <hr style="">
+    <div class="row" style="height: 30px;">
+        <div class=" col-6" style="height: 30px;">
+            <h5>Workplace</h5>
         </div>
-        <div class="col">
-            <p><button @onclick="Back">Back</button></p>
+        <div class="  col-6">
+            <input type="text" placeholder="Work Place" name="work" @bind="Account.Workplace" required><br /><br />
         </div>
     </div>
+    <hr style="">
+    <div class="row" style="height: 30px;">
+        <div class=" col-6" style="height: 30px;">
+            <h5>Position title</h5>
+        </div>
+        <div class="  col-6">
+            <input type="text" placeholder="Position title" name="group" @bind="Account.PositionTitle" required><br /><br />
+        </div>
+    </div>
+    <hr style="">
+    <div class="row" style="height: 30px;">
+        <div class=" col-6" style="height: 30px;">
+            <h5>Country</h5>
+        </div>
+        <div class="  col-6">
+            <input type="text" placeholder="Contact no." name="co-no" @bind="Account.Country" required><br /><br />
+        </div>
+    </div>
+    <hr style="">
+    <div class="row" style="height: 30px;">
+        <div class=" col-6" style="height: 30px;">
+            <h5>ContactNumber</h5>
+        </div>
+        <div class="  col-6">
+            <input type="number" placeholder="Contact no." name="co-no" @bind="Account.ContactNumber" required><br /><br />
+        </div>
+    </div>
+    <hr style="">
+    <div class="row" style="height: 30px;">
+        <div class=" col-6" style="height: 30px;">
+            <button type="button" @onclick="@SaveItem" class="btn btn-primary" style="display: inline-block; width: 15rem;">Sign In</button>
+        </div>
+        <div class="  col-6">
+            <button type="button" @onclick="Back" class="btn btn-primary" style="width: 15rem;">Back</button>
+        </div>
+    </div>
+    <hr style="">
+    <div class="row" style="height: 30px;">
+        <div class=" col-6" style="height: 30px;">
+            <h4>Already hyped? Sign in!<br></h4>
+        </div>
+        <div class=" col-6" style="height: 30px;">
+            <button @onclick="Login" class="btn btn-primary" style="text-decoration-color: rgb(255, 128, 0); background-color: rgb(255, 128, 0); width: 15rem;">SIGN IN!</button>
+        </div>
+    </div>
+</div>
 
     @if (inputErr)
     {
@@ -110,10 +117,6 @@
         </div>
     }
 
-    <div class="container signin">
-        <p>Already have an account? <a role="button" @onclick="Login">Sign in</a>.</p><br />
-    </div>
-</div>
 
 
 

@@ -21,6 +21,7 @@ namespace BackEndAPI.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<ActionResult<User>> Create([FromBody]CreateUser request)
         {
             var user = await mediator.Send(request);
@@ -53,6 +54,7 @@ namespace BackEndAPI.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<User>> Get()
         {
             var users = await mediator.Send(new GetUsers());

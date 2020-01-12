@@ -8,44 +8,48 @@
 @using Microsoft.IdentityModel.Tokens;
 @using System.IdentityModel.Tokens.Jwt;
 @inject Blazored.LocalStorage.ILocalStorageService sessionStorage
-<h1>Sign in</h1>
 
-
-<div class="container">
-    <div class="row">
-        <p>Please fill in this form to sign in into account.</p>
-    </div>
-    <div class="row">
-        <div class="col">
-            <label for="email"><b>Email</b></label>
+<div class="jumbotron" style="width: 100%; height: 100%; position: fixed; display: block; top: 0px; left: 0px; float: none; text-align: center;">
+    <h1 class="display-3">Sign In!<br></h1>
+    <p class="lead">Fill in you account details:<br></p>
+    <hr class="my-4">
+    <div class="row" style="">
+        <div class=" col-6">
+            <h3>Email:</h3>
         </div>
-        <div class="col">
+        <div class="  col-6">
             <input type="text" placeholder="Enter Email" @bind="the_account.Email" name="email" required><br /><br />
         </div>
     </div>
-    <div class="row">
-        <div class="col">
-            <label for="psw"><b>Password</b></label>
+    <hr style="">
+    <div class="row" style="">
+        <div class=" col-6">
+            <h3>Password:<br></h3>
         </div>
-        <div class="col">
+        <div class="  col-6">
             <input type="password" placeholder="Enter Password" @bind="the_account.Password" name="psw" required><br /><br />
         </div>
     </div>
-    <div class="row">
-        <div class="col">
-            <p><button @onclick="@(()=>Sign_in())">Sign in</button></p>
+    <hr style="">
+    <div class="row" style="">
+        <div class=" col-6">
+            <button type="button" @onclick="@(()=>Sign_in())" class="btn btn-primary" style="display: inline-block; width: 15rem;">Sign In</button>
         </div>
-        <div class="col">
-            <p><button @onclick="Back">Back</button></p>
+        <div class="  col-6">
+            <button type="button" @onclick="Back" class="btn btn-primary" style="width: 15rem;">Back</button>
         </div>
     </div>
-
-
-
-    <div class="container signin">
-        <p> Create an account? <a role="button" @onclick="Register">Register</a>.</p><br />
+    <hr style="">
+    <div class="row" style="">
+        <div class=" col-6 ">
+            <h4>Join Hyped today!<br></h4>
+        </div>
+        <div class="  col-6">
+            <button @onclick="Register" type="button" class="btn btn-primary" style="text-decoration-color: rgb(255, 128, 0); background-color: rgb(255, 128, 0); width: 15rem;">JOIN NOW!</button>
+        </div>
     </div>
 </div>
+
 
 
 

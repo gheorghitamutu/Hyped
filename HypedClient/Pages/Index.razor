@@ -10,23 +10,21 @@
         A .NET based Hyper-V machine management system.
     </Authorized>
     <NotAuthorized>
-        <div class="jumbotron">
-            <div class="container h-100">
-                <div class="row h-100 justify-content-center align-items-center">
-                    <h1>Welcome to Hyped!</h1>
-                </div>
-                <div class="row h-100 justify-content-center align-items-center">
-                    <div class="col-4"></div>
-                    <div class="col-2 align-self-center">
-                        <button @onclick="@(()=>NavToLogin())"><span class="oi oi-account-login "></span>Login</button>
+
+            <div class="jumbotron" style="width: 100%; height: 100%; position: fixed; display: block; top: 0px; left: 0px; float: none;">		  
+                <h1 class="display-3" style="text-align: center;">Welcome to Hyped!<br></h1>		  
+                <p class="lead" style="text-align: center;">Your Hyper-V management tool!<br></p>		  
+                <hr class="my-4">		  
+                <p style="text-align: center;">Select one of the following actions:<br></p>		  
+                <p class="lead" style="text-align: center;"><div class="row" style="">
+                    <div class=" col-6">
+                        <button @onclick="@(()=>NavToLogin())" type="button" class="btn btn-primary" style="background-color: rgb(0, 0, 255); width: 35rem;"><span class="oi oi-account-login "></span>Sign In</button>
                     </div>
-                    <div class="col-2 align-self-center">
-                        <button @onclick="@(()=>NavToRegister())"><span class="oi oi-medical-cross"></span>Register</button>
-                    </div>
-                    <div class="col-4"></div>
-                </div>
+                    <div class="  col-6">
+                        <button @onclick="@(()=>NavToRegister())" type="button" class="btn btn-primary" style="background-color: rgb(0, 0, 255); width: 35rem;"><span class="oi oi-medical-cross"></span>Register</button>
+                    </div></div>					  
+                </p>		
             </div>
-        </div>
     </NotAuthorized>
 </AuthorizeView>
 

@@ -137,28 +137,28 @@
     <main role="main" class="container">
         <div class="my-3 p-3 bg-white rounded box-shadow">
             <nav class="navbar navbar-expand-lg navbar-light bg-light" style="">
-                <button type="button" class="btn btn-primary" style="" data-toggle="modal" data-target="#exampleModal" @onclick="@(()=> LastItem())">New Machine</button>		  		  
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">			
-                    <span class="navbar-toggler-icon"></span>		  
-                </button>				  
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">			
-                    <ul class="navbar-nav mr-auto">			  
-                        <li class="nav-item active"></li>			  
-                        <li class="nav-item"></li>			  
-                        <li class="nav-item"></li>			
-                    </ul>			
-                    <form class="form-inline my-2 my-lg-0">			  
-                    <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">			  
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>			
-                        </form>		  
-                </div>		
+                <button type="button" class="btn btn-primary" style="" data-toggle="modal" data-target="#exampleModal" @onclick="@(()=> LastItem())">New Machine</button>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item active"></li>
+                        <li class="nav-item"></li>
+                        <li class="nav-item"></li>
+                    </ul>
+                    <form class="form-inline my-2 my-lg-0">
+                        <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                    </form>
+                </div>
             </nav>
 
             <small class="d-block text-right mt-3">
 
             </small>
             <div class="row" style="text-align: center;">
-                <div class=" col-6">
+                <div class=" col-3">
                     @if (machines == null)
                     {
 
@@ -166,107 +166,131 @@
                     else
                     {
 
-                    <div class="list-group" id="list-tab" role="tablist">
-                        @foreach (var machine in machines)
-                        {
-                            <a class="list-group-item list-group-item-action" role="tab" @onclick="@(() => GetVM(machine))">@machine.Name</a>
-                        }
-                    </div>
+                        <div class="list-group" id="list-tab" role="tablist">
+                            @foreach (var machine in machines)
+                            {
+                                <a class="list-group-item list-group-item-action" role="tab" @onclick="@(() => GetVM(machine))">@machine.Name</a>
+                            }
+                        </div>
                     }
                 </div>
-                <div class="  col-6">
-                    <h4 style="text-align: center;">@_editMachine.Name<br><hr style=""></h4>
-                <div class="btn-group" role="group" aria-label="Basic example" style="">
-                    <button type="button" class="btn btn-secondary">Start</button>
-                    <button type="button" class="btn btn-secondary">Stop</button> 
-                    <button type="button" class="btn btn-secondary">Delete</button>
-                </div>
-                <hr style="">
-                <div class="row" style="text-align: center;">
-                    <div class=" col-4">
-                        <h5>General config:<br></h5>
-                    </div>
-                    <div class="  col-8">
-                        <div class="row" style="text-align: center;">
-                            <div class="col-4">
-                                <h6>RAM:</h6>
-                            </div>
-                            <div class="col-8">
-                                <div class="form-group" style="display: block; float: none; text-align: center;">@_editMachine.RAM</div>
-                            </div>
+                @if (String.IsNullOrEmpty(_editMachine.Name) == false)
+                {
+                    <div class="  col-9">
+                        <h4 style="text-align: center;">@_editMachine.Name<br><hr style=""></h4>
+                        <div class="btn-group" role="group" aria-label="Basic example" style="">
+                            <button type="button" class="btn btn-secondary">Start</button>
+                            <button type="button" class="btn btn-secondary">Stop</button>
+                            <button type="button" class="btn btn-secondary">Delete</button>
                         </div>
                         <hr style="">
-                        <div class="row" style="">
+                        <div class="row" style="text-align: center;">
                             <div class=" col-4">
-                                <h6>Cores:<br></h6>
+                                <h5>General config:<br></h5>
                             </div>
                             <div class="  col-8">
-                                <div class="form-group" style="display: block; float: none; text-align: center;">@_editMachine.Cores</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row" style="text-align: center;">
-                </div><hr style="">
-                <div class="row" style="">
-                    <div class=" col-4">
-                        <h5>Network:</h5>
-                    </div>
-                    <div class="  col-8">
-                        <div class="row" style="">
-                            <div class=" col-8">
-                                <div class="form-group" style="">
-                                    <label>Join a network</label>
-                                    <select class="form-control">
-                                    <option value="value1">Text 1</option>
-                                    <option value="value2">Text 2</option>
-                                    <option value="value3">Text 3</option>
-                                    </select>
-                                 </div>
-                            </div>
-                            <div class="  col-4">
-                            </div>
-                        </div>
-                    <div class="row" style="">
-                        <div class=" col-4">
-                        </div>
-                        <div class="  col-8">
-                        </div>
-                    </div>
-                    </div>
-                </div>
-                <hr style="">
-                <div class="row" style="">
-                    <div class=" col-4">
-                        <h5>Virtual HD:<br></h5>
-                    </div>
-                    <div class="  col-8">
-                    </div>
-                </div>
-                <hr style="">
-                <div class="row" style="text-align: center;">
-                    <div class=" col-4">
-                        <h5>Image file:<br></h5>
-                    </div>
-                    <div class="  col-8">
-                        <div class="row" style="">
-                            <div class=" col-8">
-                                <div class="form-group" style="">
-                                    <label>Select an installation image</label>
-                                    <select class="form-control">
-                                        <option value="value1">Text 1</option>
-                                        <option value="value2">Text 2</option>
-                                        <option value="value3">Text 3</option>
-                                        </select>
+                                <div class="row" style="text-align: center;">
+                                    <div class="col-4">
+                                        <h6>RAM:</h6>
+                                    </div>
+                                    <div class="col-8">
+                                        <div class="form-group" style="display: block; float: none; text-align: center;">@_editMachine.RAM</div>
+                                    </div>
+                                </div>
+                                <hr style="">
+                                <div class="row" style="">
+                                    <div class=" col-4">
+                                        <h6>Cores:<br></h6>
+                                    </div>
+                                    <div class="  col-8">
+                                        <div class="form-group" style="display: block; float: none; text-align: center;">@_editMachine.Cores</div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="  col-4">
+                        </div>
+                        <div class="row" style="text-align: center;">
+                        </div><hr style="">
+                        <div class="row" style="">
+                            <div class=" col-4">
+                                <h5>Network:</h5>
                             </div>
+                            <div class="  col-8">
+                                <div class="row" style="">
+                                    <div class=" col-8">
+                                        <div class="form-group" style="">
+                                            <label>These are all the networks of the machine:</label>
+                                            @if (_editMachine.Networks == null)
+                                            {
+
+                                            }
+                                            else
+                                            {
+
+                                                <select class="form-control">
+                                                    @foreach (var network in _editMachine.Networks)
+                                                    {
+                                                        Log.Information($"{_editMachine.Networks}");
+                                                        Log.Information($"{_editMachine.Name}");
+                                                        Log.Information($"{network}");
+                                                        Log.Information($"{network.Name}");
+                                                        Log.Information($"{network.Notes}");
+                                                        <a class="list-group-item list-group-item-action" role="tab" @onclick="@(() => GetNetwork(network))">@network.Name</a>
+                                                    }
+                                                </select>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="  col-4">
+                                        <div class="my-3 p-3 bg-white rounded box-shadow">
+                                            <div class="row" style="display: inline-block;">
+                                                <div class=" col-12">
+                                                    <h5>Info about network<br></h5>
+                                                </div>
+                                                <div class="  col-12">
+                                                    <div>@_editNetwork.Name</div>
+                                                </div>
+                                                <div class=" col-12">
+                                                    <div>@_editNetwork.Notes</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr style="">
+                            <div class="row" style="">
+                                <div class=" col-4">
+                                    <h5>Virtual HD:<br></h5>
+                                </div>
+                                <div class="  col-8">
+                                </div>
+                            </div>
+                            <hr style="">
+                            <div class="row" style="text-align: center;">
+                                <div class=" col-4">
+                                    <h5>Image file:<br></h5>
+                                </div>
+                                <div class="  col-8">
+                                    <div class="row" style="">
+                                        <div class=" col-8">
+                                            <div class="form-group" style="">
+                                                <label>Select an installation image</label>
+                                                <select class="form-control">
+                                                    <option value="value1"></option>
+                                                    <option value="value2">Text 2</option>
+                                                    <option value="value3">Text 3</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="  col-4">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr style="">
                         </div>
                     </div>
-                </div>
-                <hr style="">
-                </div>
+                 }
             </div>
         </div>
     </main>
@@ -278,24 +302,45 @@
 
     // TO BE MODIFIED, aici am testat cu back-end-ul rulat pe alt PC din retea
     private string apiUrl = "https://localhost:44386/api/vms";
+    private string apiUrlNet = "https://localhost:44386/api/network";
     private string name = "";
 
     [CascadingParameter]
     private Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
+    // machine related properties
     private MachineDetails _editMachine = new MachineDetails();
 
     private MachineDetails _addMachine = new MachineDetails();
 
     private MachineDetails[] machines;
+    // network related properties
+    private Networks _editNetwork = new Networks();
+
+    private Networks _addNetwork = new Networks();
+
+    private Networks[] networks;
 
     protected override async Task OnInitializedAsync() => await GetMachines();
 
+
+    private void GetNetwork(Networks net)
+    {
+        _editNetwork = net;
+    }
 
     private void GetVM(MachineDetails vm)
     {
         _editMachine = vm;
     }
+
+    /*private async Task GetNetworks()
+    {
+        var name = await sessionStorage.GetItemAsync<string>("token");
+        Http.DefaultRequestHeaders.Remove("Authorization");
+        Http.DefaultRequestHeaders.Add("Authorization", "Bearer " + name);
+        machines = await Http.GetJsonAsync<MachineDetails[]>(apiUrlNet + "/" + _editMachine);
+    }*/
 
     private async Task GetMachines()
     {
@@ -386,8 +431,8 @@
                 LastSave = Convert.ToString(date),
                 UserId = Guid.Parse(name),
                 Networks = null,
-                RAM = 1024,
-                Cores = 1,
+                RAM = 0,
+                Cores = 0,
                 SCs = null
             };
         }
@@ -406,8 +451,8 @@
                     LastSave = Convert.ToString(date),
                     UserId = Guid.Parse(name),
                     Networks = null,
-                    RAM = 1024,
-                    Cores = 1,
+                    RAM = 0,
+                    Cores = 0,
                     SCs = null
                 };
             }
@@ -428,8 +473,6 @@
         Http.DefaultRequestHeaders.Add("Authorization", "Bearer " + name);
         await Http.PutJsonAsync<MachineDetails>(apiUrl, _editMachine);
         await GetMachines();
-        NavigationManager.NavigateTo("/machine");
-
     }
 
     private async Task AddItem()
@@ -448,7 +491,7 @@
         public string Name { get; set; }
         public string Configuration { get; set; }
         public string LastSave { get; set; }
-        public ICollection<Networks> Networks { get; set; }
+        public List<Networks> Networks { get; set; }
         public int RAM { get; set; }
         public int Cores { get; set; }
         public virtual ICollection<SC> SCs { get; set; }
