@@ -18,7 +18,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Ce faceti ma title</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Add new machine</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -211,86 +211,94 @@
                         </div>
                         <div class="row" style="text-align: center;">
                         </div><hr style="">
-                        <div class="row" style="">
-                            <div class=" col-4">
-                                <h5>Network:</h5>
-                            </div>
-                            <div class="  col-8">
-                                <div class="row" style="">
-                                    <div class=" col-8">
-                                        <div class="form-group" style="">
-                                            <label>These are all the networks of the machine:</label>
-                                            @if (_editMachine.Networks == null)
-                                            {
+                              <div class="row" style="">
+                                  <div class=" col-4">
+                                      <h5>Network:</h5>
+                                  </div>
+                                  <div class="  col-8">
+                                      <div class="row" style="">
+                                          <div class=" col-8">
+                                              <div class="form-group" style="">
+                                                  <label>These are all the networks of the machine:</label>
+                                                  @if (_editMachine.Networks == null)
+                                                  {
 
-                                            }
-                                            else
-                                            {
+                                                  }
+                                                  else
+                                                  {
 
-                                                <select class="form-control">
-                                                    @foreach (var network in _editMachine.Networks)
-                                                    {
-                                                        Log.Information($"{_editMachine.Networks}");
-                                                        Log.Information($"{_editMachine.Networks.Count}");
-                                                        Log.Information($"{_editMachine.Name}");
-                                                        Log.Information($"{network}");
-                                                        Log.Information($"{network.Name}");
-                                                        Log.Information($"{network.Notes}");
-                                                        <a class="list-group-item list-group-item-action" role="tab" @onclick="@(() => GetNetwork(network))">@network.Name</a>
-                                                    }
-                                                </select>
-                                            }
-                                        </div>
-                                    </div>
-                                    <div class="  col-4">
-                                        <div class="my-3 p-3 bg-white rounded box-shadow">
-                                            <div class="row" style="display: inline-block;">
-                                                <div class=" col-12">
-                                                    <h5>Info about network<br></h5>
-                                                </div>
-                                                <div class="  col-12">
-                                                    <div>@_editNetwork.Name</div>
-                                                </div>
-                                                <div class=" col-12">
-                                                    <div>@_editNetwork.Notes</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <hr style="">
-                            <div class="row" style="">
-                                <div class=" col-4">
-                                    <h5>Virtual HD:<br></h5>
-                                </div>
-                                <div class="  col-8">
-                                </div>
-                            </div>
-                            <hr style="">
-                            <div class="row" style="text-align: center;">
-                                <div class=" col-4">
-                                    <h5>Image file:<br></h5>
-                                </div>
-                                <div class="  col-8">
-                                    <div class="row" style="">
-                                        <div class=" col-8">
-                                            <div class="form-group" style="">
-                                                <label>Select an installation image</label>
-                                                <select class="form-control">
-                                                    <option value="value1"></option>
-                                                    <option value="value2">Text 2</option>
-                                                    <option value="value3">Text 3</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="  col-4">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <hr style="">
-                        </div>
+                                                      <select class="form-control">
+                                                          @foreach (var network in _editMachine.Networks)
+                                                          {
+                                                              //Log.Information($"{_editMachine.Networks}");
+                                                              //Log.Information($"{_editMachine.Networks.Count}");
+                                                              //Log.Information($"{_editMachine.Name}");
+                                                              //Log.Information($"{network}");
+                                                              //Log.Information($"{network.Name}");
+                                                              //Log.Information($"{network.Notes}");
+                                                              <option class="list-group-item list-group-item-action" value="value1" @onclick="@(() => GetNetwork(network))"><a>@network.Name</a></option>
+                                                          }
+                                                      </select>
+                                                  }
+                                              </div>
+                                          </div>
+                                          <div class="  col-4">
+                                              <div class="my-3 p-3 bg-white rounded box-shadow">
+                                                  <div class="row" style="display: inline-block;">
+                                                      <div class=" col-12">
+                                                          <h5>Info about network<br></h5>
+                                                      </div>
+                                                      <div class="  col-12">
+                                                          <div>@_editNetwork.Name</div>
+                                                      </div>
+                                                      <div class=" col-12">
+                                                          <div>@_editNetwork.Notes</div>
+                                                      </div>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <hr style="">
+                                  <div class="row" style="">
+                                      <div class=" col-4">
+                                          
+                                      </div>
+                                      <div class="  col-8">
+                                      </div>
+                                  </div>
+                                  <hr style="">
+                                  <div class="row" style="">
+                                      <div class=" col-4">
+                                          <h5>Virtual HD:<br></h5>
+                                      </div>
+                                      <div class="  col-8">
+                                      </div>
+                                  </div>
+                                  <hr style="">
+                                  <div class="row" style="text-align: center;">
+                                      <div class=" col-4">
+                                          <h5>Image file:<br></h5>
+                                      </div>
+                                      <div class="  col-8">
+                                          <div class="row" style="">
+                                              <div class=" col-8">
+                                                  <div class="form-group" style="">
+                                                      <label>Select an installation image</label>
+                                                      <select class="form-control">
+                                                          <option value="value1"></option>
+                                                          <option value="value2">Text 2</option>
+                                                          <option value="value3">Text 3</option>
+                                                      </select>
+                                                  </div>
+                                              </div>
+                                              <div class="  col-4">
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <hr style="">
+                              </div>
                     </div>
                 }
             </div>
@@ -429,14 +437,14 @@
         }
 
         claims.AddRange(keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString())));
-        Log.Information($"{claims}");
+        //Log.Information($"{claims}");
         foreach (Claim claim in claims)
         {
-            Log.Information($"{claim.Type} and {claim.Value}");
+            //Log.Information($"{claim.Type} and {claim.Value}");
             name = claim.Value;
             break;
         }
-        Log.Information($"{name}");
+        //Log.Information($"{name}");
 
     }
 
@@ -476,8 +484,8 @@
         {
             try
             {
-                Log.Information($"{lastItem.VMId}");
-                Log.Information($"{lastItem.Name}");
+                //Log.Information($"{lastItem.VMId}");
+                //Log.Information($"{lastItem.Name}");
                 _addMachine = new MachineDetails
                 {
                     VMId = lastItem.VMId,
