@@ -520,7 +520,7 @@ namespace ViridianTester
 
         ~ViridianUtils()
         {
-            Dispose(false);
+            //Dispose(false);
         }
 
         #endregion

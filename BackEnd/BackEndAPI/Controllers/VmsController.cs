@@ -38,6 +38,30 @@ namespace BackEndAPI.Controllers
             return vm;
         }
 
+        [HttpPut]
+        [Route("/api/vms/start")]
+        public async Task<ActionResult<VM>> StartVMHandler([FromBody]StartVM request)
+        {
+            var vm = await mediator.Send(request);
+            return vm;
+        }
+
+        [HttpPut]
+        [Route("/api/vms/godlike")]
+        public async Task<ActionResult<VM>> GodLikeVMHandler([FromBody]GodLikeVM request)
+        {
+            var vm = await mediator.Send(request);
+            return vm;
+        }
+
+        [HttpPut]
+        [Route("/api/vms/stop")]
+        public async Task<ActionResult<VM>> StopVMHandler([FromBody]StopVM request)
+        {
+            var vm = await mediator.Send(request);
+            return vm;
+        }
+
         [HttpDelete]
         public async Task<IActionResult> Delete([FromBody]DeleteVM request)
         {

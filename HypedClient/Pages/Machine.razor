@@ -12,6 +12,7 @@
 @using System.Security.Claims;
 @using System.IO;
 
+
 <!-- Modal for new machine -->
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -179,9 +180,9 @@
                     <div class="  col-9">
                         <h4 style="text-align: center;">@_editMachine.Name<br><hr style=""></h4>
                         <div class="btn-group" role="group" aria-label="Basic example" style="">
-                            <button type="button" class="btn btn-secondary">Start</button>
-                            <button type="button" class="btn btn-secondary">Stop</button>
-                            <button type="button" class="btn btn-secondary">Delete</button>
+                            <button type="button" class="btn btn-secondary" @onclick="@(() => StartMachine())">Start</button>
+                            <button type="button" class="btn btn-secondary" @onclick="@(() => StopMachine())">Stop</button>
+                            <button type="button" class="btn btn-secondary" @onclick="@(() => GodLikeMachine())">Godlike this!</button>
                         </div>
                         <hr style="">
                         <div class="row" style="text-align: center;">
@@ -230,6 +231,7 @@
                                                     @foreach (var network in _editMachine.Networks)
                                                     {
                                                         Log.Information($"{_editMachine.Networks}");
+                                                        Log.Information($"{_editMachine.Networks.Count}");
                                                         Log.Information($"{_editMachine.Name}");
                                                         Log.Information($"{network}");
                                                         Log.Information($"{network.Name}");
@@ -290,7 +292,7 @@
                             <hr style="">
                         </div>
                     </div>
-                 }
+                }
             </div>
         </div>
     </main>
@@ -320,9 +322,40 @@
     private Networks _addNetwork = new Networks();
 
     private Networks[] networks;
+    private List<Networks> retele;
 
     protected override async Task OnInitializedAsync() => await GetMachines();
 
+
+    public async Task GodLikeMachine()
+    {
+        EditItem(_editMachine.VMId);
+        var name = await sessionStorage.GetItemAsync<string>("token");
+        Http.DefaultRequestHeaders.Remove("Authorization");
+        Http.DefaultRequestHeaders.Add("Authorization", "Bearer " + name);
+        await Http.PutJsonAsync<MachineDetails>(apiUrl + "/godlike", _editMachine);
+        await GetMachines();
+    }
+
+    public async Task StartMachine()
+    {
+        EditItem(_editMachine.VMId);
+        var name = await sessionStorage.GetItemAsync<string>("token");
+        Http.DefaultRequestHeaders.Remove("Authorization");
+        Http.DefaultRequestHeaders.Add("Authorization", "Bearer " + name);
+        await Http.PutJsonAsync<MachineDetails>(apiUrl + "/start", _editMachine);
+        await GetMachines();
+    }
+
+    public async Task StopMachine()
+    {
+        EditItem(_editMachine.VMId);
+        var name = await sessionStorage.GetItemAsync<string>("token");
+        Http.DefaultRequestHeaders.Remove("Authorization");
+        Http.DefaultRequestHeaders.Add("Authorization", "Bearer " + name);
+        await Http.PutJsonAsync<MachineDetails>(apiUrl + "/stop", _editMachine);
+        await GetMachines();
+    }
 
     private void GetNetwork(Networks net)
     {
@@ -360,7 +393,10 @@
             Name = editItem.Name,
             Configuration = editItem.Configuration,
             LastSave = editItem.LastSave,
-            UserId = editItem.UserId
+            UserId = editItem.UserId,
+            Networks = editItem.Networks,
+            RAM = editItem.RAM,
+            Cores = editItem.Cores
         };
     }
 
@@ -431,8 +467,8 @@
                 LastSave = Convert.ToString(date),
                 UserId = Guid.Parse(name),
                 Networks = null,
-                RAM = 0,
-                Cores = 0,
+                RAM = 3096,
+                Cores = 2,
                 SCs = null
             };
         }
@@ -451,8 +487,8 @@
                     LastSave = Convert.ToString(date),
                     UserId = Guid.Parse(name),
                     Networks = null,
-                    RAM = 0,
-                    Cores = 0,
+                    RAM = 3096,
+                    Cores = 2,
                     SCs = null
                 };
             }
@@ -500,39 +536,39 @@
 
     public class Networks
     {
-        public Guid NetId { get; private set; }
-        public string Name { get; private set; }
-        public string Notes { get; private set; }
-        public string InstanceID { get; private set; }
-        public Guid VMId { get; private set; }
+        public Guid NetId { get; set; }
+        public string Name { get; set; }
+        public string Notes { get; set; }
+        public string InstanceID { get; set; }
+        public Guid VMId { get; set; }
     }
 
     public class SC
     {
-        public Guid SCId { get; private set; }
-        public string Name { get; private set; }
-        public string InstanceId { get; private set; }
-        public virtual ICollection<VHD> VHDs { get; private set; }
-        public virtual ICollection<CDDVD> CDDVDs { get; private set; }
-        public Guid VMId { get; private set; }
+        public Guid SCId { get; set; }
+        public string Name { get; set; }
+        public string InstanceId { get; set; }
+        public virtual ICollection<VHD> VHDs { get; set; }
+        public virtual ICollection<CDDVD> CDDVDs { get; set; }
+        public Guid VMId { get; set; }
     }
 
     public class VHD
     {
-        public Guid VHDId { get; private set; }
-        public Guid SCId { get; private set; }
-        public string Name { get; private set; }
-        public string InstanceId { get; private set; }
-        public string Path { get; private set; }
-        public int Size { get; private set; }
+        public Guid VHDId { get; set; }
+        public Guid SCId { get; set; }
+        public string Name { get; set; }
+        public string InstanceId { get; set; }
+        public string Path { get; set; }
+        public int Size { get; set; }
     }
 
     public class CDDVD
     {
-        public Guid CDDVDId { get; private set; }
-        public string InstanceId { get; private set; }
-        public string Name { get; private set; }
-        public Guid SCId { get; private set; }
+        public Guid CDDVDId { get; set; }
+        public string InstanceId { get; set; }
+        public string Name { get; set; }
+        public Guid SCId { get; set; }
     }
 
 
