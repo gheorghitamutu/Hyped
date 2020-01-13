@@ -35,12 +35,10 @@ namespace BackEndAPI.Business.VMHandlers
                 throw new Exception("Requested virtual machine doesn't exist");
             }
 
-
-
             //var vhdxName = $"{AppDomain.CurrentDomain.BaseDirectory}\\{ViridianUtils.GetCurrentMethod()}.vhdx";
-            var vhdxName = $"H:\\godlike\\godlike.vhdx";
+            var vhdxName = $"C:\\godlike\\godlike.vhdx";
             //var isoName = $"{AppDomain.CurrentDomain.BaseDirectory}\\{ViridianUtils.GetCurrentMethod()}.iso";
-            var isoName = $"H:\\godlike\\winpeamd64.iso";
+            var isoName = $"C:\\godlike\\winpeamd64.iso";
 
             using (var viridianUtils = new ViridianUtils())
             {
@@ -59,6 +57,7 @@ namespace BackEndAPI.Business.VMHandlers
                         var AffectedConfiguration = virtualSystemSettingData.Path;
                         var ResourceSettings = new string[] { resourceAllocationSettingDataSCSIController.LateBoundObject.GetText(TextFormat.WmiDtd20) };
                         var ReturnValue = viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out ManagementPath Job, out ManagementPath[] ResultingResourceSettings);
+                        ViridianUtils.WaitForConcreteJobToEnd(Job);
 
                         using (var scsiController = ViridianUtils.GetResourceAllocationgSettingData(virtualSystemSettingData, 6, "Microsoft:Hyper-V:Synthetic SCSI Controller").First())
                         {
@@ -71,13 +70,10 @@ namespace BackEndAPI.Business.VMHandlers
 
                                 ResourceSettings = new string[] { resourceAllocationSettingDataDVDDrive.LateBoundObject.GetText(TextFormat.WmiDtd20) };
                             }
-                            try { 
+
                             ReturnValue = viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
-                            }
-                            catch(Exception e)
-                            {
-                                Console.WriteLine(e.Message);
-                            }
+                            ViridianUtils.WaitForConcreteJobToEnd(Job);
+
                             using (var synthethicDVD = ViridianUtils.GetResourceAllocationgSettingData(virtualSystemSettingData, 16, "Microsoft:Hyper-V:Synthetic DVD Drive").First())
                             using (var primordialResourcePoolVirtualCDDVD = ViridianUtils.GetPrimordialResourcePool("Microsoft:Hyper-V:Virtual CD/DVD Disk"))
                             using (var allocationCapabilitiesVirtualCDDVD = ViridianUtils.GetAllocationCapabilities(primordialResourcePoolVirtualCDDVD))
@@ -89,7 +85,9 @@ namespace BackEndAPI.Business.VMHandlers
 
                                 ResourceSettings = new string[] { resourceAllocationSettingVirtualCDDVD.LateBoundObject.GetText(TextFormat.WmiDtd20) };
                             }
+
                             ReturnValue = viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
+                            ViridianUtils.WaitForConcreteJobToEnd(Job);
 
                             using (var primordialResourcePoolDiskDrive = ViridianUtils.GetPrimordialResourcePool("Microsoft:Hyper-V:Synthetic Disk Drive"))
                             using (var allocationCapabilitiesDiskDrive = ViridianUtils.GetAllocationCapabilities(primordialResourcePoolDiskDrive))
@@ -102,6 +100,7 @@ namespace BackEndAPI.Business.VMHandlers
                             }
                         }
                         ReturnValue = viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
+                        ViridianUtils.WaitForConcreteJobToEnd(Job);
 
                         using (var synthethicDiskDrive = ViridianUtils.GetResourceAllocationgSettingData(virtualSystemSettingData, 17, "Microsoft:Hyper-V:Synthetic Disk Drive").First())
                         using (var primordialResourcePoolVirtualHardDisk = ViridianUtils.GetPrimordialResourcePool("Microsoft:Hyper-V:Virtual Hard Disk"))
@@ -130,6 +129,7 @@ namespace BackEndAPI.Business.VMHandlers
                             ResourceSettings = new string[] { resourceAllocationSettingVirtualHardDisk.LateBoundObject.GetText(TextFormat.WmiDtd20) };
                         }
                         ReturnValue = viridianUtils.VSMS.AddResourceSettings(AffectedConfiguration, ResourceSettings, out Job, out ResultingResourceSettings);
+                        ViridianUtils.WaitForConcreteJobToEnd(Job);
 
                         ReturnValue = computerSystem.RequestStateChange(2, null, out Job);
 
