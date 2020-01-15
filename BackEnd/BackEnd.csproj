@@ -39,8 +39,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\ViridianTester\ViridianTester.csproj" />
-    <ProjectReference Include="..\..\Viridian\Viridian.csproj" />
+    <ProjectReference Include="..\ViridianTester\ViridianTester.csproj" />
+    <ProjectReference Include="..\Viridian\Viridian.csproj" />
   </ItemGroup>
 
 

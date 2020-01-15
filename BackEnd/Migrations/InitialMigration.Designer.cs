@@ -11,7 +11,7 @@ namespace BackEndAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
     [Migration("20200105124844_initial_migration")]
-    partial class initial_migration
+    partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

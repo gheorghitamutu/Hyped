@@ -3,11 +3,16 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace BackEndAPI.Migrations
 {
-    public partial class initial_migration : Migration
+    public partial class InitialMigration : Migration
     {
-        protected override void Up(MigrationBuilder migrationBuilder)
+        protected override void Up(MigrationBuilder MigrationBuilder)
         {
-            migrationBuilder.CreateTable(
+            if (MigrationBuilder is null)
+            {
+                throw new ArgumentNullException($"{nameof(MigrationBuilder)} is null!");
+            }
+
+            MigrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -27,7 +32,7 @@ namespace BackEndAPI.Migrations
                     table.PrimaryKey("PK_Users", x => x.UserId);
                 });
 
-            migrationBuilder.CreateTable(
+            MigrationBuilder.CreateTable(
                 name: "VMs",
                 columns: table => new
                 {
@@ -51,7 +56,7 @@ namespace BackEndAPI.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
+            MigrationBuilder.CreateTable(
                 name: "Networks",
                 columns: table => new
                 {
@@ -72,7 +77,7 @@ namespace BackEndAPI.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
+            MigrationBuilder.CreateTable(
                 name: "SCs",
                 columns: table => new
                 {
@@ -92,7 +97,7 @@ namespace BackEndAPI.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
+            MigrationBuilder.CreateTable(
                 name: "CDVDs",
                 columns: table => new
                 {
@@ -112,7 +117,7 @@ namespace BackEndAPI.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
+            MigrationBuilder.CreateTable(
                 name: "VHDs",
                 columns: table => new
                 {
@@ -134,27 +139,27 @@ namespace BackEndAPI.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateIndex(
+            MigrationBuilder.CreateIndex(
                 name: "IX_CDVDs_SCId",
                 table: "CDVDs",
                 column: "SCId");
 
-            migrationBuilder.CreateIndex(
+            MigrationBuilder.CreateIndex(
                 name: "IX_Networks_VMId",
                 table: "Networks",
                 column: "VMId");
 
-            migrationBuilder.CreateIndex(
+            MigrationBuilder.CreateIndex(
                 name: "IX_SCs_VMId",
                 table: "SCs",
                 column: "VMId");
 
-            migrationBuilder.CreateIndex(
+            MigrationBuilder.CreateIndex(
                 name: "IX_VHDs_SCId",
                 table: "VHDs",
                 column: "SCId");
 
-            migrationBuilder.CreateIndex(
+            MigrationBuilder.CreateIndex(
                 name: "IX_VMs_UserId",
                 table: "VMs",
                 column: "UserId");
