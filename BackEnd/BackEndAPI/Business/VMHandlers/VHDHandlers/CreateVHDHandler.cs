@@ -8,7 +8,6 @@ using System.Globalization;
 using System.Linq;
 using System.Management;
 using System.Threading;
-using System.IO;
 using System.Threading.Tasks;
 using Viridian.Root.Microsoft.Windows.Storage.MSFT;
 using Viridian.Root.Virtualization.v2.Msvm.Storage;

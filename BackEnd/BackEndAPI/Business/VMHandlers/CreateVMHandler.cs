@@ -25,7 +25,9 @@ namespace BackEndAPI.Business.VMHandlers
         }
 
         public async Task<VM> Handle(CreateVM request, CancellationToken cancellationToken)
-        {//creeaza o masina virtuala folosind request.Cores,request.RAM si request.Name
+        {
+            // TODO: change everything here
+            //creeaza o masina virtuala folosind request.Cores,request.RAM si request.Name
             var user = await context.Users.SingleOrDefaultAsync(u => u.UserId == request.UserId);//get the user that requested this virtual machine
             if (user == null)
             {
@@ -115,7 +117,7 @@ namespace BackEndAPI.Business.VMHandlers
 
            
             //create configuration file
-            var configuration_file = JsonConvert.SerializeObject(SummaryInformation);//convert the virtual machine informations to json
+            var configuration_file = JsonConvert.SerializeObject(SummaryInformation?.ToString());//convert the virtual machine informations to json
             string this_configuration_filename = System.IO.Path.Combine(this_vm_directory, "configuration.json");
             System.IO.File.WriteAllText(this_configuration_filename, configuration_file);
 

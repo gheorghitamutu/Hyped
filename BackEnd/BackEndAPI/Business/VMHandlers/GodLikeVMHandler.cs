@@ -2,7 +2,6 @@
 using BackEndAPI.DTOs.VMDTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
 using System.Globalization;

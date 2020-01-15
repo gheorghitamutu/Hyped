@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using Microsoft.IdentityModel.Tokens;
 
 namespace BackEndAPI.DTOs.UserDTOs
 {

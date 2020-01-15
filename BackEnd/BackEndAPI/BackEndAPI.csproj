@@ -12,23 +12,28 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="JWT" Version="5.3.1" />
-    <PackageReference Include="MediatR" Version="7.0.0" />
-    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="JWT" Version="6.0.0-beta3" />
+    <PackageReference Include="MediatR" Version="8.0.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNet.SignalR.Core" Version="2.4.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.0">
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.0">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.OpenApi" Version="1.1.4" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc4" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0" />
+    <PackageReference Include="System.Collections" Version="4.3.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
     <PackageReference Include="System.Management" Version="4.7.0" />
   </ItemGroup>

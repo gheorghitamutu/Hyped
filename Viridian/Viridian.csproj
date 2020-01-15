@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Event\WMI\EventWatcherFactory.cs" />
+    <Compile Include="Extern\Operation.cs" />
     <Compile Include="Job\Validator.cs" />
     <Compile Include="Root\Microsoft\Windows\System\SystemBase.cs" />
     <Compile Include="Root\Virtualization\v2\Msvm\Integration\CopyFileToGuestJob.cs" />

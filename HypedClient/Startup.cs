@@ -2,9 +2,7 @@ using Microsoft.AspNetCore.Components.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using HypedClient.Auth;
 using Microsoft.AspNetCore.Components.Authorization;
-using Blazored.SessionStorage;
 using Blazored.LocalStorage;
-using System.IdentityModel.Tokens.Jwt;
 using Blazored.Modal;
 
 namespace HypedClient
