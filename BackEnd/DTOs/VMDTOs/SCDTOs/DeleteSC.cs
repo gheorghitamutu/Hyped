@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using System;
 
-namespace BackEndAPI.DTOs.VMDTOs.SCDTOs
+namespace BackEnd.DTOs.VMDTOs.SCDTOs
 {
     public class DeleteSC:IRequest
     {

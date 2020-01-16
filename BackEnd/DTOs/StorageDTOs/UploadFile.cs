@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using System;
 
-namespace BackEndAPI.DTOs.StorageDTOs
+namespace BackEnd.DTOs.StorageDTOs
 {
     public class UploadFile:IRequest<bool>
     {

@@ -1,5 +1,5 @@
-﻿using BackEndAPI.Data;
-using BackEndAPI.DTOs.VMDTOs.SCDTOs;
+﻿using BackEnd.Data;
+using BackEnd.DTOs.VMDTOs.SCDTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BackEndAPI.Business.VMHandlers.SCHandlers
+namespace BackEnd.Business.VMHandlers.SCHandlers
 {
     public class GetSCHandler:IRequestHandler<GetSCDetail,SC>
     {

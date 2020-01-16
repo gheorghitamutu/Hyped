@@ -1,5 +1,5 @@
-﻿using BackEndAPI.Data;
-using BackEndAPI.DTOs.UserDTOs;
+﻿using BackEnd.Data;
+using BackEnd.DTOs.UserDTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -12,7 +12,7 @@ using Viridian.Root.Virtualization.v2.Msvm.VirtualSystem;
 using Viridian.Root.Virtualization.v2.Msvm.VirtualSystemManagement;
 using ViridianTester;
 
-namespace BackEndAPI.Business.UserHandlers
+namespace BackEnd.Business.UserHandlers
 {
     public class DeleteUserHandler : IRequestHandler<DeleteUser>
     {

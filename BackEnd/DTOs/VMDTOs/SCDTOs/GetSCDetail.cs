@@ -1,8 +1,8 @@
-﻿using BackEndAPI.Data;
+﻿using BackEnd.Data;
 using MediatR;
 using System;
 
-namespace BackEndAPI.DTOs.VMDTOs.SCDTOs
+namespace BackEnd.DTOs.VMDTOs.SCDTOs
 {
     public class GetSCDetail:IRequest<SC>
     {

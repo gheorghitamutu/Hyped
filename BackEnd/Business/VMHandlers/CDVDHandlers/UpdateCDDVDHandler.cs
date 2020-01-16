@@ -1,5 +1,5 @@
-﻿using BackEndAPI.Data;
-using BackEndAPI.DTOs.VMDTOs.CDVDDTOs;
+﻿using BackEnd.Data;
+using BackEnd.DTOs.VMDTOs.CDVDDTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BackEndAPI.Business.VMHandlers.CDVDHandlers
+namespace BackEnd.Business.VMHandlers.CDVDHandlers
 {
     public class UpdateCDDVDHandler : IRequestHandler<UpdateCDVD, CDDVD>
     {

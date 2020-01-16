@@ -1,12 +1,12 @@
-﻿using BackEndAPI.Data;
-using BackEndAPI.DTOs.UserDTOs;
+﻿using BackEnd.Data;
+using BackEnd.DTOs.UserDTOs;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 
-namespace BackEndAPI.Controllers
+namespace BackEnd.Controllers
 {
     [Route("api/users")]
     [ApiController]

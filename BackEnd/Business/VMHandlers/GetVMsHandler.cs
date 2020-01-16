@@ -1,5 +1,5 @@
-﻿using BackEndAPI.Data;
-using BackEndAPI.DTOs.VMDTOs;
+﻿using BackEnd.Data;
+using BackEnd.DTOs.VMDTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BackEndAPI.Business.VMHandlers
+namespace BackEnd.Business.VMHandlers
 {
     public class GetVMsHandler: IRequestHandler<GetVMs, List<VM>>
     {

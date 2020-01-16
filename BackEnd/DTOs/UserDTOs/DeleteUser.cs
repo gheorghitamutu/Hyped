@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using System;
 
-namespace BackEndAPI.DTOs.UserDTOs
+namespace BackEnd.DTOs.UserDTOs
 {
     public class DeleteUser:IRequest
     {

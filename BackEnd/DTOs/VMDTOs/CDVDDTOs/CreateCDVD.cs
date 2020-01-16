@@ -1,9 +1,9 @@
-﻿using BackEndAPI.Data;
+﻿using BackEnd.Data;
 using MediatR;
 using System;
 
 
-namespace BackEndAPI.DTOs.VMDTOs
+namespace BackEnd.DTOs.VMDTOs
 {
     public class CreateCDVD:IRequest<CDDVD>
     {

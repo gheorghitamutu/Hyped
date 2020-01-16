@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace BackEndAPI.DTOs.UserDTOs
+namespace BackEnd.DTOs.UserDTOs
 {
     public class ValidateUserLogin:IRequest<string>
     {

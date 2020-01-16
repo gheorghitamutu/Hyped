@@ -1,12 +1,12 @@
-﻿using BackEndAPI.Data;
-using BackEndAPI.DTOs.VMDTOs.VHDDTOs;
+﻿using BackEnd.Data;
+using BackEnd.DTOs.VMDTOs.VHDDTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BackEndAPI.Business.VMHandlers.VHDHandlers
+namespace BackEnd.Business.VMHandlers.VHDHandlers
 {
     public class GetVHDHandler:IRequestHandler<GetVHDDetail,VHD>
     {

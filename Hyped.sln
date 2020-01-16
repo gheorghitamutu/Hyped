@@ -42,6 +42,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Viridian", "Viridian", "{FD
 		Documentation\Viridian\Viridian = Documentation\Viridian\Viridian
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APITester", "APITester\APITester.csproj", "{9E8548A9-3B57-4D2C-AFC2-DB5B1B43F6B0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -64,6 +66,10 @@ Global
 		{678D9448-B56D-40CA-B21B-34B38EF42290}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{678D9448-B56D-40CA-B21B-34B38EF42290}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{678D9448-B56D-40CA-B21B-34B38EF42290}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E8548A9-3B57-4D2C-AFC2-DB5B1B43F6B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E8548A9-3B57-4D2C-AFC2-DB5B1B43F6B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E8548A9-3B57-4D2C-AFC2-DB5B1B43F6B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E8548A9-3B57-4D2C-AFC2-DB5B1B43F6B0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

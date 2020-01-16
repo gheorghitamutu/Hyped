@@ -1,8 +1,8 @@
-﻿using BackEndAPI.Data;
+﻿using BackEnd.Data;
 using MediatR;
 using System.Collections.Generic;
 
-namespace BackEndAPI.DTOs.VMDTOs
+namespace BackEnd.DTOs.VMDTOs
 {
     public class GetVMs:IRequest<List<VM>>
     {

@@ -1,15 +1,15 @@
-﻿using BackEndAPI.Data;
-using BackEndAPI.DTOs.VMDTOs;
-using BackEndAPI.DTOs.VMDTOs.CDVDDTOs;
-using BackEndAPI.DTOs.VMDTOs.NetworkDTOs;
-using BackEndAPI.DTOs.VMDTOs.SCDTOs;
+﻿using BackEnd.Data;
+using BackEnd.DTOs.VMDTOs;
+using BackEnd.DTOs.VMDTOs.CDVDDTOs;
+using BackEnd.DTOs.VMDTOs.NetworkDTOs;
+using BackEnd.DTOs.VMDTOs.SCDTOs;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 
-namespace BackEndAPI.Controllers
+namespace BackEnd.Controllers
 {
     [Route("api/vms")]
     [ApiController]

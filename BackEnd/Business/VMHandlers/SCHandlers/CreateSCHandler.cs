@@ -1,5 +1,5 @@
-﻿using BackEndAPI.Data;
-using BackEndAPI.DTOs.VMDTOs.SCDTOs;
+﻿using BackEnd.Data;
+using BackEnd.DTOs.VMDTOs.SCDTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -12,7 +12,7 @@ using Viridian.Root.Virtualization.v2.Msvm.VirtualSystem;
 using Viridian.Root.Virtualization.v2.Msvm.VirtualSystemManagement;
 using ViridianTester;
 
-namespace BackEndAPI.Business.VMHandlers.SCHandlers
+namespace BackEnd.Business.VMHandlers.SCHandlers
 {
     public class CreateSCHandler:IRequestHandler<CreateSC,SC>
     {

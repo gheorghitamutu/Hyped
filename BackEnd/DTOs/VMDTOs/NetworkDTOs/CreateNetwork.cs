@@ -1,8 +1,8 @@
-﻿using BackEndAPI.Data;
+﻿using BackEnd.Data;
 using MediatR;
 using System;
 
-namespace BackEndAPI.DTOs.VMDTOs.NetworkDTOs
+namespace BackEnd.DTOs.VMDTOs.NetworkDTOs
 {
     public class CreateNetwork:IRequest<Network>
     {

@@ -2,7 +2,7 @@
 using System;
 
 
-namespace BackEndAPI.DTOs.VMDTOs.NetworkDTOs
+namespace BackEnd.DTOs.VMDTOs.NetworkDTOs
 {
     public class DeleteNetwork:IRequest
     {

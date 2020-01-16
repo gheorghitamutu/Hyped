@@ -1,5 +1,5 @@
-﻿using BackEndAPI.Data;
-using BackEndAPI.DTOs.VMDTOs;
+﻿using BackEnd.Data;
+using BackEnd.DTOs.VMDTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Viridian.Root.Virtualization.v2.Msvm.VirtualSystem;
 using ViridianTester;
 
-namespace BackEndAPI.Business.VMHandlers
+namespace BackEnd.Business.VMHandlers
 {
     public class StopVMHandler : IRequestHandler<StopVM, VM>
     {

@@ -1,5 +1,5 @@
-﻿using BackEndAPI.Data;
-using BackEndAPI.DTOs.VMDTOs.CDVDDTOs;
+﻿using BackEnd.Data;
+using BackEnd.DTOs.VMDTOs.CDVDDTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -13,7 +13,7 @@ using Viridian.Root.Virtualization.v2.Msvm.VirtualSystem;
 using Viridian.Root.Virtualization.v2.Msvm.VirtualSystemManagement;
 using ViridianTester;
 
-namespace BackEndAPI.Business.VMHandlers.CDVDHandlers
+namespace BackEnd.Business.VMHandlers.CDVDHandlers
 {
     public class DeleteCDDVDHandler : IRequestHandler<DeleteCDVD>
     {

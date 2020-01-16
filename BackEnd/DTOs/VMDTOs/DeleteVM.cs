@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using System;
 
-namespace BackEndAPI.DTOs.VMDTOs
+namespace BackEnd.DTOs.VMDTOs
 {
     public class DeleteVM:IRequest
     {

@@ -1,5 +1,5 @@
-﻿using BackEndAPI.Data;
-using BackEndAPI.DTOs.UserDTOs;
+﻿using BackEnd.Data;
+using BackEnd.DTOs.UserDTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BackEndAPI.Business.UserHandlers
+namespace BackEnd.Business.UserHandlers
 {
     public class ValidateUserLoginHandler:IRequestHandler<ValidateUserLogin,string>
     {

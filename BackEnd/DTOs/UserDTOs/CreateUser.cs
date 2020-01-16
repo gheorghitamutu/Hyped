@@ -1,7 +1,7 @@
-﻿using BackEndAPI.Data;
+﻿using BackEnd.Data;
 using MediatR;
 
-namespace BackEndAPI.DTOs.UserDTOs
+namespace BackEnd.DTOs.UserDTOs
 {
     public class CreateUser:IRequest<User>
     {

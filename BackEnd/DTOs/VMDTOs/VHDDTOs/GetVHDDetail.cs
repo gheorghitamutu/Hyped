@@ -1,8 +1,8 @@
-﻿using BackEndAPI.Data;
+﻿using BackEnd.Data;
 using MediatR;
 using System;
 
-namespace BackEndAPI.DTOs.VMDTOs.VHDDTOs
+namespace BackEnd.DTOs.VMDTOs.VHDDTOs
 {
     public class GetVHDDetail:IRequest<VHD>
     {

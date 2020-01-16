@@ -1,5 +1,5 @@
-﻿using BackEndAPI.Data;
-using BackEndAPI.DTOs.VMDTOs.NetworkDTOs;
+﻿using BackEnd.Data;
+using BackEnd.DTOs.VMDTOs.NetworkDTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -13,7 +13,7 @@ using Viridian.Extern;
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace BackEndAPI.Business.VMHandlers.NetworkHandlers
+namespace BackEnd.Business.VMHandlers.NetworkHandlers
 {
     public class CreateNetworkHandler : IRequestHandler<CreateNetwork, Network>
     {

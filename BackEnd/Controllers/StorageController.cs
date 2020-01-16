@@ -1,10 +1,10 @@
-﻿using BackEndAPI.DTOs.StorageDTOs;
+﻿using BackEnd.DTOs.StorageDTOs;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
-namespace BackEndAPI.Controllers
+namespace BackEnd.Controllers
 {
     [Route("api/upload")]
     [ApiController]

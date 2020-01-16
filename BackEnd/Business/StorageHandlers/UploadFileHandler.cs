@@ -1,5 +1,5 @@
-﻿using BackEndAPI.Data;
-using BackEndAPI.DTOs.StorageDTOs;
+﻿using BackEnd.Data;
+using BackEnd.DTOs.StorageDTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -7,7 +7,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BackEndAPI.Business.StorageHandlers
+namespace BackEnd.Business.StorageHandlers
 {
     public class UploadFileHandler : IRequestHandler<UploadFile,bool>
     {

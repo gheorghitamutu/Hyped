@@ -1,8 +1,8 @@
-﻿using BackEndAPI.Data;
+﻿using BackEnd.Data;
 using MediatR;
 using System;
 
-namespace BackEndAPI.DTOs.UserDTOs
+namespace BackEnd.DTOs.UserDTOs
 {
     public class GetUserDetail:IRequest<User>
     {

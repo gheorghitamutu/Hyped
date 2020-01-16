@@ -1,9 +1,9 @@
-﻿using BackEndAPI.Data;
+﻿using BackEnd.Data;
 using MediatR;
 using System;
 
 
-namespace BackEndAPI.DTOs.VMDTOs.CDVDDTOs
+namespace BackEnd.DTOs.VMDTOs.CDVDDTOs
 {
     public class UpdateCDVD:IRequest<CDDVD>
     {

@@ -1,11 +1,11 @@
-﻿using BackEndAPI.Data;
-using BackEndAPI.DTOs.VMDTOs.NetworkDTOs;
+﻿using BackEnd.Data;
+using BackEnd.DTOs.VMDTOs.NetworkDTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BackEndAPI.Business.VMHandlers.NetworkHandlers
+namespace BackEnd.Business.VMHandlers.NetworkHandlers
 {
     public class GetNetworkHandler : IRequestHandler<GetNetworkDetail, Network>
     {

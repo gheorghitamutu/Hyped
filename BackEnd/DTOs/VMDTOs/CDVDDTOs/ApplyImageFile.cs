@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using System;
 
-namespace BackEndAPI.DTOs.VMDTOs.CDVDDTOs
+namespace BackEnd.DTOs.VMDTOs.CDVDDTOs
 {
     public class ApplyImageFile:IRequest<bool>
     {
