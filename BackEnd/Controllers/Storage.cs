@@ -9,11 +9,11 @@ namespace BackEnd.Controllers
     [Route("api/upload")]
     [ApiController]
     [Authorize]
-    public class StorageController:ControllerBase
+    public class Storage:ControllerBase
     {
         private readonly IMediator mediator;
 
-        public StorageController(IMediator mediator)
+        public Storage(IMediator mediator)
         {
             this.mediator = mediator;
         }

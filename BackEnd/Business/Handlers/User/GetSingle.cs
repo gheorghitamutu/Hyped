@@ -1,24 +1,23 @@
-﻿using BackEnd.Data;
-using BackEnd.DTOs.UserDTOs;
-using MediatR;
+﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BackEnd.Data;
 
-namespace BackEnd.Business.UserHandlers
+namespace BackEnd.Business.Handlers.Users
 {
-    public class GetUserHandler:IRequestHandler<GetUserDetail,User>
+    public class GetSingle:IRequestHandler<DTO.Users.GetSingle, User>
     {
         private readonly DataContext context;
 
-        public GetUserHandler(DataContext context)
+        public GetSingle(DataContext context)
         {
             this.context = context;
         }
 
-        public async Task<User> Handle(GetUserDetail request,CancellationToken cancellationToken)
+        public async Task<User> Handle(DTO.Users.GetSingle request,CancellationToken cancellationToken)
         {
             var user = await context.Users.SingleOrDefaultAsync(u => u.UserId == request.UserId);
             if(user==null)

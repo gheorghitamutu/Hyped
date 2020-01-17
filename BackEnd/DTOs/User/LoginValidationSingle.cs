@@ -1,8 +1,8 @@
 ﻿using MediatR;
 
-namespace BackEnd.DTOs.UserDTOs
+namespace BackEnd.DTO.Users
 {
-    public class ValidateUserLogin:IRequest<string>
+    public class LoginValidationSingle:IRequest<string>
     {
             public string Email { get; set; }
             public string Password { get; set; }

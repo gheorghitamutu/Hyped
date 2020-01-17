@@ -1,5 +1,5 @@
 ﻿using BackEnd.Data;
-using BackEnd.DTOs.UserDTOs;
+using BackEnd.DTO.Users;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -12,18 +12,18 @@ using Viridian.Root.Virtualization.v2.Msvm.VirtualSystem;
 using Viridian.Root.Virtualization.v2.Msvm.VirtualSystemManagement;
 using ViridianTester;
 
-namespace BackEnd.Business.UserHandlers
+namespace BackEnd.Business.Handlers.Users
 {
-    public class DeleteUserHandler : IRequestHandler<DeleteUser>
+    public class DeletionSingle : IRequestHandler<DeleteSingle>
     {
         private readonly DataContext context;
 
-        public DeleteUserHandler(DataContext context)
+        public DeletionSingle(DataContext context)
         {
             this.context = context;
         }
 
-        public async Task<Unit> Handle(DeleteUser request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(DeleteSingle request, CancellationToken cancellationToken)
         {
             var user = context.Users.SingleOrDefault(u => u.UserId == request.UserId);
             if (user == null)

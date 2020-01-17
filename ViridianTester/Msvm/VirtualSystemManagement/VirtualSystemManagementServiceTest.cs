@@ -178,7 +178,7 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
 
             Trace.WriteLine($"Expected SHA256 [{expectedSHA256}] Computed SHA256 [{computedSHA256}]");
 
-            fileHashMatches = (computedSHA256 == expectedSHA256);
+            fileHashMatches = computedSHA256 == expectedSHA256;
 
             if (fileHashMatches == false)
             {
@@ -188,7 +188,7 @@ namespace ViridianTester.Msvm.VirtualSystemManagement
 
                 Trace.WriteLine($"Expected SHA256 [{expectedSHA256}] Computed SHA256 [{computedSHA256}]");
 
-                fileHashMatches = (computedSHA256 == expectedSHA256);
+                fileHashMatches = computedSHA256 == expectedSHA256;
 
                 if (fileHashMatches == false)
                 {

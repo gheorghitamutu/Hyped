@@ -1,9 +1,9 @@
 ﻿using MediatR;
 using System;
 
-namespace BackEnd.DTOs.UserDTOs
+namespace BackEnd.DTO.Users
 {
-    public class DeleteUser:IRequest
+    public class DeleteSingle:IRequest
     {
         public Guid UserId { get; set; }
     }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Management;
-using Viridian.Root.Virtualization.v2.Msvm;
 using Viridian.Root.Virtualization.v2.Msvm.Networking;
 using Viridian.Root.Virtualization.v2.Msvm.ResourceManagement;
 using Viridian.Root.Virtualization.v2.Msvm.VirtualSystem;

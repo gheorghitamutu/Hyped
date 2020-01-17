@@ -2,9 +2,9 @@
 using MediatR;
 using System;
 
-namespace BackEnd.DTOs.UserDTOs
+namespace BackEnd.DTO.Users
 {
-    public class UpdateUser:IRequest<User>
+    public class UpdateSingle:IRequest<User>
     {
         public Guid UserId { get; set; }
         public string FirstName { get; set; }

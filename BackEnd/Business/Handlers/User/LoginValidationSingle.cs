@@ -1,6 +1,4 @@
-﻿using BackEnd.Data;
-using BackEnd.DTOs.UserDTOs;
-using MediatR;
+﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -10,24 +8,25 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BackEnd.Data;
 
-namespace BackEnd.Business.UserHandlers
+namespace BackEnd.Business.Handlers.Users
 {
-    public class ValidateUserLoginHandler:IRequestHandler<ValidateUserLogin,string>
+    public class LoginValidationSingle:IRequestHandler<DTO.Users.LoginValidationSingle, string>
     {
         
             private readonly DataContext context;
             private IConfiguration _config;
 
-            public ValidateUserLoginHandler(DataContext context,IConfiguration config)
+            public LoginValidationSingle(DataContext context,IConfiguration config)
             {
                 this.context = context;
                 _config = config;
             }
 
-            public async Task<string> Handle(ValidateUserLogin request, CancellationToken cancellationToken)
+            public async Task<string> Handle(DTO.Users.LoginValidationSingle request, CancellationToken cancellationToken)
             {
-                var user = await context.Users.SingleOrDefaultAsync(u => (u.Email == request.Email && u.Password == request.Password));
+                var user = await context.Users.SingleOrDefaultAsync(u => u.Email == request.Email && u.Password == request.Password);
                 if (user == null)
                 {
                     throw new Exception("No such user with these email and password!");

@@ -2,11 +2,11 @@
 using MediatR;
 using System;
 
-namespace BackEnd.DTOs.UserDTOs
+namespace BackEnd.DTO.Users
 {
-    public class GetUserDetail:IRequest<User>
+    public class GetSingle:IRequest<User>
     {
-        public GetUserDetail(Guid id)
+        public GetSingle(Guid id)
         {
             UserId = id;
         }

@@ -7,13 +7,13 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BackEnd.Business.StorageHandlers
+namespace BackEnd.Business.Handlers.Storage
 {
-    public class UploadFileHandler : IRequestHandler<UploadFile,bool>
+    public class FileUpload : IRequestHandler<UploadFile,bool>
     {
         private readonly DataContext context;
 
-        public UploadFileHandler(DataContext context)
+        public FileUpload(DataContext context)
         {
             this.context = context;
         }

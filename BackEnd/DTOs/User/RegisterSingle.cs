@@ -1,9 +1,9 @@
 ﻿using BackEnd.Data;
 using MediatR;
 
-namespace BackEnd.DTOs.UserDTOs
+namespace BackEnd.DTO.Users
 {
-    public class CreateUser:IRequest<User>
+    public class RegisterSingle:IRequest<User>
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }

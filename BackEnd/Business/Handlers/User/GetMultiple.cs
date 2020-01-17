@@ -1,5 +1,4 @@
 ﻿using BackEnd.Data;
-using BackEnd.DTOs.UserDTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -7,18 +6,18 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BackEnd.Business.UserHandlers
+namespace BackEnd.Business.Handlers.Users
 {
-    public class GetUsersHandler : IRequestHandler<GetUsers, List<User>>
+    public class GetMultiple : IRequestHandler<DTO.Users.GetMultiple, List<User>>
     {
         private readonly DataContext context;
 
-        public GetUsersHandler(DataContext context)
+        public GetMultiple(DataContext context)
         {
             this.context = context;
         }
 
-        public async Task<List<User>> Handle(GetUsers request,CancellationToken cancellationToken)
+        public async Task<List<User>> Handle(DTO.Users.GetMultiple request,CancellationToken cancellationToken)
         {
             var users = await context?.Users?.ToListAsync();
             var vms = await context?.VMs?.ToListAsync();

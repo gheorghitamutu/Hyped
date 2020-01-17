@@ -2,9 +2,9 @@
 using MediatR;
 using System.Collections.Generic;
 
-namespace BackEnd.DTOs.UserDTOs
+namespace BackEnd.DTO.Users
 {
-    public class GetUsers:IRequest<List<User>>
+    public class GetMultiple:IRequest<List<User>>
     {
     }
 }

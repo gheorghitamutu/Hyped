@@ -14,25 +14,25 @@ namespace BackEnd.Controllers
     [Route("api/vms")]
     [ApiController]
     [Authorize]
-    public class VmsController:ControllerBase
+    public class VM:ControllerBase
     {
         private readonly IMediator mediator;
 
-        public VmsController(IMediator mediator)
+        public VM(IMediator mediator)
         {
             this.mediator = mediator;
         }
 
         //VM
         [HttpPost]
-        public async Task<ActionResult<VM>> Create([FromBody]CreateVM request)
+        public async Task<ActionResult<Data.VM>> Create([FromBody]CreateVM request)
         {
             var vm = await mediator.Send(request);
             return vm;
         }
 
         [HttpPut]
-        public async Task<ActionResult<VM>> Update([FromBody]UpdateVM request)
+        public async Task<ActionResult<Data.VM>> Update([FromBody]UpdateVM request)
         {
             var vm = await mediator.Send(request);
             return vm;
@@ -40,7 +40,7 @@ namespace BackEnd.Controllers
 
         [HttpPut]
         [Route("/api/vms/start")]
-        public async Task<ActionResult<VM>> StartVMHandler([FromBody]StartVM request)
+        public async Task<ActionResult<Data.VM>> StartVMHandler([FromBody]StartVM request)
         {
             var vm = await mediator.Send(request);
             return vm;
@@ -48,7 +48,7 @@ namespace BackEnd.Controllers
 
         [HttpPut]
         [Route("/api/vms/godlike")]
-        public async Task<ActionResult<VM>> GodLikeVMHandler([FromBody]GodLikeVM request)
+        public async Task<ActionResult<Data.VM>> GodLikeVMHandler([FromBody]GodLikeVM request)
         {
             var vm = await mediator.Send(request);
             return vm;
@@ -56,7 +56,7 @@ namespace BackEnd.Controllers
 
         [HttpPut]
         [Route("/api/vms/stop")]
-        public async Task<ActionResult<VM>> StopVMHandler([FromBody]StopVM request)
+        public async Task<ActionResult<Data.VM>> StopVMHandler([FromBody]StopVM request)
         {
             var vm = await mediator.Send(request);
             return vm;
@@ -70,7 +70,7 @@ namespace BackEnd.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<VM>> Get(Guid id)
+        public async Task<ActionResult<Data.VM>> Get(Guid id)
         {
             var vm = await mediator.Send(new GetVMDetail(id));
             if(vm==null)
@@ -81,7 +81,7 @@ namespace BackEnd.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<VM>> Get()
+        public async Task<ActionResult<Data.VM>> Get()
         {
             var vms = await mediator.Send(new GetVMs());
             if(vms==null)
