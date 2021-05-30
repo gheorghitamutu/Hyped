@@ -1,3 +1,8 @@
+# Note
+	The current state of the entire project is unusable.
+	I did not tested the middleware & frontend components.
+	I may clean up the project in the future and keep the backend only (removing any blazor components).
+
 # Hyped
 	.NET Final Project - VM management using Microsoft Hyper-V native hypervisor
 
@@ -36,4 +41,4 @@
 	https://opendev.org/openstack/os-win/src/branch/master/os_win/utils/metrics (API v2 - Python)
 	https://docs.microsoft.com/en-us/dotnet/api/system.management.managementeventwatcher?view=netframework-4.8 (ManagementEventWatcher Class)
 	https://stackoverflow.com/questions/11702737/how-to-consume-wmi-events-in-c-sharp (How to consume WMI Events in C#)
-	https://medium.com/@malcomvetter/c-tradecraft-wmi-process-watcher-6460e976c055 (C# Tradecraft — WMI Process Watcher)
+	https://medium.com/@malcomvetter/c-tradecraft-wmi-process-watcher-6460e976c055 (C# Tradecraft â€” WMI Process Watcher)
