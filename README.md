@@ -1,10 +1,5 @@
-# Note
-	The current state of the entire project is unusable.
-	I did not tested the middleware & frontend components.
-	I may clean up the project in the future and keep the backend only (removing any blazor components).
-
 # Hyped
-	.NET Final Project - VM management using Microsoft Hyper-V native hypervisor
+	VM management using Microsoft Hyper-V native hypervisor
 
 
 ## References
